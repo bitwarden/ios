@@ -21,6 +21,7 @@ struct VaultListProcessorBillingTests {
     let premiumUpgradeHelper: MockPremiumUpgradeHelper
     let searchProcessorMediator: MockSearchProcessorMediator
     let searchProcessorMediatorFactory: MockSearchProcessorMediatorFactory
+    let services: ServiceContainer
     let stateService: MockStateService
     let subject: VaultListProcessor
     let vaultRepository: MockVaultRepository
@@ -43,21 +44,39 @@ struct VaultListProcessorBillingTests {
         searchProcessorMediatorFactory.makeReturnValue = searchProcessorMediator
         stateService = MockStateService()
         vaultRepository = MockVaultRepository()
-        let services = ServiceContainer.withMocks(
+        services = ServiceContainer.withMocks(
             billingRepository: billingRepository,
             billingService: billingService,
             searchProcessorMediatorFactory: searchProcessorMediatorFactory,
             stateService: stateService,
             vaultRepository: vaultRepository,
         )
-        subject = VaultListProcessor(
+        subject = Self.makeSubject(coordinator: coordinator, services: services)
+        subject.premiumUpgradeHelper = premiumUpgradeHelper
+    }
+
+    // MARK: Helpers
+
+    /// Creates a `VaultListProcessor` with its default `PremiumUpgradeHelper`.
+    ///
+    /// - Parameters:
+    ///   - coordinator: The mock coordinator the processor navigates with.
+    ///   - services: The services the processor uses.
+    ///   - state: The processor's initial state.
+    /// - Returns: A `VaultListProcessor` configured with the given dependencies.
+    ///
+    private static func makeSubject(
+        coordinator: MockCoordinator<VaultRoute, AuthAction>,
+        services: ServiceContainer,
+        state: VaultListState = VaultListState(),
+    ) -> VaultListProcessor {
+        VaultListProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             masterPasswordRepromptHelper: MockMasterPasswordRepromptHelper(),
             services: services,
-            state: VaultListState(),
+            state: state,
             vaultItemMoreOptionsHelper: MockVaultItemMoreOptionsHelper(),
         )
-        subject.premiumUpgradeHelper = premiumUpgradeHelper
     }
 
     // MARK: Tests - perform(.appeared) — action cards
@@ -146,6 +165,25 @@ struct VaultListProcessorBillingTests {
         await subject.perform(.appeared)
 
         #expect(!subject.state.shouldShowPremiumUpgradeActionCard)
+    }
+
+    /// `perform(_:)` with `.appeared` shows the Premium upgrade action card only when the account
+    /// doesn't have Premium and nothing else hides the card.
+    @Test(arguments: [
+        (PremiumUpgradeLifecycleState.notPremium, true),
+        (.pending, false),
+        (.premium, false),
+    ])
+    func perform_appeared_premiumUpgradeActionCard_lifecycleState(
+        lifecycleState: PremiumUpgradeLifecycleState,
+        expectedVisible: Bool,
+    ) async {
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        billingService.premiumUpgradeLifecycleStateReturnValue = lifecycleState
+
+        await subject.perform(.appeared)
+
+        #expect(subject.state.shouldShowPremiumUpgradeActionCard == expectedVisible)
     }
 
     /// `perform(_:)` with `.appeared` still shows the upgraded-to-Premium card even when the
@@ -244,21 +282,12 @@ struct VaultListProcessorBillingTests {
         billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
         var state = VaultListState()
         state.shouldShowPremiumUpgradeActionCard = true
-        let services = ServiceContainer.withMocks(
-            billingRepository: billingRepository,
-            billingService: billingService,
-            searchProcessorMediatorFactory: searchProcessorMediatorFactory,
-            stateService: stateService,
-            vaultRepository: vaultRepository,
-        )
-        let realSubject = VaultListProcessor(
-            coordinator: coordinator.asAnyCoordinator(),
-            masterPasswordRepromptHelper: MockMasterPasswordRepromptHelper(),
+        let subjectWithDefaultHelper = Self.makeSubject(
+            coordinator: coordinator,
             services: services,
             state: state,
-            vaultItemMoreOptionsHelper: MockVaultItemMoreOptionsHelper(),
         )
-        realSubject.receive(.upgradeToPremium)
+        subjectWithDefaultHelper.receive(.upgradeToPremium)
 
         statusSubject.send(.pending)
         try await waitForAsync {
@@ -272,7 +301,7 @@ struct VaultListProcessorBillingTests {
         action?.action()
 
         #expect(coordinator.alertShown.last?.title == Localizations.upgradePending)
-        #expect(!realSubject.state.shouldShowPremiumUpgradeActionCard)
+        #expect(!subjectWithDefaultHelper.state.shouldShowPremiumUpgradeActionCard)
         #expect(!billingService.setPremiumUpgradeBannerDismissedCalled)
     }
 

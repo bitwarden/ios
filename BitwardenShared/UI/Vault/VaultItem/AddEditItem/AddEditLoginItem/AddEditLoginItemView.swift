@@ -82,6 +82,7 @@ struct AddEditLoginItemView: View {
             accessibilityIdentifier: "LoginPasswordEntry",
             passwordVisibilityAccessibilityId: "ViewPasswordButton",
             canViewPassword: store.state.canViewPassword,
+            focus: .field($focusedField, equals: .password),
             isPasswordVisible: store.binding(
                 get: \.isPasswordVisible,
                 send: AddEditItemAction.togglePasswordVisibilityChanged,
@@ -111,7 +112,6 @@ struct AddEditLoginItemView: View {
         }
         .disabled(!store.state.canViewPassword)
         .textFieldConfiguration(.password)
-        .focused($focusedField, equals: .password)
         .onSubmit { focusNextField($focusedField) }
     }
 
@@ -126,6 +126,7 @@ struct AddEditLoginItemView: View {
                 ),
                 accessibilityIdentifier: "LoginTotpEntry",
                 canViewPassword: store.state.canViewPassword,
+                focus: .field($focusedField, equals: .totp),
                 isPasswordVisible: store.binding(
                     get: \.isAuthKeyVisible,
                     send: AddEditItemAction.authKeyVisibilityTapped,
@@ -149,7 +150,6 @@ struct AddEditLoginItemView: View {
                 },
             )
             .disabled(!store.state.canViewPassword)
-            .focused($focusedField, equals: .totp)
             .onSubmit {
                 store.send(.totpFieldLeftFocus)
                 focusNextField($focusedField)
@@ -197,6 +197,7 @@ struct AddEditLoginItemView: View {
                         } label: {
                             SharedAsset.Icons.cog24.swiftUIImage
                                 .imageStyle(.accessoryIcon24)
+                                .accessibilityLabel(Localizations.options)
                         }
                         .accessibilityIdentifier("LoginUriOptionsButton")
                     }
@@ -230,6 +231,7 @@ struct AddEditLoginItemView: View {
                 send: AddEditItemAction.usernameChanged,
             ),
             accessibilityIdentifier: "LoginUsernameEntry",
+            focus: .field($focusedField, equals: .userName),
         ) {
             AccessoryButton(
                 asset: SharedAsset.Icons.generate24,
@@ -240,7 +242,6 @@ struct AddEditLoginItemView: View {
             .accessibilityIdentifier("GenerateUsernameButton")
         }
         .textFieldConfiguration(.username)
-        .focused($focusedField, equals: .userName)
         .onSubmit { focusNextField($focusedField) }
     }
 }
