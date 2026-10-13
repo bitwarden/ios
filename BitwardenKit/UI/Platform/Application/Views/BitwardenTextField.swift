@@ -107,6 +107,11 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
     /// the generic "Password" wording. Defaults to `nil`, which falls back to the generic wording.
     let passwordVisibilityFieldName: String?
 
+    /// Whether VoiceOver should announce the entered text's characters individually (e.g.
+    /// "1 2 3 4" instead of "one thousand two hundred thirty-four") rather than using its default
+    /// heuristics for the text.
+    let spellOutAccessibilityValue: Bool
+
     // MARK: View
 
     public var body: some View {
@@ -227,6 +232,13 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
                     .introspect(.textField, on: .iOS(.v15, .v16, .v17, .v18, .v26)) { textField in
                         textField.smartDashesType = isPassword ? .no : .default
                         textField.smartQuotesType = isPassword ? .no : .default
+                        // Set on the native text field so VoiceOver spells out only the value, not the label.
+                        textField.accessibilityAttributedValue = spellOutAccessibilityValue && !localText.isEmpty
+                            ? NSAttributedString(
+                                string: localText,
+                                attributes: [.accessibilitySpeechSpellOut: true],
+                            )
+                            : nil
                     }
                     .accessibilityLabel(title ?? "")
                     .foregroundStyle(
@@ -264,6 +276,8 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
     ///   - isPasswordAutoFocused: Whether the password field shows the keyboard initially.
     ///   - isPasswordVisible: Whether the password is visible.
     ///   - isTextFieldDisabled: Whether the text field is disabled.
+    ///   - spellOutAccessibilityValue: Whether VoiceOver should announce the entered text's characters
+    ///     individually rather than using its default heuristics for the text.
     ///   - trailingContent: Optional content view that is displayed on the trailing edge of the field.
     ///
     public init(
@@ -278,6 +292,7 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
         isPasswordAutoFocused: Bool = false,
         isPasswordVisible: Binding<Bool>? = nil,
         isTextFieldDisabled: Bool = false,
+        spellOutAccessibilityValue: Bool = false,
         @ViewBuilder trailingContent: () -> TrailingContent,
     ) where FooterContent == EmptyView {
         self.accessibilityIdentifier = accessibilityIdentifier
@@ -290,6 +305,7 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
         self.canViewPassword = canViewPassword
         self.passwordVisibilityAccessibilityId = passwordVisibilityAccessibilityId
         self.passwordVisibilityFieldName = passwordVisibilityFieldName
+        self.spellOutAccessibilityValue = spellOutAccessibilityValue
         _text = text
         _localText = State(initialValue: text.wrappedValue)
         self.title = title
@@ -310,6 +326,8 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
     ///   - isPasswordAutoFocused: Whether the password field shows the keyboard initially.
     ///   - isPasswordVisible: Whether the password is visible.
     ///   - isTextFieldDisabled: Whether the text field is disabled.
+    ///   - spellOutAccessibilityValue: Whether VoiceOver should announce the entered text's characters
+    ///     individually rather than using its default heuristics for the text.
     ///   - trailingContent: Optional content view that is displayed on the trailing edge of the field.
     ///   - footerContent: The (optional) footer content to display underneath the field.
     ///
@@ -324,6 +342,7 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
         isPasswordAutoFocused: Bool = false,
         isPasswordVisible: Binding<Bool>? = nil,
         isTextFieldDisabled: Bool = false,
+        spellOutAccessibilityValue: Bool = false,
         @ViewBuilder trailingContent: () -> TrailingContent,
         @ViewBuilder footerContent: () -> FooterContent,
     ) {
@@ -337,6 +356,7 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
         self.canViewPassword = canViewPassword
         self.passwordVisibilityAccessibilityId = passwordVisibilityAccessibilityId
         self.passwordVisibilityFieldName = passwordVisibilityFieldName
+        self.spellOutAccessibilityValue = spellOutAccessibilityValue
         _text = text
         _localText = State(initialValue: text.wrappedValue)
         self.title = title
@@ -377,6 +397,8 @@ public extension BitwardenTextField where TrailingContent == EmptyView {
     ///   - isPasswordAutoFocused: Whether the password field shows the keyboard initially.
     ///   - isPasswordVisible: Whether the password is visible.
     ///   - isTextFieldDisabled: Whether the text field is disabled.
+    ///   - spellOutAccessibilityValue: Whether VoiceOver should announce the entered text's characters
+    ///     individually rather than using its default heuristics for the text.
     ///   - footerContent: The (optional) footer content to display underneath the field.
     ///
     @_disfavoredOverload
@@ -391,6 +413,7 @@ public extension BitwardenTextField where TrailingContent == EmptyView {
         isPasswordAutoFocused: Bool = false,
         isPasswordVisible: Binding<Bool>? = nil,
         isTextFieldDisabled: Bool = false,
+        spellOutAccessibilityValue: Bool = false,
         @ViewBuilder footerContent: () -> FooterContent,
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
@@ -403,6 +426,7 @@ public extension BitwardenTextField where TrailingContent == EmptyView {
         self.isTextFieldDisabled = isTextFieldDisabled
         self.passwordVisibilityAccessibilityId = passwordVisibilityAccessibilityId
         self.passwordVisibilityFieldName = passwordVisibilityFieldName
+        self.spellOutAccessibilityValue = spellOutAccessibilityValue
         _text = text
         _localText = State(initialValue: text.wrappedValue)
         self.title = title
@@ -426,6 +450,8 @@ public extension BitwardenTextField where FooterContent == EmptyView, TrailingCo
     ///   - isPasswordAutoFocused: Whether the password field shows the keyboard initially.
     ///   - isPasswordVisible: Whether the password is visible.
     ///   - isTextFieldDisabled: Whether the text field is disabled.
+    ///   - spellOutAccessibilityValue: Whether VoiceOver should announce the entered text's characters
+    ///     individually rather than using its default heuristics for the text.
     ///
     init(
         title: String? = nil,
@@ -439,6 +465,7 @@ public extension BitwardenTextField where FooterContent == EmptyView, TrailingCo
         isPasswordAutoFocused: Bool = false,
         isPasswordVisible: Binding<Bool>? = nil,
         isTextFieldDisabled: Bool = false,
+        spellOutAccessibilityValue: Bool = false,
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.canViewPassword = canViewPassword
@@ -450,6 +477,7 @@ public extension BitwardenTextField where FooterContent == EmptyView, TrailingCo
         self.isTextFieldDisabled = isTextFieldDisabled
         self.passwordVisibilityAccessibilityId = passwordVisibilityAccessibilityId
         self.passwordVisibilityFieldName = passwordVisibilityFieldName
+        self.spellOutAccessibilityValue = spellOutAccessibilityValue
         _text = text
         _localText = State(initialValue: text.wrappedValue)
         self.title = title
