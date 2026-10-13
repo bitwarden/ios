@@ -160,7 +160,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
 
         XCTAssertEqual(result, "ACCESS_TOKEN")
         XCTAssertEqual(
-            keychainServiceFacade.getValueReceivedItem?.unformattedKey,
+            keychainServiceFacade.getValueReceivedArguments?.item.unformattedKey,
             BitwardenKeychainItem.accessToken(userId: "1").unformattedKey,
         )
     }
@@ -187,7 +187,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
 
         XCTAssertEqual(result, "AUTHENTICATOR_VAULT_KEY")
         XCTAssertEqual(
-            keychainServiceFacade.getValueReceivedItem?.unformattedKey,
+            keychainServiceFacade.getValueReceivedArguments?.item.unformattedKey,
             BitwardenKeychainItem.authenticatorVaultKey(userId: "1").unformattedKey,
         )
     }
@@ -249,7 +249,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
 
         XCTAssertEqual(result, "REFRESH_TOKEN")
         XCTAssertEqual(
-            keychainServiceFacade.getValueReceivedItem?.unformattedKey,
+            keychainServiceFacade.getValueReceivedArguments?.item.unformattedKey,
             BitwardenKeychainItem.refreshToken(userId: "1").unformattedKey,
         )
     }
@@ -311,7 +311,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
         let result = try await subject.getUserAuthKeyValue(for: item)
 
         XCTAssertEqual(result, "1234")
-        XCTAssertEqual(keychainServiceFacade.getValueReceivedItem?.unformattedKey, item.unformattedKey)
+        XCTAssertEqual(keychainServiceFacade.getValueReceivedArguments?.item.unformattedKey, item.unformattedKey)
     }
 
     /// `getUserAuthKeyValue(for:)` rethrows errors from the facade.

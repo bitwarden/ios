@@ -33,7 +33,7 @@ struct SharedKeychainRepositoryTests {
         let result = try await subject.getAccountAutoLogoutTime(userId: "1")
 
         #expect(result == date)
-        let actualItem = keychainServiceFacade.getValueReceivedItem as? SharedKeychainItem
+        let actualItem = keychainServiceFacade.getValueReceivedArguments?.item as? SharedKeychainItem
         let expectedItem = SharedKeychainItem.accountAutoLogout(userId: "1")
         #expect(actualItem == expectedItem)
     }
@@ -48,7 +48,7 @@ struct SharedKeychainRepositoryTests {
         let result = try await subject.getAccountAutoLogoutTime(userId: "1")
 
         #expect(result == nil)
-        let actualItem = keychainServiceFacade.getValueReceivedItem as? SharedKeychainItem
+        let actualItem = keychainServiceFacade.getValueReceivedArguments?.item as? SharedKeychainItem
         let expectedItem = SharedKeychainItem.accountAutoLogout(userId: "1")
         #expect(actualItem == expectedItem)
     }
@@ -135,7 +135,7 @@ struct SharedKeychainRepositoryTests {
         let result = try await subject.getAuthenticatorKey()
 
         #expect(result == data)
-        let actualItem = keychainServiceFacade.getValueReceivedItem as? SharedKeychainItem
+        let actualItem = keychainServiceFacade.getValueReceivedArguments?.item as? SharedKeychainItem
         let expectedItem = SharedKeychainItem.authenticatorKey
         #expect(actualItem == expectedItem)
     }

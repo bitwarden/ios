@@ -48,13 +48,38 @@ public protocol KeychainServiceFacade { // sourcery: AutoMockable
     ///
     func deleteValue(for item: any KeychainItem) async throws
 
+    /// Gets the string value from the keychain, optionally reusing a supplied `LAContext` for
+    /// biometric evaluation so a paired `setValue` call can share a single prompt.
+    /// Throws `KeychainServiceError.keyNotFound` if no value exists for the given item.
+    ///
+    /// - Parameters:
+    ///   - item: The keychain item used to fetch the associated value.
+    ///   - context: An `LAContext` to reuse, or `nil` to let the system create one.
+    /// - Returns: The fetched value associated with the keychain item.
+    ///
+    func getValue(for item: any KeychainItem, context: LAContext?) async throws -> String
+
+    /// Sets a value in the keychain, optionally reusing a supplied `LAContext` for biometric
+    /// evaluation.
+    ///
+    /// - Parameters:
+    ///   - value: The value associated with the keychain item to set.
+    ///   - item: The keychain item used to set the associated value.
+    ///   - context: An `LAContext` to reuse, or `nil` to let the system create one.
+    ///
+    func setValue(_ value: String, for item: any KeychainItem, context: LAContext?) async throws
+}
+
+public extension KeychainServiceFacade {
     /// Gets the string value associated with the keychain item from the keychain.
     /// Throws `KeychainServiceError.keyNotFound` if no value exists for the given item.
     ///
     /// - Parameter item: The keychain item used to fetch the associated value.
     /// - Returns: The fetched value associated with the keychain item.
     ///
-    func getValue(for item: any KeychainItem) async throws -> String
+    func getValue(for item: any KeychainItem) async throws -> String {
+        try await getValue(for: item, context: nil)
+    }
 
     /// Sets a value associated with a keychain item in the keychain.
     ///
@@ -62,7 +87,9 @@ public protocol KeychainServiceFacade { // sourcery: AutoMockable
     ///   - value: The value associated with the keychain item to set.
     ///   - item: The keychain item used to set the associated value.
     ///
-    func setValue(_ value: String, for item: any KeychainItem) async throws
+    func setValue(_ value: String, for item: any KeychainItem) async throws {
+        try await setValue(value, for: item, context: nil)
+    }
 }
 
 public extension KeychainServiceFacade {
@@ -269,16 +296,18 @@ public class DefaultKeychainServiceFacade: KeychainServiceFacade {
         )
     }
 
-    public func getValue(for item: any KeychainItem) async throws -> String {
+    public func getValue(for item: any KeychainItem, context: LAContext?) async throws -> String {
+        var additionalPairs: [CFString: Any] = [
+            kSecMatchLimit: kSecMatchLimitOne,
+            kSecReturnData: true,
+            kSecReturnAttributes: true,
+        ]
+        if let context {
+            additionalPairs[kSecUseAuthenticationContext] = context
+        }
+
         let foundItem = try await keychainService.search(
-            query: keychainQueryValues(
-                for: item,
-                adding: [
-                    kSecMatchLimit: kSecMatchLimitOne,
-                    kSecReturnData: true,
-                    kSecReturnAttributes: true,
-                ],
-            ),
+            query: keychainQueryValues(for: item, adding: additionalPairs),
         )
 
         guard let resultDictionary = foundItem as? [String: Any],
@@ -291,28 +320,27 @@ public class DefaultKeychainServiceFacade: KeychainServiceFacade {
         return string
     }
 
-    public func setValue(_ value: String, for item: any KeychainItem) async throws {
+    public func setValue(_ value: String, for item: any KeychainItem, context: LAContext?) async throws {
         let accessControl = try keychainService.accessControl(
             protection: item.protection,
             for: item.accessControlFlags ?? [],
         )
-        let baseQuery = await keychainQueryValues(for: item)
-        let updateAttributes: CFDictionary = [
+        let setAttributes: [CFString: Any] = [
             kSecAttrAccessControl: accessControl as Any,
             kSecValueData: Data(value.utf8),
-        ] as CFDictionary
+        ]
+        // The context goes in the query for `SecItemUpdate`, but with the item attributes for `SecItemAdd`.
+        let contextPairs: [CFString: Any] = context.map { [kSecUseAuthenticationContext: $0] } ?? [:]
+        let baseQuery = await keychainQueryValues(for: item, adding: contextPairs)
 
         do {
             // Try to update first - if item exists, this avoids delete-then-add race condition
-            try keychainService.update(query: baseQuery, attributes: updateAttributes)
+            try keychainService.update(query: baseQuery, attributes: setAttributes as CFDictionary)
         } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
             // Item doesn't exist, so add it
             let addAttributes = await keychainQueryValues(
                 for: item,
-                adding: [
-                    kSecAttrAccessControl: accessControl as Any,
-                    kSecValueData: Data(value.utf8),
-                ],
+                adding: setAttributes.merging(contextPairs) { _, new in new },
             )
             try keychainService.add(attributes: addAttributes)
         }

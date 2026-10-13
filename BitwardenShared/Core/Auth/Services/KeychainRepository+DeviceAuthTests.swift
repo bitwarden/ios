@@ -72,7 +72,7 @@ final class KeychainRepositoryDeviceAuthTests: BitwardenTestCase {
 
         XCTAssertEqual(result, record)
         XCTAssertEqual(
-            keychainServiceFacade.getValueReceivedItem?.unformattedKey,
+            keychainServiceFacade.getValueReceivedArguments?.item.unformattedKey,
             BitwardenKeychainItem.deviceAuthKey(userId: "1").unformattedKey,
         )
     }
@@ -120,7 +120,7 @@ final class KeychainRepositoryDeviceAuthTests: BitwardenTestCase {
 
         XCTAssertEqual(result, metadata)
         XCTAssertEqual(
-            keychainServiceFacade.getValueReceivedItem?.unformattedKey,
+            keychainServiceFacade.getValueReceivedArguments?.item.unformattedKey,
             BitwardenKeychainItem.deviceAuthKeyMetadata(userId: "1").unformattedKey,
         )
     }
@@ -161,7 +161,7 @@ final class KeychainRepositoryDeviceAuthTests: BitwardenTestCase {
     ///
     func test_setDeviceAuthKey() async throws {
         var setArgs: [(value: String, key: String)] = []
-        keychainServiceFacade.setValueClosure = { value, item in
+        keychainServiceFacade.setValueClosure = { value, item, _ in
             setArgs.append((value: value, key: item.unformattedKey))
         }
 

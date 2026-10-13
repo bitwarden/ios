@@ -1,3 +1,5 @@
+import LocalAuthentication
+
 // MARK: - BiometricsKeychainRepository
 
 /// A service that provides access to biometric-protected user auth keys in the keychain.
@@ -16,10 +18,13 @@ public protocol BiometricsKeychainRepository { // sourcery: AutoMockable
     ///
     /// - Parameters:
     ///   - userId: The user ID whose user auth key should be retrieved.
+    ///   - context: An `LAContext` to reuse for biometric evaluation, or `nil` to let the system
+    ///     create one. Pass the same context to a subsequent `setUserBiometricAuthKey` call to
+    ///     share a single biometric prompt across both operations.
     ///
     /// - Returns: The user auth key associated with the specified user.
     ///
-    func getUserBiometricAuthKey(userId: String) async throws -> String
+    func getUserBiometricAuthKey(userId: String, context: LAContext?) async throws -> String
 
     /// Stores or updates the biometric-protected user auth key for the specified user in the keychain.
     ///
@@ -29,10 +34,12 @@ public protocol BiometricsKeychainRepository { // sourcery: AutoMockable
     /// - Parameters:
     ///   - userId: The user ID whose user auth key should be stored.
     ///   - value: The user auth key to store.
+    ///   - context: An `LAContext` to reuse for biometric evaluation, or `nil` to let the system
+    ///     create one.
     ///
     /// - Throws: An error if the storage operation fails or if biometric authentication is required but fails.
     ///
-    func setUserBiometricAuthKey(userId: String, value: String) async throws
+    func setUserBiometricAuthKey(userId: String, value: String, context: LAContext?) async throws
 
     /// Returns whether a biometric-protected user auth key exists in the keychain for the specified
     /// user, without triggering a biometric authentication prompt.
@@ -41,4 +48,25 @@ public protocol BiometricsKeychainRepository { // sourcery: AutoMockable
     /// - Returns: `true` if the key is present, `false` if absent or on error.
     ///
     func userBiometricAuthKeyExists(userId: String) async -> Bool
+}
+
+public extension BiometricsKeychainRepository {
+    /// Retrieves the biometric-protected user auth key for the specified user from the keychain.
+    ///
+    /// - Parameter userId: The user ID whose user auth key should be retrieved.
+    /// - Returns: The user auth key associated with the specified user.
+    ///
+    func getUserBiometricAuthKey(userId: String) async throws -> String {
+        try await getUserBiometricAuthKey(userId: userId, context: nil)
+    }
+
+    /// Stores or updates the biometric-protected user auth key for the specified user in the keychain.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID whose user auth key should be stored.
+    ///   - value: The user auth key to store.
+    ///
+    func setUserBiometricAuthKey(userId: String, value: String) async throws {
+        try await setUserBiometricAuthKey(userId: userId, value: value, context: nil)
+    }
 }

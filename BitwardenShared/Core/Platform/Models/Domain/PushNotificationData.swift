@@ -146,6 +146,10 @@ struct LogoutNotification: Codable, Equatable {
         /// The logout was triggered by a KDF setting change.
         case kdfChange = 0
 
+        /// The logout was triggered by a no-logout user key rotation. Clients that recognize this
+        /// reason should not log out, and should perform a full sync to pick up the rotated key.
+        case keyRotation = 1
+
         /// An unknown or unimplemented reason.
         case unknown = -1
 

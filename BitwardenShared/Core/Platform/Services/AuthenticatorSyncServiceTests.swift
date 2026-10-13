@@ -18,6 +18,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
     var cipherDataStore: MockCipherDataStore!
     var clientService: MockClientService!
     var errorReporter: MockErrorReporter!
+    var flightRecorder: MockFlightRecorder!
     var keychainRepository: MockKeychainRepository!
     var organizationService: MockOrganizationService!
     var sharedKeychainRepository: MockSharedKeychainRepository!
@@ -37,6 +38,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         clientService = MockClientService()
         clientService.mockCrypto.getUserEncryptionKeyReturnValue = "USER_ENCRYPTION_KEY"
         errorReporter = MockErrorReporter()
+        flightRecorder = MockFlightRecorder()
         keychainRepository = MockKeychainRepository()
         keychainRepository.getAuthenticatorVaultKeyClosure = { [weak self] userId in
             guard let value = self?.authenticatorVaultKeyStorage[userId] else {
@@ -63,6 +65,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
             cipherDataStore: cipherDataStore,
             clientService: clientService,
             errorReporter: errorReporter,
+            flightRecorder: flightRecorder,
             keychainRepository: keychainRepository,
             organizationService: organizationService,
             sharedKeychainRepository: sharedKeychainRepository,
@@ -81,6 +84,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         cipherDataStore = nil
         clientService = nil
         errorReporter = nil
+        flightRecorder = nil
         keychainRepository = nil
         organizationService = nil
         sharedKeychainRepository = nil
@@ -140,6 +144,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         }
         XCTAssertEqual(authenticatorClientService.mockCrypto.getUserEncryptionKeyCalled, false)
         XCTAssertEqual(clientService.mockCrypto.getUserEncryptionKeyCalled, true)
+        XCTAssertEqual(flightRecorder.logMessages, ["[Auth] Created authenticator vault key"])
     }
 
     /// When the user has subscribed to sync and has an unlocked vault, the
@@ -174,6 +179,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
             self.keychainRepository.getAuthenticatorVaultKeyCalled
         }
         XCTAssertFalse(keychainRepository.setAuthenticatorVaultKeyCalled)
+        XCTAssertTrue(flightRecorder.logMessages.isEmpty)
     }
 
     /// When the user has subscribed to sync and has an unlocked vault, the
@@ -204,6 +210,28 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         stateService.syncToAuthenticatorSubject.send(("1", true))
 
         XCTAssertFalse(keychainRepository.setAuthenticatorVaultKeyCalled)
+    }
+
+    /// When the user has subscribed to sync and has an unlocked vault, the
+    /// `createAuthenticatorVaultKeyIfNeeded` method refreshes the stored vault key if it no
+    /// longer matches the current user key, e.g. after a no-logout key rotation.
+    ///
+    @MainActor
+    func test_createAuthenticatorVaultKeyIfNeeded_refreshesStaleKey() async throws {
+        setupInitialState()
+        await subject.start()
+        authenticatorVaultKeyStorage["1"] = "OLD_USER_ENCRYPTION_KEY"
+        clientService.mockCrypto.getKeyIdForSymmetricKeyClosure = { key in
+            key == "OLD_USER_ENCRYPTION_KEY" ? "OLD_KEY_ID" : "NEW_KEY_ID"
+        }
+
+        stateService.syncToAuthenticatorSubject.send(("1", true))
+
+        try await waitForAsync {
+            self.keychainRepository.setAuthenticatorVaultKeyCalled
+        }
+        XCTAssertEqual(authenticatorVaultKeyStorage["1"], "USER_ENCRYPTION_KEY")
+        XCTAssertEqual(flightRecorder.logMessages, ["[Auth] Refreshed stale authenticator vault key"])
     }
 
     /// When Ciphers are published. the service filters out ones that have a deletedDate in the past.

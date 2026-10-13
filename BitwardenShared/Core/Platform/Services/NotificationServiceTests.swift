@@ -702,6 +702,75 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertTrue(delegate.routeToLandingCalled)
     }
 
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles logout requests and
+    /// doesn't route to the landing screen if the logout reason was because of a no-logout key
+    /// rotation, and instead performs a full sync.
+    @MainActor
+    func test_messageReceived_logout_activeUser_keyRotation() async throws {
+        let activeAccount = Account.fixture()
+        stateService.setIsAuthenticated()
+        stateService.accounts = [activeAccount]
+
+        let message: [AnyHashable: Any] = [
+            "data": [
+                "type": NotificationType.logOut.rawValue,
+                "payload": """
+                {
+                    "UserId": "\(activeAccount.profile.userId)",
+                    "Reason": 1
+                }
+                """,
+            ],
+        ]
+
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
+        XCTAssertNil(authRepository.logoutUserId)
+        XCTAssertFalse(delegate.routeToLandingCalled)
+        XCTAssertTrue(syncService.didFetchSync)
+        XCTAssertEqual(syncService.fetchSyncForceSync, true)
+        XCTAssertEqual(
+            flightRecorder.logMessages,
+            [
+                "[Notification] Received push notification, type: logOut",
+                "[Notification] Received no-logout key rotation notification",
+            ],
+        )
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles logout requests and
+    /// still logs out (without syncing) if the logout reason was a no-logout key rotation for a
+    /// user other than the active account.
+    @MainActor
+    func test_messageReceived_logout_nonActiveUser_keyRotation() async throws {
+        stateService.setIsAuthenticated()
+        let activeAccount: Account = .fixture()
+        let nonActiveAccount: Account = .fixture(profile: .fixture(userId: "b245a33f"))
+        stateService.accounts = [activeAccount, nonActiveAccount]
+
+        let message: [AnyHashable: Any] = [
+            "data": [
+                "type": NotificationType.logOut.rawValue,
+                "payload": """
+                {
+                    "UserId": "\(nonActiveAccount.profile.userId)",
+                    "Reason": 1
+                }
+                """,
+            ],
+        ]
+
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
+        XCTAssertEqual(authRepository.logoutUserId, nonActiveAccount.profile.userId)
+        XCTAssertFalse(delegate.routeToLandingCalled)
+        XCTAssertFalse(syncService.didFetchSync)
+        XCTAssertEqual(
+            flightRecorder.logMessages,
+            ["[Notification] Received push notification, type: logOut"],
+        )
+    }
+
     /// `messageReceived(_:notificationDismissed:notificationTapped:)` logs the notification type
     /// to the flight recorder when a notification is received.
     @MainActor

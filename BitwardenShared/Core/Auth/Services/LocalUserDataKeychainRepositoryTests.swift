@@ -57,7 +57,7 @@ struct LocalUserDataKeychainRepositoryTests {
         keychainServiceFacade.getValueReturnValue = String(data: jsonData, encoding: .utf8)
 
         let result = try await subject.getLocalUserDataKeyStates(userId: "1")
-        let receivedUnformattedKey = keychainServiceFacade.getValueReceivedItem?.unformattedKey
+        let receivedUnformattedKey = keychainServiceFacade.getValueReceivedArguments?.item.unformattedKey
         let expectedUnformattedKey = BitwardenKeychainItem.localUserDataKeyStates(userId: "1").unformattedKey
 
         #expect(result == expected)
