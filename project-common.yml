@@ -2,7 +2,7 @@ options:
   createIntermediateGroups: true
   deploymentTarget:
     iOS: 15.0
-    watchOS: 8.0
+    watchOS: 9.0
   groupSortPosition: top
   usesTabs: false
   indentWidth: 4
