@@ -46,7 +46,8 @@ class CipherTypeTests: BitwardenTestCase {
         XCTAssertNil(CipherType(group: .trash))
     }
 
-    /// `canCreateCases` return the correct cipher types that the user can use to create ciphers.
+    /// `canCreateCases` return the correct cipher types that the user can use to create ciphers,
+    /// in the order they should appear in the add item menu.
     func test_canCreateCases() {
         XCTAssertEqual(
             CipherType.canCreateCases,
