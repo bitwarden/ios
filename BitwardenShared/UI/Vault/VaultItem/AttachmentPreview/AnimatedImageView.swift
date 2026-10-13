@@ -60,7 +60,6 @@ struct AnimatedImageView: View {
 
     /// The play indicator shown over the image while the animation is paused.
     private var playIndicator: some View {
-        // TODO: PM-33413 swap in the final play icon once design provides it.
         Image(systemName: "play.circle.fill")
             .resizable()
             .symbolRenderingMode(.palette)

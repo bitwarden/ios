@@ -59,6 +59,23 @@ struct AttachmentPreviewHelperTests {
         #expect(state.temporaryUrl == nil)
     }
 
+    /// `showPreview(for:cipher:)` navigates to the preview screen with `.fileTooLarge` content for a
+    /// large image that has no size name, without downloading it.
+    @Test
+    func showPreview_largeImage_withoutSizeName_fileTooLarge() async throws {
+        let attachment = AttachmentView.fixture(fileName: "photo.png", size: "11000000", sizeName: nil)
+        let cipher = CipherView.loginFixture()
+
+        await subject.showPreview(for: attachment, cipher: cipher)
+
+        #expect(vaultRepository.downloadAttachmentAttachment == nil)
+        guard case let .attachmentPreview(state) = coordinator.routes.last else {
+            Issue.record("Expected a navigation to .attachmentPreview")
+            return
+        }
+        #expect(state.content == .fileTooLarge)
+    }
+
     /// `showPreview(for:cipher:)` skips the confirmation alert for small attachments.
     @Test
     func showPreview_smallFile() async throws {
