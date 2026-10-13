@@ -70,7 +70,7 @@ extension AttachmentView {
     /// Whether this attachment is at least `Constants.largeFileSize`. The user must confirm before a
     /// large attachment is downloaded.
     var isLargeFile: Bool {
-        guard sizeName != nil, let byteCount = Int(size ?? "") else { return false }
+        guard let byteCount = Int(size ?? "") else { return false }
         return byteCount >= Constants.largeFileSize
     }
 }
