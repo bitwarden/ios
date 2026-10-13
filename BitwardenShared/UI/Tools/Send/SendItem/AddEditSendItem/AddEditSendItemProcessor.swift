@@ -403,6 +403,14 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
             return false
         }
 
+        // The text to share is required for text sends.
+        if state.type == .text,
+           state.text.isEmpty {
+            let alert = Alert.validationFieldRequired(fieldName: Localizations.textToShare)
+            coordinator.showAlert(alert)
+            return false
+        }
+
         // A password is required whenever "Anyone with password" access is selected, whether by
         // policy or by the user, unless the send being edited already has one.
         if state.accessType == .anyoneWithPassword,

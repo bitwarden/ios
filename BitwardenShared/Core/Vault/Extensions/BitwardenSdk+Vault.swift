@@ -486,6 +486,7 @@ extension BitwardenSdk.Cipher {
             revisionDate: model.revisionDate,
             archivedDate: model.archivedDate,
             data: model.data,
+            partialData: nil,
         )
     }
 
@@ -534,6 +535,7 @@ extension BitwardenSdk.Cipher {
             revisionDate: model.revisionDate,
             archivedDate: model.archivedDate,
             data: model.data,
+            partialData: nil,
         )
     }
 }
@@ -635,6 +637,7 @@ extension BitwardenSdk.CipherView: @retroactive Identifiable, Fido2UserVerifiabl
             deletedDate: nil,
             revisionDate: timeProvider.presentTime,
             archivedDate: nil,
+            partial: false,
         )
     }
 }

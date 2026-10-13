@@ -77,6 +77,7 @@ extension CipherView {
             deletedDate: nil,
             revisionDate: creationDate,
             archivedDate: nil,
+            partial: false,
         )
     }
 }

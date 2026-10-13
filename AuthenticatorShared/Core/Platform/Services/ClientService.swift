@@ -285,7 +285,13 @@ class DefaultClientBuilder: ClientBuilder {
     // MARK: Methods
 
     func buildClient() -> BitwardenSdkClient {
-        Client(tokenProvider: DefaultClientManagedTokensProvider(), settings: settings)
+        // A fresh `ManagedSettingsBindingClient` carries no management profile. The app doesn't
+        // consume the SDK's managed settings channel.
+        Client(
+            tokenProvider: DefaultClientManagedTokensProvider(),
+            settings: settings,
+            managedSettings: ManagedSettingsBindingClient(),
+        )
     }
 }
 

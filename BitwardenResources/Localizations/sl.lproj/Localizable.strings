@@ -1,4 +1,4 @@
-"About" = "O programu";
+"About" = "O aplikaciji";
 "Add" = "Dodaj";
 "AddFolder" = "Dodaj mapo";
 "AnErrorHasOccurred" = "Prišlo je do napake";
@@ -8,8 +8,12 @@
 "Copy" = "Kopiraj";
 "CopyLicenseNumber" = "Kopiraj številko dovoljenja";
 "CopyPassportNumber" = "Kopiraj številko potnega lista";
+"CopyPassphrase" = "Kopiraj geselsko frazo";
 "CopyPassword" = "Kopiraj geslo";
 "CopyUsername" = "Kopiraj uporabniško ime";
+"UseThisPassphrase" = "Uporabi to geselsko frazo";
+"UseThisPassword" = "Uporabi to geslo";
+"UseThisUsername" = "Uporabi to uporabniško ime";
 "Delete" = "Izbriši";
 "DeleteAll" = "Izbriši vse";
 "Deleting" = "Brisanje…";
@@ -26,8 +30,8 @@
 "FolderNone" = "Brez mape";
 "Folders" = "Mape";
 "FolderUpdated" = "Mapa posodobljena.";
-"MyFolder" = "My folder";
-"MyFolders" = "My folders";
+"MyFolder" = "Moja mapa";
+"MyFolders" = "Moje mape";
 "InternetConnectionRequiredMessage" = "Pred nadaljevanjem prosimo, da se povežete z internetom. ";
 "InternetConnectionRequiredTitle" = "Potrebna je povezava z internetom";
 "InvalidMasterPassword" = "Napačno glavno geslo. Poiskutie ponovno.";
@@ -99,7 +103,7 @@
 "ExtensionSetup" = "Vaše prijave so sedaj enostavno dostopne iz Safarija, Chroma in drugih podprtih aplikacij.";
 "ExtensionSetup2" = "V Safariju in Chromu poiščite Bitwarden z ikono za skupno rabo (namig: pomaknite se v desno v spodnji vrstici menija za skupno rabo).";
 "ExtensionTapIcon" = "Pritisnite na ikono BitWardena v meniju da zaženete razširitev.";
-"ExtensionTurnOn" = "Če želite vklopiti Bitwarden v Safariju in drugih aplikacijah, tapnite ikono »več« v spodnji vrsti menija.";
+"ExtensionTurnOn" = "Če želiš vklopiti Bitwarden v Safariju in drugih aplikacijah, tapni ikono »več« v spodnji vrsti menija.";
 "Favorite" = "Priljubljeni";
 "Fingerprint" = "Prstni odtis ";
 "GeneratePassword" = "Generiraj geslo";
@@ -118,8 +122,8 @@
 "MinNumbers" = "Minimalno števk";
 "MinSpecial" = "Minimalno posebnih";
 "Never" = "Nikoli";
-"NoItems" = "V vašem trezorju ni elementov. ";
-"NoItemsTap" = "V vašem trezorju ni predmetov za to spletno mesto/aplikacijo. Tapnite, da dodate.";
+"NoItems" = "V tvojem trezorju ni predmetov.";
+"NoItemsTap" = "V tvojem trezorju ni predmetov za to spletno mesto/aplikacijo. Tapni, da dodaš.";
 "NoUsernamePasswordConfigured" = "Ta prijava nima nastavljenega uporabniškega imena ali gesla.";
 "OKGotIt" = "V redu, razumem!";
 "Options" = "Možnosti ";
@@ -129,7 +133,6 @@
 "PasswordOverrideAlert" = "Ali ste prepričani, da želite prepisati vaše trenutno geslo?";
 "PushNotificationAlert" = "Bitwarden vzdržuje samodejno sinhronizacijo vašega trezorja s pomočjo potisnih obvestil. Za najboljšo možno izkušnjo izberite »Dovoli« na naslednjem pozivu, ko vas vpraša, ali dovolite potisna obvestila.";
 "Security" = "Varnost";
-"Select" = "Izberi";
 "ItemUpdated" = "Element shranjen.";
 "Submitting" = "Pošiljanje…";
 "Syncing" = "Sinhronizacija…";
@@ -147,7 +150,7 @@
 "Items" = "Elementi";
 "ExtensionActivated" = "Razširitev aktivirana! ";
 "ItemsForUri" = "Elementi za %1$@";
-"NoItemsForUri" = "V vašem trezorju ni elementov za %1$@.";
+"NoItemsForUri" = "V tvojem trezorju ni predmetov za %1$@.";
 "Off" = "Ne";
 "On" = "Da";
 "Autofill" = "Samodejno izpolni";
@@ -182,7 +185,6 @@
 "CopyTotp" = "Kopiraj TOTP";
 "CopyTotpAutomaticallyDescription" = "Če ima prijava ključ overovitelja, ko samodejno izpolnite prijavo, kopirajte kodo TOTP v odložišče.";
 "CopyTotpAutomatically" = "Samodejno kopiraj TOTP";
-"PremiumRequired" = "Premium članstvo je potrebno za uporabo te funkcije.";
 "AttachementAdded" = "Priloga dodana";
 "AttachmentDeleted" = "Priloga izbrisana";
 "ChooseFile" = "Izberite datoteko";
@@ -223,7 +225,6 @@
 "August" = "Avgust";
 "Brand" = "Znamka";
 "CardholderName" = "Imetnik kartice";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Našli smo več zadetkov. Izberite pravilnega.";
 "CityTown" = "Mesto";
 "Company" = "Podjetje";
 "Country" = "Država";
@@ -264,11 +265,11 @@
 /* Section header and screen title for viewing/managing a cipher's collections. */
 "Collections" = "Zbirke";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
-"SharedFolders" = "Shared folders";
+"SharedFolders" = "Deljene mape";
 /* Empty state message shown when a collection has no items. */
 "NoItemsCollection" = "V tej zbirki ni predmetov";
 /* Empty state message shown when a shared folder has no items. */
-"ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
+"ThereAreNoItemsInThisSharedFolder" = "V tej deljeni mapi ni predmetov";
 "NoItemsFolder" = "V tej mapi ni predmetov";
 "NoItemsTrash" = "Koš je prazen.";
 "FaceID" = "obraznim ID";
@@ -298,8 +299,8 @@
 "AutofillSetup2" = "Priporočamo, da v nastavitvah onemogočite vse druge aplikacije za samodejno izpolnjevanje, če jih ne nameravate uporabljati.";
 "AutofillTurnOn" = "Če želite nastaviti samodejno izpolnjevanje gesel v svoji napravi, sledite tem navodilom:";
 "AutofillTurnOn1" = "1. Odprite aplikacijo »Nastavitve« v iOS";
-"AutofillTurnOn2" = "2. Tapnite »Gesla«";
-"AutofillTurnOn3" = "3. Tapnite »Samodejno izpolni gesla«";
+"AutofillTurnOn2" = "2. Tapni »Gesla«";
+"AutofillTurnOn3" = "3. Tapni »Samodejno izpolni gesla«";
 "AutofillTurnOn4" = "4. Vklopite samodejno izpolnjevanje";
 "AutofillTurnOn5" = "5. Izberite »Bitwarden«";
 "PasswordAutofill" = "Samodejno izpolnjevanje gesel";
@@ -309,6 +310,7 @@
 "NoEmailAddressesEntered" = "Ni vnesenih e-poštnih naslovov";
 "EnterAtLeastOneValidEmailToShareSend" = "Za skupno rabo tega Senda vnesite vsaj en veljaven e-poštni naslov.";
 "OneOrMoreEmailAddressesIncorrect" = "Eden ali več e-poštnih naslovov je napačnih. Preglejte in poskusite znova.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Vključi samo naslednje domene: %1$@. Preglej in poskusi znova.";
 "Cards" = "Plačilne kartice";
 "Identities" = "Identitete";
 "Logins" = "Prijave";
@@ -321,32 +323,32 @@
 "PasswordHistory" = "Zgodovina gesel";
 "Types" = "Vrste";
 "NoPasswordsToList" = "Ni gesel za prikazat.";
-"NoItemsToList" = "Ni elementov za prikaz.";
+"NoItemsToList" = "Ni predmetov za prikaz.";
 "MoveDown" = "Premakni navzdol";
 "MoveUp" = "Premakni navzgor";
 /* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "Ni zbirk za prikazat.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
-"ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
+"ThereAreNoSharedFoldersToList" = "Ni deljenih map za prikaz.";
 "MovedItemToOrg" = "%1$@ premaknjeno v %2$@.";
 /* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "Izbrati moraš vsaj eno zbirko.";
 /* Alert message shown when saving an item with no shared folder selected. */
-"YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
+"YouMustSelectAtLeastOneSharedFolder" = "Izbrati moraš vsaj eno deljeno mapo.";
 "Share" = "Deli";
 "ShareAll" = "Deli vse";
 /* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "Premakni v organizacijo";
 /* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
-"NoVaultsToList" = "No vaults to list.";
+"NoVaultsToList" = "Ni trezorjev za prikaz.";
 /* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "Ni organizacij za prikazat.";
 /* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
-"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Izberi trezor, v katerega želiš premakniti ta element. Premik v trezor prenese lastništvo elementa na to organizacijo. Ko je element premaknjen, ne boš več njegov neposredni lastnik.";
 /* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "Izberite organizacijo, v katero želite premakniti ta predmet. S premikom v organizacijo se lastništvo predmeta prenese na to organizacijo. Ko bo predmet premaknjen, ne boste več neposredni lastnik tega predmeta.";
 "NumberOfWords" = "Število besed";
-"Passphrase" = "Večbesedno geslo";
+"Passphrase" = "Geselska fraza";
 "WordSeparator" = "Ločilo besed";
 "Clear" = "Počisti";
 "Generator" = "Generator";
@@ -444,11 +446,19 @@
 "NewSendCreated" = "Pošiljka ustvarjena.";
 "Custom" = "Po meri";
 "SendDisabledWarning" = "Zaradi pravilnika podjetja lahko samo izbrišete obstoječi Send.";
+"ThisDateIsEnforcedByYourOrganization" = "Ta datum določa tvoja organizacija";
 "AboutSend" = "O pošiljkah";
 "HideEmail" = "Skrij moj e-poštni naslov od prejemnikov.";
 "SendOptionsPolicyInEffect" = "Ena ali več pravilnikov organizacije vpliva na vaše možnosti pošiljanja.";
 "SendFilePremiumRequired" = "Brezplačni računi so omejeni samo na besedilne pošiljke. Za uporabo datotečnih pošiljk je potrebno članstvo Premium.";
 "SendFileEmailVerificationRequired" = "Če želite uporabljati datotečne pošiljke, morate potrditi svoj e-naslov. To lahko storite v trezorju na spletu.";
+/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
+"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Zaradi pravil podjetja lahko ustvariš le %1$@ pošiljke.";
+"OrganizationPolicyRestriction" = "Omejitev v skladu s politiko organizacije";
+"TextSendsAreNotAllowedDescriptionLong" = "Ta Pošiljka ni dovoljena za tvojo organizacijo in bo samodejno prenehala veljati na predviden datum izbrisa.";
+"ThisSendIsNotCompliantDescriptionLong" = "Ta Pošiljka ni v skladu s politiko pošiljanja tvoje organizacije in bo samodejno prenehala veljati na predviden datum izbrisa.";
+"ToEditThisSendMakeACopyDescriptionLong" = "Za urejanje teg Pošiljke naredi kopijo. Če lahko ta Pošiljka poteče na nastavljeni datum izbrisa, ni potrebno nobeno dejanje.";
+"MakeACopy" = "Naredi kopijo";
 "PasswordPrompt" = "Ponovno zahtevaj glavno geslo";
 "PasswordConfirmation" = "Potrditev glavnega gesla";
 "PasswordConfirmationDesc" = "To dejanje je zaščiteno. Za nadaljevanje znova vnesite svoje glavno geslo za potrditev identitete.";
@@ -488,8 +498,10 @@
 "LowercaseAtoZ" = "Male črke (a-z)";
 "NumbersZeroToNine" = "Števke (0-9)";
 "SpecialCharacters" = "Posebni znaki (!@#$%^&*)";
-"PasswordIsVisibleTapToHide" = "Geslo je vidno, tapnite za skrivanje.";
-"PasswordIsNotVisibleTapToShow" = "Geslo ni vidno, tapnite za prikaz.";
+"PasswordIsVisibleTapToHide" = "Geslo je vidno, tapni za skrivanje.";
+"PasswordIsNotVisibleTapToShow" = "Geslo ni vidno, tapni za prikaz.";
+"FieldValueIsVisibleTapToHide" = "%1$@ je vidno, tapni za skrivanje.";
+"FieldValueIsNotVisibleTapToShow" = "%1$@ ni vidno, tapni za prikaz.";
 "FilterByVault" = "Filtriraj predmete po trezorju";
 "AllVaults" = "Vsi trezorji";
 "Vaults" = "Trezorji";
@@ -576,9 +588,9 @@
 "WeakAndExposedMasterPassword" = "Šibko in izpostavljeno glavno geslo";
 "WeakPasswordIdentifiedAndFoundInADataBreachAlertDescription" = "Vaše geslo je šibko, poleg tega smo ga našli med ukradenimi gesli. Za zaščito svojega računa potrebujete močno in edinstveno geslo. Ste prepričani, da želite uporabiti to šibko geslo?";
 "AddTheKeyToAnExistingOrNewItem" = "Dodajte ključ obstoječemu ali novemu predmetu";
-"ThereAreNoItemsInYourVaultThatMatchX" = "V vašem trezorju ni elementov, ki bi ustrezali \"%1$@\"";
+"ThereAreNoItemsInYourVaultThatMatchX" = "V tvojem trezorju ni predmetov, ki bi ustrezali »%1$@«";
 "SearchForAnItemOrAddANewItem" = "Poišči element ali dodaj novega";
-"ThereAreNoItemsThatMatchTheSearch" = "Ni elementov, ki bi ustrezali iskanju";
+"ThereAreNoItemsThatMatchTheSearch" = "Ni predmetov, ki bi ustrezali iskanju";
 "ThereAreNoLoginsInYourVault" = "V vašem trezorju ni prijav";
 "ThereAreNoCardsInYourVault" = "V vašem trezorju ni kartic";
 "ThereAreNoNotesInYourVault" = "V vašem trezorju ni zapiskov";
@@ -648,7 +660,6 @@
 "SetUpAutofill" = "Nastavi samodejno izpolnjevanje";
 "AppInfo" = "Podatki o aplikaciji";
 "Browse" = "Prebrskaj";
-"SelectCardholderName" = "Izberite ime imetnika kartice";
 "SelectLanguage" = "Izberite jezik";
 "ContinueToCompleteWebAuthnVerification" = "Nadaljujte za dokončanje preverjanja WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Pri zagonu dvofaktorske avtentikacije WebAuthn je prišlo do napake";
@@ -667,7 +678,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Z nadaljevanjem se strinjate z **[Pogoji storitve](%1$@)** in **[Pravilnikom o zasebnosti](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Prejemajte nasvete, obvestila in raziskovalne priložnosti od Bitwarden v svoj nabiralnik. Kadar koli se lahko **[odjavite](%1$@)**.";
 "UserVerificationForPasskey" = "Preverjanje uporabnika za varnostni ključ";
-"NewItem" = "Nov element";
 "ExploreTheGenerator" = "Raziščite generator";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Več o ustvarjanju varnih prijavnih podatkov izveste z vodenim ogledom.";
 "ExportVaultFilePwProtectInfo" = "Ta izvoz bo zaščiten z geslom; to geslo bo potrebno tudi pri uvozu.";
@@ -695,7 +705,7 @@
 "CombineThoseWordsTogether" = "Združite te besede skupaj";
 "CombineThoseWordsTogetherDescriptionLong" = "Besede poljubno združite v geselsko frazo. **Uporabite vezaje, presledke ali jih pustite kot eno dolgo besedo** – po vaši izbiri!";
 "MakeItYours" = "Naredite jo svojo";
-"MakeItYoursDescriptionLong" = "**Dodajte številko ali simbol**, da bo še močnejša. Zdaj imate edinstveno, varno in si zapomniti vredno geselsko frazo!";
+"MakeItYoursDescriptionLong" = "**Dodaj številko ali simbol**, da bo še močnejša. Zdaj imate edinstveno, varno in si zapomniti vredno geselsko frazo!";
 "NeedSomeInspiration?" = "Potrebujete navdih?";
 "CheckOutThePassphraseGenerator" = "Oglejte si generator geselskih fraz";
 "WhatMakesAPasswordStrong" = "Kaj naredi geslo močno?";
@@ -881,6 +891,10 @@
 "Identification" = "Identifikacija";
 "Owner" = "Lastnik";
 "VerifyYourIdentity" = "Preverite svojo identiteto";
+"ThisOperationIsNotAllowedOnThisAccount" = "Ta operacija na tem računu ni dovoljena";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "Pri poskusu zaklepanja trenutnega uporabnika je prišlo do napake";
+"LockAllAccounts" = "Zakleni vse račune";
+"AllAccountsHaveBeenLocked" = "Vsi računi so bili zaklenjeni";
 "ShareErrorDetails" = "Deli podrobnosti o napaki";
 "FlightRecorder" = "Letalski zapisovalnik";
 "EnableFlightRecorder" = "Omogoči letalski zapisovalnik";
@@ -894,13 +908,13 @@
 "ShowLess" = "Pokaži manj";
 "ItemNameX" = "Ime predmeta, %1$@";
 "OwnerX" = "Lastnik, %1$@";
-"VaultX" = "Vault, %1$@";
+"VaultX" = "Trezor, %1$@";
 /* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "Zbirka, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
-"SharedFolderX" = "Shared folder, %1$@";
+"SharedFolderX" = "Deljena mapa, %1$@";
 "FolderX" = "Mapa, %1$@";
-"MyFolderX" = "My folder, %1$@";
+"MyFolderX" = "Moja mapa, %1$@";
 "ItemXOfY" = "Predmet %1$@ od %2$@";
 "ViewRecordedLogs" = "Ogled posnetih dnevnikov";
 "RecordedLogs" = "Posneti dnevniki";
@@ -909,7 +923,13 @@
 "ExpiresOnXDate" = "Poteče %1$@";
 "ExpiresTomorrow" = "Poteče jutri";
 "DateRangeXToY" = "%1$@ do %2$@";
+"LogOutAllAccounts" = "Odjavi vse račune";
+"AllAccountsHaveBeenLoggedOut" = "Vsi računi so bili odjavljeni";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "Pri poskusu odjave vseh računov je prišlo do napake";
 "SelfHostServerURL" = "URL samogostovanega strežnika";
+"OpenGenerator" = "Odpri generator";
+"OpenPasswordGenerator" = "Odpre generatorja gesel";
+"GeneratePassphrase" = "Ustvari geselsko frazo";
 "AllowUniversalClipboard" = "Dovoli univerzalno odložišče";
 "UseUniversalClipboardToCopyDescriptionLong" = "Uporabite univerzalno odložišče za kopiranje tukaj in lepljenje na drugih napravah, prijavljenih z istim Apple ID.";
 "RemoveMasterPasswordConfirmDomain" = "Za člane naslednje organizacije glavno geslo ni več potrebno. Potrdite spodnjo domeno s skrbnikom organizacije.";
@@ -929,6 +949,7 @@
 "GoToSettings" = "Pojdi v nastavitve";
 "SiriAndShortcutsAccess" = "Dostop Siri in bližnjic";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Omogočite, da aplikacija odgovarja na Siri in bližnjice z uporabo App Intents.";
+"ThereIsNoActiveAccount" = "Ni nobenega aktivnega računa.";
 "NewFileSend" = "Nov Send z datoteko";
 "NewTextSend" = "Nov Send z besedilom";
 "EditFileSend" = "Uredi Send z datoteko";
@@ -979,7 +1000,6 @@
 "NoAskMe" = "Ne, vprašaj me";
 "NoCodes" = "Nimate nobenih kod za prikaz";
 "None" = "Brez";
-"NoneOfTheAbove" = "Noben od zgoraj navedenih";
 "NumberOfDigits" = "Število števk";
 "OtpType" = "Vrsta OTP";
 "RefreshPeriod" = "Obdobje osveževanja";
@@ -1077,6 +1097,7 @@
 "AnyoneWithTheLink" = "Kdorkoli s povezavo";
 "AnyoneWithThisLinkCanViewThisSend" = "Kdorkoli s to povezavo si lahko ogleda ta Send.";
 "AfterSharingThisSendLinkDescriptionLong" = "Po skupni rabi te povezave Senda bodo morali posamezniki za ogled tega Senda potrditi svoj e-poštni naslov s kodo.";
+"IndividualsWillNeedToEnterThisPasswordDescriptionLong" = "Posamezniki bodo morali vnesti geslo za ogled te Pošiljke";
 "SpecificPeople" = "Določene osebe";
 "WhoCanView" = "Kdo si lahko ogleda";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Skupna raba z določenimi osebami je funkcija Premium. Vaš trenutni paket ne vključuje dostopa do te funkcije.";
@@ -1254,5 +1275,29 @@
 "Server" = "Strežnik";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Počisti %1$@";
-"SelectDate" = "Izberite datum";
+/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
+"OpensDatePicker" = "Odpre izbirnik datuma";
+/* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
+"ClosesDatePicker" = "Zapre izbirnik datuma";
+/* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
+"FutureDatesUnavailable" = "Prihodnji datumi niso na voljo";
 "PremiumRequiredTOTPDescriptionLong" = "Ključ overovitelja (TOTP) je funkcija Premium. Vaš trenutni paket ne vključuje dostopa do te funkcije.";
+/* Toast shown after a login item is saved. */
+"LoginSaved" = "Prijava je shranjena";
+/* Toast shown after a card item is saved. */
+"CardSaved" = "Kartica je shranjena";
+/* Toast shown after an identity item is saved. */
+"IdentitySaved" = "Identiteta je shranjena";
+/* Toast shown after a secure note item is saved. */
+"SecureNoteSaved" = "Zavarovani zapisek je shranjen";
+/* Toast shown after an SSH key item is saved. */
+"SSHKeySaved" = "SSH ključ je shranjen";
+/* Toast shown after a bank account item is saved. */
+"BankAccountSaved" = "Bančni račun shranjen";
+/* Toast shown after a driver's license item is saved. */
+"LicenseSaved" = "Licenca je shranjena";
+/* Toast shown after a passport item is saved. */
+"PassportSaved" = "Potni list je shranjen";
+"NotNow" = "Ne zdaj";
+"SyncUnsuccessful" = "Sinhronizacija neuspešna";
+"WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Vašega trezorja ni bilo mogoče sinhronizirati s strežnikom. Vaš trezor morda ne odraža vaših zadnjih sprememb. Lahko poskusite znova zdaj ali pa se bo sinhronizacija izvedla samodejno kasneje.";

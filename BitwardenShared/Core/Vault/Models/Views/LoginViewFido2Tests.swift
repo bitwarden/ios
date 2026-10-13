@@ -20,7 +20,7 @@ class LoginViewFido2Tests: BitwardenTestCase {
 
     /// `hasFido2Credentials` with Fido2 credentials.
     func test_hasFido2Credentials_withFido2Credentials() {
-        let subject = LoginView.fixture(fido2Credentials: [Fido2Credential.fixture()])
+        let subject = LoginView.fixture(fido2Credentials: [Fido2CredentialView.fixture()])
         XCTAssertTrue(subject.hasFido2Credentials)
     }
 }

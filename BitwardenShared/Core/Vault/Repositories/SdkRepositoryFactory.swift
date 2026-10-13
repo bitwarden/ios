@@ -56,6 +56,7 @@ struct DefaultSdkRepositoryFactory: SdkRepositoryFactory {
             ),
             organizationSharedKey: nil,
             send: nil,
+            policy: nil,
         )
     }
 
