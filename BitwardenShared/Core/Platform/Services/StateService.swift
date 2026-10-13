@@ -2544,6 +2544,18 @@ extension DefaultStateService: BillingStateService {
         return timeProvider.timeSince(creationDate) >= Constants.premiumUpgradeBannerAccountAge
     }
 
+    // MARK: Premium Upgrade Pending
+
+    func getPremiumUpgradePending(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.premiumUpgradePending(userId: userId)
+    }
+
+    func setPremiumUpgradePending(_ pending: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setPremiumUpgradePending(pending, userId: userId)
+    }
+
     // MARK: Subscription Attention Card
 
     func getSubscriptionAttentionCardVisible() async throws -> Bool {
@@ -2853,6 +2865,21 @@ extension DefaultStateService: SdkStateBridgeStateService {
 
     func setUserKeyId(_ keyId: String?, userId: String) async {
         appSettingsStore.setUserKeyId(keyId, userId: userId)
+    }
+
+    // MARK: V2 Encrypted Migrations Grace Period Start
+
+    func getV2EncryptedMigrationsGracePeriodStart(
+        userId: String,
+    ) async -> V2EncryptedMigrationsGracePeriodStart? {
+        appSettingsStore.v2EncryptedMigrationsGracePeriodStart(userId: userId)
+    }
+
+    func setV2EncryptedMigrationsGracePeriodStart(
+        _ date: V2EncryptedMigrationsGracePeriodStart?,
+        userId: String,
+    ) async {
+        appSettingsStore.setV2EncryptedMigrationsGracePeriodStart(date, userId: userId)
     }
 
     // MARK: V2 Upgrade Token

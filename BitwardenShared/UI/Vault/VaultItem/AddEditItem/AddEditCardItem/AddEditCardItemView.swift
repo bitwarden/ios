@@ -14,8 +14,6 @@ struct AddEditCardItemView: View {
     enum FocusedField: Int, Hashable {
         case cardholderName
         case number
-        case brand
-        case expirationMonth
         case expirationYear
         case securityCode
     }
@@ -44,8 +42,8 @@ struct AddEditCardItemView: View {
                         send: AddEditCardItemAction.cardholderNameChanged,
                     ),
                     accessibilityIdentifier: "CardholderNameEntry",
+                    focus: .field($focusedField, equals: .cardholderName),
                 )
-                .focused($focusedField, equals: .cardholderName)
                 .textContentType(.creditCardNameOrName)
                 .onSubmit { focusNextField($focusedField) }
 
@@ -57,13 +55,13 @@ struct AddEditCardItemView: View {
                     ),
                     accessibilityIdentifier: "CardNumberEntry",
                     passwordVisibilityAccessibilityId: "ShowCardNumberButton",
+                    focus: .field($focusedField, equals: .number),
                     isPasswordVisible: store.binding(
                         get: \.isNumberVisible,
                         send: AddEditCardItemAction.toggleNumberVisibilityChanged,
                     ),
                 )
                 .textFieldConfiguration(.numeric(.creditCardNumber))
-                .focused($focusedField, equals: .number)
                 .onSubmit { focusNextField($focusedField) }
 
                 BitwardenMenuField(
@@ -75,8 +73,6 @@ struct AddEditCardItemView: View {
                         send: AddEditCardItemAction.brandChanged,
                     ),
                 )
-                .focused($focusedField, equals: .brand)
-                .onSubmit { focusNextField($focusedField) }
 
                 BitwardenMenuField(
                     title: Localizations.expirationMonth,
@@ -87,8 +83,6 @@ struct AddEditCardItemView: View {
                         send: AddEditCardItemAction.expirationMonthChanged,
                     ),
                 )
-                .focused($focusedField, equals: .expirationMonth)
-                .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
                     title: Localizations.expirationYear,
@@ -97,11 +91,11 @@ struct AddEditCardItemView: View {
                         send: AddEditCardItemAction.expirationYearChanged,
                     ),
                     accessibilityIdentifier: "CardExpirationYearEntry",
+                    focus: .field($focusedField, equals: .expirationYear),
                 )
                 .textFieldConfiguration(
                     .numeric(.creditCardExpirationYearOrDateTime),
                 )
-                .focused($focusedField, equals: .expirationYear)
                 .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
@@ -112,13 +106,13 @@ struct AddEditCardItemView: View {
                     ),
                     accessibilityIdentifier: "CardSecurityCodeEntry",
                     passwordVisibilityAccessibilityId: "CardShowSecurityCodeButton",
+                    focus: .field($focusedField, equals: .securityCode),
                     isPasswordVisible: store.binding(
                         get: \.isCodeVisible,
                         send: AddEditCardItemAction.toggleCodeVisibilityChanged,
                     ),
                 )
                 .textFieldConfiguration(.numeric(.creditCardSecurityCodeOrPassword))
-                .focused($focusedField, equals: .securityCode)
                 .onSubmit { focusNextField($focusedField) }
             }
         }

@@ -87,6 +87,9 @@ Authenticator/Application/Support/Settings.bundle/Acknowledgements.latest_result
 # AI
 .claude/settings.local.json
 .claude/tmp/
+.claude/worktrees
+.claude/plans
+.claude/outputs/plans
 review-*.md
 
 # Generated files

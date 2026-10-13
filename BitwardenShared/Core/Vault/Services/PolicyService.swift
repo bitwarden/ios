@@ -252,7 +252,7 @@ actor DefaultPolicyService: PolicyService {
         }
 
         let policies = try await policiesNewForUser(userId: userId, filter: filter)
-        let sdkPolicies = policies.compactMap { BitwardenSdk.PolicyView($0) }
+        let sdkPolicies = policies.compactMap { BitwardenSdk.Policy($0) }
         guard !sdkPolicies.isEmpty else {
             return []
         }
@@ -264,7 +264,7 @@ actor DefaultPolicyService: PolicyService {
                 policyType: sdkPolicyType,
             )
 
-        return filtered.map { Policy($0) }
+        return filtered.map { BitwardenShared.Policy($0) }
     }
 
     /// Returns the list of policies that are assigned to the user.
