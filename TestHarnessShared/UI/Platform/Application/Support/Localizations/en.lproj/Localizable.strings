@@ -1,5 +1,6 @@
 "AccountCreatedSuccessfully" = "Account created successfully";
 "AccountDetails" = "Account Details";
+"AmbiguousCredentialReceived" = "Multiple stored credentials match this relying party ID; picking between them is not yet supported.";
 "CardAutofillForm" = "Card Autofill Form";
 "CardAutofillFormDescriptionLong" = "Long press a field, then select Autofill and Password to autofill with Bitwarden. Requires Bitwarden PM as AutoFill provider and a saved Card cipher.";
 "CardDetails" = "Card Details";
@@ -18,6 +19,7 @@
 "ExpirationYear" = "Expiration Year";
 "FileShare" = "File Share";
 "FormValues" = "Form Values";
+"NoMatchingCredentialReceived" = "No stored credential matches this relying party ID.";
 "PasskeyAutofill" = "Passkey Autofill";
 "Result" = "Result";
 "Password" = "Password";
