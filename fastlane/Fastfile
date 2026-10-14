@@ -425,15 +425,14 @@ platform :ios do |options|
   desc "Submit iOS app to the App Store"
   lane :release_to_production do |options|
 
-    changelog = options[:changelog] || "Bug fixes and improvements"
-    is_dry_run = options[:dry_run] == "true" || options[:dry_run] == true
+    required_options = [
+      :changelog,
+    ]
+    ensure_required_options(options, required_options)
 
-    formatted_changelog = changelog
-      .split('.')
-      .map(&:strip)
-      .reject(&:empty?)
-      .map { |item| "• #{item.gsub(/\A(?:•|\u2022)\s*/, '')}" }
-      .join("\n")
+    # Used as supplied: bitwarden/deploy's format-release-notes action formats it.
+    changelog = options[:changelog]
+    is_dry_run = options[:dry_run] == "true" || options[:dry_run] == true
 
     auth_locales = ["en-US"]
     pw_manager_locales = ["ca", "zh-Hans", "zh-Hant", "hr", "cs", "da", "nl-NL", "en-US", "fi", "fr-FR", "de-DE", "id", "it", "ja", "ko", "no", "pl", "pt-PT", "pt-BR", "ro", "ru", "sk", "es-ES", "es-MX", "sv", "tr", "uk", "vi"]
@@ -454,7 +453,7 @@ platform :ios do |options|
     locales.each do |locale|
       dir = "#{metadata_path}/#{locale}"
       FileUtils.mkdir_p(dir)
-      File.write("#{dir}/release_notes.txt", formatted_changelog)
+      File.write("#{dir}/release_notes.txt", changelog)
     end
 
     notes = locales.each_with_object({}) do |locale, hash|
@@ -471,7 +470,7 @@ platform :ios do |options|
       UI.message("✅ Validation passed")
       UI.message("✅ Release notes prepared for #{locales.count} locales")
       UI.message("✅ Release notes: ")
-      UI.message("#{formatted_changelog}")
+      UI.message("#{changelog}")
       UI.success("🎯 DRY RUN COMPLETE - Everything looks ready for production!")
       next # ← EXITS HERE in dry run
     end

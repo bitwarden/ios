@@ -14,8 +14,6 @@ import XCTest
 
 // MARK: - VaultListViewTests
 
-// swiftlint:disable file_length
-
 class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
@@ -273,6 +271,21 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         processor.state.loadingState = .data([])
         processor.state.organizationUserNotificationBannerData = .fixture()
         XCTAssertNoThrow(try subject.inspect().find(actionCard: "Upcoming Maintenance"))
+    }
+
+    /// The organization banner action card takes precedence over other action cards, which are
+    /// shown once the banner is dismissed.
+    @MainActor
+    func test_orgBannerActionCard_takesPrecedenceOverOtherActionCards() throws {
+        processor.state.loadingState = .data([])
+        processor.state.importLoginsSetupProgress = .incomplete
+        processor.state.organizationUserNotificationBannerData = .fixture()
+        XCTAssertNoThrow(try subject.inspect().find(actionCard: "Upcoming Maintenance"))
+        XCTAssertThrowsError(try subject.inspect().find(actionCard: Localizations.importSavedLogins))
+
+        processor.state.organizationUserNotificationBannerData = nil
+        XCTAssertThrowsError(try subject.inspect().find(actionCard: "Upcoming Maintenance"))
+        XCTAssertNoThrow(try subject.inspect().find(actionCard: Localizations.importSavedLogins))
     }
 
     /// When the organization banner has a primary button (and a header), the close (X) button is not shown.
