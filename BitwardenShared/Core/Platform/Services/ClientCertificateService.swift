@@ -4,19 +4,48 @@ import CryptoKit
 import Foundation
 import Security
 
+// MARK: - ClientCertificate
+
+/// A resolved client certificate for mTLS: the identity (leaf certificate + private key) plus any
+/// intermediate certificates to present alongside it during the TLS handshake.
+///
+struct ClientCertificate {
+    /// The identity containing the leaf certificate and its private key.
+    let identity: SecIdentity
+
+    /// The intermediate certificates (excluding the leaf). Presented alongside the identity so
+    /// servers that trust only the root CA can build the full certificate chain. Empty when none
+    /// are stored.
+    let intermediates: [SecCertificate]
+
+    /// A session-scoped `URLCredential` for answering a client-certificate challenge. The
+    /// intermediate chain is included so servers that trust only the root CA can build the full
+    /// chain — matching how browsers and Android send the entire chain from the PKCS#12 file.
+    var urlCredential: URLCredential {
+        URLCredential(
+            identity: identity,
+            certificates: intermediates.isEmpty ? nil : intermediates,
+            persistence: .forSession,
+        )
+    }
+}
+
 // MARK: - ClientCertificateService
 
 /// A service for managing client certificates used for mTLS authentication.
 ///
 protocol ClientCertificateService: AnyObject { // sourcery: AutoMockable
-    /// Gets the client certificate identity for mTLS authentication from the current environment.
+    /// Gets the client certificate (identity plus intermediate chain) for the current environment.
     ///
     /// The environment service determines which URLs are active (pre-auth or logged-in account),
-    /// so this returns the correct certificate for the current context.
+    /// so this returns the correct certificate for the current context. The intermediate
+    /// certificates are presented alongside the identity during the TLS handshake so that servers
+    /// configured to trust only the root CA can still build the full certificate chain — mirroring
+    /// how browsers and Android send the entire chain from the PKCS#12 file.
     ///
-    /// - Returns: A `SecIdentity` for the certificate, or `nil` if none is configured.
+    /// - Returns: The resolved client certificate, or `nil` if none is configured.
     ///
-    func getClientCertificateIdentity() async -> SecIdentity?
+    func getClientCertificate() async -> ClientCertificate?
 
     /// Import a client certificate from PKCS#12 data.
     ///
@@ -99,17 +128,37 @@ final class DefaultClientCertificateService: ClientCertificateService {
 
     // MARK: Methods
 
-    func getClientCertificateIdentity() async -> SecIdentity? {
+    func getClientCertificate() async -> ClientCertificate? {
         guard let fingerprint = environmentService.clientCertificateFingerprint,
               !fingerprint.isEmpty else {
             return nil
         }
+
+        let identity: SecIdentity
         do {
-            return try await keychainRepository.getClientCertificateIdentity(fingerprint: fingerprint)
+            guard let stored = try await keychainRepository.getClientCertificateIdentity(
+                fingerprint: fingerprint,
+            ) else {
+                return nil
+            }
+            identity = stored
         } catch {
             errorReporter.log(error: error)
             return nil
         }
+
+        // The intermediate chain is best-effort: if it can't be read, still present the leaf
+        // identity alone so configurations that don't require the chain keep working.
+        let intermediates: [SecCertificate]
+        do {
+            let chainData = try await keychainRepository.getClientCertificateChain(fingerprint: fingerprint) ?? []
+            intermediates = chainData.compactMap { SecCertificateCreateWithData(nil, $0 as CFData) }
+        } catch {
+            errorReporter.log(error: error)
+            intermediates = []
+        }
+
+        return ClientCertificate(identity: identity, intermediates: intermediates)
     }
 
     func importCertificate(
@@ -137,13 +186,28 @@ final class DefaultClientCertificateService: ClientCertificateService {
 
         // SecIdentity is a CoreFoundation type; use CFTypeRef bridge instead of conditional cast.
         let identity = identityRef as! SecIdentity // swiftlint:disable:this force_cast
-        let fingerprint = try certificateFingerprint(for: identity)
+        let leafData = try leafCertificateData(for: identity)
+        let fingerprint = sha256Fingerprint(for: leafData)
+
+        // Extract the intermediate certificates (excluding the leaf) so they can be presented
+        // during the TLS handshake. Servers that trust only the root CA need these to build the
+        // full certificate chain — matching browser and Android behavior.
+        let chain = firstItem[kSecImportItemCertChain as String] as? [SecCertificate] ?? []
+        let intermediates = chain
+            .map { SecCertificateCopyData($0) as Data }
+            .filter { $0 != leafData }
 
         // Only add to Keychain if this certificate isn't already stored.
         // Multiple users may share the same certificate — keyed by fingerprint, not userId.
         let existing = try await keychainRepository.getClientCertificateIdentity(fingerprint: fingerprint)
         if existing == nil {
             try await keychainRepository.setClientCertificateIdentity(identity, fingerprint: fingerprint)
+        }
+
+        // Persist the chain unconditionally (even when the identity already exists) so re-importing
+        // a certificate refreshes it. Skip empty chains to avoid storing an empty entry.
+        if !intermediates.isEmpty {
+            try await keychainRepository.setClientCertificateChain(intermediates, fingerprint: fingerprint)
         }
 
         return fingerprint
@@ -154,6 +218,7 @@ final class DefaultClientCertificateService: ClientCertificateService {
         let inUse = await isFingerprintInUse(fingerprint)
         if !inUse {
             try await keychainRepository.deleteClientCertificateIdentity(fingerprint: fingerprint)
+            try await keychainRepository.deleteClientCertificateChain(fingerprint: fingerprint)
         }
     }
 
@@ -168,22 +233,27 @@ final class DefaultClientCertificateService: ClientCertificateService {
         let inUse = await isFingerprintInUse(fingerprint, excludingUserId: userId)
         if !inUse {
             try await keychainRepository.deleteClientCertificateIdentity(fingerprint: fingerprint)
+            try await keychainRepository.deleteClientCertificateChain(fingerprint: fingerprint)
         }
     }
 
     // MARK: Private
 
-    /// Computes the SHA-256 fingerprint of the certificate within a SecIdentity.
+    /// Returns the DER-encoded data of the leaf certificate within a SecIdentity.
     ///
-    private func certificateFingerprint(for identity: SecIdentity) throws -> String {
+    private func leafCertificateData(for identity: SecIdentity) throws -> Data {
         var certificate: SecCertificate?
         let status = SecIdentityCopyCertificate(identity, &certificate)
         guard status == errSecSuccess, let cert = certificate else {
             throw ClientCertificateError.invalidCertificate
         }
-        let data = SecCertificateCopyData(cert) as Data
-        let digest = SHA256.hash(data: data)
-        return digest.compactMap { String(format: "%02x", $0) }.joined()
+        return SecCertificateCopyData(cert) as Data
+    }
+
+    /// Computes the SHA-256 fingerprint of DER-encoded certificate data.
+    ///
+    private func sha256Fingerprint(for data: Data) -> String {
+        SHA256.hash(data: data).compactMap { String(format: "%02x", $0) }.joined()
     }
 
     /// Returns whether any account's environment URLs still reference the given fingerprint.
