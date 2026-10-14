@@ -2661,6 +2661,16 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.accountCreationEnvironmentURLs(email: email), urls)
     }
 
+    /// `setAccountCreationEnvironmentURLs(urls:email:)` clears the saved value for a given email
+    /// when passed `nil`, so it can't be reused by a later, unrelated flow.
+    func test_setAccountCreationEnvironmentURLs_clear() async {
+        let email = "example@email.com"
+        let urls = EnvironmentURLData(base: .example)
+        await subject.setAccountCreationEnvironmentURLs(urls: urls, email: email)
+        await subject.setAccountCreationEnvironmentURLs(urls: nil, email: email)
+        XCTAssertNil(appSettingsStore.accountCreationEnvironmentURLs(email: email))
+    }
+
     /// `setPreAuthServerConfig(config:)` saves the pre-auth server config.
     func test_setPreAuthServerConfig() async {
         let config = ServerConfig(

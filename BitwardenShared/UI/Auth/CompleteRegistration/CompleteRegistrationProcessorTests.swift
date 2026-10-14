@@ -554,6 +554,29 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.toastsShown, [Toast(title: Localizations.accountSuccessfullyCreated)])
     }
 
+    /// `perform(_:)` with `.completeRegistration` re-snapshots the per-email account creation
+    /// environment URLs using the just-created account's own persisted URLs (not live pre-auth)
+    /// before navigating to retry login, if the create account and login requests succeed but
+    /// vault unlocking fails. This protects a login retry from resaving the account under the
+    /// wrong server if the live pre-auth URLs are corrupted in the interim.
+    @MainActor
+    func test_perform_completeRegistration_unlockError_reSnapshotsAccountCreationEnvironmentURLs() async throws {
+        configService.featureFlagsBoolPreAuth[.accountEncryptionV2PasswordRegistration] = true
+        authRepository.unlockWithPasswordResult = .failure(BitwardenTestError.example)
+        subject.state = .fixture()
+        let selfHostedURLs = EnvironmentURLData(base: URL(string: "https://vault.example.com")!)
+        stateService.activeAccount = .fixture(
+            profile: .fixture(email: "email@example.com", userId: "1"),
+            settings: .fixture(environmentURLs: selfHostedURLs),
+        )
+        stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
+
+        await subject.perform(.completeRegistration)
+
+        XCTAssertTrue(subject.state.didCreateAccount)
+        XCTAssertEqual(stateService.accountCreationEnvironmentURLs["email@example.com"], selfHostedURLs)
+    }
+
     /// `perform(_:)` with `.completeRegistration` and V2 flag enabled passes a non-empty hint in the request.
     @MainActor
     func test_perform_completeRegistration_withPasswordHint_setsHintInRequest() async throws {
