@@ -982,22 +982,23 @@ extension DefaultAuthRepository: AuthRepository {
                 guard !account.isLoggedOut else { continue }
 
                 let userId = account.userId
-                let timeoutValue = try await vaultTimeoutService.sessionTimeoutValue(userId: userId)
-                guard timeoutValue.allowsUserSessionKeySharing else { continue }
-
-                let hasTimedOut = try await vaultTimeoutService.hasPassedSessionTimeout(
-                    userId: userId,
-                    isAppRestart: false,
-                )
-                guard hasTimedOut else { continue }
-
+                // Isolate failures per account so one failing account doesn't skip the rest.
                 do {
+                    let timeoutValue = try await vaultTimeoutService.sessionTimeoutValue(userId: userId)
+                    guard timeoutValue.allowsUserSessionKeySharing else { continue }
+
+                    let hasTimedOut = try await vaultTimeoutService.hasPassedSessionTimeout(
+                        userId: userId,
+                        isAppRestart: false,
+                    )
+                    guard hasTimedOut else { continue }
+
                     try await keychainService.deleteUserAuthKey(for: .userSessionKey(userId: userId))
+                    purgedCount += 1
                 } catch {
-                    await flightRecorder.log("[SessionCleanup] Purge failed deleting user auth key.")
+                    await flightRecorder.log("[SessionCleanup] Purge failed for an account.")
                     errorReporter.log(error: error)
                 }
-                purgedCount += 1
             }
 
             guard purgedCount > 0 else { return }
@@ -1355,6 +1356,15 @@ extension DefaultAuthRepository: AuthRepository {
         }
 
         let id = try await stateService.getActiveAccountId()
+
+        // Don't rely on callers having purged expired keys: the account's timeout may have elapsed
+        // or been changed to a value that doesn't allow sharing (e.g. by a policy).
+        guard try await vaultTimeoutService.sessionTimeoutValue(userId: id).allowsUserSessionKeySharing,
+              try await !vaultTimeoutService.hasPassedSessionTimeout(userId: id) else {
+            try? await keychainService.deleteUserAuthKey(for: .userSessionKey(userId: id))
+            return false
+        }
+
         do {
             let sessionKey = try await keychainService.getUserAuthKeyValue(for: .userSessionKey(userId: id))
             do {

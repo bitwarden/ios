@@ -14,7 +14,7 @@ protocol ViewLoginItemState: Sendable {
     var canViewPassword: Bool { get }
 
     /// The FIDO2 credentials for the login.
-    var fido2Credentials: [Fido2Credential] { get }
+    var fido2Credentials: [Fido2CredentialView] { get }
 
     /// A flag indicating if this view has no data to display.
     var isEmpty: Bool { get }

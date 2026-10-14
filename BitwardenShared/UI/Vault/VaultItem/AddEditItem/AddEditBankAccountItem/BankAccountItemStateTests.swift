@@ -37,8 +37,8 @@ struct BankAccountItemStateTests {
         #expect(view.bankContactPhone == "123-456-7890")
     }
 
-    /// `bankAccountView` maps every empty field to `nil` via `.nilIfEmpty` and maps a `.default`
-    /// account type to `nil`.
+    /// `bankAccountView` maps every empty field to `nil` via `.nilIfEmpty`, defaulting the account
+    /// type to `"checking"`.
     @Test
     func bankAccountView_empty() {
         let subject = BankAccountItemState()
@@ -47,7 +47,7 @@ struct BankAccountItemStateTests {
 
         #expect(view.bankName == nil)
         #expect(view.nameOnAccount == nil)
-        #expect(view.accountType == nil)
+        #expect(view.accountType == "checking")
         #expect(view.accountNumber == nil)
         #expect(view.routingNumber == nil)
         #expect(view.branchNumber == nil)
@@ -57,10 +57,30 @@ struct BankAccountItemStateTests {
         #expect(view.bankContactPhone == nil)
     }
 
-    /// `isBankAccountDetailsSectionEmpty` is `true` when every field is empty and no account type is selected.
+    /// `bankAccountView` maps a `.default` account type (only reachable when loading an existing
+    /// item with an unrecognized/missing account type) to `nil`.
+    @Test
+    func bankAccountView_defaultAccountType() {
+        var subject = BankAccountItemState()
+        subject.accountType = .default
+
+        #expect(subject.bankAccountView.accountType == nil)
+    }
+
+    /// `isBankAccountDetailsSectionEmpty` is `false` by default since the account type defaults to
+    /// `.custom(.checking)`.
     @Test
     func isBankAccountDetailsSectionEmpty_empty() {
-        #expect(BankAccountItemState().isBankAccountDetailsSectionEmpty)
+        #expect(!BankAccountItemState().isBankAccountDetailsSectionEmpty)
+    }
+
+    /// `isBankAccountDetailsSectionEmpty` is `true` when every field is empty and the account type is
+    /// `.default` (only reachable when loading an existing item with an unrecognized/missing account type).
+    @Test
+    func isBankAccountDetailsSectionEmpty_defaultAccountType() {
+        var subject = BankAccountItemState()
+        subject.accountType = .default
+        #expect(subject.isBankAccountDetailsSectionEmpty)
     }
 
     /// `isBankAccountDetailsSectionEmpty` is `false` when any string field has a value.
@@ -71,11 +91,12 @@ struct BankAccountItemStateTests {
         #expect(!subject.isBankAccountDetailsSectionEmpty)
     }
 
-    /// `isBankAccountDetailsSectionEmpty` is `false` when only an account type is selected and all fields are empty.
+    /// `isBankAccountDetailsSectionEmpty` is `false` when an account type other than the default is selected
+    /// and all other fields are empty.
     @Test
     func isBankAccountDetailsSectionEmpty_accountTypeOnly() {
         var subject = BankAccountItemState()
-        subject.accountType = .custom(.checking)
+        subject.accountType = .custom(.savings)
         #expect(!subject.isBankAccountDetailsSectionEmpty)
     }
 }

@@ -1,6 +1,7 @@
 // swiftlint:disable:this file_name
 import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
 import XCTest
 
 @testable import BitwardenShared
@@ -79,6 +80,41 @@ class ViewDriversLicenseItemViewTests: BitwardenTestCase {
             processor.dispatchedActions.last,
             .driversLicenseItemAction(.toggleLicenseNumberVisibilityChanged),
         )
+    }
+
+    /// The license number visibility toggle announces the field name and current state to
+    /// VoiceOver.
+    @MainActor
+    func test_licenseNumberVisibilityToggle_accessibilityLabel() throws {
+        var state = populatedState()
+        state.isLicenseNumberVisible = false
+        initSubject(state: state)
+        _ = try subject.inspect().find(
+            buttonWithAccessibilityLabel: Localizations.fieldValueIsNotVisibleTapToShow(Localizations.licenseNumber),
+        )
+
+        state.isLicenseNumberVisible = true
+        initSubject(state: state)
+        _ = try subject.inspect().find(
+            buttonWithAccessibilityLabel: Localizations.fieldValueIsVisibleTapToHide(Localizations.licenseNumber),
+        )
+    }
+
+    /// The license number field asks VoiceOver to spell out its characters individually when
+    /// visible.
+    ///
+    /// - Note: ViewInspector doesn't support inspecting `speechSpellsOutCharacters`, so this
+    ///   verifies the flag is passed through to `PasswordText` rather than the final VoiceOver
+    ///   announcement, which should be confirmed with on-device VoiceOver testing.
+    @MainActor
+    func test_licenseNumber_spellsOutCharacters() throws {
+        var state = populatedState()
+        state.isLicenseNumberVisible = true
+        initSubject(state: state)
+        let passwordText = try subject.inspect().find(PasswordText.self) { view in
+            try view.actualView().password == "D1234567"
+        }.actualView()
+        XCTAssertTrue(passwordText.spellOutAccessibilityValue)
     }
 
     /// An empty state renders no fields, so the copy buttons are absent.

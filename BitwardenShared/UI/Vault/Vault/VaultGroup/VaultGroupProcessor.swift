@@ -248,7 +248,7 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
     ///
     private func dismissPremiumUpgradeActionCard() async {
         do {
-            try await services.stateService.setPremiumUpgradeBannerDismissed(true)
+            try await services.billingService.setPremiumUpgradeBannerDismissed()
         } catch {
             services.errorReporter.log(error: error)
         }

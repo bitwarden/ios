@@ -78,7 +78,10 @@ struct ViewIdentityItemView: View {
                             .styleGuide(.body)
                             .accessibilityIdentifier("IdentitySsnEntry")
                         } accessoryContent: {
-                            PasswordVisibilityButton(isPasswordVisible: store.state.showSocialSecurityNumber) {
+                            PasswordVisibilityButton(
+                                accessibilityIdentifier: "ShowIdentitySsnButton",
+                                isPasswordVisible: store.state.showSocialSecurityNumber,
+                            ) {
                                 store.send(.ssnVisibilityPressed)
                             }
 

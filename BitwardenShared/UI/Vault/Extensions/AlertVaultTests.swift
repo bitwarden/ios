@@ -719,6 +719,35 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertFalse(called)
     }
 
+    /// `syncUnsuccessful(message:tryAgainHandler:)` returns an `Alert` notifying the user that the
+    /// vault sync failed, with an option to try again.
+    func test_syncUnsuccessful() async throws {
+        var called = false
+        let subject = Alert.syncUnsuccessful(message: "sync error message") { called = true }
+
+        XCTAssertEqual(subject.title, Localizations.syncUnsuccessful)
+        XCTAssertEqual(subject.message, "sync error message")
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.notNow)
+        XCTAssertEqual(subject.alertActions[0].style, .cancel)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.tryAgain)
+        XCTAssertEqual(subject.alertActions[1].style, .default)
+        XCTAssertNil(subject.preferredAction)
+
+        try await subject.tapAction(title: Localizations.tryAgain)
+        XCTAssertTrue(called)
+    }
+
+    /// `syncUnsuccessful(message:tryAgainHandler:)` doesn't call the try again handler when
+    /// "Not now" is tapped.
+    func test_syncUnsuccessful_notNow() async throws {
+        var called = false
+        let subject = Alert.syncUnsuccessful(message: "sync error message") { called = true }
+
+        try await subject.tapAction(title: Localizations.notNow)
+        XCTAssertFalse(called)
+    }
+
     /// `totpPremiumRequired(action:)` returns an `Alert` notifying the user that a Premium
     /// subscription is required to view TOTP codes.
     func test_totpPremiumRequired() async throws {

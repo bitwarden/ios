@@ -113,6 +113,7 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
             deletedDate: cipherView.deletedDate,
             revisionDate: cipherView.revisionDate,
             archivedDate: cipherView.archivedDate,
+            partial: false,
         )
 
         let state = withLicense.driversLicenseItemState()

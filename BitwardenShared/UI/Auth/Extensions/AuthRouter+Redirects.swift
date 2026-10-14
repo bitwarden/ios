@@ -385,7 +385,8 @@ extension AuthRouter {
                     return .landingSoftLoggedOut(email: activeAccount.profile.email)
                 }
                 // If a session key is present, auto-unlock without user interaction.
-                // checkSessionTimeouts() has already verified the timeout hasn't elapsed.
+                // `unlockVaultWithSessionKey()` validates the timeout itself, since this redirect can
+                // run before `checkSessionTimeouts()` (e.g. after an extension account switch).
                 if try await services.authRepository.unlockVaultWithSessionKey() {
                     return .completeWithUserSessionKey
                 }
