@@ -1,10 +1,7 @@
 name: SDLC / Enforce PR labels
-run-name: Enforce labels for PR ${{ github.event.pull_request.number || inputs.pr-number }}
 
 on:
-  pull_request:
-    types: [labeled, unlabeled, edited]
-  workflow_dispatch:
+  workflow_call:
     inputs:
       pr-number:
         description: "Pull Request Number"
@@ -14,7 +11,7 @@ on:
 permissions: {}
 
 env:
-  _PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr-number }}
+  _PR_NUMBER: ${{ inputs.pr-number }}
 
 jobs:
   enforce-label:
@@ -22,7 +19,6 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       pull-requests: read
-      statuses: write # required to report the result on the PR head SHA for workflow_dispatch runs
     steps:
       - name: Fetch current PR labels
         id: pr-labels
@@ -72,20 +68,3 @@ jobs:
               exit 1
               ;;
           esac
-
-      # Runs started with workflow_dispatch do not report a check on the PR.
-      - name: Report PR status
-        if: ${{ always() && github.event_name == 'workflow_dispatch' }}
-        env:
-          _REPO: ${{ github.repository }}
-          GH_TOKEN: ${{ github.token }}
-          _JOB_STATUS: ${{ job.status }}
-          _RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: |
-          _HEAD_SHA=$(gh api "repos/$_REPO/pulls/$_PR_NUMBER" --jq '.head.sha')
-          _STATE=$([ "$_JOB_STATUS" = "success" ] && echo success || echo failure)
-          gh api "repos/$_REPO/statuses/$_HEAD_SHA" \
-            -f state="$_STATE" \
-            -f context="SDLC / Enforce PR labels" \
-            -f description="Label enforcement: $_STATE" \
-            -f target_url="$_RUN_URL"
