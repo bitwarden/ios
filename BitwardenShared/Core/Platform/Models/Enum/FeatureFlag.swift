@@ -44,6 +44,9 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// Feature flag for device management screen.
     static let manageDevices = FeatureFlag(rawValue: "pm-4516-devices-add-last-activity-date")
 
+    /// Flag to enable/disable the mobile attachment improvements (e.g. renaming an attachment when uploading it).
+    static let mobileAttachmentUpdates = FeatureFlag(rawValue: "pm-34224-mobile-attachment-updates")
+
     /// Flag to enable/disable the new vault item types (Bank Account, Driver's License, Passport).
     static let newItemTypes = FeatureFlag(rawValue: "pm-32009-new-item-types")
 
@@ -86,6 +89,7 @@ extension FeatureFlag: @retroactive CaseIterable {
             .fedrampGovRegion,
             .fillAssistTargetingRules,
             .manageDevices,
+            .mobileAttachmentUpdates,
             .newItemTypes,
             .noLogoutOnKdfChange,
             .organizationUserNotificationBanner,
