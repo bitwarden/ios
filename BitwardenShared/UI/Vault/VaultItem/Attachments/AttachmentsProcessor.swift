@@ -62,6 +62,10 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
 
     override func perform(_ effect: AttachmentsEffect) async {
         switch effect {
+        case .appeared:
+            state.isMobileAttachmentUpdatesEnabled = await services.configService.getFeatureFlag(
+                .mobileAttachmentUpdates,
+            )
         case .loadPremiumStatus:
             await loadPremiumStatus()
         case .save:
@@ -90,7 +94,7 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
         case .dismissPressed:
             coordinator.navigate(to: .dismiss())
         case let .fileNameChanged(stem):
-            guard state.fileName != nil else { return }
+            guard state.isMobileAttachmentUpdatesEnabled, state.fileName != nil else { return }
             state.fileName = stem + state.fileNameExtension
         case let .toastShown(toast):
             state.toast = toast
@@ -209,12 +213,19 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
 
 extension AttachmentsProcessor: FileSelectionDelegate {
     func fileSelectionCompleted(fileName: String, data: Data) {
+        state.fileData = data
+
+        guard state.isMobileAttachmentUpdatesEnabled else {
+            state.fileName = fileName
+            state.fileNameExtension = ""
+            return
+        }
+
         // The extension is lowercased so the saved name matches the lowercased extension shown to the user.
         let fileExtension = URL(fileURLWithPath: fileName).pathExtension
         let stem = fileExtension.isEmpty ? fileName : String(fileName.dropLast(fileExtension.count + 1))
         let extensionSuffix = fileExtension.isEmpty ? "" : ".\(fileExtension.lowercased())"
         state.fileName = stem + extensionSuffix
         state.fileNameExtension = extensionSuffix
-        state.fileData = data
     }
 }
