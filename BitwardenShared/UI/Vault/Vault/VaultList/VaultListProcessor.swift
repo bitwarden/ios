@@ -160,6 +160,8 @@ final class VaultListProcessor: StateProcessor<
             await streamVaultList()
         case .tryAgainTapped:
             await tryAgainTapped()
+        case .upgradeToPremium:
+            await upgradeToPremium()
         }
     }
 
@@ -204,8 +206,6 @@ final class VaultListProcessor: StateProcessor<
         case .totpCodeExpired:
             // No-op: TOTP codes aren't shown on the list view and can't be copied.
             break
-        case .upgradeToPremium:
-            upgradeToPremium()
         case let .vaultFilterChanged(newValue):
             state.vaultFilterType = newValue
         case .viewPlan:
@@ -888,9 +888,10 @@ extension VaultListProcessor {
         await appeared()
     }
 
-    /// Subscribes to Premium checkout status and navigates to the upgrade screen.
-    private func upgradeToPremium() {
-        premiumUpgradeHelper.startInAppPremiumUpgrade(onConfirmed: { [weak self] in
+    /// Subscribes to Premium checkout status, then navigates to the upgrade screen, or shows the
+    /// upgrade pending alert instead if an upgrade is already pending.
+    private func upgradeToPremium() async {
+        await premiumUpgradeHelper.startInAppPremiumUpgrade(onConfirmed: { [weak self] in
             await self?.handlePremiumUpgradeConfirmed()
         })
     }

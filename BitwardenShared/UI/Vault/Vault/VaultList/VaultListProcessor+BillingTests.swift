@@ -250,34 +250,20 @@ struct VaultListProcessorBillingTests {
         #expect(billingService.setUpgradedToPremiumActionCardDismissedCallsCount == 1)
     }
 
-    // MARK: Tests - receive(*)
+    // MARK: Tests - perform(.upgradeToPremium)
 
-    /// `receive(_:)` with `.learnMoreAboutPremium` opens the learn more about Premium URL,
-    /// hides the card, and persists the dismissal.
+    /// `perform(_:)` with `.upgradeToPremium` delegates to the Premium upgrade helper.
     @Test
-    func receive_learnMoreAboutPremium() async throws {
-        subject.state.shouldShowUpgradedToPremiumActionCard = true
-
-        subject.receive(.learnMoreAboutPremium)
-
-        #expect(subject.state.url == ExternalLinksConstants.learnMoreAboutPremium)
-        #expect(!subject.state.shouldShowUpgradedToPremiumActionCard)
-        try await waitForAsync { billingService.setUpgradedToPremiumActionCardDismissedCallsCount == 1 }
-        #expect(billingService.setUpgradedToPremiumActionCardDismissedCallsCount == 1)
-    }
-
-    /// `receive(_:)` with `.upgradeToPremium` delegates to the Premium upgrade helper.
-    @Test
-    func receive_upgradeToPremium() {
-        subject.receive(.upgradeToPremium)
+    func perform_upgradeToPremium() async {
+        await subject.perform(.upgradeToPremium)
 
         #expect(premiumUpgradeHelper.startInAppPremiumUpgradeCalled)
     }
 
-    /// `receive(_:)` with `.upgradeToPremium` hides the Premium upgrade action card without
+    /// `perform(_:)` with `.upgradeToPremium` hides the Premium upgrade action card without
     /// persisting the dismissal when the upgrade is pending.
     @Test
-    func receive_upgradeToPremium_pendingUpgrade_hidesActionCardWithoutPersistingDismissal() async throws {
+    func perform_upgradeToPremium_pendingUpgrade_hidesActionCardWithoutPersistingDismissal() async throws {
         let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
         billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
         var state = VaultListState()
@@ -287,7 +273,7 @@ struct VaultListProcessorBillingTests {
             services: services,
             state: state,
         )
-        subjectWithDefaultHelper.receive(.upgradeToPremium)
+        await subjectWithDefaultHelper.perform(.upgradeToPremium)
 
         statusSubject.send(.pending)
         try await waitForAsync {
@@ -303,6 +289,22 @@ struct VaultListProcessorBillingTests {
         #expect(coordinator.alertShown.last?.title == Localizations.upgradePending)
         #expect(!subjectWithDefaultHelper.state.shouldShowPremiumUpgradeActionCard)
         #expect(!billingService.setPremiumUpgradeBannerDismissedCalled)
+    }
+
+    // MARK: Tests - receive(*)
+
+    /// `receive(_:)` with `.learnMoreAboutPremium` opens the learn more about Premium URL,
+    /// hides the card, and persists the dismissal.
+    @Test
+    func receive_learnMoreAboutPremium() async throws {
+        subject.state.shouldShowUpgradedToPremiumActionCard = true
+
+        subject.receive(.learnMoreAboutPremium)
+
+        #expect(subject.state.url == ExternalLinksConstants.learnMoreAboutPremium)
+        #expect(!subject.state.shouldShowUpgradedToPremiumActionCard)
+        try await waitForAsync { billingService.setUpgradedToPremiumActionCardDismissedCallsCount == 1 }
+        #expect(billingService.setUpgradedToPremiumActionCardDismissedCallsCount == 1)
     }
 
     /// `receive(_:)` with `.viewPlan` navigates to the Premium plan screen.
