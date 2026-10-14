@@ -76,7 +76,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     let notificationCenterService: NotificationCenterService
 
     /// The service used by the application for sharing data with other apps.
-    let pasteboardService: PasteboardService
+    public let pasteboardService: PasteboardService
 
     /// The lazily-initialized, cached holder for a `ServerCommunicationConfigClientProtocol` instance.
     public let serverCommunicationConfigClientSingleton: ServerCommunicationConfigClientSingleton
@@ -318,7 +318,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
 
         let pasteboardService = DefaultPasteboardService(
-            errorReporter: errorReporter,
+            settingsProvider: DefaultPasteboardSettingsProvider(appSettingsStore: appSettingsStore),
         )
 
         let authenticatorItemService = DefaultAuthenticatorItemService(

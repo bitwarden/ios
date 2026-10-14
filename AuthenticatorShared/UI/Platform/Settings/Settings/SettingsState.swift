@@ -7,6 +7,9 @@ import Foundation
 struct SettingsState: Equatable {
     // MARK: Properties
 
+    /// Whether copied content can be shared with other devices using Universal Clipboard.
+    var allowUniversalClipboard = false
+
     /// The selected app theme.
     var appTheme: AppTheme = .default
 

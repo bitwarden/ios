@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenKitMocks
 import BitwardenSdk
 import TestHelpers
 import XCTest
@@ -55,7 +56,7 @@ final class TOTPServiceTests: BitwardenTestCase {
 
         try await subject.copyTotpIfPossible(cipher: cipher)
 
-        XCTAssertEqual(pasteboardService.copiedString, "123456")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "123456")
     }
 
     /// `copyTotpIfPossible(cipher:)` succeeds copying the code when account is not Premium
@@ -72,7 +73,7 @@ final class TOTPServiceTests: BitwardenTestCase {
 
         try await subject.copyTotpIfPossible(cipher: cipher)
 
-        XCTAssertEqual(pasteboardService.copiedString, "123456")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "123456")
     }
 
     /// `copyTotpIfPossible(cipher:)` doesn't copy the code when the cipher doesn't have a login.
@@ -84,7 +85,7 @@ final class TOTPServiceTests: BitwardenTestCase {
 
         try await subject.copyTotpIfPossible(cipher: cipher)
 
-        XCTAssertNil(pasteboardService.copiedString)
+        XCTAssertNil(pasteboardService.copyReceivedString)
     }
 
     /// `copyTotpIfPossible(cipher:)` doesn't copy the code because cipher doesn't have totp.
@@ -98,7 +99,7 @@ final class TOTPServiceTests: BitwardenTestCase {
 
         try await subject.copyTotpIfPossible(cipher: cipher)
 
-        XCTAssertNil(pasteboardService.copiedString)
+        XCTAssertNil(pasteboardService.copyReceivedString)
     }
 
     /// `copyTotpIfPossible(cipher:)` doesn't copy the code because auto copying totp is disabled.
@@ -113,7 +114,7 @@ final class TOTPServiceTests: BitwardenTestCase {
 
         try await subject.copyTotpIfPossible(cipher: cipher)
 
-        XCTAssertNil(pasteboardService.copiedString)
+        XCTAssertNil(pasteboardService.copyReceivedString)
     }
 
     /// `copyTotpIfPossible(cipher:)` doesn't copy the code because user not Premium and
@@ -129,7 +130,7 @@ final class TOTPServiceTests: BitwardenTestCase {
 
         try await subject.copyTotpIfPossible(cipher: cipher)
 
-        XCTAssertNil(pasteboardService.copiedString)
+        XCTAssertNil(pasteboardService.copyReceivedString)
     }
 
     /// `copyTotpIfPossible(cipher:)` throws when getting disable auto totp copy.
@@ -144,7 +145,7 @@ final class TOTPServiceTests: BitwardenTestCase {
             try await subject.copyTotpIfPossible(cipher: cipher)
         }
 
-        XCTAssertNil(pasteboardService.copiedString)
+        XCTAssertNil(pasteboardService.copyReceivedString)
     }
 
     /// `copyTotpIfPossible(cipher:)` throws when generating code.
@@ -161,7 +162,7 @@ final class TOTPServiceTests: BitwardenTestCase {
             try await subject.copyTotpIfPossible(cipher: cipher)
         }
 
-        XCTAssertNil(pasteboardService.copiedString)
+        XCTAssertNil(pasteboardService.copyReceivedString)
     }
 
     func test_getTOTPConfiguration_base32() throws {

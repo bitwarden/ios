@@ -302,12 +302,12 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         // Copy number copies the card's number.
         let copyNumberAction = try XCTUnwrap(alert.alertActions[2])
         await copyNumberAction.handler?(copyNumberAction, [])
-        XCTAssertEqual(pasteboardService.copiedString, "123456789")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "123456789")
 
         // Copy security code copies the card's security code.
         let copyCodeAction = try XCTUnwrap(alert.alertActions[3])
         await copyCodeAction.handler?(copyCodeAction, [])
-        XCTAssertEqual(pasteboardService.copiedString, "123")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "123")
     }
 
     /// `showMoreOptionsAlert()` and press `copyPassword` presents master password re-prompt alert.
@@ -347,8 +347,8 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         // Copy username copies the username.
         let copyUsernameAction = try XCTUnwrap(alert.alertActions[2])
         await copyUsernameAction.handler?(copyUsernameAction, [])
-        XCTAssertEqual(pasteboardService.copiedString, "username")
-        pasteboardService.copiedString = nil
+        XCTAssertEqual(pasteboardService.copyReceivedString, "username")
+        pasteboardService.copyReceivedString = nil
 
         // Copy password copies the user's password.
         let copyPasswordAction = try XCTUnwrap(alert.alertActions[3])
@@ -358,9 +358,9 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherView, loginWithData)
 
         // Validate string is copied only if master password reprompt completes successfully.
-        XCTAssertNil(pasteboardService.copiedString)
+        XCTAssertNil(pasteboardService.copyReceivedString)
         await masterPasswordRepromptHelper.repromptForMasterPasswordCompletion?()
-        XCTAssertEqual(pasteboardService.copiedString, "secretPassword")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "secretPassword")
     }
 
     /// `showMoreOptionsAlert()` and press `copyTotp` presents master password re-prompt
@@ -401,9 +401,9 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherView, cipherView)
 
         // Validate string is copied only if master password reprompt completes successfully.
-        XCTAssertNil(pasteboardService.copiedString)
+        XCTAssertNil(pasteboardService.copyReceivedString)
         await masterPasswordRepromptHelper.repromptForMasterPasswordCompletion?()
-        XCTAssertEqual(pasteboardService.copiedString, "123321")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "123321")
         XCTAssertEqual(
             toastToDisplay,
             Toast(title: Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp)),
@@ -443,7 +443,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         let optionsAlert = try XCTUnwrap(coordinator.alertShown.last)
         try await optionsAlert.tapAction(title: Localizations.copyTotp)
 
-        XCTAssertEqual(pasteboardService.copiedString, "123321")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "123321")
         XCTAssertEqual(
             toastToDisplay,
             Toast(title: Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp)),
@@ -747,17 +747,17 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         // Copy username copies the username.
         let copyUsernameAction = try XCTUnwrap(alert.alertActions[2])
         await copyUsernameAction.handler?(copyUsernameAction, [])
-        XCTAssertEqual(pasteboardService.copiedString, "username")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "username")
 
         // Copy password copies the user's username.
         let copyPasswordAction = try XCTUnwrap(alert.alertActions[3])
         await copyPasswordAction.handler?(copyPasswordAction, [])
-        XCTAssertEqual(pasteboardService.copiedString, "password")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "password")
 
         // Copy TOTP copies the user's TOTP code.
         let copyTotpAction = try XCTUnwrap(alert.alertActions[4])
         await copyTotpAction.handler?(copyPasswordAction, [])
-        XCTAssertEqual(pasteboardService.copiedString, "123321")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "123321")
 
         // Launch action set's the url to open.
         let launchAction = try XCTUnwrap(alert.alertActions[5])
@@ -864,7 +864,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         // Copy copies the items notes.
         let copyNoteAction = try XCTUnwrap(alert.alertActions[2])
         await copyNoteAction.handler?(copyNoteAction, [])
-        XCTAssertEqual(pasteboardService.copiedString, "Test Note")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "Test Note")
     }
 
     /// `showMoreOptionsAlert()` does not show the password re-prompt alert when the cipher fetched is `nil`.
