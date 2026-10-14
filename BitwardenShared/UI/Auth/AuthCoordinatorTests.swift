@@ -139,6 +139,14 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertNil(authDelegate.didCompleteAuthRehydratableTarget)
     }
 
+    /// `navigate(to:)` with `.completeWithUserSessionKey` notifies the delegate that auth has completed.
+    @MainActor
+    func test_navigate_completeWithUserSessionKey() {
+        subject.navigate(to: .completeWithUserSessionKey)
+        XCTAssertTrue(authDelegate.didCompleteAuthCalled)
+        XCTAssertNil(authDelegate.didCompleteAuthRehydratableTarget)
+    }
+
     /// `navigate(to:)` with `.completeWithRehydration` notifies the delegate that auth has completed passing
     /// the rehydratable target.
     @MainActor
