@@ -65,15 +65,15 @@ class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpg
 
     // MARK: Private Properties
 
-    /// A cancellable for the Premium checkout status subscription.
-    private var premiumStatusChangedCancellable: AnyCancellable?
-
     /// The coordinator used for navigation.
     private let coordinator: any Coordinator<Route, Event>
 
     /// An optional closure called inside the pending dismiss action before showing the upgrade
-    /// pending alert. Use to dismiss action cards or perform other per-screen cleanup.
+    /// pending alert. Use to hide action cards or perform other per-screen cleanup.
     private let onPendingDismiss: (() -> Void)?
+
+    /// A cancellable for the Premium checkout status subscription.
+    private var premiumStatusChangedCancellable: AnyCancellable?
 
     /// The services used by this helper.
     private let services: Services
