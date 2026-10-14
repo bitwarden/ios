@@ -15,7 +15,7 @@ env:
 
 jobs:
   enforce-label:
-    name: Enforce Label
+    name: Enforce
     runs-on: ubuntu-24.04
     permissions:
       pull-requests: read
