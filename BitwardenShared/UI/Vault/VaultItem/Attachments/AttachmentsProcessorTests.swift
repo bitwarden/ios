@@ -7,10 +7,13 @@ import XCTest
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
-class AttachmentsProcessorTests: BitwardenTestCase {
+// swiftlint:disable file_length
+
+class AttachmentsProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var attachmentPreviewHelper: MockAttachmentPreviewHelper!
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<VaultItemRoute, VaultItemEvent>!
     var errorReporter: MockErrorReporter!
     var premiumUpgradeHelper: MockPremiumUpgradeHelper!
@@ -23,6 +26,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         super.setUp()
 
         attachmentPreviewHelper = MockAttachmentPreviewHelper()
+        configService = MockConfigService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         premiumUpgradeHelper = MockPremiumUpgradeHelper()
@@ -32,6 +36,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
             attachmentPreviewHelper: attachmentPreviewHelper,
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                configService: configService,
                 errorReporter: errorReporter,
                 vaultRepository: vaultRepository,
             ),
@@ -44,6 +49,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         super.tearDown()
 
         attachmentPreviewHelper = nil
+        configService = nil
         coordinator = nil
         errorReporter = nil
         premiumUpgradeHelper = nil
@@ -56,6 +62,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
     /// `fileSelectionCompleted()` updates the state with the new file values.
     @MainActor
     func test_fileSelectionCompleted() {
+        subject.state.isMobileAttachmentUpdatesEnabled = true
         let data = Data("data".utf8)
         subject.fileSelectionCompleted(fileName: "exampleFile.txt", data: data)
         XCTAssertEqual(subject.state.fileName, "exampleFile.txt")
@@ -64,9 +71,21 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.fileData, data)
     }
 
+    /// `fileSelectionCompleted()` keeps the file name as chosen, including the extension's case, when the
+    /// mobile attachment updates feature flag is disabled.
+    @MainActor
+    func test_fileSelectionCompleted_featureFlagDisabled() {
+        let data = Data("data".utf8)
+        subject.fileSelectionCompleted(fileName: "REPORT.PDF", data: data)
+        XCTAssertEqual(subject.state.fileName, "REPORT.PDF")
+        XCTAssertEqual(subject.state.fileNameExtension, "")
+        XCTAssertEqual(subject.state.fileData, data)
+    }
+
     /// `fileSelectionCompleted()` stores an empty extension when the file doesn't have one.
     @MainActor
     func test_fileSelectionCompleted_noExtension() {
+        subject.state.isMobileAttachmentUpdatesEnabled = true
         subject.fileSelectionCompleted(fileName: "README", data: Data())
         XCTAssertEqual(subject.state.fileNameExtension, "")
         XCTAssertEqual(subject.state.fileNameStem, "README")
@@ -75,10 +94,31 @@ class AttachmentsProcessorTests: BitwardenTestCase {
     /// `fileSelectionCompleted()` lowercases the file's extension and keeps the rest of the name.
     @MainActor
     func test_fileSelectionCompleted_uppercaseExtension() {
+        subject.state.isMobileAttachmentUpdatesEnabled = true
         subject.fileSelectionCompleted(fileName: "REPORT.PDF", data: Data())
         XCTAssertEqual(subject.state.fileName, "REPORT.pdf")
         XCTAssertEqual(subject.state.fileNameExtension, ".pdf")
         XCTAssertEqual(subject.state.fileNameStem, "REPORT")
+    }
+
+    /// `perform(_:)` with `.appeared` enables the mobile attachment updates when the feature flag is on.
+    @MainActor
+    func test_perform_appeared_featureFlagEnabled() async {
+        configService.featureFlagsBool[.mobileAttachmentUpdates] = true
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.isMobileAttachmentUpdatesEnabled)
+    }
+
+    /// `perform(_:)` with `.appeared` leaves the mobile attachment updates disabled when the feature flag is off.
+    @MainActor
+    func test_perform_appeared_featureFlagDisabled() async {
+        configService.featureFlagsBool[.mobileAttachmentUpdates] = false
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.isMobileAttachmentUpdatesEnabled)
     }
 
     /// `perform(_:)` with `.loadPremiumStatus` shows the Premium upgrade alert if the user lacks Premium.
@@ -163,6 +203,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.save` shows an error if the file name is empty before its extension.
     @MainActor
     func test_perform_save_emptyName() async throws {
+        subject.state.isMobileAttachmentUpdatesEnabled = true
         subject.state.cipher = .fixture()
         subject.fileSelectionCompleted(fileName: "report.pdf", data: Data())
         subject.state.hasPremium = true
@@ -180,6 +221,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.save` saves the file with the name the user entered and its original extension.
     @MainActor
     func test_perform_save_renamed() async throws {
+        subject.state.isMobileAttachmentUpdatesEnabled = true
         subject.state.cipher = .fixture()
         subject.fileSelectionCompleted(fileName: "report.pdf", data: Data())
         subject.state.hasPremium = true
@@ -338,6 +380,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
     /// `receive(_:)` with `.fileNameChanged` updates the file name and keeps the file's extension.
     @MainActor
     func test_receive_fileNameChanged() {
+        subject.state.isMobileAttachmentUpdatesEnabled = true
         subject.fileSelectionCompleted(fileName: "report.pdf", data: Data())
 
         subject.receive(.fileNameChanged("summary"))
@@ -349,9 +392,20 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.fileNameStem, "")
     }
 
+    /// `receive(_:)` with `.fileNameChanged` does nothing if the mobile attachment updates feature flag is disabled.
+    @MainActor
+    func test_receive_fileNameChanged_featureFlagDisabled() {
+        subject.fileSelectionCompleted(fileName: "report.pdf", data: Data())
+
+        subject.receive(.fileNameChanged("summary"))
+
+        XCTAssertEqual(subject.state.fileName, "report.pdf")
+    }
+
     /// `receive(_:)` with `.fileNameChanged` does nothing if no file has been chosen.
     @MainActor
     func test_receive_fileNameChanged_noFile() {
+        subject.state.isMobileAttachmentUpdatesEnabled = true
         subject.receive(.fileNameChanged("summary"))
         XCTAssertNil(subject.state.fileName)
     }
