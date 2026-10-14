@@ -1275,10 +1275,10 @@
 "Server" = "Сервер";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Очистити %1$@";
-/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
-"OpensDatePicker" = "Відкриває вікно вибору дати";
+/* Accessibility hint on a collapsed date field announcing that activating it activates the calendar picker. */
+"DoubleTapToActivateThePicker" = "Double tap to activate the picker";
 /* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
-"ClosesDatePicker" = "Закриває вікно вибору дати";
+"DoubleTapToCloseThePicker" = "Double tap to close the picker";
 /* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
 "FutureDatesUnavailable" = "Майбутні дати недоступні";
 "PremiumRequiredTOTPDescriptionLong" = "Ключ автентифікації (TOTP) – це функція Premium. Ваш поточний тарифний план не передбачає доступ до цієї функції.";
@@ -1301,3 +1301,4 @@
 "NotNow" = "Не зараз";
 "SyncUnsuccessful" = "Не вдалося синхронізувати";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Не вдалося синхронізувати ваше сховище з сервером. Ваше сховище може не показувати останні зміни. Ви можете повторити спробу зараз або синхронізація відбудеться згодом автоматично.";
+"TextToShareRequired" = "Text to share (required)";

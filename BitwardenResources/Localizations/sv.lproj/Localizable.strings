@@ -1275,10 +1275,10 @@
 "Server" = "Server";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Rensa %1$@";
-/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
-"OpensDatePicker" = "Öppnar datumväljaren";
+/* Accessibility hint on a collapsed date field announcing that activating it activates the calendar picker. */
+"DoubleTapToActivateThePicker" = "Double tap to activate the picker";
 /* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
-"ClosesDatePicker" = "Stänger datumväljaren";
+"DoubleTapToCloseThePicker" = "Double tap to close the picker";
 /* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
 "FutureDatesUnavailable" = "Framtida datum är inte tillgängliga";
 "PremiumRequiredTOTPDescriptionLong" = "Autentiseringsnyckel (TOTP) är en Premium-funktion. Din nuvarande prenumeration inkluderar inte tillgång till denna funktion.";
@@ -1301,3 +1301,4 @@
 "NotNow" = "Inte nu";
 "SyncUnsuccessful" = "Synkronisering misslyckades";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Vi kunde inte synkronisera ditt valv med servern. Ditt valv kanske inte speglar dina senaste ändringar. Du kan försöka igen nu eller så synkroniseras det automatiskt senare.";
+"TextToShareRequired" = "Text to share (required)";
