@@ -2668,6 +2668,20 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
     }
 
+    /// `setUserSessionKeySharingEnabled(_:userId:)` doesn't persist the opt-out preference when
+    /// deleting the `.userSessionKey` fails, so the preference never reads off while the shared
+    /// key is still stored.
+    func test_setUserSessionKeySharingEnabled_false_doesNotPersistPreference_whenDeleteThrows() async throws {
+        stateService.activeAccount = Account.fixture()
+        keychainService.deleteUserAuthKeyThrowableError = BitwardenTestError.example
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.setUserSessionKeySharingEnabled(false)
+        }
+
+        XCTAssertFalse(keychainService.setUserAuthKeyCalled)
+    }
+
     /// `unlockVaultWithSessionKey()` unlocks the vault using the `.userSessionKey` Keychain item
     /// but does not write the key back to the Keychain. Re-writing an unchanged value would
     /// trigger a redundant Face ID/Touch ID prompt, since `.userSessionKey` requires user presence

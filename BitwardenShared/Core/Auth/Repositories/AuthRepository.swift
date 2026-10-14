@@ -1169,11 +1169,14 @@ extension DefaultAuthRepository: AuthRepository {
                 value: "true",
             )
         } else {
+            // Delete the shared key before persisting the opt-out so a failed delete fails closed:
+            // the preference stays "true" and the error surfaces instead of leaving the key live
+            // while the toggle reads off.
+            try await keychainService.deleteUserAuthKey(for: .userSessionKey(userId: id))
             try await keychainService.setUserAuthKey(
                 for: .userSessionKeySharingEnabled(userId: id),
                 value: "false",
             )
-            try? await keychainService.deleteUserAuthKey(for: .userSessionKey(userId: id))
         }
     }
 
