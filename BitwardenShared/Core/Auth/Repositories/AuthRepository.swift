@@ -931,30 +931,41 @@ extension DefaultAuthRepository: AuthRepository {
 
             var purgedCount = 0
             for account in accounts {
-                guard !account.isLoggedOut else { continue }
-
                 let userId = account.userId
+                guard !account.isLoggedOut else {
+                    await flightRecorder.log("[SessionCleanup] Skipped \(userId): logged out")
+                    continue
+                }
+
                 // Isolate failures per account so one failing account doesn't skip the rest.
                 do {
                     let timeoutValue = try await vaultTimeoutService.sessionTimeoutValue(userId: userId)
-                    guard timeoutValue.allowsUserSessionKeySharing else { continue }
+                    guard timeoutValue.allowsUserSessionKeySharing else {
+                        await flightRecorder.log(
+                            "[SessionCleanup] Skipped \(userId): timeout value doesn't share the session key",
+                        )
+                        continue
+                    }
 
                     let hasTimedOut = try await vaultTimeoutService.hasPassedSessionTimeout(
                         userId: userId,
                         isAppRestart: false,
                     )
-                    guard hasTimedOut else { continue }
+                    guard hasTimedOut else {
+                        await flightRecorder.log("[SessionCleanup] Skipped \(userId): session timeout not yet elapsed")
+                        continue
+                    }
 
                     try await keychainService.deleteUserAuthKey(for: .userSessionKey(userId: userId))
                     purgedCount += 1
+                    await flightRecorder.log("[SessionCleanup] Purged expired userSessionKey for \(userId)")
                 } catch {
-                    await flightRecorder.log("[SessionCleanup] Purge failed for an account.")
+                    await flightRecorder.log("[SessionCleanup] Purge failed for \(userId): \(error)")
                     errorReporter.log(error: error)
                 }
             }
 
-            guard purgedCount > 0 else { return }
-            await flightRecorder.log("[SessionCleanup] Purged \(purgedCount) expired userSessionKey item(s)")
+            await flightRecorder.log("[SessionCleanup] Finished, purged \(purgedCount) expired userSessionKey item(s)")
         } catch StateServiceError.noAccounts, StateServiceError.noActiveAccount {
             // No-op: nothing to do if there's no accounts.
         } catch {
