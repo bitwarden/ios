@@ -14,7 +14,7 @@ include:
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: 936ec9fd9c6c51edf1193dcc18f711186caee54e # 4.0.0-8716-a5cf71d
+    revision: 85870a00c988865f530a84709654f644894a7556 # 4.0.0-8718-1fc34e4
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
     exactVersion: 12.14.0
