@@ -229,6 +229,31 @@ struct PremiumUpgradeHelperTests {
         #expect(onPendingDismissCalled)
     }
 
+    /// When the billing service emits `.pending`, tapping "Sync Now" on the upgrade pending alert
+    /// calls `retryPendingUpgrade()`.
+    @Test
+    func subscribeToPremiumCheckoutStatus_pending_syncNow_retriesPendingUpgrade() async throws {
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
+        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
+        let subject = makeSubject()
+        await subject.navigateToPremiumUpgrade()
+        statusSubject.send(.pending)
+        try await waitForAsync {
+            guard case let .dismiss(action) = coordinator.routes.last else { return false }
+            return action != nil
+        }
+        guard case let .dismiss(action) = coordinator.routes.last else {
+            Issue.record("Expected .dismiss route")
+            return
+        }
+        action?.action()
+
+        try await coordinator.alertShown.last?.tapAction(title: Localizations.syncNow)
+
+        #expect(billingService.retryPendingUpgradeCalled)
+    }
+
     /// When the billing service emits `.syncing`, nothing happens (the loading overlay is shown
     /// by `PremiumUpgradeProcessor`).
     @Test
