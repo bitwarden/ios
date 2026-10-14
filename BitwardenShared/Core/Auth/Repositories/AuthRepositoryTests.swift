@@ -1890,6 +1890,36 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
+    /// `purgeExpiredUserSessionKeys()` keeps purging remaining accounts when one account fails,
+    /// and only counts the accounts that were actually purged.
+    func test_purgeExpiredUserSessionKeys_errorOnOneAccount_continuesWithOthers() async {
+        stateService.accounts = [anneAccount, beeAccount]
+        stateService.activeAccount = beeAccount
+        stateService.isAuthenticated[anneAccount.profile.userId] = true
+        stateService.isAuthenticated[beeAccount.profile.userId] = true
+        vaultTimeoutService.vaultTimeout[anneAccount.profile.userId] = .fifteenMinutes
+        vaultTimeoutService.vaultTimeout[beeAccount.profile.userId] = .fiveMinutes
+        vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = true
+        vaultTimeoutService.shouldSessionTimeout[beeAccount.profile.userId] = true
+        keychainService.deleteUserAuthKeyClosure = { item in
+            if item == .userSessionKey(userId: self.anneAccount.profile.userId) {
+                throw BitwardenTestError.example
+            }
+        }
+
+        await subject.purgeExpiredUserSessionKeys()
+
+        XCTAssertEqual(keychainService.deleteUserAuthKeyCallsCount, 2)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        XCTAssertEqual(
+            flightRecorder.logMessages,
+            [
+                "[SessionCleanup] Purge failed for an account.",
+                "[SessionCleanup] Purged 1 expired userSessionKey item(s)",
+            ],
+        )
+    }
+
     // MARK: startObservingUserSessionKeyFeatureFlag
 
     /// `startObservingUserSessionKeyFeatureFlag()` ignores pre-auth config emissions.

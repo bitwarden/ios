@@ -934,22 +934,23 @@ extension DefaultAuthRepository: AuthRepository {
                 guard !account.isLoggedOut else { continue }
 
                 let userId = account.userId
-                let timeoutValue = try await vaultTimeoutService.sessionTimeoutValue(userId: userId)
-                guard timeoutValue.allowsUserSessionKeySharing else { continue }
-
-                let hasTimedOut = try await vaultTimeoutService.hasPassedSessionTimeout(
-                    userId: userId,
-                    isAppRestart: false,
-                )
-                guard hasTimedOut else { continue }
-
+                // Isolate failures per account so one failing account doesn't skip the rest.
                 do {
+                    let timeoutValue = try await vaultTimeoutService.sessionTimeoutValue(userId: userId)
+                    guard timeoutValue.allowsUserSessionKeySharing else { continue }
+
+                    let hasTimedOut = try await vaultTimeoutService.hasPassedSessionTimeout(
+                        userId: userId,
+                        isAppRestart: false,
+                    )
+                    guard hasTimedOut else { continue }
+
                     try await keychainService.deleteUserAuthKey(for: .userSessionKey(userId: userId))
+                    purgedCount += 1
                 } catch {
-                    await flightRecorder.log("[SessionCleanup] Purge failed deleting user auth key.")
+                    await flightRecorder.log("[SessionCleanup] Purge failed for an account.")
                     errorReporter.log(error: error)
                 }
-                purgedCount += 1
             }
 
             guard purgedCount > 0 else { return }
