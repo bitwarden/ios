@@ -32,6 +32,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             organizationSharedKey: nil,
             send: nil,
             policy: nil,
+            organization: nil,
         )
         sdkStateBridgeStateService = MockSdkStateBridgeStateService()
         stateService = MockStateService()
