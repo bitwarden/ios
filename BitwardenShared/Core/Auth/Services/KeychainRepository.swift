@@ -393,6 +393,7 @@ extension DefaultKeychainRepository {
             .refreshToken(userId: userId),
             .unsuccessfulUnlockAttempts(userId: userId),
             .userSessionKey(userId: userId),
+            .userSessionKeySharingEnabled(userId: userId),
             // Exclude `vaultTimeout` since it should be maintained for users who log out and back in regularly.
         ]
         for keychainItem in keychainItems {

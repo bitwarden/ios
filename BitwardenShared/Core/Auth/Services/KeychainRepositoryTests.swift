@@ -98,6 +98,8 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
                 BitwardenKeychainItem.neverLock(userId: "1").unformattedKey,
                 BitwardenKeychainItem.refreshToken(userId: "1").unformattedKey,
                 BitwardenKeychainItem.unsuccessfulUnlockAttempts(userId: "1").unformattedKey,
+                BitwardenKeychainItem.userSessionKey(userId: "1").unformattedKey,
+                BitwardenKeychainItem.userSessionKeySharingEnabled(userId: "1").unformattedKey,
             ],
         )
     }
