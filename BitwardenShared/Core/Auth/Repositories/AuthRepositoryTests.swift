@@ -1786,7 +1786,13 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             keychainService.deleteUserAuthKeyReceivedItem,
             .userSessionKey(userId: anneAccount.profile.userId),
         )
-        XCTAssertEqual(flightRecorder.logMessages, ["[SessionCleanup] Purged 1 expired userSessionKey item(s)"])
+        XCTAssertEqual(
+            flightRecorder.logMessages,
+            [
+                "[SessionCleanup] Purged expired userSessionKey for \(anneAccount.profile.userId)",
+                "[SessionCleanup] Finished, purged 1 expired userSessionKey item(s)",
+            ],
+        )
     }
 
     /// `purgeExpiredUserSessionKeys()` doesn't delete the `.userSessionKey` for an account whose
@@ -1801,7 +1807,13 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         await subject.purgeExpiredUserSessionKeys()
 
         XCTAssertEqual(keychainService.deleteUserAuthKeyCallsCount, 0)
-        XCTAssertTrue(flightRecorder.logMessages.isEmpty)
+        XCTAssertEqual(
+            flightRecorder.logMessages,
+            [
+                "[SessionCleanup] Skipped \(anneAccount.profile.userId): session timeout not yet elapsed",
+                "[SessionCleanup] Finished, purged 0 expired userSessionKey item(s)",
+            ],
+        )
     }
 
     /// `purgeExpiredUserSessionKeys()` skips accounts with a `.never` or `.onAppRestart` timeout
@@ -1819,7 +1831,14 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         await subject.purgeExpiredUserSessionKeys()
 
         XCTAssertEqual(keychainService.deleteUserAuthKeyCallsCount, 0)
-        XCTAssertTrue(flightRecorder.logMessages.isEmpty)
+        XCTAssertEqual(
+            flightRecorder.logMessages,
+            [
+                "[SessionCleanup] Skipped \(anneAccount.profile.userId): timeout value doesn't share the session key",
+                "[SessionCleanup] Skipped \(beeAccount.profile.userId): timeout value doesn't share the session key",
+                "[SessionCleanup] Finished, purged 0 expired userSessionKey item(s)",
+            ],
+        )
     }
 
     /// `purgeExpiredUserSessionKeys()` skips an account that's already (soft) logged out.
@@ -1833,6 +1852,13 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         await subject.purgeExpiredUserSessionKeys()
 
         XCTAssertEqual(keychainService.deleteUserAuthKeyCallsCount, 0)
+        XCTAssertEqual(
+            flightRecorder.logMessages,
+            [
+                "[SessionCleanup] Skipped \(anneAccount.profile.userId): logged out",
+                "[SessionCleanup] Finished, purged 0 expired userSessionKey item(s)",
+            ],
+        )
     }
 
     /// `purgeExpiredUserSessionKeys()` purges every timed-out account, not just the active one,
@@ -1850,7 +1876,14 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         await subject.purgeExpiredUserSessionKeys()
 
         XCTAssertEqual(keychainService.deleteUserAuthKeyCallsCount, 2)
-        XCTAssertEqual(flightRecorder.logMessages, ["[SessionCleanup] Purged 2 expired userSessionKey item(s)"])
+        XCTAssertEqual(
+            flightRecorder.logMessages,
+            [
+                "[SessionCleanup] Purged expired userSessionKey for \(anneAccount.profile.userId)",
+                "[SessionCleanup] Purged expired userSessionKey for \(beeAccount.profile.userId)",
+                "[SessionCleanup] Finished, purged 2 expired userSessionKey item(s)",
+            ],
+        )
     }
 
     /// `purgeExpiredUserSessionKeys()` never locks or logs out an account, even when a non-active
@@ -1917,8 +1950,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(
             flightRecorder.logMessages,
             [
-                "[SessionCleanup] Purge failed for an account.",
-                "[SessionCleanup] Purged 1 expired userSessionKey item(s)",
+                "[SessionCleanup] Purge failed for \(anneAccount.profile.userId): \(BitwardenTestError.example)",
+                "[SessionCleanup] Purged expired userSessionKey for \(beeAccount.profile.userId)",
+                "[SessionCleanup] Finished, purged 1 expired userSessionKey item(s)",
             ],
         )
     }
