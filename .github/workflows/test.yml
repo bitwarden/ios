@@ -64,7 +64,7 @@ env:
 jobs:
   test:
     name: Test
-    runs-on: macos-26-xlarge
+    runs-on: xcode-27
     timeout-minutes: 50
     permissions:
       contents: read
@@ -200,6 +200,8 @@ jobs:
           _SIMULATOR_ID: ${{ steps.boot-simulator.outputs.simulator-id }}
         run: |
             python Scripts/pyeetd/main.py & PYEETD_PID=$!
+            # -collect-test-diagnostics never: on Xcode 27 / iOS 27 simulators, xcodebuild hangs
+            # 600s collecting simulator diagnostics after tests finish, even when all tests pass.
             xcrun xcodebuild test-without-building \
               -workspace Bitwarden.xcworkspace \
               -scheme Bitwarden \
@@ -209,6 +211,7 @@ jobs:
               -derivedDataPath build/DerivedData \
               -test-timeouts-enabled yes \
               -maximum-test-execution-time-allowance 10 \
+              -collect-test-diagnostics never \
               -quiet
             kill "$PYEETD_PID"
 
