@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - PasskeyError
 
-/// Errors produced by the SDK-backed passkey scenarios.
+/// Errors produced by the passkey scenarios.
 ///
 enum PasskeyError: Equatable, Error, LocalizedError {
     /// More than one stored credential matched the requested relying party; picking between
