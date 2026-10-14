@@ -344,6 +344,43 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertEqual(result, [.fixture(fingerprintPhrase: "a-fingerprint-phrase-string-placeholder")])
     }
 
+    /// `hashPassword(password:purpose:)` hashes the password using the salt from the account's
+    /// master password unlock data, the account's KDF params, and the requested purpose, returning
+    /// the SDK's hashed result.
+    func test_hashPassword() async throws {
+        stateService.activeAccount = .fixture(
+            profile: .fixture(
+                kdfIterations: 500_000,
+                userDecryptionOptions: UserDecryptionOptions(
+                    hasMasterPassword: true,
+                    masterPasswordUnlock: .fixture(iterations: 600_000, salt: "UNLOCK_SALT"),
+                    keyConnectorOption: nil,
+                    trustedDeviceOption: nil,
+                ),
+            ),
+        )
+        clientService.mockAuth.hashPasswordReturnValue = "hashed password"
+
+        let result = try await subject.hashPassword(password: "password", purpose: .serverAuthorization)
+
+        XCTAssertEqual(result, "hashed password")
+        XCTAssertEqual(clientService.mockAuth.hashPasswordReceivedArguments?.email, "UNLOCK_SALT")
+        XCTAssertEqual(clientService.mockAuth.hashPasswordReceivedArguments?.password, "password")
+        XCTAssertEqual(clientService.mockAuth.hashPasswordReceivedArguments?.kdfParams, .pbkdf2(iterations: 600_000))
+        XCTAssertEqual(clientService.mockAuth.hashPasswordReceivedArguments?.purpose, .serverAuthorization)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+    }
+
+    /// `hashPassword(password:purpose:)` throws an error when the account's master password unlock
+    /// data is missing.
+    func test_hashPassword_throwsWhenMasterPasswordUnlockMissing() async throws {
+        stateService.activeAccount = .fixture()
+
+        await assertAsyncThrows(error: AuthError.missingMasterPasswordUnlockData) {
+            _ = try await subject.hashPassword(password: "password", purpose: .serverAuthorization)
+        }
+    }
+
     /// `initiateLoginWithDevice(email:)` calls the sdk method and returns a fingerprint.
     func test_initiateLoginWithDevice() async throws {
         // Set up the mock data.
@@ -450,9 +487,10 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertEqual(client.requests[0].body, try preLoginRequest.encode())
         XCTAssertEqual(client.requests[1].body, try tokenRequest.encode())
 
-        XCTAssertEqual(clientService.mockAuth.hashPasswordReceivedArguments?.email, "user@bitwarden.com")
+        XCTAssertEqual(clientService.mockAuth.hashPasswordReceivedArguments?.email, "email@example.com")
         XCTAssertEqual(clientService.mockAuth.hashPasswordReceivedArguments?.password, "Password1234!")
         XCTAssertEqual(clientService.mockAuth.hashPasswordReceivedArguments?.kdfParams, .pbkdf2(iterations: 600_000))
+        XCTAssertTrue(errorReporter.errors.isEmpty)
 
         XCTAssertEqual(stateService.accountsAdded, [Account.fixtureAccountLogin()])
         XCTAssertEqual(
@@ -464,10 +502,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertNil(stateService.accountSetupAutofill["13512467-9cfe-43b0-969f-07534084764b"])
         XCTAssertNil(stateService.accountSetupImportLogins["13512467-9cfe-43b0-969f-07534084764b"])
         XCTAssertNil(stateService.accountSetupVaultUnlock["13512467-9cfe-43b0-969f-07534084764b"])
-        XCTAssertEqual(
-            stateService.masterPasswordHashes,
-            ["13512467-9cfe-43b0-969f-07534084764b": "hashed password"],
-        )
+        XCTAssertTrue(stateService.masterPasswordHashes.isEmpty)
         XCTAssertEqual(
             keychainRepository.setAccessTokenReceivedArguments?.value,
             IdentityTokenResponseModel.fixture().accessToken,
@@ -517,9 +552,10 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertEqual(client.requests[0].body, try preLoginRequest.encode())
         XCTAssertEqual(client.requests[1].body, try tokenRequest.encode())
 
-        XCTAssertEqual(clientService.mockAuth.hashPasswordReceivedArguments?.email, "user@bitwarden.com")
+        XCTAssertEqual(clientService.mockAuth.hashPasswordReceivedArguments?.email, "email@example.com")
         XCTAssertEqual(clientService.mockAuth.hashPasswordReceivedArguments?.password, "Password1234!")
         XCTAssertEqual(clientService.mockAuth.hashPasswordReceivedArguments?.kdfParams, .pbkdf2(iterations: 600_000))
+        XCTAssertTrue(errorReporter.errors.isEmpty)
 
         XCTAssertEqual(stateService.accountsAdded, [Account.fixtureAccountLogin()])
         XCTAssertEqual(
@@ -531,10 +567,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertEqual(stateService.accountSetupAutofill["13512467-9cfe-43b0-969f-07534084764b"], .incomplete)
         XCTAssertEqual(stateService.accountSetupImportLogins["13512467-9cfe-43b0-969f-07534084764b"], .incomplete)
         XCTAssertEqual(stateService.accountSetupVaultUnlock["13512467-9cfe-43b0-969f-07534084764b"], .incomplete)
-        XCTAssertEqual(
-            stateService.masterPasswordHashes,
-            ["13512467-9cfe-43b0-969f-07534084764b": "hashed password"],
-        )
+        XCTAssertTrue(stateService.masterPasswordHashes.isEmpty)
         XCTAssertEqual(
             keychainRepository.setAccessTokenReceivedArguments?.value,
             IdentityTokenResponseModel.fixture().accessToken,
@@ -645,7 +678,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertEqual(client.requests[0].body, try preLoginRequest.encode())
         XCTAssertEqual(client.requests[1].body, try tokenRequest.encode())
 
-        XCTAssertEqual(clientService.mockAuth.hashPasswordReceivedArguments?.email, "user@bitwarden.com")
+        XCTAssertEqual(clientService.mockAuth.hashPasswordReceivedArguments?.email, "email@example.com")
         XCTAssertEqual(clientService.mockAuth.hashPasswordReceivedArguments?.password, "Password1234!")
         XCTAssertEqual(clientService.mockAuth.hashPasswordReceivedArguments?.kdfParams, .pbkdf2(iterations: 600_000))
 
@@ -854,10 +887,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                 "13512467-9cfe-43b0-969f-07534084764b": .v1(privateKey: "PRIVATE_KEY"),
             ],
         )
-        XCTAssertEqual(
-            stateService.masterPasswordHashes,
-            ["13512467-9cfe-43b0-969f-07534084764b": "hashed password"],
-        )
+        XCTAssertTrue(stateService.masterPasswordHashes.isEmpty)
         XCTAssertEqual(
             keychainRepository.setAccessTokenReceivedArguments?.value,
             IdentityTokenResponseModel.fixture().accessToken,
@@ -917,10 +947,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                 "13512467-9cfe-43b0-969f-07534084764b": .v1(privateKey: "PRIVATE_KEY"),
             ],
         )
-        XCTAssertEqual(
-            stateService.masterPasswordHashes,
-            ["13512467-9cfe-43b0-969f-07534084764b": "hashed password"],
-        )
+        XCTAssertTrue(stateService.masterPasswordHashes.isEmpty)
         XCTAssertEqual(
             keychainRepository.setAccessTokenReceivedArguments?.value,
             IdentityTokenResponseModel.fixture().accessToken,

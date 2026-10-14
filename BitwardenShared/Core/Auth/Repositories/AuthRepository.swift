@@ -992,8 +992,9 @@ extension DefaultAuthRepository: AuthRepository {
         try await accountAPIService.setPassword(requestModel)
         try await stateService.setAccountMasterPasswordUnlock(
             MasterPasswordUnlockResponseModel(
-                account: account,
+                kdf: kdf,
                 masterKeyEncryptedUserKey: requestUserKey,
+                salt: email,
             ),
         )
         try await stateService.setAccountCryptographicState(cryptographicState)
@@ -1315,12 +1316,15 @@ extension DefaultAuthRepository: AuthRepository {
         reason: ForcePasswordResetReason,
     ) async throws {
         let account = try await stateService.getActiveAccount()
+        guard let masterPasswordUnlock = account.profile.userDecryptionOptions?.masterPasswordUnlock else {
+            throw AuthError.missingMasterPasswordUnlockData
+        }
         let updatePasswordResponse = try await clientService.crypto().makeUpdatePassword(newPassword: newPassword)
 
         let masterPasswordHash = try await clientService.auth().hashPassword(
-            email: account.profile.email,
+            email: masterPasswordUnlock.salt,
             password: currentPassword,
-            kdfParams: account.kdf.sdkKdf,
+            kdfParams: masterPasswordUnlock.kdf.sdkKdf,
             purpose: .serverAuthorization,
         )
 
@@ -1346,8 +1350,9 @@ extension DefaultAuthRepository: AuthRepository {
 
         try await stateService.setAccountMasterPasswordUnlock(
             MasterPasswordUnlockResponseModel(
-                account: account,
+                kdf: masterPasswordUnlock.kdf,
                 masterKeyEncryptedUserKey: updatePasswordResponse.newKey,
+                salt: masterPasswordUnlock.salt,
             ),
         )
         try await stateService.setMasterPasswordHash(updatePasswordResponse.passwordHash)
