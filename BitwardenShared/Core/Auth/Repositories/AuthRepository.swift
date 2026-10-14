@@ -1279,6 +1279,15 @@ extension DefaultAuthRepository: AuthRepository {
         }
 
         let id = try await stateService.getActiveAccountId()
+
+        // Don't rely on callers having purged expired keys: the account's timeout may have elapsed
+        // or been changed to a value that doesn't allow sharing (e.g. by a policy).
+        guard try await vaultTimeoutService.sessionTimeoutValue(userId: id).allowsUserSessionKeySharing,
+              try await !vaultTimeoutService.hasPassedSessionTimeout(userId: id) else {
+            try? await keychainService.deleteUserAuthKey(for: .userSessionKey(userId: id))
+            return false
+        }
+
         do {
             let sessionKey = try await keychainService.getUserAuthKeyValue(for: .userSessionKey(userId: id))
             do {

@@ -2519,6 +2519,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.activeAccount = active
         stateService.accountCryptographicStates[active.profile.userId] = .fixtureV2()
         keychainService.getUserAuthKeyValueReturnValue = "SESSION_KEY"
+        clientService.mockCrypto.getUserEncryptionKeyReturnValue = "USER_ENCRYPTION_KEY"
 
         let result = try await subject.unlockVaultWithSessionKey()
 
@@ -2595,6 +2596,50 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         XCTAssertFalse(result)
         XCTAssertFalse(keychainService.getUserAuthKeyValueCalled)
+    }
+
+    /// `unlockVaultWithSessionKey()` returns `false`, doesn't unlock the vault and deletes the
+    /// session key when the account's session timeout has already elapsed.
+    func test_unlockVaultWithSessionKey_sessionTimedOut_deletesKeyAndReturnsFalse() async throws {
+        configService.featureFlagsBool[.enableUserSessionKeySharing] = true
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        stateService.accountCryptographicStates[active.profile.userId] = .fixtureV2()
+        vaultTimeoutService.vaultTimeout[active.profile.userId] = .fifteenMinutes
+        vaultTimeoutService.shouldSessionTimeout[active.profile.userId] = true
+        keychainService.getUserAuthKeyValueReturnValue = "SESSION_KEY"
+        clientService.mockCrypto.getUserEncryptionKeyReturnValue = "USER_ENCRYPTION_KEY"
+
+        let result = try await subject.unlockVaultWithSessionKey()
+
+        XCTAssertFalse(result)
+        XCTAssertNil(clientService.mockCrypto.initializeUserCryptoReceivedReq)
+        XCTAssertEqual(
+            keychainService.deleteUserAuthKeyReceivedItem,
+            .userSessionKey(userId: active.profile.userId),
+        )
+    }
+
+    /// `unlockVaultWithSessionKey()` returns `false`, doesn't unlock the vault and deletes the
+    /// session key when the account's timeout value no longer allows session key sharing
+    /// (e.g. lowered by a policy).
+    func test_unlockVaultWithSessionKey_timeoutDisallowsSharing_deletesKeyAndReturnsFalse() async throws {
+        configService.featureFlagsBool[.enableUserSessionKeySharing] = true
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        stateService.accountCryptographicStates[active.profile.userId] = .fixtureV2()
+        vaultTimeoutService.vaultTimeout[active.profile.userId] = .immediately
+        keychainService.getUserAuthKeyValueReturnValue = "SESSION_KEY"
+        clientService.mockCrypto.getUserEncryptionKeyReturnValue = "USER_ENCRYPTION_KEY"
+
+        let result = try await subject.unlockVaultWithSessionKey()
+
+        XCTAssertFalse(result)
+        XCTAssertNil(clientService.mockCrypto.initializeUserCryptoReceivedReq)
+        XCTAssertEqual(
+            keychainService.deleteUserAuthKeyReceivedItem,
+            .userSessionKey(userId: active.profile.userId),
+        )
     }
 
     /// `lockAllVaults(isManuallyLocking:)` locks all available vaults.
