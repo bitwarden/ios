@@ -7,12 +7,12 @@ import Networking
 struct UpdateTempPasswordRequestModel: JSONRequestBody {
     // MARK: Properties
 
-    /// The user's key.
-    let key: String
+    /// The new password's authentication data.
+    let authenticationData: MasterPasswordAuthenticationDataRequestModel
 
     /// The master password hint.
     let masterPasswordHint: String
 
-    /// The hash of the new master password.
-    let newMasterPasswordHash: String
+    /// The new password's unlock data.
+    let unlockData: MasterPasswordUnlockDataRequestModel
 }
