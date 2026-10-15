@@ -185,7 +185,7 @@ struct EditAuthenticatorItemView: View {
     }
 }
 
-// MARK: - EditAuthenticatorItemView_Previews
+// MARK: - Previews
 
 #if DEBUG
 #Preview("Advanced Closed") {
