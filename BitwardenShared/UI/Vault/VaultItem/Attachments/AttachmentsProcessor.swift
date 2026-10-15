@@ -19,6 +19,9 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
 
     // MARK: Private Properties
 
+    /// The helper used to download and preview an attachment.
+    private let attachmentPreviewHelper: AttachmentPreviewHelper
+
     /// The `Coordinator` that handles navigation.
     private var coordinator: AnyCoordinator<VaultItemRoute, VaultItemEvent>
 
@@ -37,15 +40,18 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
     /// Initialize a `MoveToOrganizationProcessor`.
     ///
     /// - Parameters:
+    ///   - attachmentPreviewHelper: The helper used to download and preview an attachment.
     ///   - coordinator: The coordinator that handles navigation.
     ///   - services: The services used by this processor.
     ///   - state: The initial state of the processor.
     ///
     init(
+        attachmentPreviewHelper: AttachmentPreviewHelper,
         coordinator: AnyCoordinator<VaultItemRoute, VaultItemEvent>,
         services: Services,
         state: AttachmentsState,
     ) {
+        self.attachmentPreviewHelper = attachmentPreviewHelper
         self.coordinator = coordinator
         self.services = services
 
@@ -65,6 +71,11 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
 
     override func receive(_ action: AttachmentsAction) {
         switch action {
+        case let .attachmentTapped(attachment):
+            guard let cipher = state.cipher else { return }
+            Task {
+                await attachmentPreviewHelper.showPreview(for: attachment, cipher: cipher)
+            }
         case .chooseFilePressed:
             presentFileSelectionAlert()
         case .clearURL:
