@@ -51,8 +51,6 @@ struct CipherItemView: View {
     }
 }
 
-struct CipherItemView_Previews: PreviewProvider {
-    static var previews: some View {
-        CipherItemView(CipherMock.ciphers[0], .infinity)
-    }
+#Preview {
+    CipherItemView(CipherMock.ciphers[0], .infinity)
 }

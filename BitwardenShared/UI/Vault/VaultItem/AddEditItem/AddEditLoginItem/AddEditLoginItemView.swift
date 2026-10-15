@@ -249,52 +249,52 @@ struct AddEditLoginItemView: View {
 // MARK: Previews
 
 #if DEBUG
-struct AddEditLoginItemView_Previews: PreviewProvider {
+private enum AddEditLoginItemPreviewData {
     // swiftlint:disable:next line_length
     static let key = "otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example&algorithm=SHA1&digits=6&period=30"
+}
 
-    static var previews: some View {
-        NavigationView {
-            ScrollView {
-                LazyVStack(spacing: 16) {
-                    AddEditLoginItemView(
-                        store: Store(
-                            processor: StateProcessor(
-                                state: LoginItemState(
-                                    isTOTPAvailable: false,
-                                    totpState: .none,
-                                ),
+#Preview("Empty Add Edit State") {
+    NavigationView {
+        ScrollView {
+            LazyVStack(spacing: 16) {
+                AddEditLoginItemView(
+                    store: Store(
+                        processor: StateProcessor(
+                            state: LoginItemState(
+                                isTOTPAvailable: false,
+                                totpState: .none,
                             ),
                         ),
-                    )
-                }
-                .padding(16)
+                    ),
+                )
             }
-            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
-            .ignoresSafeArea()
+            .padding(16)
         }
-        .previewDisplayName("Empty Add Edit State")
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
+        .ignoresSafeArea()
+    }
+}
 
-        NavigationView {
-            ScrollView {
-                LazyVStack(spacing: 16) {
-                    AddEditLoginItemView(
-                        store: Store(
-                            processor: StateProcessor(
-                                state: LoginItemState(
-                                    isTOTPAvailable: true,
-                                    totpState: .init(key),
-                                ),
+#Preview("Auth Key") {
+    NavigationView {
+        ScrollView {
+            LazyVStack(spacing: 16) {
+                AddEditLoginItemView(
+                    store: Store(
+                        processor: StateProcessor(
+                            state: LoginItemState(
+                                isTOTPAvailable: true,
+                                totpState: .init(AddEditLoginItemPreviewData.key),
                             ),
                         ),
-                    )
-                }
-                .padding(16)
+                    ),
+                )
             }
-            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
-            .ignoresSafeArea()
+            .padding(16)
         }
-        .previewDisplayName("Auth Key")
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
+        .ignoresSafeArea()
     }
 }
 #endif

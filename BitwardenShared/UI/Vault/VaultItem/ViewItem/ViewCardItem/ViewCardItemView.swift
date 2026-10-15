@@ -132,145 +132,126 @@ struct ViewCardItemView: View {
 }
 
 #if DEBUG
-struct ViewCardItemView_Previews: PreviewProvider {
-    static var previews: some View {
-        emptyPreview
-
-        fullPreview
-
-        hiddenCodePreview
-
-        noExpiration
-
-        yearOnlyExpiration
-    }
-
-    @ViewBuilder static var emptyPreview: some View {
-        NavigationView {
-            ScrollView {
-                ViewCardItemView(
-                    store: Store(
-                        processor: StateProcessor(
-                            state: CardItemState() as (any ViewCardItemState),
-                        ),
+#Preview("Empty View State") {
+    NavigationView {
+        ScrollView {
+            ViewCardItemView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: CardItemState() as (any ViewCardItemState),
                     ),
-                )
-                .padding(16)
-            }
-            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
-            .navigationBar(title: "Empty View State", titleDisplayMode: .inline)
+                ),
+            )
+            .padding(16)
         }
-        .previewDisplayName("Empty View State")
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
+        .navigationBar(title: "Empty View State", titleDisplayMode: .inline)
     }
+}
 
-    @ViewBuilder static var fullPreview: some View {
-        NavigationView {
-            ScrollView {
-                ViewCardItemView(
-                    store: Store(
-                        processor: StateProcessor(
-                            state: {
-                                var state = CardItemState()
-                                state.brand = .custom(.visa)
-                                state.cardNumber = "4400123456789"
-                                state.cardSecurityCode = "123"
-                                state.cardholderName = "Bitwarden User"
-                                state.expirationMonth = .custom(.aug)
-                                state.expirationYear = "1989"
-                                state.isCodeVisible = true
-                                state.isNumberVisible = true
-                                return state
-                            }() as (any ViewCardItemState),
-                        ),
+#Preview("Visible Add Edit State") {
+    NavigationView {
+        ScrollView {
+            ViewCardItemView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: {
+                            var state = CardItemState()
+                            state.brand = .custom(.visa)
+                            state.cardNumber = "4400123456789"
+                            state.cardSecurityCode = "123"
+                            state.cardholderName = "Bitwarden User"
+                            state.expirationMonth = .custom(.aug)
+                            state.expirationYear = "1989"
+                            state.isCodeVisible = true
+                            state.isNumberVisible = true
+                            return state
+                        }() as (any ViewCardItemState),
                     ),
-                )
-                .padding(16)
-            }
-            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
-            .navigationBar(title: "Visible View State", titleDisplayMode: .inline)
+                ),
+            )
+            .padding(16)
         }
-        .previewDisplayName("Visible Add Edit State")
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
+        .navigationBar(title: "Visible View State", titleDisplayMode: .inline)
     }
+}
 
-    @ViewBuilder static var hiddenCodePreview: some View {
-        NavigationView {
-            ScrollView {
-                ViewCardItemView(
-                    store: Store(
-                        processor: StateProcessor(
-                            state: {
-                                var state = CardItemState()
-                                state.brand = .custom(.visa)
-                                state.cardNumber = "4400123456789"
-                                state.cardSecurityCode = "123"
-                                state.cardholderName = "Bitwarden User"
-                                state.expirationMonth = .custom(.aug)
-                                state.expirationYear = "1989"
-                                return state
-                            }() as (any ViewCardItemState),
-                        ),
+#Preview("Hidden View State") {
+    NavigationView {
+        ScrollView {
+            ViewCardItemView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: {
+                            var state = CardItemState()
+                            state.brand = .custom(.visa)
+                            state.cardNumber = "4400123456789"
+                            state.cardSecurityCode = "123"
+                            state.cardholderName = "Bitwarden User"
+                            state.expirationMonth = .custom(.aug)
+                            state.expirationYear = "1989"
+                            return state
+                        }() as (any ViewCardItemState),
                     ),
-                )
-                .padding(16)
-            }
-            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
-            .navigationBar(title: "Hidden View State", titleDisplayMode: .inline)
+                ),
+            )
+            .padding(16)
         }
-        .previewDisplayName("Hidden View State")
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
+        .navigationBar(title: "Hidden View State", titleDisplayMode: .inline)
     }
+}
 
-    @ViewBuilder static var noExpiration: some View {
-        NavigationView {
-            ScrollView {
-                ViewCardItemView(
-                    store: Store(
-                        processor: StateProcessor(
-                            state: {
-                                var state = CardItemState()
-                                state.brand = .custom(.visa)
-                                state.cardNumber = "4400123456789"
-                                state.cardSecurityCode = "123"
-                                state.cardholderName = "Bitwarden User"
-                                state.expirationMonth = .default
-                                state.expirationYear = ""
-                                return state
-                            }() as (any ViewCardItemState),
-                        ),
+#Preview("No Expiration") {
+    NavigationView {
+        ScrollView {
+            ViewCardItemView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: {
+                            var state = CardItemState()
+                            state.brand = .custom(.visa)
+                            state.cardNumber = "4400123456789"
+                            state.cardSecurityCode = "123"
+                            state.cardholderName = "Bitwarden User"
+                            state.expirationMonth = .default
+                            state.expirationYear = ""
+                            return state
+                        }() as (any ViewCardItemState),
                     ),
-                )
-                .padding(16)
-            }
-            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
-            .navigationBar(title: "Hidden View State", titleDisplayMode: .inline)
+                ),
+            )
+            .padding(16)
         }
-        .previewDisplayName("No Expiration")
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
+        .navigationBar(title: "Hidden View State", titleDisplayMode: .inline)
     }
+}
 
-    @ViewBuilder static var yearOnlyExpiration: some View {
-        NavigationView {
-            ScrollView {
-                ViewCardItemView(
-                    store: Store(
-                        processor: StateProcessor(
-                            state: {
-                                var state = CardItemState()
-                                state.brand = .custom(.visa)
-                                state.cardNumber = "4400123456789"
-                                state.cardSecurityCode = "123"
-                                state.cardholderName = "Bitwarden User"
-                                state.expirationMonth = .default
-                                state.expirationYear = "1989"
-                                return state
-                            }() as (any ViewCardItemState),
-                        ),
+#Preview("Year But Not Month") {
+    NavigationView {
+        ScrollView {
+            ViewCardItemView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: {
+                            var state = CardItemState()
+                            state.brand = .custom(.visa)
+                            state.cardNumber = "4400123456789"
+                            state.cardSecurityCode = "123"
+                            state.cardholderName = "Bitwarden User"
+                            state.expirationMonth = .default
+                            state.expirationYear = "1989"
+                            return state
+                        }() as (any ViewCardItemState),
                     ),
-                )
-                .padding(16)
-            }
-            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
-            .navigationBar(title: "Hidden View State", titleDisplayMode: .inline)
+                ),
+            )
+            .padding(16)
         }
-        .previewDisplayName("Year But Not Month")
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
+        .navigationBar(title: "Hidden View State", titleDisplayMode: .inline)
     }
 }
 #endif
