@@ -167,106 +167,91 @@ struct ManualEntryView: View {
 }
 
 #if DEBUG
-struct ManualEntryView_Previews: PreviewProvider {
-    struct PreviewState: ManualEntryState {
-        var authenticatorKey: String = ""
+private struct ManualEntryPreviewState: ManualEntryState {
+    var authenticatorKey: String = ""
 
-        var defaultSaveOption: DefaultSaveOption = .none
+    var defaultSaveOption: DefaultSaveOption = .none
 
-        var deviceSupportsCamera: Bool = true
+    var deviceSupportsCamera: Bool = true
 
-        var isPasswordManagerSyncActive: Bool = false
+    var isPasswordManagerSyncActive: Bool = false
 
-        var manualEntryState: ManualEntryState {
-            self
-        }
-
-        var name: String = ""
+    var manualEntryState: ManualEntryState {
+        self
     }
 
-    static var previews: some View {
-        empty
-        textAdded
-        syncActiveNoDefault
-        syncActiveBitwardenDefault
-        syncActiveLocalDefault
-    }
+    var name: String = ""
+}
 
-    @ViewBuilder static var empty: some View {
-        NavigationView {
-            ManualEntryView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: PreviewState().manualEntryState,
-                    ),
+#Preview("Empty") {
+    NavigationView {
+        ManualEntryView(
+            store: Store(
+                processor: StateProcessor(
+                    state: ManualEntryPreviewState().manualEntryState,
                 ),
-            )
-        }
-        .previewDisplayName("Empty")
+            ),
+        )
     }
+}
 
-    @ViewBuilder static var textAdded: some View {
-        NavigationView {
-            ManualEntryView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: PreviewState(
-                            authenticatorKey: "manualEntry",
-                            name: "Manual Name",
-                        ).manualEntryState,
-                    ),
+#Preview("Text Added") {
+    NavigationView {
+        ManualEntryView(
+            store: Store(
+                processor: StateProcessor(
+                    state: ManualEntryPreviewState(
+                        authenticatorKey: "manualEntry",
+                        name: "Manual Name",
+                    ).manualEntryState,
                 ),
-            )
-        }
-        .previewDisplayName("Text Added")
+            ),
+        )
     }
+}
 
-    @ViewBuilder static var syncActiveNoDefault: some View {
-        NavigationView {
-            ManualEntryView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: PreviewState(
-                            defaultSaveOption: .none,
-                            isPasswordManagerSyncActive: true,
-                        ).manualEntryState,
-                    ),
+#Preview("Sync Active - No default") {
+    NavigationView {
+        ManualEntryView(
+            store: Store(
+                processor: StateProcessor(
+                    state: ManualEntryPreviewState(
+                        defaultSaveOption: .none,
+                        isPasswordManagerSyncActive: true,
+                    ).manualEntryState,
                 ),
-            )
-        }
-        .previewDisplayName("Sync Active - No default")
+            ),
+        )
     }
+}
 
-    @ViewBuilder static var syncActiveBitwardenDefault: some View {
-        NavigationView {
-            ManualEntryView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: PreviewState(
-                            defaultSaveOption: .saveToBitwarden,
-                            isPasswordManagerSyncActive: true,
-                        ).manualEntryState,
-                    ),
+#Preview("Sync Active - Bitwarden default") {
+    NavigationView {
+        ManualEntryView(
+            store: Store(
+                processor: StateProcessor(
+                    state: ManualEntryPreviewState(
+                        defaultSaveOption: .saveToBitwarden,
+                        isPasswordManagerSyncActive: true,
+                    ).manualEntryState,
                 ),
-            )
-        }
-        .previewDisplayName("Sync Active - Bitwarden default")
+            ),
+        )
     }
+}
 
-    @ViewBuilder static var syncActiveLocalDefault: some View {
-        NavigationView {
-            ManualEntryView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: PreviewState(
-                            defaultSaveOption: .saveHere,
-                            isPasswordManagerSyncActive: true,
-                        ).manualEntryState,
-                    ),
+#Preview("Sync Active - Local default") {
+    NavigationView {
+        ManualEntryView(
+            store: Store(
+                processor: StateProcessor(
+                    state: ManualEntryPreviewState(
+                        defaultSaveOption: .saveHere,
+                        isPasswordManagerSyncActive: true,
+                    ).manualEntryState,
                 ),
-            )
-        }
-        .previewDisplayName("Sync Active - Local default")
+            ),
+        )
     }
 }
 #endif

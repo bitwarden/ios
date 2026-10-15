@@ -438,7 +438,7 @@ private extension AddEditItemView {
 }
 
 #if DEBUG
-struct AddEditItemView_Previews: PreviewProvider {
+private enum AddEditItemPreviewData {
     static var cipherState: CipherItemState {
         var state = CipherItemState(
             existing: .fixture(
@@ -464,108 +464,112 @@ struct AddEditItemView_Previews: PreviewProvider {
         state.ownershipOptions = [.personal(displayName: "user@bitwarden.com")]
         return state
     }
+}
 
-    static var previews: some View {
-        NavigationView {
-            AddEditItemView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: CipherItemState(
-                            hasPremium: true,
-                        ).addEditState,
-                    ),
+#Preview("Empty Add") {
+    NavigationView {
+        AddEditItemView(
+            store: Store(
+                processor: StateProcessor(
+                    state: CipherItemState(
+                        hasPremium: true,
+                    ).addEditState,
                 ),
-            )
-        }
-        .previewDisplayName("Empty Add")
+            ),
+        )
+    }
+}
 
-        NavigationView {
-            AddEditItemView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: {
-                            var state = cipherState
-                            state.notes = "This is a nice note"
-                            return state
-                        }(),
-                    ),
+#Preview("Edit Notes") {
+    NavigationView {
+        AddEditItemView(
+            store: Store(
+                processor: StateProcessor(
+                    state: {
+                        var state = AddEditItemPreviewData.cipherState
+                        state.notes = "This is a nice note"
+                        return state
+                    }(),
                 ),
-            )
-        }
-        .previewDisplayName("Edit Notes")
+            ),
+        )
+    }
+}
 
-        NavigationView {
-            AddEditItemView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: CipherItemState(
-                            addItem: .card,
-                            hasPremium: true,
+#Preview("Add Card") {
+    NavigationView {
+        AddEditItemView(
+            store: Store(
+                processor: StateProcessor(
+                    state: CipherItemState(
+                        addItem: .card,
+                        hasPremium: true,
+                    )
+                    .addEditState,
+                ),
+            ),
+        )
+    }
+}
+
+#Preview("Edit Card") {
+    NavigationView {
+        AddEditItemView(
+            store: Store(
+                processor: StateProcessor(
+                    state: {
+                        var copy = AddEditItemPreviewData.cipherState
+                        copy.name = "Sample Card"
+                        copy.type = .card
+                        copy.cardItemState = .init(
+                            brand: .custom(.americanExpress),
+                            cardholderName: "Bitwarden User",
+                            cardNumber: "123456789012345",
+                            cardSecurityCode: "123",
+                            expirationMonth: .custom(.feb),
+                            expirationYear: "3009",
                         )
-                        .addEditState,
-                    ),
+                        copy.folderId = "1"
+                        copy.folders = [
+                            .custom(FolderView(id: "1", name: "Financials", revisionDate: Date())),
+                        ]
+                        copy.isFavoriteOn = false
+                        copy.isMasterPasswordRePromptOn = true
+                        copy.owner = .personal(displayName: "security@bitwarden.com")
+                        return copy.addEditState
+                    }(),
                 ),
-            )
-        }
-        .previewDisplayName("Add Card")
+            ),
+        )
+    }
+}
 
-        NavigationView {
-            AddEditItemView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: {
-                            var copy = cipherState
-                            copy.name = "Sample Card"
-                            copy.type = .card
-                            copy.cardItemState = .init(
-                                brand: .custom(.americanExpress),
-                                cardholderName: "Bitwarden User",
-                                cardNumber: "123456789012345",
-                                cardSecurityCode: "123",
-                                expirationMonth: .custom(.feb),
-                                expirationYear: "3009",
-                            )
-                            copy.folderId = "1"
-                            copy.folders = [
-                                .custom(FolderView(id: "1", name: "Financials", revisionDate: Date())),
-                            ]
-                            copy.isFavoriteOn = false
-                            copy.isMasterPasswordRePromptOn = true
-                            copy.owner = .personal(displayName: "security@bitwarden.com")
-                            return copy.addEditState
-                        }(),
-                    ),
+#Preview("Edit Login") {
+    NavigationView {
+        AddEditItemView(
+            store: Store(
+                processor: StateProcessor(
+                    state: AddEditItemPreviewData.cipherState.addEditState,
                 ),
-            )
-        }
-        .previewDisplayName("Edit Card")
+            ),
+        )
+    }
+}
 
-        NavigationView {
-            AddEditItemView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: cipherState.addEditState,
-                    ),
+#Preview("Edit Login: Key Added") {
+    NavigationView {
+        AddEditItemView(
+            store: Store(
+                processor: StateProcessor(
+                    state: {
+                        var state = AddEditItemPreviewData.cipherState
+                        state.loginState.totpState = .init("JBSWY3DPEHPK3PXP")
+                        state.toast = Toast(title: "Authenticator key added.")
+                        return state
+                    }(),
                 ),
-            )
-        }
-        .previewDisplayName("Edit Login")
-
-        NavigationView {
-            AddEditItemView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: {
-                            var state = cipherState
-                            state.loginState.totpState = .init("JBSWY3DPEHPK3PXP")
-                            state.toast = Toast(title: "Authenticator key added.")
-                            return state
-                        }(),
-                    ),
-                ),
-            )
-        }
-        .previewDisplayName("Edit Login: Key Added")
+            ),
+        )
     }
 }
 #endif // swiftlint:disable:this file_length

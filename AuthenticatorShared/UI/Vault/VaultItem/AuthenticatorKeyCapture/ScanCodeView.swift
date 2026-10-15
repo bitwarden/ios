@@ -144,20 +144,17 @@ struct ScanCodeView: View {
 }
 
 #if DEBUG
-struct ScanCodeView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            ScanCodeView(
-                cameraSession: AVCaptureSession(),
-                store: Store(
-                    processor: StateProcessor(
-                        state: ScanCodeState(showManualEntry: true),
-                    ),
+#Preview("Scan Code View") {
+    NavigationView {
+        ScanCodeView(
+            cameraSession: AVCaptureSession(),
+            store: Store(
+                processor: StateProcessor(
+                    state: ScanCodeState(showManualEntry: true),
                 ),
-            )
-        }
-        .navigationViewStyle(.stack)
-        .previewDisplayName("Scan Code View")
+            ),
+        )
     }
+    .navigationViewStyle(.stack)
 }
 #endif
