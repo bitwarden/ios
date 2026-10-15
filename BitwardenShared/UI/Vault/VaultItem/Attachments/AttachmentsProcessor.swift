@@ -89,6 +89,9 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
             confirmDeleteAttachment(attachment)
         case .dismissPressed:
             coordinator.navigate(to: .dismiss())
+        case let .fileNameChanged(stem):
+            guard state.fileName != nil else { return }
+            state.fileName = stem + state.fileNameExtension
         case let .toastShown(toast):
             state.toast = toast
         }
@@ -161,6 +164,10 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
             try EmptyInputValidator(fieldName: Localizations.file)
                 .validate(input: state.fileName)
 
+            // Ensure the user has entered a name before the file's extension.
+            try EmptyInputValidator(fieldName: Localizations.fileName)
+                .validate(input: state.fileNameStem)
+
             // Show the upgrade alert and stop if the user doesn't have Premium.
             await loadPremiumStatus()
             guard state.hasPremium else { return }
@@ -174,7 +181,8 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
             }
 
             // Save the attachment.
-            guard let cipherView = state.cipher, let data = state.fileData, let name = state.fileName else { return }
+            guard let cipherView = state.cipher, let data = state.fileData, state.fileName != nil else { return }
+            let name = state.fileNameStem.trimmingCharacters(in: .whitespacesAndNewlines) + state.fileNameExtension
             coordinator.showLoadingOverlay(title: Localizations.saving)
             let updatedCipherView = try await services.vaultRepository.saveAttachment(
                 cipherView: cipherView,
@@ -185,8 +193,9 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
             // Update the view, reset the inputs, and display the toast.
             state.cipher = updatedCipherView
             state.fileName = nil
+            state.fileNameExtension = ""
             state.fileData = nil
-            state.toast = Toast(title: Localizations.attachementAdded)
+            state.toast = Toast(title: Localizations.attachmentAdded)
         } catch let error as InputValidationError {
             coordinator.showAlert(.inputValidationAlert(error: error))
         } catch {
@@ -200,7 +209,12 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
 
 extension AttachmentsProcessor: FileSelectionDelegate {
     func fileSelectionCompleted(fileName: String, data: Data) {
-        state.fileName = fileName
+        // The extension is lowercased so the saved name matches the lowercased extension shown to the user.
+        let fileExtension = URL(fileURLWithPath: fileName).pathExtension
+        let stem = fileExtension.isEmpty ? fileName : String(fileName.dropLast(fileExtension.count + 1))
+        let extensionSuffix = fileExtension.isEmpty ? "" : ".\(fileExtension.lowercased())"
+        state.fileName = stem + extensionSuffix
+        state.fileNameExtension = extensionSuffix
         state.fileData = data
     }
 }
