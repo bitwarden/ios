@@ -46,6 +46,7 @@ class MockVaultRepository: VaultRepository { // swiftlint:disable:this type_body
     var doesActiveAccountHavePremiumResult: Bool = true
 
     var downloadAttachmentAttachment: AttachmentView?
+    var downloadAttachmentCipher: CipherView?
     var downloadAttachmentResult: Result<URL?, Error> = .success(nil)
 
     var fetchCipherId: String?
@@ -216,8 +217,9 @@ class MockVaultRepository: VaultRepository { // swiftlint:disable:this type_body
         return doesActiveAccountHavePremiumResult
     }
 
-    func downloadAttachment(_ attachment: AttachmentView, cipher _: CipherView) async throws -> URL? {
+    func downloadAttachment(_ attachment: AttachmentView, cipher: CipherView) async throws -> URL? {
         downloadAttachmentAttachment = attachment
+        downloadAttachmentCipher = cipher
         return try downloadAttachmentResult.get()
     }
 
