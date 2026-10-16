@@ -600,6 +600,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
         let apiService = APIService(
             activeAccountStateProvider: stateService,
+            appIDService: appIDService,
             client: certificateHttpClient,
             environmentService: environmentService,
             errorReporter: errorReporter,
