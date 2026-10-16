@@ -40,6 +40,21 @@ class APIServiceTests: BitwardenTestCase {
         XCTAssertTrue(service.tokenProvider is AccountTokenProvider)
     }
 
+    /// `init(client:)` builds the file transfer service with the same request and response handlers
+    /// as the unauthenticated API service.
+    func test_init_fileTransferService() {
+        let service = subject.fileTransferService
+
+        XCTAssertEqual(
+            service.requestHandlers.map { String(describing: type(of: $0)) },
+            subject.apiUnauthenticatedService.requestHandlers.map { String(describing: type(of: $0)) },
+        )
+        XCTAssertEqual(
+            service.responseHandlers.map { String(describing: type(of: $0)) },
+            subject.apiUnauthenticatedService.responseHandlers.map { String(describing: type(of: $0)) },
+        )
+    }
+
     /// `init(client:)` sets the default base URLs for the HTTP services.
     func test_init_defaultURLs() {
         let apiServiceBaseURL = subject.apiService.baseURL
@@ -62,6 +77,13 @@ class APIServiceTests: BitwardenTestCase {
             subject.eventsService.requestHandlers.contains(where: { $0 is DefaultHeadersRequestHandler }),
         )
         XCTAssertTrue(subject.eventsService.tokenProvider is AccountTokenProvider)
+
+        let fileTransferServiceBaseURL = subject.fileTransferService.baseURL
+        XCTAssertEqual(fileTransferServiceBaseURL, URL(string: "https://example.com/api")!)
+        XCTAssertTrue(
+            subject.fileTransferService.requestHandlers.contains(where: { $0 is DefaultHeadersRequestHandler }),
+        )
+        XCTAssertNil(subject.fileTransferService.tokenProvider)
 
         let hibpServiceBaseURL = subject.hibpService.baseURL
         XCTAssertEqual(hibpServiceBaseURL, URL(string: "https://api.pwnedpasswords.com")!)

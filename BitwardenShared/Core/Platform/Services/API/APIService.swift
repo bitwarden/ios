@@ -16,6 +16,11 @@ class APIService {
     /// The API service used for logging events.
     let eventsService: HTTPService
 
+    /// The service used for requests to absolute, server-provided file URLs (e.g. Azure Blob
+    /// Storage for Send file uploads and attachment downloads). These URLs may not be
+    /// Bitwarden-owned hosts, so headers specific to Bitwarden services shouldn't be added here.
+    let fileTransferService: HTTPService
+
     /// The API service used for HIBP requests.
     let hibpService: HTTPService
 
@@ -107,6 +112,10 @@ class APIService {
         eventsService = httpServiceBuilder.makeService(
             baseURLGetter: { environmentService.eventsURL },
             tokenProvider: self.accountTokenProvider,
+        )
+        fileTransferService = httpServiceBuilder.makeService(
+            // The base URL is unused since file transfer requests use absolute URLs.
+            baseURLGetter: { environmentService.apiURL },
         )
         hibpService = httpServiceBuilder.makeService(
             baseURLGetter: { URL(string: "https://api.pwnedpasswords.com")! },
