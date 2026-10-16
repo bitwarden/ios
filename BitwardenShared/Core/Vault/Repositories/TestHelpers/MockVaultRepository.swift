@@ -75,7 +75,7 @@ class MockVaultRepository: VaultRepository { // swiftlint:disable:this type_body
 
     var getTOTPKeyIfAllowedToCopyResult: Result<String?, Error> = .success(nil)
 
-    var getItemTypesUserCanCreateResult: [BitwardenShared.CipherType] = CipherType.canCreateCases.reversed()
+    var getItemTypesUserCanCreateResult: [BitwardenShared.CipherType] = CipherType.canCreateCases
 
     /// When `true`, `getItemTypesUserCanCreate()` suspends until manually resumed via
     /// `getItemTypesUserCanCreateContinuations`, in call order. Used to test scenarios with
