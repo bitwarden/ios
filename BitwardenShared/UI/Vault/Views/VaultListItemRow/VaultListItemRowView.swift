@@ -5,11 +5,12 @@ import SwiftUI
 
 // MARK: - View+MoreOptionsAccessibilityActions
 
-private extension View {
+private extension ModifiedContent where Modifier == AccessibilityAttachmentModifier {
     /// Adds a named `.accessibilityAction` for each of the provided more-options action kinds.
     /// The number of kinds is data-driven (it depends on the cipher's `copyableFields`), so this
-    /// folds over the list at runtime rather than statically chaining a fixed set of conditional
-    /// modifiers; `AnyView` erasure is used so the accumulator type stays fixed across the fold.
+    /// folds over the list at runtime. Accessibility actions applied to
+    /// `AccessibilityAttachmentModifier` content merge into the same modifier, so the view's type
+    /// stays the same however many kinds are added.
     ///
     /// - Parameters:
     ///   - kinds: The more-options action kinds to expose as accessibility actions.
@@ -18,13 +19,11 @@ private extension View {
     func accessibilityMoreOptionsActions(
         _ kinds: [MoreOptionsActionKind],
         onSelect: @escaping (MoreOptionsActionKind) async -> Void,
-    ) -> AnyView {
-        kinds.reduce(AnyView(self)) { view, kind in
-            AnyView(
-                view.accessibilityAsyncAction(named: kind.localizedName) {
-                    await onSelect(kind)
-                },
-            )
+    ) -> ModifiedContent<Content, Modifier> {
+        kinds.reduce(self) { view, kind in
+            view.accessibilityAction(named: kind.localizedName) {
+                Task { await onSelect(kind) }
+            }
         }
     }
 }
@@ -68,6 +67,7 @@ struct VaultListItemRowView: View {
                         }
                         .padding(.vertical, 9)
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .accessibilityIdentifier("VaultListItemRowButton")
 
@@ -191,8 +191,6 @@ struct VaultListItemRowView: View {
             }
         }
         .accessibilityElement(children: .combine)
-
-        Spacer()
     }
 
     /// The label content for a group row.

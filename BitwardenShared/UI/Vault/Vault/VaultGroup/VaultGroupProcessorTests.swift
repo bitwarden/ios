@@ -537,6 +537,63 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         task.cancel()
     }
 
+    /// `perform(_:)` with `.itemPressed` on a cipher navigates to the `.viewItem` route.
+    @MainActor
+    func test_perform_itemPressed_cipher() async throws {
+        let cipherListView = CipherListView.fixture(id: "id")
+
+        await subject.perform(.itemPressed(.fixture(cipherListView: cipherListView)))
+        try await waitForAsync { !self.coordinator.routes.isEmpty }
+
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: "id", masterPasswordRepromptCheckCompleted: true))
+        XCTAssertTrue(coordinator.contexts.last is VaultGroupProcessor)
+        XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
+    }
+
+    /// `perform(_:)` with `.itemPressed` shows an alert when tapping on a cipher which failed to decrypt.
+    @MainActor
+    func test_perform_itemPressed_cipherDecryptionFailure() async throws {
+        let cipherListView = CipherListView.fixture(name: Localizations.errorCannotDecrypt)
+        let item = VaultListItem.fixture(cipherListView: cipherListView)
+
+        await subject.perform(.itemPressed(item))
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .cipherDecryptionFailure(cipherIds: ["1"]) { _ in })
+
+        try await alert.tapAction(title: Localizations.copyErrorReport)
+        XCTAssertEqual(
+            pasteboardService.copiedString,
+            """
+            \(Localizations.decryptionError)
+            \(Localizations.bitwardenCouldNotDecryptThisVaultItemDescriptionLong)
+
+            1
+            """,
+        )
+    }
+
+    /// `perform(_:)` with `.itemPressed` on a group navigates to the `.group` route.
+    @MainActor
+    func test_perform_itemPressed_group() async {
+        await subject.perform(.itemPressed(VaultListItem(id: "1", itemType: .group(.card, 2))))
+        XCTAssertEqual(coordinator.routes.last, .group(.card, filter: .allVaults))
+    }
+
+    /// `perform(_:)` with `.itemPressed` navigates to the `.viewItem` route.
+    @MainActor
+    func test_perform_itemPressed_totp() async throws {
+        let cipherListView = CipherListView.fixture()
+        let totpItem = VaultListItem.fixtureTOTP(totp: .fixture(cipherListView: cipherListView))
+
+        await subject.perform(.itemPressed(totpItem))
+        try await waitForAsync { !self.coordinator.routes.isEmpty }
+
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: totpItem.id, masterPasswordRepromptCheckCompleted: true))
+        XCTAssertTrue(coordinator.contexts.last is VaultGroupProcessor)
+        XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
+    }
+
     /// `onNewSearchResults(data:)` closure from search mediator should update search results in state.
     @MainActor
     func test_onNewSearchResults_updatesState() async {
@@ -976,63 +1033,6 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             subject.state.toast,
             Toast(title: Localizations.valueHasBeenCopied(Localizations.verificationCode)),
         )
-    }
-
-    /// `perform(_:)` with `.itemPressed` on a cipher navigates to the `.viewItem` route.
-    @MainActor
-    func test_perform_itemPressed_cipher() async throws {
-        let cipherListView = CipherListView.fixture(id: "id")
-
-        await subject.perform(.itemPressed(.fixture(cipherListView: cipherListView)))
-        try await waitForAsync { !self.coordinator.routes.isEmpty }
-
-        XCTAssertEqual(coordinator.routes.last, .viewItem(id: "id", masterPasswordRepromptCheckCompleted: true))
-        XCTAssertTrue(coordinator.contexts.last is VaultGroupProcessor)
-        XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
-    }
-
-    /// `perform(_:)` with `.itemPressed` shows an alert when tapping on a cipher which failed to decrypt.
-    @MainActor
-    func test_perform_itemPressed_cipherDecryptionFailure() async throws {
-        let cipherListView = CipherListView.fixture(name: Localizations.errorCannotDecrypt)
-        let item = VaultListItem.fixture(cipherListView: cipherListView)
-
-        await subject.perform(.itemPressed(item))
-
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert, .cipherDecryptionFailure(cipherIds: ["1"]) { _ in })
-
-        try await alert.tapAction(title: Localizations.copyErrorReport)
-        XCTAssertEqual(
-            pasteboardService.copiedString,
-            """
-            \(Localizations.decryptionError)
-            \(Localizations.bitwardenCouldNotDecryptThisVaultItemDescriptionLong)
-
-            1
-            """,
-        )
-    }
-
-    /// `perform(_:)` with `.itemPressed` on a group navigates to the `.group` route.
-    @MainActor
-    func test_perform_itemPressed_group() async {
-        await subject.perform(.itemPressed(VaultListItem(id: "1", itemType: .group(.card, 2))))
-        XCTAssertEqual(coordinator.routes.last, .group(.card, filter: .allVaults))
-    }
-
-    /// `perform(_:)` with `.itemPressed` navigates to the `.viewItem` route.
-    @MainActor
-    func test_perform_itemPressed_totp() async throws {
-        let cipherListView = CipherListView.fixture()
-        let totpItem = VaultListItem.fixtureTOTP(totp: .fixture(cipherListView: cipherListView))
-
-        await subject.perform(.itemPressed(totpItem))
-        try await waitForAsync { !self.coordinator.routes.isEmpty }
-
-        XCTAssertEqual(coordinator.routes.last, .viewItem(id: totpItem.id, masterPasswordRepromptCheckCompleted: true))
-        XCTAssertTrue(coordinator.contexts.last is VaultGroupProcessor)
-        XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
     }
 
     /// `receive(_:)` with `.searchTextChanged` and no value sets the state correctly.
