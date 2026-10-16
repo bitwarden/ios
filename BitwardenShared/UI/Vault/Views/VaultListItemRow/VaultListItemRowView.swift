@@ -42,7 +42,7 @@ struct VaultListItemRowView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack(spacing: 16) {
+            HStack(spacing: 8) {
                 AsyncButton {
                     await store.perform(.pressed)
                 } label: {
@@ -81,6 +81,9 @@ struct VaultListItemRowView: View {
                     }
                     .accessibilityLabel(Localizations.moreOptions)
                     .accessibilityIdentifier("CipherOptionsButton")
+                    // Each more-options action is exposed individually as a custom action on the
+                    // row, so the combined "More options" action would be redundant.
+                    .accessibilityHidden(true)
                 }
 
                 if case let .totp(_, model) = store.state.item.itemType,
@@ -104,25 +107,8 @@ struct VaultListItemRowView: View {
         }
         .accessibilityElement(children: .combine)
         .accessibilityIdentifier(store.state.item.vaultItemAccessibilityId)
-        .accessibilityAction {
-            Task { await store.perform(.pressed) }
-        }
         .accessibilityMoreOptionsActions(accessibilityMoreOptionsActionKinds) { kind in
             await store.perform(.accessibilityMoreOptionsActionPressed(kind))
-        }
-        .conditionalAccessibilityAction(
-            if: {
-                if case let .totp(_, model) = store.state.item.itemType {
-                    !model.requiresMasterPassword && store.state.showTotpCopyButton
-                } else {
-                    false
-                }
-            }(),
-            named: Localizations.copyTotp,
-        ) {
-            if case let .totp(_, model) = store.state.item.itemType {
-                store.send(.copyTOTPCode(model.totpCode.code))
-            }
         }
     }
 
