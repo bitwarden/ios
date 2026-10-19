@@ -2742,6 +2742,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let account = Account.fixture()
         stateService.activeAccount = account
         keychainService.getUserAuthKeyValueReturnValue = "session-key"
+        configService.featureFlagsBool[.enableUserSessionKeySharing] = true
+        vaultTimeoutService.vaultTimeout[account.profile.userId] = .fifteenMinutes
 
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
             _ = try await subject.unlockVaultWithSessionKey()
