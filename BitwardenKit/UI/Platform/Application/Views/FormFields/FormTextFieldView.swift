@@ -128,14 +128,14 @@ public struct FormTextFieldView<State>: View {
     // MARK: Properties
 
     /// A closure containing the action to take when the text is changed.
-    let action: @Sendable (String) -> Void
+    let action: @MainActor (String) -> Void
 
     /// The data for displaying the field.
     let field: FormTextField<State>
 
     /// A closure containing the action to take when the value for whether a password is displayed
     /// in the text field is changed.
-    let isPasswordVisibleChangedAction: (@Sendable (Bool) -> Void)?
+    let isPasswordVisibleChangedAction: (@MainActor (Bool) -> Void)?
 
     public var body: some View {
         BitwardenTextField(
@@ -165,8 +165,8 @@ public struct FormTextFieldView<State>: View {
     ///
     public init(
         field: FormTextField<State>,
-        action: @Sendable @escaping (String) -> Void,
-        isPasswordVisibleChangedAction: (@Sendable (Bool) -> Void)? = nil,
+        action: @MainActor @escaping (String) -> Void,
+        isPasswordVisibleChangedAction: (@MainActor (Bool) -> Void)? = nil,
     ) {
         self.action = action
         self.field = field
