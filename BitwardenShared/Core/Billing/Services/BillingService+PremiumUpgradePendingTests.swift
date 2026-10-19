@@ -11,20 +11,6 @@ import Testing
 
 // swiftlint:disable file_length
 
-extension MockStateService {
-    /// Sets both the personal and inclusive Premium accessors, so a simulated purchase can't leave
-    /// the mock with personal Premium but no Premium.
-    ///
-    /// - Parameters:
-    ///   - hasPremium: Whether the account has personally-purchased Premium.
-    ///   - userId: The account to set Premium status for.
-    ///
-    func setPersonalPremium(_ hasPremium: Bool, userId: String) {
-        doesAccountHavePremiumPersonallyByUserId[userId] = hasPremium
-        doesAccountHavePremiumByUserId[userId] = hasPremium
-    }
-}
-
 // MARK: - BillingServicePremiumUpgradePendingTests
 
 /// Tests for the `BillingService` methods that track whether a Premium upgrade is pending.
