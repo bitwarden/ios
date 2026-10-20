@@ -444,15 +444,16 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(coordinator.toastsShown, [Toast(title: Localizations.encryptionSettingsUpdated)])
     }
 
-    /// `perform(_:)` with `appeared` does not register the device for notifications
-    /// if the user has denied notifications
+    /// `perform(_:)` with `appeared` registers the device for notifications even if the user has
+    /// denied notifications, so that silent push notifications can still be received.
     func test_perform_appeared_notificationRegistration_denied() async throws {
         stateService.activeAccount = .fixture()
         notificationService.authorizationStatus = .denied
 
         await subject.perform(.appeared)
 
-        XCTAssertFalse(application.registerForRemoteNotificationsCalled)
+        XCTAssertTrue(application.registerForRemoteNotificationsCalled)
+        XCTAssertEqual(stateService.notificationsLastRegistrationDates["1"], timeProvider.presentTime)
     }
 
     /// `perform(_:)` with `appeared` does not register the device for notifications
@@ -695,7 +696,8 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         )
     }
 
-    /// `perform(_:)` with `.appeared` requests notification permissions.
+    /// `perform(_:)` with `.appeared` requests notification permissions and registers the device
+    /// for notifications even if the user denies permission.
     @MainActor
     func test_perform_appeared_requestNotifications_denied() async throws {
         stateService.activeAccount = .fixture()
@@ -720,11 +722,12 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             [.alert, .sound, .badge],
             notificationService.requestedOptions,
         )
-        XCTAssertFalse(application.registerForRemoteNotificationsCalled)
-        XCTAssertNil(stateService.notificationsLastRegistrationDates["1"])
+        XCTAssertTrue(application.registerForRemoteNotificationsCalled)
+        XCTAssertEqual(stateService.notificationsLastRegistrationDates["1"], timeProvider.presentTime)
     }
 
-    /// `perform(_:)` with `.appeared` requests notification permissions.
+    /// `perform(_:)` with `.appeared` requests notification permissions, logs an error if the
+    /// request fails, and still registers the device for notifications.
     @MainActor
     func test_perform_appeared_requestNotifications_error() async throws {
         stateService.activeAccount = .fixture()
@@ -746,8 +749,8 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         let error = try XCTUnwrap(errorReporter.errors.last as? BitwardenTestError)
         XCTAssertEqual(error, .example)
-        XCTAssertFalse(application.registerForRemoteNotificationsCalled)
-        XCTAssertNil(stateService.notificationsLastRegistrationDates["1"])
+        XCTAssertTrue(application.registerForRemoteNotificationsCalled)
+        XCTAssertEqual(stateService.notificationsLastRegistrationDates["1"], timeProvider.presentTime)
     }
 
     /// `perform(_:)` with `.appeared` requests notification permissions.

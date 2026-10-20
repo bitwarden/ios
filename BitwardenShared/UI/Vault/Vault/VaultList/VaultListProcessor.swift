@@ -448,12 +448,12 @@ extension VaultListProcessor {
     /// Entry point to handling things around push notifications.
     private func handleNotifications() async {
         switch await services.notificationService.notificationAuthorization() {
-        case .authorized:
-            await registerForNotifications()
         case .notDetermined:
             await requestNotificationPermissions()
         default:
-            break
+            // Silent push notifications (e.g. login requests and sync) are delivered regardless of
+            // notification authorization, so register even if the user has denied notifications.
+            await registerForNotifications()
         }
     }
 
@@ -610,14 +610,14 @@ extension VaultListProcessor {
         coordinator.showAlert(
             .pushNotificationsInformation { [services] in
                 do {
-                    let authorized = try await services.notificationService
+                    _ = try await services.notificationService
                         .requestAuthorization(options: [.alert, .sound, .badge])
-                    if authorized {
-                        await self.registerForNotifications()
-                    }
                 } catch {
                     self.services.errorReporter.log(error: error)
                 }
+                // Register regardless of the user's choice, since silent push notifications don't
+                // require notification authorization.
+                await self.registerForNotifications()
             },
         )
     }
