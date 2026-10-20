@@ -4,6 +4,7 @@
 import BitwardenKit
 import BitwardenResources
 import BitwardenSdk
+import Foundation
 
 // MARK: - DataMappingError
 
@@ -50,9 +51,9 @@ extension AttachmentView {
 
     /// The file name's extension, if any (not lowercased).
     var fileExtension: String? {
-        guard let fileName, let dotIndex = fileName.lastIndex(of: ".") else { return nil }
-        let ext = fileName[fileName.index(after: dotIndex)...]
-        return ext.isEmpty ? nil : String(ext)
+        guard let fileName else { return nil }
+        let pathExtension = (fileName as NSString).pathExtension
+        return pathExtension.isEmpty ? nil : pathExtension
     }
 
     /// Whether this attachment's file name has a GIF extension.
