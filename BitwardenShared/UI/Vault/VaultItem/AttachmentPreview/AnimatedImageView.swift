@@ -8,7 +8,7 @@ import SwiftUI
 /// A view that plays animated image data (e.g. a GIF) with pinch-to-zoom and drag-to-pan gestures.
 /// Tapping the image toggles playback. The animation plays automatically unless Reduce Motion is
 /// enabled, in which case it starts paused on the first frame. Enabling Reduce Motion while the
-/// animation is playing pauses it.
+/// animation is playing, or moving the app out of the foreground, pauses it.
 ///
 struct AnimatedImageView: View {
     // MARK: Private Properties
@@ -21,6 +21,9 @@ struct AnimatedImageView: View {
 
     /// Whether the user has enabled the Reduce Motion accessibility setting.
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    /// The current phase of the scene the view is in.
+    @Environment(\.scenePhase) private var scenePhase
 
     // MARK: View
 
@@ -53,6 +56,11 @@ struct AnimatedImageView: View {
             .onChange(of: reduceMotion) { isReduceMotionEnabled in
                 // Pause if Reduce Motion is turned on mid-view. The user can still tap to play.
                 guard isReduceMotionEnabled else { return }
+                player.pause()
+            }
+            .onChange(of: scenePhase) { newPhase in
+                // Pause when the app leaves the foreground. The user can tap to resume.
+                guard newPhase != .active else { return }
                 player.pause()
             }
         }
