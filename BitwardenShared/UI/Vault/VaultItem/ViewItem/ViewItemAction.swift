@@ -6,8 +6,8 @@ import BitwardenResources
 
 /// Actions that can be processed by a `ViewItemProcessor`.
 enum ViewItemAction: Equatable, Sendable {
-    /// An attachment row was tapped to preview it.
-    case attachmentTapped(AttachmentView)
+    /// An attachment row was pressed to preview it.
+    case attachmentPressed(AttachmentView)
 
     /// A bank account item action.
     case bankAccountItemAction(ViewBankAccountItemAction)

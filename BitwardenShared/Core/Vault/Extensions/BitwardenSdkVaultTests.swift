@@ -42,6 +42,7 @@ class BitwardenSdkVaultAttachmentViewTests: BitwardenTestCase {
     func test_fileExtension_nil() {
         XCTAssertNil(AttachmentView.fixture(fileName: "photo").fileExtension)
         XCTAssertNil(AttachmentView.fixture(fileName: "photo.").fileExtension)
+        XCTAssertNil(AttachmentView.fixture(fileName: ".hidden").fileExtension)
         XCTAssertNil(AttachmentView.fixture(fileName: nil).fileExtension)
     }
 
