@@ -18,6 +18,7 @@ extension ExporterClientProtocol {}
 extension Fido2CredentialStore {}
 extension FoldersClientProtocol {}
 extension GeneratorClientsProtocol {}
+extension LoginClientProtocol {}
 extension PasswordHistoryClientProtocol {}
 extension PinSettingsClientProtocol {}
 extension PoliciesClientProtocol {}

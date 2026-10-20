@@ -643,15 +643,29 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         preAuthForcePasswordResetReason = nil
 
         // Complete the pre-login steps.
-        let response = try await accountAPIService.preLogin(email: username)
+        let hashedPassword: String
+        if await configService.getFeatureFlag(.passwordPreloginFromSdk, isPreAuth: true) {
+            let preloginResponse = try await clientService.auth(isPreAuth: true).login()
+                .getPasswordPrelogin(email: username)
 
-        // Get the identity token to log in to Bitwarden.
-        let hashedPassword = try await clientService.auth(isPreAuth: true).hashPassword(
-            email: username,
-            password: masterPassword,
-            kdfParams: response.sdkKdf,
-            purpose: .serverAuthorization,
-        )
+            // Use the SDK-returned Salt in place of the user's email when salting the master
+            // password. This value is not persisted; unlock continues to use the salt from
+            // `MasterPasswordUnlockData` (the Sync/Login response).
+            hashedPassword = try await clientService.auth(isPreAuth: true).hashPassword(
+                email: preloginResponse.salt,
+                password: masterPassword,
+                kdfParams: preloginResponse.kdf,
+                purpose: .serverAuthorization,
+            )
+        } else {
+            let response = try await accountAPIService.preLogin(email: username)
+            hashedPassword = try await clientService.auth(isPreAuth: true).hashPassword(
+                email: username,
+                password: masterPassword,
+                kdfParams: response.sdkKdf,
+                purpose: .serverAuthorization,
+            )
+        }
 
         let token = try await getIdentityTokenResponse(
             authenticationMethod: .password(username: username, password: hashedPassword),
