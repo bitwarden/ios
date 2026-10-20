@@ -197,7 +197,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             streamCipherDetailsTask = nil
         case .dismissPressed:
             coordinator.navigate(to: .dismiss())
-        case let .attachmentTapped(attachment):
+        case let .attachmentPressed(attachment):
             guard case let .data(cipherState) = state.loadingState else { return }
             Task {
                 await attachmentPreviewHelper.showPreview(for: attachment, cipher: cipherState.cipher)
