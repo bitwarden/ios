@@ -15,6 +15,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var checkSessionTimeoutIsAppRestart: Bool?
     var checkSessionTimeoutsShouldTimeoutActiveUser = false // swiftlint:disable:this identifier_name
     var clearPinsCalled = false
+    var clearPinsResult: Result<Void, Error> = .success(())
     var createNewSsoUserRememberDevice: Bool = false
     var createNewSsoUserOrgIdentifier: String = ""
     var createNewSsoUserResult: Result<Void, Error> = .success(())
@@ -161,6 +162,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
 
     func clearPins() async throws {
         clearPinsCalled = true
+        try clearPinsResult.get()
     }
 
     func convertNewUserToKeyConnector(keyConnectorURL: URL, orgIdentifier: String) async throws {

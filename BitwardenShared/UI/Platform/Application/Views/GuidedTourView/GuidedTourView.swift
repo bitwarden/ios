@@ -385,7 +385,8 @@ extension GuidedTourView {
 // MARK: Previews
 
 #if DEBUG
-struct GuidedTourView_Previews: PreviewProvider {
+@MainActor
+private enum GuidedTourPreviewData {
     static let loginStep1: GuidedTourStepState = {
         var step = GuidedTourStepState.loginStep1
         step.spotlightRegion = CGRect(x: 338, y: 120, width: 40, height: 40)
@@ -416,57 +417,62 @@ struct GuidedTourView_Previews: PreviewProvider {
             ),
         ),
     )
+}
 
-    static var previews: some View {
-        NavigationView {
-            ScrollView {
-                LazyVStack(spacing: 20) {
-                    loginItemView
-                }
-                .padding(16)
+#Preview("Circle") {
+    NavigationView {
+        ScrollView {
+            LazyVStack(spacing: 20) {
+                GuidedTourPreviewData.loginItemView
             }
-            .fullScreenCover(isPresented: .constant(true)) {
-                GuidedTourView(
-                    store: Store(
-                        processor: StateProcessor(
-                            state: GuidedTourViewState(guidedTourStepStates: [loginStep1, loginStep2]),
+            .padding(16)
+        }
+        .fullScreenCover(isPresented: .constant(true)) {
+            GuidedTourView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: GuidedTourViewState(
+                            guidedTourStepStates: [
+                                GuidedTourPreviewData.loginStep1,
+                                GuidedTourPreviewData.loginStep2,
+                            ],
                         ),
                     ),
-                )
-            }
-            .transaction { transaction in
-                // disable the default FullScreenCover modal animation
-                transaction.disablesAnimations = true
-            }
-            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
-            .ignoresSafeArea()
+                ),
+            )
         }
-        .previewDisplayName("Circle")
+        .transaction { transaction in
+            // disable the default FullScreenCover modal animation
+            transaction.disablesAnimations = true
+        }
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
+        .ignoresSafeArea()
+    }
+}
 
-        NavigationView {
-            ScrollView {
-                LazyVStack(spacing: 20) {
-                    loginItemView
-                }
-                .padding(16)
+#Preview("Rectangle") {
+    NavigationView {
+        ScrollView {
+            LazyVStack(spacing: 20) {
+                GuidedTourPreviewData.loginItemView
             }
-            .fullScreenCover(isPresented: .constant(true)) {
-                GuidedTourView(
-                    store: Store(
-                        processor: StateProcessor(
-                            state: guidedTourViewState,
-                        ),
-                    ),
-                )
-            }
-            .transaction { transaction in
-                // disable the default FullScreenCover modal animation
-                transaction.disablesAnimations = true
-            }
-            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
-            .ignoresSafeArea()
+            .padding(16)
         }
-        .previewDisplayName("Rectangle")
+        .fullScreenCover(isPresented: .constant(true)) {
+            GuidedTourView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: GuidedTourPreviewData.guidedTourViewState,
+                    ),
+                ),
+            )
+        }
+        .transaction { transaction in
+            // disable the default FullScreenCover modal animation
+            transaction.disablesAnimations = true
+        }
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
+        .ignoresSafeArea()
     }
 }
 #endif // swiftlint:disable:this file_length

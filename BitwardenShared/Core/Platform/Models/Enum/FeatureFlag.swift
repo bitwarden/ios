@@ -56,6 +56,12 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// Flag to enable/disable the organization user notification banner policy.
     static let organizationUserNotificationBanner = FeatureFlag(rawValue: "pm-31948-org-user-notification-banner")
 
+    /// Flag to enable/disable routing password prelogin through the SDK.
+    ///
+    /// When enabled, `AuthService.loginWithMasterPassword` calls the SDK's
+    /// `LoginClientProtocol.getPasswordPrelogin(email:)` instead of the `/prelogin` REST endpoint.
+    static let passwordPreloginFromSdk = FeatureFlag(rawValue: "pm-27060-password-prelogin-from-sdk")
+
     /// Flag to enable/disable accepted-state organization policy enforcement via the SDK.
     ///
     /// When enabled, `PolicyService.policiesApplyingToUser` routes through the Bitwarden SDK
@@ -64,6 +70,13 @@ extension FeatureFlag: @retroactive CaseIterable {
 
     /// Flag to enable/disable Premium upgrade path.
     static let premiumUpgradePath = FeatureFlag(rawValue: "pm-31697-premium-upgrade-path")
+
+    /// Flag to enable/disable SDK-managed PIN unlock.
+    ///
+    /// When enabled, PIN unlock, enrollment, and validation route through the Bitwarden SDK's
+    /// client-managed PIN state (`InitUserCryptoMethod.pinState`, `PinSettingsClient`) instead
+    /// of the legacy iOS-managed PIN-protected key envelope.
+    static let sdkManagedPinUnlock = FeatureFlag(rawValue: "pm-31059-sdk-pin-unlock")
 
     /// Flag to enable/disable the Send Controls policy, which supersedes the `disableSend` and
     /// `sendOptions` policies when active.
@@ -89,8 +102,10 @@ extension FeatureFlag: @retroactive CaseIterable {
             .newItemTypes,
             .noLogoutOnKdfChange,
             .organizationUserNotificationBanner,
+            .passwordPreloginFromSdk,
             .policiesInAcceptedState,
             .premiumUpgradePath,
+            .sdkManagedPinUnlock,
             .sendControls,
             .vfo1Foundation,
         ]

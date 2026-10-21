@@ -124,16 +124,14 @@ struct CipherListView: View {
     }
 }
 
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        var v = CipherListView()
-        StateService.shared.currentState = .valid
-        v.viewModel = CipherListViewModel(CipherServiceMock())
-        v.viewModel.user = UserDTO(
-            email: "testing@test.com",
-            id: "zxc",
-            name: "Tester",
-        )
-        return v
-    }
+#Preview {
+    var v = CipherListView()
+    StateService.shared.currentState = .valid
+    v.viewModel = CipherListViewModel(CipherServiceMock())
+    v.viewModel.user = UserDTO(
+        email: "testing@test.com",
+        id: "zxc",
+        name: "Tester",
+    )
+    return v
 }
