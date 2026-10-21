@@ -6,6 +6,7 @@ import Foundation
 
 class MockAppSettingsStore: AppSettingsStore {
     var addSitePromptShown = false
+    var allowUniversalClipboard = false
     var allowSyncOnRefreshes = [String: Bool]()
     var appId: String?
     var appLocale: String?

@@ -10,6 +10,9 @@ import OSLog
 /// A protocol for an object that persists app setting values.
 ///
 protocol AppSettingsStore: AnyObject {
+    /// Whether copied content can be shared with other devices using Universal Clipboard.
+    var allowUniversalClipboard: Bool { get set }
+
     /// The app's locale.
     var appLocale: String? { get set }
 
@@ -287,6 +290,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
     /// The keys used to store their associated values.
     ///
     enum Keys {
+        case allowUniversalClipboard
         case appID
         case appLocale
         case appTheme
@@ -310,6 +314,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         /// Returns the key used to store the data under for retrieving it later.
         var storageKey: String {
             let key = switch self {
+            case .allowUniversalClipboard:
+                "allowUniversalClipboard"
             case .appID:
                 "appId"
             case .appLocale:
@@ -351,6 +357,11 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
             }
             return "bwaPreferencesStorage:\(key)"
         }
+    }
+
+    var allowUniversalClipboard: Bool {
+        get { fetch(for: .allowUniversalClipboard) }
+        set { store(newValue, for: .allowUniversalClipboard) }
     }
 
     var appLocale: String? {

@@ -78,7 +78,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         await subject.perform(.copyLinkPressed)
 
         XCTAssertEqual(sendRepository.shareURLSendView, sendView)
-        XCTAssertEqual(pasteboardService.copiedString, "https://example.com")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "https://example.com")
         XCTAssertEqual(
             subject.state.toast,
             Toast(title: Localizations.valueHasBeenCopied(Localizations.sendLink)),
@@ -91,7 +91,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.state.password = "testPassword123"
         await subject.perform(.copyPasswordPressed)
 
-        XCTAssertEqual(pasteboardService.copiedString, "testPassword123")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "testPassword123")
         XCTAssertEqual(
             subject.state.toast,
             Toast(title: Localizations.valueHasBeenCopied(Localizations.password)),
@@ -702,7 +702,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(sendRepository.shareURLSendView, sendView)
-        XCTAssertEqual(pasteboardService.copiedString, "https://example.com")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "https://example.com")
         XCTAssertEqual(
             subject.state.toast,
             Toast(title: Localizations.valueHasBeenCopied(Localizations.sendLink)),

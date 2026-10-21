@@ -81,7 +81,7 @@ class SettingsProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     func test_perform_copyVersionInfo() async {
         await subject.perform(.copyVersionInfo)
         XCTAssertEqual(
-            pasteboardService.copiedString,
+            pasteboardService.copyReceivedString,
             """
             © Bitwarden Inc. 2015\(String.enDash)\(Calendar.current.component(.year, from: Date.now))
 
@@ -120,6 +120,20 @@ class SettingsProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         await subject.perform(.flightRecorder(.toggleFlightRecorder(false)))
 
         XCTAssertTrue(flightRecorder.disableFlightRecorderCalled)
+    }
+
+    /// Loading settings restores the persisted Universal Clipboard choice.
+    @MainActor
+    func test_perform_loadData_allowUniversalClipboard() async {
+        XCTAssertFalse(subject.state.allowUniversalClipboard)
+        appSettingsStore.allowUniversalClipboard = true
+
+        await subject.perform(.loadData)
+        XCTAssertTrue(subject.state.allowUniversalClipboard)
+
+        appSettingsStore.allowUniversalClipboard = false
+        await subject.perform(.loadData)
+        XCTAssertFalse(subject.state.allowUniversalClipboard)
     }
 
     /// Performing `.loadData` sets the 'defaultSaveOption' to the current value in 'AppSettingsStore'.
@@ -363,5 +377,17 @@ class SettingsProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.receive(.syncWithBitwardenAppTapped)
 
         XCTAssertEqual(subject.state.url, ExternalLinksConstants.passwordManagerLink)
+    }
+
+    /// Changing the toggle updates both the view state and persisted preference.
+    @MainActor
+    func test_receive_toggleAllowUniversalClipboard() {
+        subject.receive(.toggleAllowUniversalClipboard(true))
+        XCTAssertTrue(subject.state.allowUniversalClipboard)
+        XCTAssertTrue(appSettingsStore.allowUniversalClipboard)
+
+        subject.receive(.toggleAllowUniversalClipboard(false))
+        XCTAssertFalse(subject.state.allowUniversalClipboard)
+        XCTAssertFalse(appSettingsStore.allowUniversalClipboard)
     }
 }

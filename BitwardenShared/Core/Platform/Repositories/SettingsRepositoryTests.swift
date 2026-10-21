@@ -1,3 +1,4 @@
+import BitwardenKitMocks
 import BitwardenSdk
 import TestHelpers
 import XCTest
@@ -92,7 +93,7 @@ class SettingsRepositoryTests: BitwardenTestCase {
         XCTAssertTrue(subject.allowUniversalClipboard)
 
         subject.allowUniversalClipboard = false
-        XCTAssertFalse(subject.allowUniversalClipboard)
+        XCTAssertEqual(pasteboardService.updateAllowUniversalClipboardReceivedAllowUniversalClipboard, false)
     }
 
     /// `clearClipboardValue` gets and sets the value from the `PasteboardService`.
@@ -101,7 +102,7 @@ class SettingsRepositoryTests: BitwardenTestCase {
         XCTAssertEqual(subject.clearClipboardValue, .tenSeconds)
 
         subject.clearClipboardValue = .twentySeconds
-        XCTAssertEqual(pasteboardService.clearClipboardValue, .twentySeconds)
+        XCTAssertEqual(pasteboardService.updateClearClipboardValueReceivedClearClipboardValue, .twentySeconds)
     }
 
     /// `deleteFolder(id:)` makes the request to delete the folder.
