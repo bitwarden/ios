@@ -63,6 +63,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         billingService.isSelfHostedReturnValue = false
         billingService.shouldShowSubscriptionAttentionCardReturnValue = false
         billingService.isPremiumUpgradeBannerDismissedReturnValue = false
+        billingService.premiumUpgradeLifecycleStateReturnValue = .notPremium
         billingService.shouldShowUpgradedToPremiumActionCardReturnValue = false
         errorReporter = MockErrorReporter()
         changeKdfService = MockChangeKdfService()
@@ -568,6 +569,30 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         waitFor(subject.state.itemTypesUserCanCreate == [.card])
         XCTAssertEqual(subject.state.itemTypesUserCanCreate, [.card])
+    }
+
+    /// `perform(_:)` with `.streamSyncComplete` shows the Premium upgrade action card when the
+    /// upgrade is no longer pending.
+    @MainActor
+    func test_perform_streamSyncComplete_showsPremiumUpgradeActionCardWhenNoLongerPending() {
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        billingService.premiumUpgradeLifecycleStateReturnValue = .pending
+        subject.state.shouldShowPremiumUpgradeActionCard = true
+
+        let task = Task {
+            await subject.perform(.streamSyncComplete)
+        }
+        defer { task.cancel() }
+
+        // The sync-complete subject replays on subscribe, so confirm that emission hides the card
+        // while pending before resolving it below.
+        waitFor(subject.state.shouldShowPremiumUpgradeActionCard == false)
+
+        billingService.premiumUpgradeLifecycleStateReturnValue = .notPremium
+        syncService.syncCompleteSubject.send(())
+
+        waitFor(subject.state.shouldShowPremiumUpgradeActionCard == true)
+        XCTAssertTrue(subject.state.shouldShowPremiumUpgradeActionCard)
     }
 
     /// Loading the item types the user can create discards a stale result from an older,
