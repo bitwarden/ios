@@ -953,6 +953,29 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
     }
 
+    /// `perform(_:)` with `.accessibilityMoreOptionsActionPressed` has the vault item more options
+    /// helper perform the action directly.
+    @MainActor
+    func test_perform_accessibilityMoreOptionsActionPressed() async throws {
+        let item = VaultListItem.fixture()
+        await subject.perform(.accessibilityMoreOptionsActionPressed(item, .copyUsername))
+
+        XCTAssertTrue(vaultItemMoreOptionsHelper.performActionCalled)
+        XCTAssertEqual(vaultItemMoreOptionsHelper.performActionKind, .copyUsername)
+        XCTAssertEqual(vaultItemMoreOptionsHelper.performActionItem, item)
+        XCTAssertIdentical(vaultItemMoreOptionsHelper.performActionDelegate as AnyObject, subject)
+        XCTAssertNotNil(vaultItemMoreOptionsHelper.performActionHandleDisplayToast)
+        XCTAssertNotNil(vaultItemMoreOptionsHelper.performActionHandleOpenURL)
+
+        let toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.username))
+        vaultItemMoreOptionsHelper.performActionHandleDisplayToast?(toast)
+        XCTAssertEqual(subject.state.toast, toast)
+
+        let url = URL.example
+        vaultItemMoreOptionsHelper.performActionHandleOpenURL?(url)
+        XCTAssertEqual(subject.state.url, url)
+    }
+
     /// `perform(_:)` with `.morePressed` has the vault item more options helper display the alert.
     @MainActor
     func test_perform_morePressed() async throws {
@@ -1814,6 +1837,122 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
     }
 
+    /// `perform(_:)` with `.itemPressed` navigates to the `.viewItem` route for a cipher.
+    @MainActor
+    func test_perform_itemPressed_cipher() async throws {
+        let cipherListView = CipherListView.fixture()
+        let item = VaultListItem.fixture(cipherListView: cipherListView)
+
+        await subject.perform(.itemPressed(item))
+        try await waitForAsync { !self.coordinator.routes.isEmpty }
+
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: item.id, masterPasswordRepromptCheckCompleted: true))
+        XCTAssertTrue(coordinator.contexts.last is VaultListProcessor)
+        XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
+    }
+
+    /// `perform(_:)` with `.itemPressed` shows an alert when tapping on a cipher which failed to decrypt.
+    @MainActor
+    func test_perform_itemPressed_cipherDecryptionFailure() async throws {
+        let cipherListView = CipherListView.fixture(name: Localizations.errorCannotDecrypt)
+        let item = VaultListItem.fixture(cipherListView: cipherListView)
+
+        await subject.perform(.itemPressed(item))
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .cipherDecryptionFailure(cipherIds: ["1"]) { _ in })
+
+        try await alert.tapAction(title: Localizations.copyErrorReport)
+        XCTAssertEqual(
+            pasteboardService.copiedString,
+            """
+            \(Localizations.decryptionError)
+            \(Localizations.bitwardenCouldNotDecryptThisVaultItemDescriptionLong)
+
+            1
+            """,
+        )
+    }
+
+    /// `perform(_:)` with `.itemPressed` navigates to the `.group` route for a group.
+    @MainActor
+    func test_perform_itemPressed_group() async {
+        await subject.perform(.itemPressed(VaultListItem(id: "1", itemType: .group(.card, 1))))
+
+        XCTAssertEqual(coordinator.routes.last, .group(.card, filter: .allVaults))
+    }
+
+    /// `perform(_:)` with `.itemPressed` shows archive unavailable alert when user doesn't have Premium
+    /// and archive has no items.
+    @MainActor
+    func test_perform_itemPressed_archiveGroup_noPremium_noItems() async {
+        subject.state.hasPremium = false
+        let archiveItem = VaultListItem(id: "Archive", hasPremium: false, itemType: .group(.archive, 0))
+
+        await subject.perform(.itemPressed(archiveItem))
+
+        XCTAssertEqual(coordinator.alertShown.last, .archiveUnavailable(action: {}))
+        XCTAssertTrue(coordinator.routes.isEmpty)
+    }
+
+    /// `perform(_:)` with `.itemPressed` shows archive unavailable alert and delegates to the
+    /// Premium upgrade helper when the action is tapped.
+    @MainActor
+    func test_perform_itemPressed_archiveGroup_noPremium_noItems_actionTapped() async throws {
+        subject.state.hasPremium = false
+        let archiveItem = VaultListItem(id: "Archive", hasPremium: false, itemType: .group(.archive, 0))
+
+        await subject.perform(.itemPressed(archiveItem))
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, Localizations.premiumSubscriptionRequired)
+        XCTAssertEqual(alert.message, Localizations.archivingItemsIsAPremiumFeatureDescriptionLong)
+
+        try await alert.tapAction(title: Localizations.upgradeToPremium)
+        try await waitForAsync { self.premiumUpgradeHelper.navigateToPremiumUpgradeCalled }
+
+        XCTAssertTrue(premiumUpgradeHelper.navigateToPremiumUpgradeCalled)
+    }
+
+    /// `perform(_:)` with `.itemPressed` navigates to archive when user has Premium.
+    @MainActor
+    func test_perform_itemPressed_archiveGroup_hasPremium() async {
+        subject.state.hasPremium = true
+        let archiveItem = VaultListItem(id: "Archive", hasPremium: true, itemType: .group(.archive, 5))
+
+        await subject.perform(.itemPressed(archiveItem))
+
+        XCTAssertEqual(coordinator.routes.last, .group(.archive, filter: .allVaults))
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
+    /// `perform(_:)` with `.itemPressed` navigates to archive when user doesn't have Premium
+    /// but has archived items.
+    @MainActor
+    func test_perform_itemPressed_archiveGroup_noPremium_hasItems() async {
+        subject.state.hasPremium = false
+        let archiveItem = VaultListItem(id: "Archive", hasPremium: false, itemType: .group(.archive, 3))
+
+        await subject.perform(.itemPressed(archiveItem))
+
+        XCTAssertEqual(coordinator.routes.last, .group(.archive, filter: .allVaults))
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
+    /// `perform(_:)` with `.itemPressed` navigates to the `.totp` route for a totp code.
+    @MainActor
+    func test_perform_itemPressed_totp() async throws {
+        let cipherListView = CipherListView.fixture()
+        let totpItem = VaultListItem.fixtureTOTP(totp: .fixture(cipherListView: cipherListView))
+
+        await subject.perform(.itemPressed(totpItem))
+        try await waitForAsync { !self.coordinator.routes.isEmpty }
+
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: "123", masterPasswordRepromptCheckCompleted: true))
+        XCTAssertTrue(coordinator.contexts.last is VaultListProcessor)
+        XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
+    }
+
     /// `onNewSearchResults(data:)` closure from search mediator updates the state's search results with the new items.
     @MainActor
     func test_onNewSearchResults() async {
@@ -2430,122 +2569,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     func test_receive_goToArchive() {
         subject.receive(.goToArchive)
         XCTAssertEqual(coordinator.routes.last, .group(.archive, filter: .allVaults))
-    }
-
-    /// `receive(_:)` with `.itemPressed` navigates to the `.viewItem` route for a cipher.
-    @MainActor
-    func test_receive_itemPressed_cipher() async throws {
-        let cipherListView = CipherListView.fixture()
-        let item = VaultListItem.fixture(cipherListView: cipherListView)
-
-        subject.receive(.itemPressed(item: item))
-        try await waitForAsync { !self.coordinator.routes.isEmpty }
-
-        XCTAssertEqual(coordinator.routes.last, .viewItem(id: item.id, masterPasswordRepromptCheckCompleted: true))
-        XCTAssertTrue(coordinator.contexts.last is VaultListProcessor)
-        XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
-    }
-
-    /// `receive(_:)` with `.itemPressed` shows an alert when tapping on a cipher which failed to decrypt.
-    @MainActor
-    func test_receive_itemPressed_cipherDecryptionFailure() async throws {
-        let cipherListView = CipherListView.fixture(name: Localizations.errorCannotDecrypt)
-        let item = VaultListItem.fixture(cipherListView: cipherListView)
-
-        subject.receive(.itemPressed(item: item))
-
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert, .cipherDecryptionFailure(cipherIds: ["1"]) { _ in })
-
-        try await alert.tapAction(title: Localizations.copyErrorReport)
-        XCTAssertEqual(
-            pasteboardService.copiedString,
-            """
-            \(Localizations.decryptionError)
-            \(Localizations.bitwardenCouldNotDecryptThisVaultItemDescriptionLong)
-
-            1
-            """,
-        )
-    }
-
-    /// `receive(_:)` with `.itemPressed` navigates to the `.group` route for a group.
-    @MainActor
-    func test_receive_itemPressed_group() {
-        subject.receive(.itemPressed(item: VaultListItem(id: "1", itemType: .group(.card, 1))))
-
-        XCTAssertEqual(coordinator.routes.last, .group(.card, filter: .allVaults))
-    }
-
-    /// `receive(_:)` with `.itemPressed` shows archive unavailable alert when user doesn't have Premium
-    /// and archive has no items.
-    @MainActor
-    func test_receive_itemPressed_archiveGroup_noPremium_noItems() {
-        subject.state.hasPremium = false
-        let archiveItem = VaultListItem(id: "Archive", hasPremium: false, itemType: .group(.archive, 0))
-
-        subject.receive(.itemPressed(item: archiveItem))
-
-        XCTAssertEqual(coordinator.alertShown.last, .archiveUnavailable(action: {}))
-        XCTAssertTrue(coordinator.routes.isEmpty)
-    }
-
-    /// `receive(_:)` with `.itemPressed` shows archive unavailable alert and delegates to the
-    /// Premium upgrade helper when the action is tapped.
-    @MainActor
-    func test_receive_itemPressed_archiveGroup_noPremium_noItems_actionTapped() async throws {
-        subject.state.hasPremium = false
-        let archiveItem = VaultListItem(id: "Archive", hasPremium: false, itemType: .group(.archive, 0))
-
-        subject.receive(.itemPressed(item: archiveItem))
-
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert.title, Localizations.premiumSubscriptionRequired)
-        XCTAssertEqual(alert.message, Localizations.archivingItemsIsAPremiumFeatureDescriptionLong)
-
-        try await alert.tapAction(title: Localizations.upgradeToPremium)
-        try await waitForAsync { self.premiumUpgradeHelper.navigateToPremiumUpgradeCalled }
-
-        XCTAssertTrue(premiumUpgradeHelper.navigateToPremiumUpgradeCalled)
-    }
-
-    /// `receive(_:)` with `.itemPressed` navigates to archive when user has Premium.
-    @MainActor
-    func test_receive_itemPressed_archiveGroup_hasPremium() {
-        subject.state.hasPremium = true
-        let archiveItem = VaultListItem(id: "Archive", hasPremium: true, itemType: .group(.archive, 5))
-
-        subject.receive(.itemPressed(item: archiveItem))
-
-        XCTAssertEqual(coordinator.routes.last, .group(.archive, filter: .allVaults))
-        XCTAssertTrue(coordinator.alertShown.isEmpty)
-    }
-
-    /// `receive(_:)` with `.itemPressed` navigates to archive when user doesn't have Premium
-    /// but has archived items.
-    @MainActor
-    func test_receive_itemPressed_archiveGroup_noPremium_hasItems() {
-        subject.state.hasPremium = false
-        let archiveItem = VaultListItem(id: "Archive", hasPremium: false, itemType: .group(.archive, 3))
-
-        subject.receive(.itemPressed(item: archiveItem))
-
-        XCTAssertEqual(coordinator.routes.last, .group(.archive, filter: .allVaults))
-        XCTAssertTrue(coordinator.alertShown.isEmpty)
-    }
-
-    /// `receive(_:)` with `.itemPressed` navigates to the `.totp` route for a totp code.
-    @MainActor
-    func test_receive_itemPressed_totp() async throws {
-        let cipherListView = CipherListView.fixture()
-        let totpItem = VaultListItem.fixtureTOTP(totp: .fixture(cipherListView: cipherListView))
-
-        subject.receive(.itemPressed(item: totpItem))
-        try await waitForAsync { !self.coordinator.routes.isEmpty }
-
-        XCTAssertEqual(coordinator.routes.last, .viewItem(id: "123", masterPasswordRepromptCheckCompleted: true))
-        XCTAssertTrue(coordinator.contexts.last is VaultListProcessor)
-        XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
     }
 
     /// `receive(_:)` with `.navigateToFlightRecorderSettings` navigates to the flight recorder settings.

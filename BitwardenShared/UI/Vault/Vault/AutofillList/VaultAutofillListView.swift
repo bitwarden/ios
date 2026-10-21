@@ -267,11 +267,7 @@ private struct VaultAutofillListSearchableView: View {
                     section: section,
                     showCount: !store.state.isCreatingFido2Credential,
                 ) { item in
-                    AsyncButton {
-                        await store.perform(.vaultItemTapped(item))
-                    } label: {
-                        vaultItemRow(for: item, isLastInSection: section.items.last == item)
-                    }
+                    vaultItemRow(for: item, isLastInSection: section.items.last == item)
                 }
             }
         }
@@ -282,11 +278,7 @@ private struct VaultAutofillListSearchableView: View {
     private func cipherSimpleListView(_ items: [VaultListItem]) -> some View {
         LazyVStack(spacing: 0) {
             ForEach(items) { item in
-                AsyncButton {
-                    await store.perform(.vaultItemTapped(item))
-                } label: {
-                    vaultItemRow(for: item, isLastInSection: items.last == item)
-                }
+                vaultItemRow(for: item, isLastInSection: items.last == item)
             }
         }
         .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
@@ -368,7 +360,18 @@ private struct VaultAutofillListSearchableView: View {
                     )
                 },
                 mapAction: nil,
-                mapEffect: nil,
+                mapEffect: { effect in
+                    switch effect {
+                    case .accessibilityMoreOptionsActionPressed:
+                        // Unreachable: `isFromExtension: true` always hides the accessibility actions.
+                        .vaultItemTapped(item)
+                    case .morePressed:
+                        // Unreachable: `isFromExtension: true` always hides `CipherOptionsButton`.
+                        .vaultItemTapped(item)
+                    case .pressed:
+                        .vaultItemTapped(item)
+                    }
+                },
             ),
             timeProvider: timeProvider,
         )
