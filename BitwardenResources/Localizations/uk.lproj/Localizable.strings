@@ -500,8 +500,8 @@
 "SpecialCharacters" = "Спеціальні символи (!@#$%^&*)";
 "PasswordIsVisibleTapToHide" = "Пароль видимий. Торкніться, щоб приховати.";
 "PasswordIsNotVisibleTapToShow" = "Пароль прихований. Торкніться, щоб показати.";
-"FieldValueIsVisibleTapToHide" = "%1$@ зображається; натисніть, щоб приховати.";
-"FieldValueIsNotVisibleTapToShow" = "%1$@ не зображається, натисніть, щоб показати.";
+"FieldValueIsVisibleTapToHide" = "%1$@ видимий. Торкніться, щоб приховати.";
+"FieldValueIsNotVisibleTapToShow" = "%1$@ прихований. Торкніться, щоб показати.";
 "FilterByVault" = "Фільтрувати записи за сховищем";
 "AllVaults" = "Усі сховища";
 "Vaults" = "Сховища";
@@ -1097,7 +1097,7 @@
 "AnyoneWithTheLink" = "Будь-хто з посиланням";
 "AnyoneWithThisLinkCanViewThisSend" = "Будь-хто з цим посиланням може переглядати це відправлення.";
 "AfterSharingThisSendLinkDescriptionLong" = "Після того, як ви поділитеся посиланням на це відправлення, користувачі мають підтвердити свою е-пошту за допомогою коду, щоб переглянути його.";
-"IndividualsWillNeedToEnterThisPasswordDescriptionLong" = "Щоб переглянути це повідомлення, користувачам потрібно буде ввести цей пароль";
+"IndividualsWillNeedToEnterThisPasswordDescriptionLong" = "Користувачі мають ввести цей пароль, щоб переглянути це відправлення";
 "SpecificPeople" = "Певні користувачі";
 "WhoCanView" = "Хто може переглядати";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Спільний доступ з певними користувачами є функцією Premium. Ваш поточний тарифний план не передбачає доступ до цієї функції.";
@@ -1275,10 +1275,10 @@
 "Server" = "Сервер";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Очистити %1$@";
-/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
-"OpensDatePicker" = "Відкриває вікно вибору дати";
+/* Accessibility hint on a collapsed date field announcing that activating it activates the calendar picker. */
+"DoubleTapToActivateThePicker" = "Торкніться двічі, щоб активувати засіб вибору";
 /* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
-"ClosesDatePicker" = "Закриває вікно вибору дати";
+"DoubleTapToCloseThePicker" = "Торкніться двічі, щоб закрити засіб вибору";
 /* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
 "FutureDatesUnavailable" = "Майбутні дати недоступні";
 "PremiumRequiredTOTPDescriptionLong" = "Ключ автентифікації (TOTP) – це функція Premium. Ваш поточний тарифний план не передбачає доступ до цієї функції.";
@@ -1301,3 +1301,4 @@
 "NotNow" = "Не зараз";
 "SyncUnsuccessful" = "Не вдалося синхронізувати";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Не вдалося синхронізувати ваше сховище з сервером. Ваше сховище може не показувати останні зміни. Ви можете повторити спробу зараз або синхронізація відбудеться згодом автоматично.";
+"TextToShareRequired" = "Текст для надсилання (обов'язково)";

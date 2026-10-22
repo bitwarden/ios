@@ -1275,10 +1275,10 @@
 "Server" = "सर्व्हर";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "%1$@ साफ करा";
-/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
-"OpensDatePicker" = "Opens date picker";
+/* Accessibility hint on a collapsed date field announcing that activating it activates the calendar picker. */
+"DoubleTapToActivateThePicker" = "Double tap to activate the picker";
 /* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
-"ClosesDatePicker" = "Closes date picker";
+"DoubleTapToCloseThePicker" = "Double tap to close the picker";
 /* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
 "FutureDatesUnavailable" = "Future dates unavailable";
 "PremiumRequiredTOTPDescriptionLong" = "प्रमाणीकरण की (TOTP) हे Premium वैशिष्ट्य आहे. तुमच्या सध्याच्या योजनेत या वैशिष्ट्याचा प्रवेश समाविष्ट नाही.";
@@ -1301,3 +1301,4 @@
 "NotNow" = "आत्ता नाही";
 "SyncUnsuccessful" = "समक्रमण अयशस्वी";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "आम्ही तुमची तिजोरी सर्व्हरसह समक्रमित करू शकलो नाही. तुमची तिजोरी तुमचे नवीनतम बदल प्रतिबिंबित करत नसावी. तुम्ही आता पुन्हा प्रयत्न करू शकता किंवा ती नंतर स्वयंचलितपणे समक्रमित होईल.";
+"TextToShareRequired" = "Text to share (required)";

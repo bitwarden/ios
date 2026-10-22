@@ -546,10 +546,13 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
     func hashPassword(password: String, purpose: HashPurpose) async throws -> String {
         let account = try await stateService.getActiveAccount()
+        guard let masterPasswordUnlock = account.profile.userDecryptionOptions?.masterPasswordUnlock else {
+            throw AuthError.missingMasterPasswordUnlockData
+        }
         return try await clientService.auth().hashPassword(
-            email: account.profile.email,
+            email: masterPasswordUnlock.salt,
             password: password,
-            kdfParams: account.kdf.sdkKdf,
+            kdfParams: masterPasswordUnlock.kdf.sdkKdf,
             purpose: purpose,
         )
     }
@@ -673,9 +676,6 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             masterPassword: masterPassword,
         )
 
-        // Save the master password hash.
-        try await saveMasterPasswordHash(password: masterPassword)
-
         try await checkMasterPasswordPolicies(
             isPreAuth: false,
             masterPassword: masterPassword,
@@ -797,11 +797,6 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         if preAuthForcePasswordResetReason != nil {
             try await stateService.setForcePasswordResetReason(.weakMasterPasswordOnLogin)
             preAuthForcePasswordResetReason = nil
-        }
-
-        // Save the master password hash.
-        if case let .password(_, password) = twoFactorRequest.authenticationMethod {
-            try await saveMasterPasswordHash(password: password)
         }
 
         // Remove the cached request after successfully logging in.
@@ -1035,7 +1030,6 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
                 // Form the resend email request in case the user needs to resend the verification code email.
                 resendEmailModel = .init(
-                    deviceIdentifier: appID,
                     email: email,
                     masterPasswordHash: passwordHash,
                     ssoEmail2FaSessionToken: ssoToken,
@@ -1117,16 +1111,5 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             identityTokenResponse.refreshToken,
             userId: account.profile.userId,
         )
-    }
-
-    /// Saves the user's master password hash.
-    ///
-    /// - Parameter password: The user's master password to hash and save.
-    ///
-    private func saveMasterPasswordHash(password: String) async throws {
-        try await stateService.setMasterPasswordHash(hashPassword(
-            password: password,
-            purpose: .localAuthorization,
-        ))
     }
 } // swiftlint:disable:this file_length

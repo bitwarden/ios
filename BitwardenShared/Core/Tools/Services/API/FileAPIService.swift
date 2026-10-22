@@ -115,6 +115,6 @@ extension APIService: FileAPIService {
     private func azureUploadFile(data: Data, url: URL) async throws {
         let request = AzureFileUploadRequest(data: data, url: url)
         let httpRequest = request.httpRequest
-        _ = try await apiUnauthenticatedService.send(httpRequest)
+        _ = try await fileTransferService.send(httpRequest)
     }
 }

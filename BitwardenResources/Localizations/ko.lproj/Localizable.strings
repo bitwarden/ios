@@ -1275,10 +1275,10 @@
 "Server" = "서버";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "%1$@ 지우기";
-/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
-"OpensDatePicker" = "Opens date picker";
+/* Accessibility hint on a collapsed date field announcing that activating it activates the calendar picker. */
+"DoubleTapToActivateThePicker" = "Double tap to activate the picker";
 /* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
-"ClosesDatePicker" = "Closes date picker";
+"DoubleTapToCloseThePicker" = "Double tap to close the picker";
 /* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
 "FutureDatesUnavailable" = "Future dates unavailable";
 "PremiumRequiredTOTPDescriptionLong" = "인증자 키(TOTP)는 프리미엄 기능입니다. 현재 요금제에는 이 기능에 대한 액세스가 포함되어 있지 않습니다.";
@@ -1301,3 +1301,4 @@
 "NotNow" = "나중에";
 "SyncUnsuccessful" = "동기화 실패";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "서버와 보관함을 동기화할 수 없습니다. 보관함에 최신 변경 사항이 반영되지 않았을 수 있습니다. 지금 다시 시도하거나 나중에 자동으로 동기화되도록 두세요.";
+"TextToShareRequired" = "Text to share (required)";
