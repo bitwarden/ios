@@ -24,6 +24,12 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
     // MARK: Properties
 
+    /// The repository used by the application to manage Agent Access for the UI layer.
+    let agentAccessRepository: AgentAccessRepository
+
+    /// The service used by the application to run the Agent Access client.
+    let agentAccessService: AgentAccessService
+
     /// The service used by the application to make API requests.
     let apiService: APIService
 
@@ -246,6 +252,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// Initialize a `ServiceContainer`.
     ///
     /// - Parameters:
+    ///   - agentAccessRepository: The repository used by the application to manage Agent Access for the UI layer.
+    ///   - agentAccessService: The service used by the application to run the Agent Access client.
     ///   - apiService: The service used by the application to make API requests.
     ///   - appContextHelper: The helper used to know app context.
     ///   - appIDService: The service used by the application to manage the app's ID.
@@ -327,6 +335,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///
     @MainActor
     init( // swiftlint:disable:this function_body_length
+        agentAccessRepository: AgentAccessRepository,
+        agentAccessService: AgentAccessService,
         apiService: APIService,
         appContextHelper: AppContextHelper,
         appIDService: AppIDService,
@@ -399,6 +409,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         vaultTimeoutService: VaultTimeoutService,
         watchService: WatchService,
     ) {
+        self.agentAccessRepository = agentAccessRepository
+        self.agentAccessService = agentAccessService
         self.apiService = apiService
         self.appContextHelper = appContextHelper
         self.appIDService = appIDService
@@ -914,6 +926,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             syncService: syncService,
         )
 
+        let agentAccessService = DefaultAgentAccessService()
+        let agentAccessRepository = DefaultAgentAccessRepository()
+
         let notificationService = DefaultNotificationService(
             appIDService: appIDService,
             authRepository: authRepository,
@@ -1183,6 +1198,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         Task { await authenticatorSyncService.start() }
 
         self.init(
+            agentAccessRepository: agentAccessRepository,
+            agentAccessService: agentAccessService,
             apiService: apiService,
             appContextHelper: appContextHelper,
             appIDService: appIDService,

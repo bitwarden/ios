@@ -6,6 +6,8 @@ import BitwardenSdk
 typealias Services = HasAPIService
     & HasASSettingsMediator
     & HasAccountAPIService
+    & HasAgentAccessRepository
+    & HasAgentAccessService
     & HasAppContextHelper
     & HasAppIDService
     & HasAppInfoService
@@ -19,6 +21,7 @@ typealias Services = HasAPIService
     & HasBillingRepository
     & HasBillingService
     & HasBiometricsRepository
+    & HasBiometricsService
     & HasCameraService
     & HasCardTextParser
     & HasChangeKdfService
@@ -95,6 +98,20 @@ protocol HasAPIService {
 protocol HasAppContextHelper {
     /// Helper used to know app context.
     var appContextHelper: AppContextHelper { get }
+}
+
+/// Protocol for an object that provides an `AgentAccessRepository`.
+///
+protocol HasAgentAccessRepository {
+    /// The repository used by the application to manage Agent Access for the UI layer.
+    var agentAccessRepository: AgentAccessRepository { get }
+}
+
+/// Protocol for an object that provides an `AgentAccessService`.
+///
+protocol HasAgentAccessService {
+    /// The service used by the application to run the Agent Access client.
+    var agentAccessService: AgentAccessService { get }
 }
 
 /// Protocol for an object that provides an `AppIDService`.
@@ -179,6 +196,13 @@ protocol HasBillingService {
 protocol HasBiometricsRepository {
     /// The repository used to obtain the available authentication policies and access controls for the user's device.
     var biometricsRepository: BiometricsRepository { get }
+}
+
+/// Protocol for an object that provides a `BiometricsService`.
+///
+protocol HasBiometricsService {
+    /// The service used to obtain device biometrics status & data.
+    var biometricsService: BiometricsService { get }
 }
 
 /// Protocol for an object that provides a `CameraService`.

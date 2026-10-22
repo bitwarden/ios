@@ -209,6 +209,8 @@ class DefaultNotificationService: NotificationService { // swiftlint:disable:thi
 
             // Handle the notification according to the type of data.
             switch type {
+            case .agentAccessRequest:
+                break
             case .syncCipherCreate,
                  .syncCipherUpdate:
                 let data: SyncCipherNotification = try notificationData.data()
