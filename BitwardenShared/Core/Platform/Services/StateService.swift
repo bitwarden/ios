@@ -2001,6 +2001,10 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.setUserKeyId(nil, userId: knownUserId)
         appSettingsStore.setV2UpgradeToken(nil, userId: knownUserId)
 
+        if userInitiated {
+            appSettingsStore.setPreviousPersonalPremium(nil, userId: knownUserId)
+        }
+
         // Reset the organization user notification banner dismissal so the banner can reappear on the next
         // login. A user-initiated (hard) logout always clears it; a soft logout (e.g. a vault-timeout logout)
         // clears it only when the banner is configured to show after every login.
@@ -2554,6 +2558,18 @@ extension DefaultStateService: BillingStateService {
     func setPremiumUpgradePending(_ pending: Bool, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setPremiumUpgradePending(pending, userId: userId)
+    }
+
+    // MARK: Previous Personal Premium
+
+    func getPreviousPersonalPremium(userId: String?) async throws -> Bool? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.previousPersonalPremium(userId: userId)
+    }
+
+    func setPreviousPersonalPremium(_ previousPersonalPremium: Bool?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setPreviousPersonalPremium(previousPersonalPremium, userId: userId)
     }
 
     // MARK: Subscription Attention Card

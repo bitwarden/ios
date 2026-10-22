@@ -714,6 +714,7 @@ extension AppProcessor: SyncServiceDelegate {
         // An upgrade the checkout's own sync didn't report has to be completed by whichever
         // later sync does, so this runs after every sync rather than just that one.
         await services.billingService.completeUpgradeIfPending(userId: userId)
+        await services.billingService.detectOutOfBandUpgrade(userId: userId)
 
         do {
             let hasPerformedSyncAfterLogin = try await services.stateService.getHasPerformedSyncAfterLogin(
