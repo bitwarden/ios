@@ -171,6 +171,10 @@ Or in Xcode: **Product → Clean Build Folder** (⇧⌘K). Stale build outputs f
 
 **Do not duplicate information from these files — reference them instead.**
 
+## MCPs
+
+- ✅ If using MobileBuildMCP, use the installed MobileBuildMCP skill before calling MobileBuildMCP tools.
+
 ## Skills & Commands
 
 | Skill | Triggers |
