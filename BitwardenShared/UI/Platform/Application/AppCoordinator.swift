@@ -1,6 +1,7 @@
 import BitwardenKit
 import BitwardenResources
 import BitwardenSdk
+import Combine
 import SwiftUI
 import UIKit
 
@@ -12,7 +13,8 @@ class AppCoordinator: Coordinator, HasRootNavigator { // swiftlint:disable:this 
     // MARK: Types
 
     /// The types of modules used by this coordinator.
-    typealias Module = AuthModule
+    typealias Module = AgentAccessModule
+        & AuthModule
         & DebugMenuModule
         & ExtensionSetupModule
         & FileSelectionModule
@@ -26,6 +28,9 @@ class AppCoordinator: Coordinator, HasRootNavigator { // swiftlint:disable:this 
         & VaultModule
 
     // MARK: Private Properties
+
+    /// The task that listens for agent requests that are waiting for the user's answer.
+    private var agentAccessRequestsTask: Task<Void, Never>?
 
     /// The context that the app is running within.
     private let appContext: AppContext
@@ -44,6 +49,16 @@ class AppCoordinator: Coordinator, HasRootNavigator { // swiftlint:disable:this 
 
     /// Whether the debug menu is currently being shown.
     private(set) var isShowingDebugMenu = false
+
+    /// Whether an agent request is currently being shown.
+    private(set) var isShowingAgentAccessApproval = false
+
+    /// The IDs of agent requests that wait for the user to be authenticated or for another request
+    /// to be answered, oldest first.
+    private(set) var queuedAgentAccessRequestIds = [String]()
+
+    /// The IDs of the pending agent requests that have already been queued or shown.
+    private var seenAgentAccessRequestIds = Set<String>()
 
     // MARK: Properties
 
@@ -79,6 +94,10 @@ class AppCoordinator: Coordinator, HasRootNavigator { // swiftlint:disable:this 
         self.module = module
         self.rootNavigator = rootNavigator
         self.services = services
+    }
+
+    deinit {
+        agentAccessRequestsTask?.cancel()
     }
 
     // MARK: Methods
@@ -121,6 +140,8 @@ class AppCoordinator: Coordinator, HasRootNavigator { // swiftlint:disable:this 
 
     func navigate(to route: AppRoute, context _: AnyObject?) {
         switch route {
+        case let .agentAccessApproval(requestId):
+            showAgentAccessApproval(requestId: requestId)
         case let .auth(authRoute):
             showAuth(authRoute)
         case .debugMenu:
@@ -147,11 +168,34 @@ class AppCoordinator: Coordinator, HasRootNavigator { // swiftlint:disable:this 
     }
 
     func start() {
-        // Nothing to do here - the initial route is specified by `AppProcessor` and this
-        // coordinator doesn't need to navigate within the `Navigator` since it's the root.
+        // The initial route is specified by `AppProcessor` and this coordinator doesn't need to
+        // navigate within the `Navigator` since it's the root.
+        guard appContext == .mainApp else { return }
+        agentAccessRequestsTask?.cancel()
+        agentAccessRequestsTask = Task { [weak self] in
+            guard let publisher = self?.services.agentAccessRepository.pendingRequestsPublisher() else { return }
+            for await requests in publisher.values {
+                self?.handlePendingAgentAccessRequests(requests)
+            }
+        }
     }
 
     // MARK: Private Methods
+
+    /// Queues agent requests that were not shown yet and presents the next one if possible.
+    ///
+    /// - Parameter requests: The agent requests that are waiting for the user's answer, oldest first.
+    ///
+    private func handlePendingAgentAccessRequests(_ requests: [AgentAccessApprovalRequest]) {
+        let pendingIds = requests.map(\.id)
+        queuedAgentAccessRequestIds.removeAll { !pendingIds.contains($0) }
+        seenAgentAccessRequestIds.formIntersection(pendingIds)
+        for id in pendingIds where !seenAgentAccessRequestIds.contains(id) {
+            seenAgentAccessRequestIds.insert(id)
+            queuedAgentAccessRequestIds.append(id)
+        }
+        presentNextAgentAccessRequest()
+    }
 
     /// Handle an auth event.
     ///
@@ -180,6 +224,18 @@ class AppCoordinator: Coordinator, HasRootNavigator { // swiftlint:disable:this 
         showAuth(route)
     }
 
+    /// Presents the oldest queued agent request if the user is authenticated and no request is shown.
+    ///
+    private func presentNextAgentAccessRequest() {
+        guard !isShowingAgentAccessApproval,
+              childCoordinator is AnyCoordinator<TabRoute, Void>,
+              !queuedAgentAccessRequestIds.isEmpty
+        else {
+            return
+        }
+        navigate(to: .agentAccessApproval(requestId: queuedAgentAccessRequestIds.removeFirst()))
+    }
+
     /// Shows the auth route.
     ///
     /// - Parameter route: The auth route to show.
@@ -199,6 +255,34 @@ class AppCoordinator: Coordinator, HasRootNavigator { // swiftlint:disable:this 
             coordinator.start()
             childCoordinator = coordinator
             coordinator.navigate(to: authRoute)
+        }
+    }
+
+    /// Shows an agent request as a sheet. If the user isn't authenticated yet, or another request is
+    /// shown, the request is queued and shown as soon as possible.
+    ///
+    /// - Parameter requestId: The ID of the agent request to show.
+    ///
+    private func showAgentAccessApproval(requestId: String) {
+        guard !isShowingAgentAccessApproval, childCoordinator is AnyCoordinator<TabRoute, Void> else {
+            if !queuedAgentAccessRequestIds.contains(requestId) {
+                queuedAgentAccessRequestIds.append(requestId)
+            }
+            return
+        }
+        isShowingAgentAccessApproval = true
+
+        let navigationController = module.makeNavigationController()
+        navigationController.isModalInPresentation = true
+        let coordinator = module.makeAgentAccessCoordinator(stackNavigator: navigationController)
+        coordinator.start()
+        coordinator.navigate(to: .approval(requestId: requestId), context: self)
+
+        DispatchQueue.main.async {
+            self.rootNavigator?.rootViewController?.topmostViewController().present(
+                navigationController,
+                animated: true,
+            )
         }
     }
 
@@ -286,6 +370,7 @@ class AppCoordinator: Coordinator, HasRootNavigator { // swiftlint:disable:this 
             coordinator.start()
             coordinator.navigate(to: route)
             childCoordinator = coordinator
+            presentNextAgentAccessRequest()
         }
     }
 
@@ -425,6 +510,28 @@ class AppCoordinator: Coordinator, HasRootNavigator { // swiftlint:disable:this 
             completion: { feedbackGenerator.impactOccurred() },
         )
         isShowingDebugMenu = true
+    }
+}
+
+// MARK: - AgentAccessApprovalDelegate
+
+extension AppCoordinator: AgentAccessApprovalDelegate {
+    /// Show a toast over the current window with the result of answering the agent request.
+    ///
+    /// - Parameter approved: Whether the request was approved or denied.
+    ///
+    func agentAccessApprovalAnswered(approved: Bool) {
+        showToast(
+            approved
+                ? Localizations.agentAccessAuditCredentialApproved
+                : Localizations.agentAccessAuditCredentialDenied,
+        )
+    }
+
+    /// The agent request sheet was dismissed, so the next queued request can be shown.
+    func agentAccessApprovalDismissed() {
+        isShowingAgentAccessApproval = false
+        presentNextAgentAccessRequest()
     }
 }
 

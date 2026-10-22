@@ -1,5 +1,7 @@
 import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
+import Combine
 import TestHelpers
 import XCTest
 
@@ -11,6 +13,8 @@ import XCTest
 class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var agentAccessRepository: MockAgentAccessRepository!
+    var agentAccessRequests: CurrentValueSubject<[AgentAccessApprovalRequest], Never>!
     var appExtensionDelegate: MockAppExtensionDelegate!
     var errorReporter: MockErrorReporter!
     var module: MockAppModule!
@@ -25,6 +29,9 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     override func setUp() {
         super.setUp()
 
+        agentAccessRepository = MockAgentAccessRepository()
+        agentAccessRequests = CurrentValueSubject([])
+        agentAccessRepository.pendingRequestsPublisherReturnValue = agentAccessRequests.eraseToAnyPublisher()
         appExtensionDelegate = MockAppExtensionDelegate()
         errorReporter = MockErrorReporter()
         rehydrationHelper = MockRehydrationHelper()
@@ -33,6 +40,7 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         module.authRouter = router
         rootNavigator = MockRootNavigator()
         services = ServiceContainer.withMocks(
+            agentAccessRepository: agentAccessRepository,
             errorReporter: errorReporter,
             rehydrationHelper: rehydrationHelper,
         )
@@ -49,6 +57,8 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     override func tearDown() {
         super.tearDown()
 
+        agentAccessRepository = nil
+        agentAccessRequests = nil
         appExtensionDelegate = nil
         errorReporter = nil
         module = nil
@@ -556,6 +566,163 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         subject.navigate(to: .generatePasswordCredential)
 
         XCTAssertFalse(module.generatorCoordinator.isStarted)
+    }
+
+    /// `navigate(to:)` with `.agentAccessApproval(requestId:)` presents the request as a sheet that
+    /// can't be dismissed by swiping.
+    @MainActor
+    func test_navigateTo_agentAccessApproval() throws {
+        rootNavigator.rootViewController = MockUIViewController()
+        subject.navigate(to: .tab(.vault(.list)))
+
+        subject.navigate(to: .agentAccessApproval(requestId: "request-1"))
+        waitFor((rootNavigator.rootViewController as? MockUIViewController)?.presentCalled == true)
+
+        let presented = try XCTUnwrap(
+            (rootNavigator.rootViewController as? MockUIViewController)?.presentedView as? UINavigationController,
+        )
+        XCTAssertTrue(presented.isModalInPresentation)
+        XCTAssertTrue(module.agentAccessCoordinator.isStarted)
+        XCTAssertEqual(module.agentAccessCoordinator.routes.last, .approval(requestId: "request-1"))
+        XCTAssertTrue(subject.isShowingAgentAccessApproval)
+        XCTAssertTrue(subject.queuedAgentAccessRequestIds.isEmpty)
+    }
+
+    /// `navigate(to:)` with `.agentAccessApproval(requestId:)` queues the request until the user is
+    /// authenticated.
+    @MainActor
+    func test_navigateTo_agentAccessApproval_notAuthenticated() {
+        rootNavigator.rootViewController = MockUIViewController()
+
+        subject.navigate(to: .agentAccessApproval(requestId: "request-1"))
+
+        XCTAssertEqual(subject.queuedAgentAccessRequestIds, ["request-1"])
+        XCTAssertFalse(subject.isShowingAgentAccessApproval)
+        XCTAssertFalse(module.agentAccessCoordinator.isStarted)
+        XCTAssertEqual((rootNavigator.rootViewController as? MockUIViewController)?.presentCalled, false)
+    }
+
+    /// `navigate(to:)` with `.agentAccessApproval(requestId:)` queues a second request while one is shown
+    /// and presents it once the first one is dismissed.
+    @MainActor
+    func test_navigateTo_agentAccessApproval_oneAtATime() {
+        rootNavigator.rootViewController = MockUIViewController()
+        subject.navigate(to: .tab(.vault(.list)))
+
+        subject.navigate(to: .agentAccessApproval(requestId: "request-1"))
+        subject.navigate(to: .agentAccessApproval(requestId: "request-2"))
+
+        XCTAssertEqual(module.agentAccessCoordinator.routes, [.approval(requestId: "request-1")])
+        XCTAssertEqual(subject.queuedAgentAccessRequestIds, ["request-2"])
+
+        subject.agentAccessApprovalDismissed()
+
+        XCTAssertEqual(
+            module.agentAccessCoordinator.routes,
+            [.approval(requestId: "request-1"), .approval(requestId: "request-2")],
+        )
+        XCTAssertTrue(subject.queuedAgentAccessRequestIds.isEmpty)
+        XCTAssertTrue(subject.isShowingAgentAccessApproval)
+    }
+
+    /// `navigate(to:)` with `.agentAccessApproval(requestId:)` doesn't queue the same request twice.
+    @MainActor
+    func test_navigateTo_agentAccessApproval_noDuplicates() {
+        subject.navigate(to: .agentAccessApproval(requestId: "request-1"))
+        subject.navigate(to: .agentAccessApproval(requestId: "request-1"))
+
+        XCTAssertEqual(subject.queuedAgentAccessRequestIds, ["request-1"])
+    }
+
+    /// `start()` presents a pending agent request when the user is authenticated.
+    @MainActor
+    func test_start_presentsPendingAgentAccessRequest() {
+        rootNavigator.rootViewController = MockUIViewController()
+        subject.navigate(to: .tab(.vault(.list)))
+        subject.start()
+
+        agentAccessRequests.send([AgentAccessUIFixtures.approvalRequest(id: "request-1")])
+
+        waitFor(module.agentAccessCoordinator.routes == [.approval(requestId: "request-1")])
+        XCTAssertTrue(subject.isShowingAgentAccessApproval)
+    }
+
+    /// `start()` queues a pending agent request while the user isn't authenticated and presents it once
+    /// authentication completes.
+    @MainActor
+    func test_start_defersPendingAgentAccessRequestWhileLocked() {
+        rootNavigator.rootViewController = MockUIViewController()
+        subject.start()
+
+        agentAccessRequests.send([AgentAccessUIFixtures.approvalRequest(id: "request-1")])
+
+        waitFor(subject.queuedAgentAccessRequestIds == ["request-1"])
+        XCTAssertTrue(module.agentAccessCoordinator.routes.isEmpty)
+
+        subject.didCompleteAuth(rehydratableTarget: nil)
+
+        XCTAssertEqual(module.agentAccessCoordinator.routes, [.approval(requestId: "request-1")])
+        XCTAssertTrue(subject.queuedAgentAccessRequestIds.isEmpty)
+    }
+
+    /// `start()` skips queued agent requests that expired before they could be shown.
+    @MainActor
+    func test_start_skipsExpiredAgentAccessRequest() {
+        rootNavigator.rootViewController = MockUIViewController()
+        subject.start()
+
+        agentAccessRequests.send([
+            AgentAccessUIFixtures.approvalRequest(id: "request-1"),
+            AgentAccessUIFixtures.approvalRequest(id: "request-2"),
+        ])
+        waitFor(subject.queuedAgentAccessRequestIds == ["request-1", "request-2"])
+
+        agentAccessRequests.send([AgentAccessUIFixtures.approvalRequest(id: "request-2")])
+        waitFor(subject.queuedAgentAccessRequestIds == ["request-2"])
+
+        subject.didCompleteAuth(rehydratableTarget: nil)
+
+        XCTAssertEqual(module.agentAccessCoordinator.routes, [.approval(requestId: "request-2")])
+    }
+
+    /// `start()` doesn't listen for agent requests in an app extension.
+    @MainActor
+    func test_start_appExtension() {
+        subject = AppCoordinator(
+            appContext: .appExtension,
+            appExtensionDelegate: appExtensionDelegate,
+            module: module,
+            rootNavigator: rootNavigator,
+            services: services,
+        )
+
+        subject.start()
+
+        XCTAssertFalse(agentAccessRepository.pendingRequestsPublisherCalled)
+    }
+
+    /// `agentAccessApprovalAnswered(approved:)` shows a toast with the result.
+    @MainActor
+    func test_agentAccessApprovalAnswered() throws {
+        rootNavigator.rootViewController = UIViewController()
+        try setKeyWindowRoot(viewController: XCTUnwrap(subject.rootNavigator?.rootViewController))
+
+        subject.agentAccessApprovalAnswered(approved: true)
+
+        XCTAssertNotNil(window.viewWithTag(ToastDisplayHelper.toastTag))
+    }
+
+    /// `agentAccessApprovalDismissed()` allows the next request to be shown.
+    @MainActor
+    func test_agentAccessApprovalDismissed() {
+        rootNavigator.rootViewController = MockUIViewController()
+        subject.navigate(to: .tab(.vault(.list)))
+        subject.navigate(to: .agentAccessApproval(requestId: "request-1"))
+        XCTAssertTrue(subject.isShowingAgentAccessApproval)
+
+        subject.agentAccessApprovalDismissed()
+
+        XCTAssertFalse(subject.isShowingAgentAccessApproval)
     }
 
     /// `navigate(to:)` with `.loginRequest(_)` shows the login request view.
