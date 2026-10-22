@@ -8,6 +8,7 @@ import UIKit
 
 class MockAppModule:
     AddEditFolderModule,
+    AgentAccessModule,
     AppModule,
     AuthModule,
     BillingModule,
@@ -33,6 +34,7 @@ class MockAppModule:
     VaultModule,
     VaultItemModule {
     var addEditFolderCoordinator = MockCoordinator<AddEditFolderRoute, Void>()
+    var agentAccessCoordinator = MockCoordinator<AgentAccessRoute, Void>()
     var appCoordinator = MockCoordinator<AppRoute, AppEvent>()
     var authCoordinator = MockCoordinator<AuthRoute, AuthEvent>()
     var authRouter = MockRouter<AuthEvent, AuthRoute>(routeForEvent: { _ in .landing })
@@ -70,6 +72,12 @@ class MockAppModule:
         stackNavigator _: StackNavigator,
     ) -> AnyCoordinator<AddEditFolderRoute, Void> {
         addEditFolderCoordinator.asAnyCoordinator()
+    }
+
+    func makeAgentAccessCoordinator(
+        stackNavigator _: StackNavigator,
+    ) -> AnyCoordinator<AgentAccessRoute, Void> {
+        agentAccessCoordinator.asAnyCoordinator()
     }
 
     func makeAppCoordinator(
