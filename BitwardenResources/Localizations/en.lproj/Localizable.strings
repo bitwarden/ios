@@ -1302,3 +1302,76 @@
 "SyncUnsuccessful" = "Sync unsuccessful";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "We couldn’t sync your vault with the server. Your vault may not reflect your latest changes. You can try again now or it will sync automatically later.";
 "TextToShareRequired" = "Text to share (required)";
+"AgentAccess" = "Agent Access";
+"AgentAccessAllowRequests" = "Allow agent requests";
+"AgentAccessApprovalTitle" = "Agent request";
+"AgentAccessApprove" = "Approve";
+"AgentAccessApproveDescription" = "%1$@ is asking for the login for %2$@.";
+"AgentAccessAuditLog" = "Activity";
+"AgentAccessAuditClear" = "Clear activity";
+"AgentAccessAuditClearConfirm" = "Clear all agent activity from this device?";
+"AgentAccessAuditEmpty" = "No agent activity yet.";
+"AgentAccessAuditConnectionEstablished" = "Paired";
+"AgentAccessAuditSessionRefreshed" = "Reconnected";
+"AgentAccessAuditConnectionRejected" = "Pairing rejected";
+"AgentAccessAuditConnectionRevoked" = "Revoked";
+"AgentAccessAuditCredentialRequested" = "Requested";
+"AgentAccessAuditCredentialApproved" = "Approved";
+"AgentAccessAuditCredentialAutoApproved" = "Approved automatically";
+"AgentAccessAuditCredentialDenied" = "Denied";
+"AgentAccessAuditCredentialExpired" = "Expired";
+"AgentAccessAutoApproveFor" = "Approve again automatically for";
+"AgentAccessAutoApproveMinutes" = "%1$d min";
+"AgentAccessAutoApproveRules" = "Automatic approvals";
+"AgentAccessAutoApproveRemove" = "Stop";
+"AgentAccessBiometricPrompt" = "Confirm to share a login with an agent";
+"AgentAccessChooseItem" = "Choose a login to share";
+"AgentAccessCode" = "Code";
+"AgentAccessCodeInstructions" = "Enter this code in your agent within 5 minutes.";
+"AgentAccessCompareFingerprint" = "Does this code match what your agent shows?";
+"AgentAccessConfirm" = "It matches";
+"AgentAccessConnections" = "Connections";
+"AgentAccessConnectionsEmpty" = "No agents are paired yet.";
+"AgentAccessCopyToken" = "Copy token";
+"AgentAccessDefaultConnectionName" = "My agent";
+"AgentAccessDeny" = "Deny";
+"AgentAccessExpired" = "This request expired.";
+"AgentAccessInvalidRelayURL" = "Enter a ws:// or wss:// address.";
+"AgentAccessLastUsed" = "Last used %1$@";
+"AgentAccessNoMatchingItems" = "No logins in your vault match this request.";
+"AgentAccessNotificationBody" = "An agent is waiting for your approval.";
+"AgentAccessNotificationTitle" = "Agent request";
+"AgentAccessPairAgent" = "Pair an agent";
+"AgentAccessPairedSuccess" = "Agent paired.";
+"AgentAccessPairingFailed" = "Pairing failed.";
+"AgentAccessPairingName" = "Connection name";
+"AgentAccessPairingRejected" = "Pairing was rejected.";
+"AgentAccessPrivacyFooter" = "Only the username and password you approve are shared with the agent. Requests travel end to end encrypted through the relay.";
+"AgentAccessRelayServer" = "Relay server";
+"AgentAccessRevoke" = "Revoke";
+"AgentAccessRevokeConfirm" = "Revoke access for %1$@? It will need to be paired again.";
+"AgentAccessShareToken" = "Share token";
+"AgentAccessStatusConnecting" = "Connecting";
+"AgentAccessStatusDisabled" = "Off";
+"AgentAccessStatusFailed" = "Connection failed";
+"AgentAccessStatusListening" = "Listening";
+"AgentAccessStatusReconnecting" = "Reconnecting";
+"AgentAccessToken" = "Token";
+"AgentAccessTokenInstructions" = "Give this one-time token to your agent within 10 minutes.";
+"AgentAccessWaitingForAgent" = "Waiting for your agent";
+/* Label for the row that shows whether the app is connected to the relay. */
+"AgentAccessStatus" = "Status";
+/* Button that creates a pairing token or code for a new agent. */
+"AgentAccessStartPairing" = "Start pairing";
+/* Shows when a pairing token or code stops working. %1$@ is a time such as 3:45 PM. */
+"AgentAccessExpiresAt" = "Expires at %1$@";
+/* Label above a sample terminal command the user can run in their agent. */
+"AgentAccessExampleCommand" = "Example command";
+/* Button shown when the code on the phone does not match the code the agent shows. */
+"AgentAccessReject" = "It doesn't match";
+/* Countdown on the agent request screen. %1$d is a number of seconds. */
+"AgentAccessSecondsLeft" = "%1$d seconds left";
+/* Shows when an automatic approval ends. %1$@ is a time such as 3:45 PM. */
+"AgentAccessRuleUntil" = "Until %1$@";
+/* Shows when an agent was paired. %1$@ is a date. */
+"AgentAccessPairedOn" = "Paired %1$@";
