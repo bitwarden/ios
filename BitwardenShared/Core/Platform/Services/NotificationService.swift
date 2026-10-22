@@ -2,6 +2,7 @@ import BitwardenKit
 import BitwardenResources
 import Foundation
 import OSLog
+import UIKit
 import UserNotifications
 
 // MARK: - NotificationService
@@ -55,6 +56,13 @@ protocol NotificationService {
 ///
 @MainActor
 protocol NotificationServiceDelegate: AnyObject {
+    /// An Agent Access notification was tapped. Switches to the account that owns it if necessary
+    /// and starts the Agent Access client so waiting requests are delivered.
+    ///
+    /// - Parameter userId: The ID of the account the notification belongs to.
+    ///
+    func agentAccessNotificationTapped(userId: String) async
+
     /// Users are logged out, route to landing page.
     ///
     func routeToLanding() async
@@ -79,7 +87,24 @@ protocol NotificationServiceDelegate: AnyObject {
 /// The default implementation of `NotificationService`.
 ///
 class DefaultNotificationService: NotificationService { // swiftlint:disable:this type_body_length
+    // MARK: Static Properties
+
+    /// The key of the fingerprint in the `userInfo` of an Agent Access local notification.
+    private static let agentAccessFingerprintKey = "agentAccessFingerprint"
+
+    /// The key of the user ID in the `userInfo` of an Agent Access local notification.
+    private static let agentAccessUserIdKey = "agentAccessUserId"
+
     // MARK: Properties
+
+    /// The repository used by the application to manage Agent Access.
+    private let agentAccessRepository: AgentAccessRepository
+
+    /// The service used by the application to run the Agent Access client.
+    private let agentAccessService: AgentAccessService
+
+    /// The application instance, if the app isn't running in an extension.
+    private let application: Application?
 
     /// The delegate to handle login request actions originating from notifications.
     private weak var delegate: NotificationServiceDelegate?
@@ -122,7 +147,10 @@ class DefaultNotificationService: NotificationService { // swiftlint:disable:thi
     /// Initializes the `DefaultNotificationService`.
     ///
     /// - Parameters:
+    ///   - agentAccessRepository: The repository used by the application to manage Agent Access.
+    ///   - agentAccessService: The service used by the application to run the Agent Access client.
     ///   - appIDService: The service used by the application to manage the app's ID.
+    ///   - application: The application instance, if the app isn't running in an extension.
     ///   - authRepository: The repository used by the application to manage auth data for the UI layer.
     ///   - authService: The service used by the application to handle authentication tasks.
     ///   - billingService: The service used by the application to manage billing operations.
@@ -134,7 +162,10 @@ class DefaultNotificationService: NotificationService { // swiftlint:disable:thi
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
     init(
+        agentAccessRepository: AgentAccessRepository,
+        agentAccessService: AgentAccessService,
         appIDService: AppIDService,
+        application: Application?,
         authRepository: AuthRepository,
         authService: AuthService,
         billingService: BillingService,
@@ -146,7 +177,10 @@ class DefaultNotificationService: NotificationService { // swiftlint:disable:thi
         stateService: StateService,
         syncService: SyncService,
     ) {
+        self.agentAccessRepository = agentAccessRepository
+        self.agentAccessService = agentAccessService
         self.appIDService = appIDService
+        self.application = application
         self.authRepository = authRepository
         self.authService = authService
         self.billingService = billingService
@@ -190,7 +224,12 @@ class DefaultNotificationService: NotificationService { // swiftlint:disable:thi
         notificationTapped: Bool?,
     ) async {
         do {
-            // First attempt to decode the message as a response.
+            // Agent Access notifications are handled before the login request responses.
+            if await handleAgentAccessNotification(message, notificationTapped: notificationTapped) {
+                return
+            }
+
+            // Then attempt to decode the message as a response.
             if await handleLoginRequestResponse(
                 message,
                 notificationDismissed: notificationDismissed,
@@ -210,7 +249,7 @@ class DefaultNotificationService: NotificationService { // swiftlint:disable:thi
             // Handle the notification according to the type of data.
             switch type {
             case .agentAccessRequest:
-                break
+                try await handleAgentAccessRequest(notificationData, notificationTapped: notificationTapped)
             case .syncCipherCreate,
                  .syncCipherUpdate:
                 let data: SyncCipherNotification = try notificationData.data()
@@ -334,6 +373,85 @@ class DefaultNotificationService: NotificationService { // swiftlint:disable:thi
               notificationData.contextId != appId
         else { return nil }
         return notificationData
+    }
+
+    /// Handles an Agent Access notification that is a local banner or a tapped alert push.
+    ///
+    /// - Parameters:
+    ///   - message: The `userInfo` of the notification.
+    ///   - notificationTapped: `true` if the notification banner has been tapped.
+    /// - Returns: `true` if the message was fully handled.
+    ///
+    private func handleAgentAccessNotification(
+        _ message: [AnyHashable: Any],
+        notificationTapped: Bool?,
+    ) async -> Bool {
+        if let userId = message[Self.agentAccessUserIdKey] as? String {
+            guard notificationTapped == true, await configService.getFeatureFlag(.agentAccess) else {
+                return true
+            }
+            await flightRecorder.log("[AgentAccess] Notification tapped")
+            await delegate?.agentAccessNotificationTapped(userId: userId)
+            return true
+        }
+
+        guard notificationTapped == true,
+              let notificationData = try? PushNotificationData(userInfo: message),
+              notificationData.type == .agentAccessRequest
+        else { return false }
+
+        do {
+            guard try await stateService.isAuthenticated(),
+                  await configService.getFeatureFlag(.agentAccess),
+                  let notificationData = try await decodePayload(message)
+            else { return true }
+            try await handleAgentAccessRequest(notificationData, notificationTapped: true)
+        } catch {
+            errorReporter.log(error: error)
+        }
+        return true
+    }
+
+    /// A helper method to handle an Agent Access push notification: a request is waiting at the
+    /// relay. Only identifiers and fingerprint prefixes are logged.
+    ///
+    /// - Parameters:
+    ///   - notificationData: The decoded payload from the push notification.
+    ///   - notificationTapped: `true` if the notification banner has been tapped.
+    ///
+    private func handleAgentAccessRequest(
+        _ notificationData: PushNotificationData,
+        notificationTapped: Bool?,
+    ) async throws {
+        guard await configService.getFeatureFlag(.agentAccess) else { return }
+        let data: AgentAccessPushNotification = try notificationData.data()
+        guard await agentAccessService.ownsIdentity(userId: data.userId, fingerprint: data.fingerprint) else {
+            return
+        }
+        let prefix = data.fingerprint.prefix(8)
+        await flightRecorder.log("[AgentAccess] Received request notification for identity \(prefix)")
+
+        if notificationTapped == true {
+            await delegate?.agentAccessNotificationTapped(userId: data.userId)
+            return
+        }
+
+        let activeUserId = try? await stateService.getActiveAccountId()
+        let isActive = await application?.applicationState == .active
+        if isActive, activeUserId == data.userId {
+            await agentAccessRepository.notificationTapped(userId: data.userId)
+            return
+        }
+
+        let content = UNMutableNotificationContent()
+        content.title = Localizations.agentAccessNotificationTitle
+        content.body = Localizations.agentAccessNotificationBody
+        content.userInfo = [
+            Self.agentAccessUserIdKey: data.userId,
+            Self.agentAccessFingerprintKey: data.fingerprint,
+        ]
+        let request = UNNotificationRequest(identifier: "agent-access-\(prefix)", content: content, trigger: nil)
+        try await UNUserNotificationCenter.current().add(request)
     }
 
     /// A helper method to handle a login request push notification.
