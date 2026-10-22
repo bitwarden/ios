@@ -36,9 +36,10 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         super.setUp()
 
         client = MockHTTPClient()
-        accountAPIService = APIService(client: client)
         appIDSettingsStore = MockAppIDSettingsStore()
-        authAPIService = APIService(client: client)
+        let appIDService = AppIDService(appIDSettingsStore: appIDSettingsStore)
+        accountAPIService = APIService(appIDService: appIDService, client: client)
+        authAPIService = APIService(appIDService: appIDService, client: client)
         clientService = MockClientService()
         configService = MockConfigService()
         configService.configMocker
@@ -69,7 +70,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
 
         subject = DefaultAuthService(
             accountAPIService: accountAPIService,
-            appIDService: AppIDService(appIDSettingsStore: appIDSettingsStore),
+            appIDService: appIDService,
             authAPIService: authAPIService,
             clientService: clientService,
             configService: configService,
@@ -1324,6 +1325,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertEqual(client.requests[2].url, URL(
             string: "https://example.com/api/accounts/resend-new-device-otp",
         ))
+        XCTAssertEqual(client.requests[2].headers["Device-Identifier"], "App ID")
         let storedToken = await stateService.getTwoFactorToken(email: "email@example.com")
         XCTAssertNil(storedToken)
     }
@@ -1371,6 +1373,12 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
 
         // Ensure the resend email request runs successfully.
         try await subject.resendVerificationCodeEmail()
+
+        let request = client.requests[2]
+        XCTAssertEqual(request.url, URL(string: "https://example.com/api/two-factor/send-email-login"))
+        XCTAssertEqual(request.headers["Device-Identifier"], "App ID")
+        let body = try String(data: XCTUnwrap(request.body), encoding: .utf8)
+        XCTAssertEqual(body?.contains("deviceIdentifier"), false)
     }
 
     // MARK: Private

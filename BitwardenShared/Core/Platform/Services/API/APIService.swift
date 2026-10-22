@@ -50,6 +50,8 @@ class APIService {
     ///   - accountTokenProvider: The `AccountTokenProvider` to use. This is helpful for testing.
     ///   The default will be built by default.
     ///   - activeAccountStateProvider: The provider for the active account state.
+    ///   - appIDService: The service used by the application to manage the app's ID, which is sent
+    ///     as the `Device-Identifier` header on unauthenticated requests.
     ///   - client: The underlying `HTTPClient` that performs the network request. Defaults
     ///     to `URLSession.shared`.
     ///   - environmentService: The service used by the application to retrieve the environment settings.
@@ -62,9 +64,10 @@ class APIService {
     ///     account's tokens.
     ///   - userAgentBuilder: Builds the user agent string from app and device information.
     ///
-    init(
+    init( // swiftlint:disable:this function_body_length
         accountTokenProvider: AccountTokenProvider? = nil,
         activeAccountStateProvider: ActiveAccountStateProvider,
+        appIDService: AppIDService,
         client: HTTPClient = URLSession.shared,
         fillAssistClient: HTTPClient = URLSession.shared,
         environmentService: EnvironmentService,
@@ -83,6 +86,7 @@ class APIService {
                 appVersion: Bundle.main.appVersion,
                 userAgentBuilder: userAgentBuilder,
             ),
+            deviceIdentifierRequestHandler: DeviceIdentifierRequestHandler(appIDService: appIDService),
             loggers: [
                 FlightRecorderHTTPLogger(flightRecorder: flightRecorder),
                 OSLogHTTPLogger(),
@@ -98,7 +102,10 @@ class APIService {
         self.accountTokenProvider = accountTokenProvider ?? DefaultAccountTokenProvider(
             activeAccountStateProvider: activeAccountStateProvider,
             errorReporter: errorReporter,
-            httpService: httpServiceBuilder.makeService(baseURLGetter: { environmentService.identityURL }),
+            httpService: httpServiceBuilder.makeService(
+                baseURLGetter: { environmentService.identityURL },
+                includeDeviceIdentifier: true,
+            ),
             tokenService: tokenService,
         )
 
@@ -108,6 +115,7 @@ class APIService {
         )
         apiUnauthenticatedService = httpServiceBuilder.makeService(
             baseURLGetter: { environmentService.apiURL },
+            includeDeviceIdentifier: true,
         )
         eventsService = httpServiceBuilder.makeService(
             baseURLGetter: { environmentService.eventsURL },
@@ -122,6 +130,7 @@ class APIService {
         )
         identityService = httpServiceBuilder.makeService(
             baseURLGetter: { environmentService.identityURL },
+            includeDeviceIdentifier: true,
         )
         // Fill-Assist requests target an external CDN (GitHub Releases) that uses multi-hop 302
         // redirects. CertificateHTTPClient deliberately blocks 302s for SSO, so we default to

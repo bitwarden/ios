@@ -1030,7 +1030,6 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
                 // Form the resend email request in case the user needs to resend the verification code email.
                 resendEmailModel = .init(
-                    deviceIdentifier: appID,
                     email: email,
                     masterPasswordHash: passwordHash,
                     ssoEmail2FaSessionToken: ssoToken,
