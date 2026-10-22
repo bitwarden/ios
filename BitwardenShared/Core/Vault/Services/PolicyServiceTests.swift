@@ -313,15 +313,29 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         )
     }
 
-    /// `getMasterPasswordPolicyOptions()` returns `nil` if the user is exempt from policies in the organization.
-    func test_getMasterPasswordPolicyOptions_exemptUser() async throws {
+    /// `getMasterPasswordPolicyOptions()` returns the policy options for organization owners, since
+    /// the master password policy applies to all users, including those who can manage policies.
+    func test_getMasterPasswordPolicyOptions_owner() async throws {
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture(type: .owner)])
         policyDataStore.fetchPoliciesResult = .success([masterPasswordPolicy])
 
         let policyValues = try await subject.getMasterPasswordPolicyOptions()
 
-        XCTAssertNil(policyValues)
+        XCTAssertEqual(policyValues?.minLength, 30)
+        XCTAssertEqual(policyValues?.enforceOnLogin, true)
+    }
+
+    /// `getMasterPasswordPolicyOptions()` returns the policy options for organization admins, since
+    /// the master password policy applies to all users, including those who can manage policies.
+    func test_getMasterPasswordPolicyOptions_admin() async throws {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(type: .admin)])
+        policyDataStore.fetchPoliciesResult = .success([masterPasswordPolicy])
+
+        let policyValues = try await subject.getMasterPasswordPolicyOptions()
+
+        XCTAssertEqual(policyValues?.minLength, 30)
     }
 
     /// `getMasterPasswordPolicyOptions()` returns `nil` if there is no master password policy type exist.
