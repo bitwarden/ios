@@ -14,6 +14,9 @@ options:
 settings:
   MARKETING_VERSION: 2026.4.0    # Bump this for a new version update.
   CURRENT_PROJECT_VERSION: 1
+packages:
+  AgentAccessSdk:
+    path: AgentAccessSdk
 projectReferences:
   BitwardenKit:
     path: BitwardenKit.xcodeproj
@@ -375,6 +378,7 @@ targets:
         optional: true
       - path: BitwardenWatchShared
     dependencies:
+      - package: AgentAccessSdk
       - package: BitwardenSdk
       - target: BitwardenKit/AuthenticatorBridgeKit
       - target: BitwardenKit/BitwardenKit
