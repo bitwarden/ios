@@ -50,6 +50,30 @@ class SettingsViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .accountSecurityPressed)
     }
 
+    /// Tapping the Agent Access button dispatches the `.agentAccessPressed` action.
+    @MainActor
+    func test_agentAccessButton_tap() throws {
+        processor.state.showAgentAccessRow = true
+        let button = try subject.inspect().find(button: Localizations.agentAccess)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .agentAccessPressed)
+    }
+
+    /// The Agent Access row is hidden unless the feature is enabled.
+    @MainActor
+    func test_agentAccessButton_hidden() {
+        processor.state.showAgentAccessRow = false
+        XCTAssertThrowsError(try subject.inspect().find(button: Localizations.agentAccess))
+    }
+
+    /// The Agent Access row isn't shown in the pre-login presentation mode.
+    @MainActor
+    func test_agentAccessButton_hiddenPreLogin() {
+        processor.state.presentationMode = .preLogin
+        processor.state.showAgentAccessRow = true
+        XCTAssertThrowsError(try subject.inspect().find(button: Localizations.agentAccess))
+    }
+
     /// Tapping the appearance button dispatches the `.appearancePressed` action.
     @MainActor
     func test_appearanceButton_tap() throws {

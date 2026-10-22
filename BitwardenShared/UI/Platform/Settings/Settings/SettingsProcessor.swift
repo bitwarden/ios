@@ -21,7 +21,8 @@ protocol SettingsProcessorDelegate: AnyObject {
 final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, SettingsEffect> {
     // MARK: Types
 
-    typealias Services = HasBillingRepository
+    typealias Services = HasAgentAccessRepository
+        & HasBillingRepository
         & HasBillingService
         & HasConfigService
         & HasEnvironmentService
@@ -101,6 +102,7 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
         switch effect {
         case .appeared:
             guard state.presentationMode == .tab else { return }
+            state.showAgentAccessRow = await services.agentAccessRepository.isFeatureEnabled()
             let featureEnabled = await services.configService
                 .getFeatureFlag(.premiumUpgradePath, defaultValue: false)
             let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
@@ -128,6 +130,8 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             coordinator.navigate(to: .about)
         case .accountSecurityPressed:
             coordinator.navigate(to: .accountSecurity)
+        case .agentAccessPressed:
+            coordinator.navigate(to: .agentAccess)
         case .appearancePressed:
             coordinator.navigate(to: .appearance)
         case .autoFillPressed:

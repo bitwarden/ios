@@ -53,6 +53,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
 
     /// The module types required by this coordinator for creating child coordinators.
     typealias Module = AddEditFolderModule
+        & AgentAccessModule
         & AuthModule
         & BillingModule
         & ExportCXFModule
@@ -65,6 +66,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
 
     typealias Services = HasASSettingsMediator
         & HasAccountAPIService
+        & HasAgentAccessRepository
         & HasAppIDService
         & HasAppInfoService
         & HasAuthRepository
@@ -164,6 +166,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showAccountSecurity()
         case let .addEditFolder(folder):
             showAddEditFolder(folder, delegate: context as? AddEditFolderDelegate)
+        case .agentAccess:
+            showAgentAccess()
         case .appearance:
             showAppearance()
         case .appExtension:
@@ -273,6 +277,15 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         coordinator.navigate(to: .addEditFolder(folder: folder), context: delegate)
 
         stackNavigator?.present(navigationController)
+    }
+
+    /// Shows the Agent Access screens.
+    ///
+    private func showAgentAccess() {
+        guard let stackNavigator else { return }
+        let coordinator = module.makeAgentAccessCoordinator(stackNavigator: stackNavigator)
+        coordinator.start()
+        coordinator.navigate(to: .home)
     }
 
     /// Shows the appearance screen.

@@ -12,6 +12,7 @@ import XCTest
 class SettingsProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var agentAccessRepository: MockAgentAccessRepository!
     var billingService: MockBillingService!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
@@ -28,6 +29,8 @@ class SettingsProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     override func setUp() {
         super.setUp()
 
+        agentAccessRepository = MockAgentAccessRepository()
+        agentAccessRepository.isFeatureEnabledReturnValue = false
         billingService = MockBillingService()
         billingService.isSelfHostedReturnValue = false
         billingService.shouldShowUpgradedToPremiumActionCardReturnValue = false
@@ -47,6 +50,7 @@ class SettingsProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     override func tearDown() {
         super.tearDown()
 
+        agentAccessRepository = nil
         billingService = nil
         configService = nil
         coordinator = nil
@@ -65,6 +69,7 @@ class SettingsProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             coordinator: coordinator.asAnyCoordinator(),
             delegate: delegate,
             services: ServiceContainer.withMocks(
+                agentAccessRepository: agentAccessRepository,
                 billingService: billingService,
                 configService: configService,
                 errorReporter: errorReporter,
@@ -142,6 +147,14 @@ class SettingsProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.receive(.accountSecurityPressed)
 
         XCTAssertEqual(coordinator.routes.last, .accountSecurity)
+    }
+
+    /// Receiving `.agentAccessPressed` navigates to the Agent Access screens.
+    @MainActor
+    func test_receive_agentAccessPressed() {
+        subject.receive(.agentAccessPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .agentAccess)
     }
 
     /// Receiving `.appearancePressed` navigates to the appearance screen.
@@ -276,6 +289,26 @@ class SettingsProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertFalse(subject.state.showPlanRow)
     }
 
+    /// `perform(.appeared)` shows the Agent Access row when the feature is enabled.
+    @MainActor
+    func test_perform_appeared_showsAgentAccessRow() async {
+        agentAccessRepository.isFeatureEnabledReturnValue = true
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.showAgentAccessRow)
+    }
+
+    /// `perform(.appeared)` hides the Agent Access row when the feature is disabled.
+    @MainActor
+    func test_perform_appeared_hidesAgentAccessRow() async {
+        agentAccessRepository.isFeatureEnabledReturnValue = false
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.showAgentAccessRow)
+    }
+
     /// `perform(.appeared)` does nothing in pre-login presentation mode.
     @MainActor
     func test_perform_appeared_preLogin_doesNothing() async {
@@ -283,6 +316,8 @@ class SettingsProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         await subject.perform(.appeared)
         XCTAssertFalse(subject.state.hasPremium)
         XCTAssertFalse(subject.state.showPlanRow)
+        XCTAssertFalse(subject.state.showAgentAccessRow)
+        XCTAssertFalse(agentAccessRepository.isFeatureEnabledCalled)
     }
 
     /// `perform(.appeared)` shows the plan row for a free user when the feature flag is enabled.

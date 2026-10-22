@@ -18,6 +18,9 @@ struct SettingsState: Equatable {
     /// Whether the "Upgraded to Premium" action card should be shown.
     var shouldShowUpgradedToPremiumActionCard: Bool = false
 
+    /// Whether the Agent Access row should be shown.
+    var showAgentAccessRow = false
+
     /// Whether the Premium plan row should be shown.
     var showPlanRow = false
 

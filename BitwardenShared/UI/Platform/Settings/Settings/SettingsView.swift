@@ -68,6 +68,9 @@ struct SettingsView: View {
                 accountSecurityRow
                 autofillRow
                 vaultRow
+                if store.state.showAgentAccessRow {
+                    agentAccessRow
+                }
                 if store.state.showPlanRow {
                     planRow
                 }
@@ -105,6 +108,19 @@ struct SettingsView: View {
             chevron
         }
         .accessibilityIdentifier("AccountSecuritySettingsButton")
+    }
+
+    /// The Agent Access settings row.
+    private var agentAccessRow: some View {
+        SettingsListItem(
+            Localizations.agentAccess,
+            icon: SharedAsset.Icons.key24,
+        ) {
+            store.send(.agentAccessPressed)
+        } trailingContent: {
+            chevron
+        }
+        .accessibilityIdentifier("AgentAccessSettingsButton")
     }
 
     /// The appearance settings row.

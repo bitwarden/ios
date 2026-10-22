@@ -7,6 +7,9 @@ enum SettingsAction: Equatable {
     /// The account security button was pressed.
     case accountSecurityPressed
 
+    /// The Agent Access button was pressed.
+    case agentAccessPressed
+
     /// The appearance button was pressed.
     case appearancePressed
 

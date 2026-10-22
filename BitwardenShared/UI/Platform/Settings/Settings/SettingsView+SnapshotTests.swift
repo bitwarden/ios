@@ -47,6 +47,16 @@ class SettingsViewTests: BitwardenTestCase {
         assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
     }
 
+    /// Tests the view renders correctly with the Agent Access row.
+    @MainActor
+    func disabletest_snapshot_settingsView_agentAccess() {
+        processor.state.showAgentAccessRow = true
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
+        )
+    }
+
     /// Tests the view renders correctly with badges.
     @MainActor
     func disabletest_snapshot_settingsView_badges() {
