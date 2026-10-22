@@ -1464,6 +1464,17 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(billingService.completeUpgradeIfPendingReceivedUserId, "1")
     }
 
+    /// `onFetchSyncSucceeded(userId:)` runs out-of-band upgrade detection for the account that synced, even on
+    /// a repeat sync.
+    func test_onFetchSyncSucceeded_detectsOutOfBandUpgradeOnRepeatSync() async {
+        stateService.hasPerformedSyncAfterLogin["1"] = true
+
+        await subject.onFetchSyncSucceeded(userId: "1")
+
+        XCTAssertTrue(billingService.detectOutOfBandUpgradeCalled)
+        XCTAssertEqual(billingService.detectOutOfBandUpgradeReceivedUserId, "1")
+    }
+
     /// `removeMasterPassword(organizationName:)` notifies the coordinator to show the remove
     /// master password screen.
     @MainActor
