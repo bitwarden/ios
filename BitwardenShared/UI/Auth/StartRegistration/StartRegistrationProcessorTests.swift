@@ -363,6 +363,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     @MainActor
     func test_perform_startRegistration_emptyName() async throws {
         subject.state = .fixture(nameText: "")
+        stateService.preAuthEnvironmentURLs = .defaultUS
 
         client.result = .httpSuccess(testData: .startRegistrationSuccess)
 
@@ -407,6 +408,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     @MainActor
     func test_perform_startRegistration_noInternetConnection() async throws {
         subject.state = .fixture()
+        stateService.preAuthEnvironmentURLs = .defaultUS
 
         let urlError = URLError(.notConnectedToInternet)
         client.results = [.httpFailure(urlError), .httpSuccess(testData: .startRegistrationSuccess)]
@@ -447,6 +449,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     @MainActor
     func test_perform_startRegistration_timeout() async throws {
         subject.state = .fixture()
+        stateService.preAuthEnvironmentURLs = .defaultUS
 
         let urlError = URLError(.timedOut)
         client.results = [.httpFailure(urlError), .httpSuccess(testData: .startRegistrationSuccess)]
@@ -496,10 +499,12 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
     }
 
-    /// `perform(_:)` with `.startRegistration` and a valid email creates the user's account.
+    /// `perform(_:)` with `.startRegistration` and a valid email creates the user's account and
+    /// snapshots the current pre-auth URLs for the email before navigating.
     @MainActor
     func test_perform_startRegistration_withValidEmail() async {
         subject.state = .fixture()
+        stateService.preAuthEnvironmentURLs = .defaultUS
 
         client.result = .httpSuccess(testData: .startRegistrationSuccess)
 
@@ -522,6 +527,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
                 ),
             ],
         )
+        XCTAssertEqual(stateService.accountCreationEnvironmentURLs["example@email.com"], .defaultUS)
     }
 
     /// `perform(_:)` with `.startRegistration` and a valid email surrounded by whitespace trims the whitespace and
@@ -529,6 +535,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     @MainActor
     func test_perform_startRegistration_withValidEmailAndSpace() async {
         subject.state = .fixture(emailText: " email@example.com ")
+        stateService.preAuthEnvironmentURLs = .defaultUS
 
         client.result = .httpSuccess(testData: .startRegistrationSuccess)
 
@@ -551,6 +558,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
                 ),
             ],
         )
+        XCTAssertEqual(stateService.accountCreationEnvironmentURLs["email@example.com"], .defaultUS)
     }
 
     /// `perform(_:)` with `.startRegistration` and a valid email with uppercase characters
@@ -559,6 +567,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     @MainActor
     func test_perform_startRegistration_withValidEmailUppercased() async {
         subject.state = .fixture(emailText: "EMAIL@EXAMPLE.COM")
+        stateService.preAuthEnvironmentURLs = .defaultUS
 
         client.result = .httpSuccess(testData: .startRegistrationSuccess)
 
@@ -580,6 +589,29 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
                 ),
             ],
         )
+        XCTAssertEqual(stateService.accountCreationEnvironmentURLs["email@example.com"], .defaultUS)
+    }
+
+    /// `perform(_:)` with `.startRegistration` and a valid email fails if pre-auth URLs cannot be
+    /// loaded, even on the direct-token (email verification disabled) path.
+    @MainActor
+    func test_perform_startRegistration_withValidEmail_noUrls() async {
+        subject.state = .fixture()
+        stateService.preAuthEnvironmentURLs = nil
+
+        client.result = .httpSuccess(testData: .startRegistrationSuccess)
+
+        await subject.perform(.startRegistration)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.thePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation,
+            ),
+        )
+        XCTAssertTrue(coordinator.routes.isEmpty)
     }
 
     /// `receive(_:)` with `.dismiss` dismisses the view.
