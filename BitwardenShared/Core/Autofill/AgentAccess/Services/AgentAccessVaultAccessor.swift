@@ -25,7 +25,10 @@ protocol AgentAccessVaultAccessor: AnyObject { // sourcery: AutoMockable
     func credential(forCipherId cipherId: String, userId: String) async throws -> AgentAccessSdkCredential
 
     /// Whether the vault of the user is unlocked.
-    func isVaultUnlocked(userId: String) -> Bool
+    ///
+    /// - Parameter userId: The ID of the user.
+    ///
+    func isVaultUnlocked(userId: String) async -> Bool
 }
 
 // MARK: - DefaultAgentAccessVaultAccessor
@@ -128,7 +131,7 @@ final class DefaultAgentAccessVaultAccessor: AgentAccessVaultAccessor {
         )
     }
 
-    func isVaultUnlocked(userId: String) -> Bool {
-        !vaultTimeoutService.isLocked(userId: userId)
+    func isVaultUnlocked(userId: String) async -> Bool {
+        await !vaultTimeoutService.isLocked(userId: userId)
     }
 }

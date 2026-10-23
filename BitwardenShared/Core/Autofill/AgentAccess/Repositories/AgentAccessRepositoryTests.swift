@@ -84,6 +84,7 @@ class AgentAccessRepositoryTests: BitwardenTestCase { // swiftlint:disable:this 
     // MARK: Tests - Settings
 
     /// `isFeatureEnabled()` reflects the feature flag.
+    @MainActor
     func test_isFeatureEnabled() async {
         let enabled = await subject.isFeatureEnabled()
         XCTAssertTrue(enabled)
@@ -94,6 +95,7 @@ class AgentAccessRepositoryTests: BitwardenTestCase { // swiftlint:disable:this 
     }
 
     /// `isListeningEnabled()` is true only when the flag is on and the user turned listening on.
+    @MainActor
     func test_isListeningEnabled() async throws {
         let initial = await subject.isListeningEnabled()
         XCTAssertFalse(initial)
@@ -108,6 +110,7 @@ class AgentAccessRepositoryTests: BitwardenTestCase { // swiftlint:disable:this 
     }
 
     /// `setListeningEnabled(_:)` throws when the feature flag is off.
+    @MainActor
     func test_setListeningEnabled_flagOff() async {
         configService.featureFlagsBool[.agentAccess] = false
 
@@ -507,6 +510,7 @@ class AgentAccessRepositoryTests: BitwardenTestCase { // swiftlint:disable:this 
     }
 
     /// `appDidBecomeActive()` doesn't start the client when the flag is off.
+    @MainActor
     func test_appDidBecomeActive_flagOff() async throws {
         try await store.update(userId: "1") { $0.listeningEnabled = true }
         configService.featureFlagsBool[.agentAccess] = false

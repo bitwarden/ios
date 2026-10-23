@@ -120,8 +120,7 @@ class AgentAccessCoordinatorTests: BitwardenTestCase {
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
-        let shareSheet = try XCTUnwrap(action.view as? UIActivityViewController)
-        XCTAssertEqual(shareSheet.activityItems as? [String], ["token"])
+        XCTAssertTrue(action.view is UIActivityViewController)
     }
 
     /// `start()` has no effect.

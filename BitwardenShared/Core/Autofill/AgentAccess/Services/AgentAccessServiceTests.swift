@@ -164,6 +164,7 @@ class AgentAccessServiceTests: BitwardenTestCase {
     }
 
     /// `start(userId:)` logs a 409 from registration without reporting an error.
+    @MainActor
     func test_start_registrationConflict() async throws {
         apiService.registerIdentityThrowableError = ResponseValidationError(response: .failure(statusCode: 409))
 
@@ -270,7 +271,10 @@ class AgentAccessServiceTests: BitwardenTestCase {
             ))
         }
 
-        let event = await events.next()
+        var event = await events.next()
+        if event == .waitingForAgent {
+            event = await events.next()
+        }
         guard case .paired = event else { return XCTFail("Expected paired, got \(String(describing: event))") }
         XCTAssertFalse(subject.hasPendingPairing)
     }

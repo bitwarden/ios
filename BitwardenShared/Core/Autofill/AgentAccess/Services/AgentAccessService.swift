@@ -9,6 +9,187 @@ import Networking
 ///
 protocol AgentAccessService: AnyObject { // sourcery: AutoMockable
     /// Whether a pairing token has been created that hasn't been used or expired yet.
+    var hasPendingPairing: Bool { get }
+
+    /// The ID of the user the client is running for, or `nil` if the client isn't running.
+    var runningUserId: String? { get }
+
+    /// Answers a fingerprint verification raised while pairing.
+    ///
+    /// - Parameters:
+    ///   - id: The ID of the verification.
+    ///   - approved: Whether the user confirmed that the fingerprints match.
+    ///
+    func answerFingerprintVerification(id: String, approved: Bool)
+
+    /// Creates a pairing token or code for a new connection.
+    ///
+    /// - Parameters:
+    ///   - kind: The kind of pairing to create.
+    ///   - name: The name of the connection.
+    /// - Returns: The pairing to show to the user.
+    ///
+    func createPairing(kind: AgentAccessPairingKind, name: String) async throws -> AgentAccessPairing
+
+    /// Returns the identity fingerprint stored for the user, if any.
+    ///
+    /// - Parameter userId: The ID of the user.
+    ///
+    func identityFingerprint(userId: String) async -> String?
+
+    /// Whether the user's identity has the given fingerprint.
+    ///
+    /// - Parameters:
+    ///   - userId: The ID of the user.
+    ///   - fingerprint: The 64 character hex identity fingerprint.
+    /// - Returns: `true` if the fingerprint belongs to the user's identity on this device.
+    ///
+    func ownsIdentity(userId: String, fingerprint: String) async -> Bool
+
+    /// A publisher of pairing progress events.
+    ///
+    func pairingEventsPublisher() -> AnyPublisher<AgentAccessPairingEvent, Never>
+
+    /// Reconnects the running client so the relay flushes any buffered requests.
+    ///
+    func restart() async
+
+    /// Starts the client for the user: loads or creates the identity, registers it with the server
+    /// and connects to the relay. Does nothing if the client is already running for the user.
+    ///
+    /// - Parameter userId: The ID of the user to start the client for.
+    ///
+    func start(userId: String) async throws
+
+    /// A publisher of the connection status.
+    ///
+    func statusPublisher() -> AnyPublisher<AgentAccessConnectionStatus, Never>
+
+    /// Stops the client and resolves any pending requests as denied.
+    ///
+    func stop() async
+
+    /// Removes the server registration of the user's stored identity.
+    ///
+    /// - Parameter userId: The ID of the user.
+    ///
+    func unregisterIdentity(userId: String) async
+}
+
+// MARK: - DefaultAgentAccessService
+
+/// The default implementation of `AgentAccessService`.
+///
+final class DefaultAgentAccessService: AgentAccessService, @unchecked Sendable {
+    // MARK: Types
+
+    /// Carries the result of a serialized operation out of its closure.
+    private final class ValueBox<T>: @unchecked Sendable {
+        var value: T?
+    }
+
+    /// The mutable state of the service.
+    private struct State {
+        var client: AgentAccessSdkClient?
+        var handler: AgentAccessSessionHandler?
+        var pendingPairing: AgentAccessPairing?
+        var userId: String?
+    }
+
+    // MARK: Properties
+
+    /// The service used to register identities with the server.
+    private let apiService: AgentAccessAPIService
+
+    /// The center that holds pending approvals and auto-approve rules.
+    private let approvalCenter: AgentAccessApprovalCenter
+
+    /// The process environment, used for the relay URL override.
+    private let environment: [String: String]
+
+    /// The service used to report errors.
+    private let errorReporter: ErrorReporter
+
+    /// The service used to record flight recorder logs.
+    private let flightRecorder: FlightRecorder
+
+    /// Guards `state`.
+    private let lock = NSLock()
+
+    /// Publishes pairing progress. Replays the latest event to new subscribers.
+    private let pairingSubject = CurrentValueSubject<AgentAccessPairingEvent, Never>(.waitingForAgent)
+
+    /// The factory that creates SDK clients.
+    private let sdkClientFactory: AgentAccessSdkClientFactory
+
+    /// Serializes start, stop and restart.
+    private let serializer = SerialWorker()
+
+    /// The mutable state.
+    private var state = State()
+
+    /// Publishes the connection status.
+    private let statusSubject = CurrentValueSubject<AgentAccessConnectionStatus, Never>(.disabled)
+
+    /// The store of per-user Agent Access data.
+    private let store: AgentAccessStore
+
+    /// The provider of the current time.
+    private let timeProvider: TimeProvider
+
+    /// Reads vault items for approvals.
+    private let vaultAccessor: AgentAccessVaultAccessor
+
+    // MARK: Computed Properties
+
+    var hasPendingPairing: Bool {
+        guard let pairing = currentState().pendingPairing else { return false }
+        return pairing.expiresAt > timeProvider.presentTime
+    }
+
+    var runningUserId: String? {
+        currentState().userId
+    }
+
+    // MARK: Initialization
+
+    /// Initialize a `DefaultAgentAccessService`.
+    ///
+    /// - Parameters:
+    ///   - apiService: The service used to register identities with the server.
+    ///   - approvalCenter: The center that holds pending approvals and auto-approve rules.
+    ///   - environment: The process environment, used for the relay URL override.
+    ///   - errorReporter: The service used to report errors.
+    ///   - flightRecorder: The service used to record flight recorder logs.
+    ///   - sdkClientFactory: The factory that creates SDK clients.
+    ///   - store: The store of per-user Agent Access data.
+    ///   - timeProvider: The provider of the current time.
+    ///   - vaultAccessor: Reads vault items for approvals.
+    ///
+    init(
+        apiService: AgentAccessAPIService,
+        approvalCenter: AgentAccessApprovalCenter,
+        environment: [String: String] = ProcessInfo.processInfo.environment,
+        errorReporter: ErrorReporter,
+        flightRecorder: FlightRecorder,
+        sdkClientFactory: AgentAccessSdkClientFactory,
+        store: AgentAccessStore,
+        timeProvider: TimeProvider,
+        vaultAccessor: AgentAccessVaultAccessor,
+    ) {
+        self.apiService = apiService
+        self.approvalCenter = approvalCenter
+        self.environment = environment
+        self.errorReporter = errorReporter
+        self.flightRecorder = flightRecorder
+        self.sdkClientFactory = sdkClientFactory
+        self.store = store
+        self.timeProvider = timeProvider
+        self.vaultAccessor = vaultAccessor
+    }
+
+    // MARK: Methods
+
     func answerFingerprintVerification(id: String, approved: Bool) {
         currentState().handler?.answerFingerprintVerification(id: id, approved: approved)
     }

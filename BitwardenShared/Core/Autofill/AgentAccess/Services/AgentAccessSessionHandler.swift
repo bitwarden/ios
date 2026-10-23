@@ -133,11 +133,11 @@ final class AgentAccessSessionHandler: AgentAccessSdkHandler { // swiftlint:disa
         let name = connection(fingerprint: remoteFingerprint)?.name ?? String(remoteFingerprint.prefix(8))
         let key = counterKey(remoteFingerprint, query)
 
+        let vaultAccessor = vaultAccessor
+        let userId = userId
         if let rule = approvalCenter.matchingRule(connectionFingerprint: remoteFingerprint, query: query),
-           vaultAccessor.isVaultUnlocked(userId: userId) {
+           (try? AgentAccessBlocking.run { await vaultAccessor.isVaultUnlocked(userId: userId) }) == true {
             do {
-                let vaultAccessor = vaultAccessor
-                let userId = userId
                 let credential = try AgentAccessBlocking.run {
                     try await vaultAccessor.credential(forCipherId: rule.cipherId, userId: userId)
                 }

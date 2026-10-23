@@ -468,7 +468,7 @@ final class DefaultAgentAccessRepository: AgentAccessRepository { // swiftlint:d
         Task { [weak self] in
             for _ in 0 ..< 60 {
                 guard let self else { return }
-                if await listeningEnabled(userId: userId), vaultAccessor.isVaultUnlocked(userId: userId) {
+                if await listeningEnabled(userId: userId), await vaultAccessor.isVaultUnlocked(userId: userId) {
                     _ = try? await createPairing(kind: .psk, name: name)
                     return
                 }

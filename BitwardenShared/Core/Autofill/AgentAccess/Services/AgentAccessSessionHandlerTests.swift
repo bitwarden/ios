@@ -249,7 +249,8 @@ class AgentAccessSessionHandlerTests: BitwardenTestCase { // swiftlint:disable:t
             ))
         }
 
-        let entry = try await XCTUnwrap(store.userData(userId: "1").audit.first)
+        let userData = try await store.userData(userId: "1")
+        let entry = try XCTUnwrap(userData.audit.first)
         XCTAssertEqual(entry.kind, .credentialApproved)
         XCTAssertEqual(entry.connectionFingerprint, "fp")
         XCTAssertEqual(entry.query, .domain("example.com"))
@@ -278,7 +279,8 @@ class AgentAccessSessionHandlerTests: BitwardenTestCase { // swiftlint:disable:t
             ))
         }
 
-        let entry = try await XCTUnwrap(store.userData(userId: "1").audit.first)
+        let userData = try await store.userData(userId: "1")
+        let entry = try XCTUnwrap(userData.audit.first)
         XCTAssertEqual(entry.kind, .connectionEstablished)
         XCTAssertEqual(entry.connectionName, "Codex")
         XCTAssertEqual(
