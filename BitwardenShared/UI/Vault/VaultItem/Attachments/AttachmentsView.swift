@@ -77,13 +77,33 @@ struct AttachmentsView: View {
         }
     }
 
-    /// The currently chosen file to add.
+    /// The currently chosen file to add. The name can be edited, and the file's extension is shown in
+    /// gray directly after it. The extension can't be changed.
     @ViewBuilder private var chosenFile: some View {
-        if let fileName = store.state.fileName {
-            BitwardenField {
-                Text(fileName)
+        if store.state.fileName != nil {
+            BitwardenField(title: Localizations.fileName) {
+                HStack(spacing: 0) {
+                    // The text field sizes itself to its text so the extension sits flush after it.
+                    TextField(
+                        "",
+                        text: store.binding(
+                            get: \.fileNameStem,
+                            send: AttachmentsAction.fileNameChanged,
+                        ),
+                    )
+                    .fixedSize(horizontal: true, vertical: false)
                     .styleGuide(.body)
                     .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
+                    .accessibilityIdentifier("AttachmentFileNameEntry")
+                    .accessibilityLabel(Localizations.fileName)
+
+                    Text(store.state.fileNameExtension)
+                        .styleGuide(.body)
+                        .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
+
+                    Spacer(minLength: 0)
+                }
+                .frame(minHeight: 28)
             }
             .contentBlock()
         }
@@ -184,6 +204,7 @@ struct AttachmentsView: View {
         AttachmentsView(store: Store(processor: StateProcessor(
             state: AttachmentsState(
                 fileName: "photo.jpg",
+                fileNameExtension: ".jpg",
             ),
         )))
     }
