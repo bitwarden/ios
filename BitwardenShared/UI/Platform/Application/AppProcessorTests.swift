@@ -1616,6 +1616,46 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(configService.configMocker.called)
     }
 
+    #if DEBUG
+    /// `applyDebugEnvironmentOverride(userDefaults:)` sets the pre-auth URLs from the launch argument.
+    @MainActor
+    func test_applyDebugEnvironmentOverride() async throws {
+        let userDefaults = try XCTUnwrap(UserDefaults(suiteName: #function))
+        defer { userDefaults.removePersistentDomain(forName: #function) }
+        userDefaults.set("https://vault.example.com", forKey: Constants.DebugLaunchArguments.preAuthEnvironmentBaseURL)
+
+        await subject.applyDebugEnvironmentOverride(userDefaults: userDefaults)
+
+        XCTAssertEqual(
+            environmentService.setPreAuthEnvironmentURLsData,
+            EnvironmentURLData(base: URL(string: "https://vault.example.com")),
+        )
+    }
+
+    /// `applyDebugEnvironmentOverride(userDefaults:)` does nothing if the launch argument isn't present.
+    @MainActor
+    func test_applyDebugEnvironmentOverride_noArgument() async throws {
+        let userDefaults = try XCTUnwrap(UserDefaults(suiteName: #function))
+        defer { userDefaults.removePersistentDomain(forName: #function) }
+
+        await subject.applyDebugEnvironmentOverride(userDefaults: userDefaults)
+
+        XCTAssertNil(environmentService.setPreAuthEnvironmentURLsData)
+    }
+
+    /// `applyDebugEnvironmentOverride(userDefaults:)` ignores a value that isn't a valid URL.
+    @MainActor
+    func test_applyDebugEnvironmentOverride_invalidURL() async throws {
+        let userDefaults = try XCTUnwrap(UserDefaults(suiteName: #function))
+        defer { userDefaults.removePersistentDomain(forName: #function) }
+        userDefaults.set("not a url", forKey: Constants.DebugLaunchArguments.preAuthEnvironmentBaseURL)
+
+        await subject.applyDebugEnvironmentOverride(userDefaults: userDefaults)
+
+        XCTAssertNil(environmentService.setPreAuthEnvironmentURLsData)
+    }
+    #endif
+
     // MARK: - MigrateVaultToMyItems Tests
 
     /// `migrateVaultToMyItems(organizationId:)` hides the loading overlay and navigates to the

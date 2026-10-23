@@ -210,6 +210,10 @@ public class AppProcessor {
     /// Prepares the current environment configuration by loading the URLs for the active account
     /// and getting the current server config.
     public func prepareEnvironmentConfig() async {
+        #if DEBUG
+        await applyDebugEnvironmentOverride()
+        #endif
+
         await services.environmentService.loadURLsForActiveAccount()
         _ = await services.configService.getConfig()
     }
@@ -876,5 +880,26 @@ extension AppProcessor: PendingAppIntentActionMediatorDelegate {
         }
     }
 }
+
+// MARK: - Debug Launch Arguments
+
+#if DEBUG
+extension AppProcessor {
+    /// Overrides the pre-auth environment base URL with the one passed as the
+    /// `-BWPreAuthEnvironmentBaseURL <url>` launch argument, if any. Intended for UI automation.
+    ///
+    /// - Parameter userDefaults: The `UserDefaults` exposing the launch arguments.
+    ///     Defaults to `.standard`, which surfaces `-key value` launch arguments.
+    ///
+    func applyDebugEnvironmentOverride(userDefaults: UserDefaults = .standard) async {
+        guard let urlString = userDefaults.string(forKey: Constants.DebugLaunchArguments.preAuthEnvironmentBaseURL),
+              let url = URL(string: urlString),
+              url.scheme != nil else {
+            return
+        }
+        await services.environmentService.setPreAuthURLs(urls: EnvironmentURLData(base: url))
+    }
+}
+#endif
 
 // swiftlint:disable:this file_length

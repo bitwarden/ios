@@ -176,3 +176,14 @@ extension Constants {
         static let updateInterval: TimeInterval = 6 * 60 * 60
     }
 }
+
+// MARK: - Debug Launch Argument Constants
+
+extension Constants {
+    /// Launch arguments (passed as `-<name> <value>`) honored by debug builds, e.g. for UI automation.
+    ///
+    enum DebugLaunchArguments {
+        /// The launch argument used to override the pre-auth environment base URL.
+        static let preAuthEnvironmentBaseURL = "BWPreAuthEnvironmentBaseURL"
+    }
+}
