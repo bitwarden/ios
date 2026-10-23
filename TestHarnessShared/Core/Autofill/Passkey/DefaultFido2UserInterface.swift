@@ -3,7 +3,7 @@ import Foundation
 
 // MARK: - DefaultFido2UserInterface
 
-/// A minimal `Fido2UserInterface` implementation for the SDK-backed passkey scenarios. There's
+/// A minimal `Fido2UserInterface` implementation for the passkey scenarios. There's
 /// no vault, biometrics, or master password reprompt to mediate here, so this always approves
 /// user checks and synthesizes a single throwaway login item for new credentials.
 ///

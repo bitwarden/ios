@@ -3,7 +3,7 @@ import Foundation
 
 // MARK: - PasskeyKeychainItem
 
-/// The keychain items used by the SDK-backed passkey scenarios.
+/// The keychain items used by the passkey scenarios.
 ///
 enum PasskeyKeychainItem: Equatable, KeychainItem {
     /// The keychain item for the synthetic identity used to bootstrap the SDK client, so the
