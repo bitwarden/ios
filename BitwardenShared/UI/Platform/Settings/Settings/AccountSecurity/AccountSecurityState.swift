@@ -95,6 +95,13 @@ struct AccountSecurityState: Equatable {
     /// Whether the timeout policy is in effect.
     var isPolicyTimeoutEnabled = false
 
+    /// Whether the user has opted in to sharing their session key across the app and its
+    /// extensions.
+    var isSessionKeySharingEnabled = false
+
+    /// Whether the session key sharing feature is enabled server-side.
+    var isSessionKeySharingFeatureEnabled = false
+
     /// Whether the unlock with pin code toggle is on.
     var isUnlockWithPINCodeOn: Bool = false
 
