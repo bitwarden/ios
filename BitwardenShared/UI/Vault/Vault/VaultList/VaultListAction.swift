@@ -65,9 +65,6 @@ enum VaultListAction: Equatable {
     ///
     case totpCodeExpired(_ item: VaultListItem)
 
-    /// The upgrade to Premium button was tapped.
-    case upgradeToPremium
-
     /// The selected vault filter changed.
     case vaultFilterChanged(VaultFilterType)
 
