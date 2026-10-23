@@ -38,7 +38,7 @@ env:
 jobs:
   build:
     name: Build ${{ inputs.bw-env }}
-    runs-on: macos-26
+    runs-on: xcode-27
     timeout-minutes: 60
     permissions:
       contents: read
@@ -70,12 +70,6 @@ jobs:
         uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
         with:
           xcode-version: ${{ env._XCODE_VERSION }}
-
-      - name: Install simulators for specific Xcode version
-        if: ${{ env._XCODE_VERSION == '26.0-beta' }}
-        run: |
-          xcodebuild -downloadPlatform iOS
-          xcodebuild -downloadPlatform watchOS
 
       - name: Configure Ruby
         uses: ruby/setup-ruby@12fd324f1d0b43274fdc8130f6980590a667c455 # v1.312.0
