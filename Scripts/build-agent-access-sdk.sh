@@ -89,10 +89,13 @@ mkdir -p "$BINDINGS_DIR"
 cargo +"$TOOLCHAIN" run -q --bin uniffi-bindgen -- generate \
     --library "$HOST_LIB" --language swift --out-dir "$BINDINGS_DIR"
 
-HEADERS_DIR="$WORK_DIR/headers"
+HEADERS_DIR="$PACKAGE_DIR/Sources/ap_uniffiFFI/include"
 mkdir -p "$HEADERS_DIR"
 cp "$BINDINGS_DIR/ap_uniffiFFI.h" "$HEADERS_DIR/ap_uniffiFFI.h"
-cp "$BINDINGS_DIR/ap_uniffiFFI.modulemap" "$HEADERS_DIR/module.modulemap"
+SMOKE_HEADERS="$WORK_DIR/smoke-headers"
+mkdir -p "$SMOKE_HEADERS"
+cp "$BINDINGS_DIR/ap_uniffiFFI.h" "$SMOKE_HEADERS/ap_uniffiFFI.h"
+cp "$BINDINGS_DIR/ap_uniffiFFI.modulemap" "$SMOKE_HEADERS/module.modulemap"
 mkdir -p "$(dirname "$SWIFT_DEST")"
 cp "$BINDINGS_DIR/ap_uniffi.swift" "$SWIFT_DEST"
 
@@ -153,11 +156,11 @@ build_slice() {
 XC_ARGS=()
 if [ "$BUILD_SIM" = 1 ]; then
     build_slice "$SIM_TARGET" "ios-simulator"
-    XC_ARGS+=(-library "$WORK_DIR/$SIM_TARGET/libap_uniffi.a" -headers "$HEADERS_DIR")
+    XC_ARGS+=(-library "$WORK_DIR/$SIM_TARGET/libap_uniffi.a")
 fi
 if [ "$BUILD_DEVICE" = 1 ]; then
     build_slice "$DEVICE_TARGET" "ios"
-    XC_ARGS+=(-library "$WORK_DIR/$DEVICE_TARGET/libap_uniffi.a" -headers "$HEADERS_DIR")
+    XC_ARGS+=(-library "$WORK_DIR/$DEVICE_TARGET/libap_uniffi.a")
 fi
 
 if ! xcodebuild -version > /dev/null 2>&1; then
@@ -179,7 +182,7 @@ if [ "$BUILD_SIM" = 1 ] && xcrun --sdk iphonesimulator --show-sdk-path > /dev/nu
     cp "$SWIFT_DEST" "$SMOKE_DIR/ap_uniffi.swift"
     echo 'print(type(of: UserClient.self))' > "$SMOKE_DIR/main.swift"
     xcrun --sdk iphonesimulator swiftc -swift-version 5 -target "arm64-apple-ios$MIN_IOS-simulator" \
-        -I "$SLICE_DIR/Headers" -Xcc -fmodule-map-file="$SLICE_DIR/Headers/module.modulemap" \
+        -I "$SMOKE_HEADERS" -Xcc -fmodule-map-file="$SMOKE_HEADERS/module.modulemap" \
         "$SMOKE_DIR/ap_uniffi.swift" "$SMOKE_DIR/main.swift" "$SLICE_DIR/libap_uniffi.a" \
         -framework Security -framework CoreFoundation -framework SystemConfiguration -lresolv \
         -o "$SMOKE_DIR/smoke"

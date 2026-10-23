@@ -2735,6 +2735,10 @@ public protocol CredentialProvider : AnyObject {
      * * `remote_fingerprint` — Hex-encoded fingerprint of the requesting device.
      *
      * Return credential data to approve, or `None` to deny.
+     *
+     * Called on a blocking worker thread; may block until the user decides. The remote
+     * times out after its own deadline (120 s by default), so implementations should return
+     * `None`/`false` by about 110 s.
      */
     func handleCredentialRequest(query: FfiCredentialQuery, remoteFingerprint: String)  -> FfiCredentialData?
     
@@ -2960,6 +2964,10 @@ public protocol FingerprintVerifier : AnyObject {
      * identity at verification time).
      *
      * Return `true` to accept, `false` to reject.
+     *
+     * Called on a blocking worker thread; may block until the user decides. The remote
+     * times out after its own deadline (120 s by default), so implementations should return
+     * `None`/`false` by about 110 s.
      */
     func verifyFingerprint(fingerprint: String, remoteIdentity: String?)  -> Bool
     
@@ -3843,13 +3851,13 @@ private var initializationResult: InitializationResult = {
     if (uniffi_ap_uniffi_checksum_method_connectionstorage_list() != 10980) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_ap_uniffi_checksum_method_credentialprovider_handle_credential_request() != 34964) {
+    if (uniffi_ap_uniffi_checksum_method_credentialprovider_handle_credential_request() != 36582) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_ap_uniffi_checksum_method_eventhandler_on_event() != 62743) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_ap_uniffi_checksum_method_fingerprintverifier_verify_fingerprint() != 53986) {
+    if (uniffi_ap_uniffi_checksum_method_fingerprintverifier_verify_fingerprint() != 48579) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_ap_uniffi_checksum_method_identitystorage_load_identity() != 58675) {

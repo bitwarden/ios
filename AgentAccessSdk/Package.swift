@@ -10,12 +10,18 @@ let package = Package(
     ],
     targets: [
         .binaryTarget(
-            name: "ap_uniffiFFI",
+            name: "ap_uniffiBinary",
             path: "Frameworks/ap_uniffiFFI.xcframework",
+        ),
+        .target(
+            name: "ap_uniffiFFI",
+            dependencies: ["ap_uniffiBinary"],
+            path: "Sources/ap_uniffiFFI",
         ),
         .target(
             name: "AgentAccessSdk",
             dependencies: ["ap_uniffiFFI"],
+            path: "Sources/AgentAccessSdk",
             linkerSettings: [
                 .linkedFramework("Security"),
                 .linkedFramework("CoreFoundation"),
