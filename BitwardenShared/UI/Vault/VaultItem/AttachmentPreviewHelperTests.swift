@@ -67,7 +67,7 @@ struct AttachmentPreviewHelperTests {
         let attachment = AttachmentView.fixture(fileName: "photo.png", size: "11000000", sizeName: nil)
         let cipher = CipherView.loginFixture()
 
-        await subject.showPreview(for: attachment, cipher: cipher)
+        await subject.showPreview(for: attachment, cipher: cipher) {}
 
         #expect(vaultRepository.downloadAttachmentAttachment == nil)
         guard case let .attachmentPreview(state) = coordinator.routes.last else {
@@ -276,6 +276,34 @@ struct AttachmentPreviewHelperTests {
             return
         }
         #expect(state.content == .unsupportedFileType(fileExtension: "zip"))
+    }
+
+    /// `showPreview(for:cipher:)` navigates to the preview screen with `.unsupportedFileType`
+    /// content, carrying the file's extension, for common non-image file types of any size
+    /// without downloading them. A file name without an extension has an empty file extension.
+    @Test(arguments: [
+        ("statement.pdf", "10", "pdf"),
+        ("clip.mp4", "10", "mp4"),
+        ("clip.mp4", "52428800", "mp4"),
+        ("clip.MP4", "10", "MP4"),
+        ("song.mp3", "10", "mp3"),
+        ("notes.txt", "10", "txt"),
+        ("README", "10", ""),
+    ])
+    func showPreview_nonImage_fileExtensions(fileName: String, size: String, fileExtension: String) async throws {
+        let attachment = AttachmentView.fixture(fileName: fileName, size: size, sizeName: "size")
+        let cipher = CipherView.loginFixture()
+
+        await subject.showPreview(for: attachment, cipher: cipher) {}
+
+        #expect(coordinator.alertShown.isEmpty)
+        #expect(vaultRepository.downloadAttachmentAttachment == nil)
+        guard case let .attachmentPreview(state) = coordinator.routes.last else {
+            Issue.record("Expected a navigation to .attachmentPreview")
+            return
+        }
+        #expect(state.content == .unsupportedFileType(fileExtension: fileExtension))
+        #expect(state.temporaryUrl == nil)
     }
 
     /// `showPreview(for:cipher:)` shows the existing blocking alert and doesn't navigate when the
