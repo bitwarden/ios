@@ -118,7 +118,9 @@ final class AgentAccessApprovalProcessor: StateProcessor<
         // has none enrolled, and the user falls back to their master password if they cancel.
         if case .authorized = services.biometricsService.getBiometricAuthStatus() {
             do {
-                if try await services.biometricsService.evaluateBiometricPolicy() {
+                if try await services.biometricsService.evaluateBiometricPolicy(
+                    reason: Localizations.agentAccessBiometricPrompt,
+                ) {
                     await submit(decision)
                     return
                 }

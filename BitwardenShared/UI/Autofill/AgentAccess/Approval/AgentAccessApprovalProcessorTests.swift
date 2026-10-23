@@ -55,10 +55,14 @@ struct AgentAccessApprovalProcessorTests { // swiftlint:disable:this type_body_l
     @Test
     func perform_approve_biometrics() async throws {
         try await loadPendingRequest(selecting: "cipher-1")
-        biometricsService.evaluateBiometricPolicyReturnValue = true
+        biometricsService.evaluateBiometricPolicyReasonReturnValue = true
 
         await subject.perform(.approve)
 
+        #expect(
+            biometricsService.evaluateBiometricPolicyReasonReceivedReason
+                == Localizations.agentAccessBiometricPrompt,
+        )
         #expect(agentAccessRepository.answerReceivedArguments?.requestId == "request-1")
         #expect(
             agentAccessRepository.answerReceivedArguments?.decision
@@ -80,7 +84,7 @@ struct AgentAccessApprovalProcessorTests { // swiftlint:disable:this type_body_l
     @Test
     func perform_approve_autoApprove() async throws {
         try await loadPendingRequest(selecting: "cipher-2")
-        biometricsService.evaluateBiometricPolicyReturnValue = true
+        biometricsService.evaluateBiometricPolicyReasonReturnValue = true
         subject.receive(.autoApproveToggled(true))
         subject.receive(.autoApproveMinutesChanged(30))
 
@@ -96,7 +100,7 @@ struct AgentAccessApprovalProcessorTests { // swiftlint:disable:this type_body_l
     @Test
     func perform_approve_autoApproveOff() async throws {
         try await loadPendingRequest(selecting: "cipher-1")
-        biometricsService.evaluateBiometricPolicyReturnValue = true
+        biometricsService.evaluateBiometricPolicyReasonReturnValue = true
         subject.receive(.autoApproveMinutesChanged(30))
 
         await subject.perform(.approve)
@@ -107,11 +111,24 @@ struct AgentAccessApprovalProcessorTests { // swiftlint:disable:this type_body_l
         )
     }
 
+    /// `perform(_:)` with `.approve` offers the master password when the biometric prompt throws.
+    @Test
+    func perform_approve_biometricsThrows_masterPassword() async throws {
+        try await loadPendingRequest(selecting: "cipher-1")
+        biometricsService.evaluateBiometricPolicyReasonThrowableError = BitwardenTestError.example
+
+        await subject.perform(.approve)
+
+        #expect(!agentAccessRepository.answerCalled)
+        let alert = try #require(coordinator.alertShown.last)
+        #expect(alert == .masterPasswordPrompt { _ in })
+    }
+
     /// `perform(_:)` with `.approve` offers the master password when biometrics fail.
     @Test
     func perform_approve_biometricsFailed_masterPassword() async throws {
         try await loadPendingRequest(selecting: "cipher-1")
-        biometricsService.evaluateBiometricPolicyReturnValue = false
+        biometricsService.evaluateBiometricPolicyReasonReturnValue = false
         authRepository.validatePasswordResult = .success(true)
 
         await subject.perform(.approve)
@@ -139,7 +156,7 @@ struct AgentAccessApprovalProcessorTests { // swiftlint:disable:this type_body_l
 
         await subject.perform(.approve)
 
-        #expect(!biometricsService.evaluateBiometricPolicyCalled)
+        #expect(!biometricsService.evaluateBiometricPolicyReasonCalled)
         #expect(coordinator.alertShown.last == .masterPasswordPrompt { _ in })
         #expect(!agentAccessRepository.answerCalled)
     }
@@ -167,7 +184,7 @@ struct AgentAccessApprovalProcessorTests { // swiftlint:disable:this type_body_l
 
         await subject.perform(.approve)
 
-        #expect(!biometricsService.evaluateBiometricPolicyCalled)
+        #expect(!biometricsService.evaluateBiometricPolicyReasonCalled)
         #expect(coordinator.alertShown.isEmpty)
         #expect(!agentAccessRepository.answerCalled)
     }
@@ -176,7 +193,7 @@ struct AgentAccessApprovalProcessorTests { // swiftlint:disable:this type_body_l
     @Test
     func perform_approve_expired() async throws {
         try await loadPendingRequest(selecting: "cipher-1")
-        biometricsService.evaluateBiometricPolicyReturnValue = true
+        biometricsService.evaluateBiometricPolicyReasonReturnValue = true
         agentAccessRepository.answerThrowableError = AgentAccessError.requestExpired
 
         await subject.perform(.approve)
@@ -191,7 +208,7 @@ struct AgentAccessApprovalProcessorTests { // swiftlint:disable:this type_body_l
     @Test
     func perform_approve_error() async throws {
         try await loadPendingRequest(selecting: "cipher-1")
-        biometricsService.evaluateBiometricPolicyReturnValue = true
+        biometricsService.evaluateBiometricPolicyReasonReturnValue = true
         agentAccessRepository.answerThrowableError = AgentAccessError.cipherNotFound
 
         await subject.perform(.approve)
@@ -211,7 +228,7 @@ struct AgentAccessApprovalProcessorTests { // swiftlint:disable:this type_body_l
 
         #expect(agentAccessRepository.answerReceivedArguments?.requestId == "request-1")
         #expect(agentAccessRepository.answerReceivedArguments?.decision == .deny)
-        #expect(!biometricsService.evaluateBiometricPolicyCalled)
+        #expect(!biometricsService.evaluateBiometricPolicyReasonCalled)
         guard case let .dismiss(action) = coordinator.routes.last else {
             Issue.record("The view wasn't dismissed.")
             return

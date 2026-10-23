@@ -18,6 +18,16 @@ public protocol BiometricsService: AnyObject { // sourcery: AutoMockable
         for biometricAuthStatus: BiometricAuthorizationStatus,
     ) async -> Bool
 
+    /// Prompts the user to verify with biometrics only. Unlike the unlock prompt, this never falls
+    /// back to the device passcode, so a `true` result proves the user is physically present.
+    ///
+    /// - Parameter reason: The localized reason shown in the system biometric prompt.
+    /// - Returns: `true` if the user verified with biometrics, `false` otherwise.
+    /// - Throws: An error if the prompt is cancelled, fails or biometrics are unavailable.
+    ///
+    /// sourcery: useSelectorName
+    func evaluateBiometricPolicy(reason: String) async throws -> Bool
+
     /// Returns the status for device BiometricAuthenticationType.
     ///
     /// - Returns: The `BiometricAuthenticationType`.
@@ -81,6 +91,11 @@ public class DefaultBiometricsService: BiometricsService {
             Logger.processor.error("Error evaluating biometrics policy: \(error)")
             return false
         }
+    }
+
+    public func evaluateBiometricPolicy(reason: String) async throws -> Bool {
+        // `.deviceOwnerAuthenticationWithBiometrics` excludes the passcode fallback.
+        try await LAContext().evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason)
     }
 
     public func getBiometricAuthenticationType(_ suppliedContext: LAContext?) -> BiometricAuthenticationType? {
