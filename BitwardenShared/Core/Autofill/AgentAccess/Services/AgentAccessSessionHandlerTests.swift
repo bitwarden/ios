@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 import BitwardenKit
 import BitwardenKitMocks
 import XCTest
@@ -156,6 +157,48 @@ class AgentAccessSessionHandlerTests: BitwardenTestCase { // swiftlint:disable:t
 
         let returned = await result
         XCTAssertNil(returned)
+    }
+
+    /// When the approval window passes the request is denied and removed, a late approval releases
+    /// nothing, and the expiry is audited once.
+    func test_credential_timeout() async throws {
+        let shortSubject = AgentAccessSessionHandler(
+            approvalCenter: approvalCenter,
+            approvalTimeout: 0.3,
+            errorReporter: errorReporter,
+            onPairingEvent: { [pairingEvents] in pairingEvents?.append($0) },
+            onStatus: { [statuses] in statuses?.append($0) },
+            store: store,
+            timeProvider: timeProvider,
+            userId: "1",
+            vaultAccessor: vaultAccessor,
+        )
+
+        async let result = onSdkThread { shortSubject.credential(for: .domain("example.com"), remoteFingerprint: "fp") }
+        let appeared = await waitUntil { !self.approvalCenter.pendingRequests().isEmpty }
+        XCTAssertTrue(appeared)
+        let request = try XCTUnwrap(approvalCenter.pendingRequests().first)
+        XCTAssertEqual(request.expiresAt, request.receivedAt.addingTimeInterval(0.3))
+
+        let returned = await result
+        XCTAssertNil(returned)
+        XCTAssertTrue(approvalCenter.pendingRequests().isEmpty)
+
+        let lateAnswer = approvalCenter.resolve(id: request.id, outcome: .approved(credential))
+        XCTAssertNil(lateAnswer)
+        XCTAssertFalse(vaultAccessor.credentialCalled)
+
+        await onSdkThread {
+            shortSubject.handle(auditEvent: AgentAccessSdkAuditEvent(
+                kind: .credentialDenied,
+                remoteFingerprint: "fp",
+                remoteName: nil,
+                query: .domain("example.com"),
+                cipherId: nil,
+            ))
+        }
+        let audit = try await store.userData(userId: "1").audit
+        XCTAssertEqual(audit.map(\.kind), [.credentialExpired])
     }
 
     /// `credential(for:remoteFingerprint:)` answers without asking when an automatic approval rule

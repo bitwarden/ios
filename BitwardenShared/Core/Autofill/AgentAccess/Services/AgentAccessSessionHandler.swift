@@ -19,6 +19,9 @@ final class AgentAccessSessionHandler: AgentAccessSdkHandler { // swiftlint:disa
     /// The approval center used to ask the user.
     private let approvalCenter: AgentAccessApprovalCenter
 
+    /// How long the user has to answer a request before it is denied.
+    private let approvalTimeout: TimeInterval
+
     /// Counts requests answered automatically, so their SDK approval event is audited as such.
     private var autoApprovedCounts: [String: Int] = [:]
 
@@ -58,6 +61,7 @@ final class AgentAccessSessionHandler: AgentAccessSdkHandler { // swiftlint:disa
     ///
     /// - Parameters:
     ///   - approvalCenter: The approval center used to ask the user.
+    ///   - approvalTimeout: How long the user has to answer a request before it is denied.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - onPairingEvent: Called with each pairing event.
     ///   - onStatus: Called with each status change.
@@ -68,6 +72,7 @@ final class AgentAccessSessionHandler: AgentAccessSdkHandler { // swiftlint:disa
     ///
     init(
         approvalCenter: AgentAccessApprovalCenter,
+        approvalTimeout: TimeInterval = AgentAccessConstants.approvalTimeout,
         errorReporter: ErrorReporter,
         onPairingEvent: @escaping @Sendable (AgentAccessPairingEvent) -> Void,
         onStatus: @escaping @Sendable (AgentAccessConnectionStatus) -> Void,
@@ -77,6 +82,7 @@ final class AgentAccessSessionHandler: AgentAccessSdkHandler { // swiftlint:disa
         vaultAccessor: AgentAccessVaultAccessor,
     ) {
         self.approvalCenter = approvalCenter
+        self.approvalTimeout = approvalTimeout
         self.errorReporter = errorReporter
         self.onPairingEvent = onPairingEvent
         self.onStatus = onStatus
@@ -156,7 +162,7 @@ final class AgentAccessSessionHandler: AgentAccessSdkHandler { // swiftlint:disa
             connectionName: name,
             query: query,
             receivedAt: now,
-            expiresAt: now.addingTimeInterval(AgentAccessConstants.approvalTimeout),
+            expiresAt: now.addingTimeInterval(approvalTimeout),
         )
         switch approvalCenter.requestApproval(request) {
         case let .approved(credential):
@@ -305,7 +311,7 @@ final class AgentAccessSessionHandler: AgentAccessSdkHandler { // swiftlint:disa
             remoteFingerprint: remoteFingerprint ?? "",
         )))
 
-        let result = verification.semaphore.wait(timeout: .now() + AgentAccessConstants.approvalTimeout)
+        let result = verification.semaphore.wait(timeout: .now() + approvalTimeout)
         if result == .timedOut {
             lock.lock()
             verifications.removeValue(forKey: id)
