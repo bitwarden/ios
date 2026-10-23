@@ -24,3 +24,7 @@ Bitwarden = "Bitwarden"
 Rotateable = "Rotateable"
 RotateableKeySet = "RotateableKeySet"
 Sourcery = "Sourcery"
+
+[type.png]
+extend-glob = ["*.png"]
+check-file = false
