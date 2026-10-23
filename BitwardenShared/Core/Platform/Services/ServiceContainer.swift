@@ -874,8 +874,43 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             syncService: syncService,
         )
 
+        let agentAccessApprovalCenter = AgentAccessApprovalCenter(timeProvider: timeProvider)
+        let agentAccessStore = DefaultAgentAccessStore(keychainRepository: keychainRepository)
+        let agentAccessVaultAccessor = DefaultAgentAccessVaultAccessor(
+            cipherMatchingHelperFactory: DefaultCipherMatchingHelperFactory(
+                settingsService: settingsService,
+                stateService: stateService,
+            ),
+            cipherService: cipherService,
+            clientService: clientService,
+            vaultTimeoutService: vaultTimeoutService,
+        )
+        let agentAccessService = DefaultAgentAccessService(
+            apiService: apiService,
+            approvalCenter: agentAccessApprovalCenter,
+            errorReporter: errorReporter,
+            flightRecorder: flightRecorder,
+            sdkClientFactory: DefaultAgentAccessSdkClientFactory(),
+            store: agentAccessStore,
+            timeProvider: timeProvider,
+            vaultAccessor: agentAccessVaultAccessor,
+        )
+        let agentAccessRepository = DefaultAgentAccessRepository(
+            application: application,
+            approvalCenter: agentAccessApprovalCenter,
+            configService: configService,
+            errorReporter: errorReporter,
+            flightRecorder: flightRecorder,
+            service: agentAccessService,
+            stateService: stateService,
+            store: agentAccessStore,
+            timeProvider: timeProvider,
+            vaultAccessor: agentAccessVaultAccessor,
+        )
+
         let authRepository = DefaultAuthRepository(
             accountAPIService: apiService,
+            agentAccessService: agentAccessService,
             appContextHelper: appContextHelper,
             appIDService: appIDService,
             authService: authService,
@@ -924,40 +959,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             errorReporter: errorReporter,
             stateService: stateService,
             syncService: syncService,
-        )
-
-        let agentAccessApprovalCenter = AgentAccessApprovalCenter(timeProvider: timeProvider)
-        let agentAccessStore = DefaultAgentAccessStore(keychainRepository: keychainRepository)
-        let agentAccessVaultAccessor = DefaultAgentAccessVaultAccessor(
-            cipherMatchingHelperFactory: DefaultCipherMatchingHelperFactory(
-                settingsService: settingsService,
-                stateService: stateService,
-            ),
-            cipherService: cipherService,
-            clientService: clientService,
-            vaultTimeoutService: vaultTimeoutService,
-        )
-        let agentAccessService = DefaultAgentAccessService(
-            apiService: apiService,
-            approvalCenter: agentAccessApprovalCenter,
-            errorReporter: errorReporter,
-            flightRecorder: flightRecorder,
-            sdkClientFactory: DefaultAgentAccessSdkClientFactory(),
-            store: agentAccessStore,
-            timeProvider: timeProvider,
-            vaultAccessor: agentAccessVaultAccessor,
-        )
-        let agentAccessRepository = DefaultAgentAccessRepository(
-            application: application,
-            approvalCenter: agentAccessApprovalCenter,
-            configService: configService,
-            errorReporter: errorReporter,
-            flightRecorder: flightRecorder,
-            service: agentAccessService,
-            stateService: stateService,
-            store: agentAccessStore,
-            timeProvider: timeProvider,
-            vaultAccessor: agentAccessVaultAccessor,
         )
 
         let notificationService = DefaultNotificationService(

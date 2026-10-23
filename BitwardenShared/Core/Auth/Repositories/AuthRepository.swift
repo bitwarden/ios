@@ -445,6 +445,9 @@ class DefaultAuthRepository {
     /// The services used by the application to make account related API requests.
     private let accountAPIService: AccountAPIService
 
+    /// The service used to remove the Agent Access identity registration on logout.
+    private let agentAccessService: AgentAccessService
+
     /// Helper to know about the app context.
     private let appContextHelper: AppContextHelper
 
@@ -520,6 +523,7 @@ class DefaultAuthRepository {
     ///
     /// - Parameters:
     ///   - accountAPIService: The services used by the application to make account related API requests.
+    ///   - agentAccessService: The service used to remove the Agent Access identity registration on logout.
     ///   - appContextHelper: The helper to know about the app context.
     ///   - appIDService: The service used by the application to manage the app's ID.
     ///   - authService: The service used that handles some of the auth logic.
@@ -547,6 +551,7 @@ class DefaultAuthRepository {
     ///
     init(
         accountAPIService: AccountAPIService,
+        agentAccessService: AgentAccessService,
         appContextHelper: AppContextHelper,
         appIDService: AppIDService,
         authService: AuthService,
@@ -572,6 +577,7 @@ class DefaultAuthRepository {
         vaultTimeoutService: VaultTimeoutService,
     ) {
         self.accountAPIService = accountAPIService
+        self.agentAccessService = agentAccessService
         self.appContextHelper = appContextHelper
         self.appIDService = appIDService
         self.authService = authService
@@ -873,6 +879,8 @@ extension DefaultAuthRepository: AuthRepository {
 
     func logout(userId: String?, userInitiated: Bool) async throws {
         let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
+
+        await unregisterAgentAccessIdentity(userId: userId)
 
         // Clear all user data.
         try await stateService.setSyncToAuthenticator(false, userId: userId)
@@ -1376,6 +1384,23 @@ extension DefaultAuthRepository: AuthRepository {
         )
         try await stateService.setMasterPasswordHash(updatePasswordResponse.passwordHash)
         try await stateService.setForcePasswordResetReason(nil)
+    }
+
+    /// Removes the server registration of the user's Agent Access identity on a best-effort basis.
+    /// Only the active account can be unregistered since the request uses its credentials. Waits at
+    /// most a few seconds so a slow network never holds up the logout.
+    ///
+    /// - Parameter userId: The ID of the user being logged out.
+    ///
+    private func unregisterAgentAccessIdentity(userId: String) async {
+        guard let activeUserId = try? await stateService.getActiveAccountId(), activeUserId == userId else { return }
+        let agentAccessService = agentAccessService
+        await withTaskGroup(of: Void.self) { group in
+            group.addTask { await agentAccessService.unregisterIdentity(userId: userId) }
+            group.addTask { try? await Task.sleep(nanoseconds: 5 * NSEC_PER_SEC) }
+            await group.next()
+            group.cancelAll()
+        }
     }
 
     /// Returns the provided user ID if it exists, otherwise fetches the active account's ID.
