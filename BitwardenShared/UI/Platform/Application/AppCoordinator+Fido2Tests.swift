@@ -81,4 +81,36 @@ class AppCoordinatorFido2Tests: BitwardenTestCase {
 
         XCTAssertEqual(module.authCoordinator.routes, [.completeWithNeverUnlockKey])
     }
+
+    /// `handleEvent(_:)` with didStart, completeWithUserSessionKey and in fido2 autofill credential flow
+    /// shows a transparent navigation controller and completes.
+    @MainActor
+    func test_handleEvent_didStartTransparentControllerUserSessionKey() async throws {
+        appExtensionDelegate.extensionMode = .autofillFido2Credential(
+            MockPasskeyCredentialRequest(),
+            userInteraction: true,
+        )
+        appExtensionDelegate.authCompletionRoute = nil
+        router.routeForEvent = { _ in .completeWithUserSessionKey }
+
+        await subject.handleEvent(.didStart)
+
+        XCTAssertNotNil(rootNavigator.navigatorShown)
+        let navController = try XCTUnwrap(rootNavigator.navigatorShown as? UINavigationController)
+        XCTAssertTrue(navController.isNavigationBarHidden)
+
+        XCTAssertTrue(appExtensionDelegate.didCompleteAuthCalled)
+    }
+
+    /// `handleEvent(_:)` with didStart, completeWithUserSessionKey and not in fido2 autofill credential flow
+    /// shows the corresponding auth route.
+    @MainActor
+    func test_handleEvent_didStartUserSessionKeyNormal() async throws {
+        appExtensionDelegate.authCompletionRoute = nil
+        router.routeForEvent = { _ in .completeWithUserSessionKey }
+
+        await subject.handleEvent(.didStart)
+
+        XCTAssertEqual(module.authCoordinator.routes, [.completeWithUserSessionKey])
+    }
 }
