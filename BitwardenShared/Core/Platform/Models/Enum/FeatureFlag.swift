@@ -62,12 +62,6 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// `LoginClientProtocol.getPasswordPrelogin(email:)` instead of the `/prelogin` REST endpoint.
     static let passwordPreloginFromSdk = FeatureFlag(rawValue: "pm-27060-password-prelogin-from-sdk")
 
-    /// Flag to enable/disable accepted-state organization policy enforcement via the SDK.
-    ///
-    /// When enabled, `PolicyService.policiesApplyingToUser` routes through the Bitwarden SDK
-    /// so that policies are enforced against members in the accepted (not only confirmed) state.
-    static let policiesInAcceptedState = FeatureFlag(rawValue: "pm-34145-policies-in-accepted-state")
-
     /// Flag to enable/disable Premium upgrade path.
     static let premiumUpgradePath = FeatureFlag(rawValue: "pm-31697-premium-upgrade-path")
 
@@ -103,7 +97,6 @@ extension FeatureFlag: @retroactive CaseIterable {
             .noLogoutOnKdfChange,
             .organizationUserNotificationBanner,
             .passwordPreloginFromSdk,
-            .policiesInAcceptedState,
             .premiumUpgradePath,
             .sdkManagedPinUnlock,
             .sendControls,
