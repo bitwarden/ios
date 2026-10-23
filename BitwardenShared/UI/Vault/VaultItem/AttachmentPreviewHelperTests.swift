@@ -67,7 +67,7 @@ struct AttachmentPreviewHelperTests {
         let attachment = AttachmentView.fixture(fileName: "photo.png", size: "11000000", sizeName: nil)
         let cipher = CipherView.loginFixture()
 
-        await subject.showPreview(for: attachment, cipher: cipher)
+        await subject.showPreview(for: attachment, cipher: cipher) {}
 
         #expect(vaultRepository.downloadAttachmentAttachment == nil)
         guard case let .attachmentPreview(state) = coordinator.routes.last else {
