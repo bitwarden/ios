@@ -11,8 +11,6 @@ class MockSendRepository: BitwardenShared.SendRepository {
 
     var doesActivateAccountHavePremiumResult: Bool = true
 
-    var doesActiveAccountHaveVerifiedEmailResult: Result<Bool, Error> = .success(true)
-
     var fetchSyncCalled = false
     var fetchSyncForceSync: Bool?
     var fetchSyncIsPeriodic: Bool?
@@ -80,10 +78,6 @@ class MockSendRepository: BitwardenShared.SendRepository {
 
     func doesActiveAccountHavePremium() async -> Bool {
         doesActivateAccountHavePremiumResult
-    }
-
-    func doesActiveAccountHaveVerifiedEmail() async throws -> Bool {
-        try doesActiveAccountHaveVerifiedEmailResult.get()
     }
 
     func fetchSync(forceSync: Bool, isPeriodic: Bool) async throws {

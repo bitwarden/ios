@@ -462,15 +462,6 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
             return false
         }
 
-        let isEmailVerified = try? await services.sendRepository.doesActiveAccountHaveVerifiedEmail()
-        guard isEmailVerified ?? false else {
-            let alert = Alert.defaultAlert(
-                message: Localizations.sendFileEmailVerificationRequired,
-            )
-            coordinator.showAlert(alert)
-            return false
-        }
-
         // Only perform further checks when adding a new file send.
         guard state.mode == .add else { return true }
 
