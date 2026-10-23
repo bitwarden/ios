@@ -52,6 +52,26 @@ protocol BillingStateService { // sourcery: AutoMockable
     ///
     func setPremiumUpgradePending(_ pending: Bool, userId: String?) async throws
 
+    // MARK: Previous Personal Premium
+
+    /// Returns the personal Premium value last recorded for the account.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID of the account to check. Defaults to the active account if `nil`.
+    /// - Returns: The personal Premium value last recorded, or `nil` if no value has been recorded
+    ///   for the account.
+    ///
+    func getPreviousPersonalPremium(userId: String?) async throws -> Bool?
+
+    /// Sets the personal Premium value last recorded for the account.
+    ///
+    /// - Parameters:
+    ///   - previousPersonalPremium: The personal Premium value to record, or `nil` to clear the
+    ///     recorded value.
+    ///   - userId: The user ID of the account to update. Defaults to the active account if `nil`.
+    ///
+    func setPreviousPersonalPremium(_ previousPersonalPremium: Bool?, userId: String?) async throws
+
     // MARK: Subscription Attention Card
 
     /// Returns whether the "subscription needs attention" action card should be shown for the
