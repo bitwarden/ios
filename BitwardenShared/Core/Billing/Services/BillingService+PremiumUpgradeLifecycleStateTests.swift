@@ -133,10 +133,8 @@ struct BillingServicePremiumUpgradeLifecycleStateTests {
     /// parameter, not the active account.
     @Test
     func premiumUpgradeLifecycleState_givenUserId_derivesThatAccount() async {
-        stateService.doesActiveAccountHavePremiumPersonallyResult = true
-        stateService.doesActiveAccountHavePremiumResult = true
-        stateService.doesAccountHavePremiumPersonallyByUserId["2"] = false
-        stateService.doesAccountHavePremiumByUserId["2"] = false
+        stateService.setActiveAccountPersonalPremium(true)
+        stateService.setPersonalPremium(false, userId: "2")
         billingStateService.getPremiumUpgradePendingClosure = { userId in userId == "2" }
 
         let result = await subject.premiumUpgradeLifecycleState(userId: "2")
@@ -162,8 +160,7 @@ struct BillingServicePremiumUpgradeLifecycleStateTests {
     /// flag can't be read for an account without Premium.
     @Test
     func premiumUpgradeLifecycleState_pendingReadError_noPremium() async {
-        stateService.doesActiveAccountHavePremiumPersonallyResult = false
-        stateService.doesActiveAccountHavePremiumResult = false
+        stateService.setActiveAccountPersonalPremium(false)
         billingStateService.getPremiumUpgradePendingThrowableError = BitwardenTestError.example
 
         let result = await subject.premiumUpgradeLifecycleState()

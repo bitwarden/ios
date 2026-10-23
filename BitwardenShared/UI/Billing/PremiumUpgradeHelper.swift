@@ -11,6 +11,9 @@ protocol PremiumUpgradeRoute {
     /// The route to the Premium upgrade screen.
     static var premiumUpgrade: Self { get }
 
+    /// The route to the Premium upgrade complete screen.
+    static var premiumUpgradeComplete: Self { get }
+
     /// The route to dismiss the current screen with an optional action.
     ///
     /// - Parameter action: The action to perform on dismiss.
@@ -65,15 +68,20 @@ class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpg
 
     // MARK: Private Properties
 
-    /// A cancellable for the Premium checkout status subscription.
-    private var premiumStatusChangedCancellable: AnyCancellable?
-
     /// The coordinator used for navigation.
     private let coordinator: any Coordinator<Route, Event>
 
+    /// Whether the current subscription's `.pending` status has dismissed the upgrade screen.
+    /// Once it has, a later `.confirmed` can only come from a "Sync Now" retry, so the helper
+    /// shows the Premium upgrade complete screen itself.
+    private var hasDismissedUpgradeScreen = false
+
     /// An optional closure called inside the pending dismiss action before showing the upgrade
-    /// pending alert. Use to dismiss action cards or perform other per-screen cleanup.
+    /// pending alert. Use to hide action cards or perform other per-screen cleanup.
     private let onPendingDismiss: (() -> Void)?
+
+    /// A cancellable for the Premium checkout status subscription.
+    private var premiumStatusChangedCancellable: AnyCancellable?
 
     /// The services used by this helper.
     private let services: Services
@@ -120,12 +128,15 @@ class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpg
 
     // MARK: Private Methods
 
-    /// Subscribes to checkout status updates. On `.confirmed`, calls `onConfirmed`.
+    /// Subscribes to checkout status updates. On `.confirmed`, shows the Premium upgrade complete
+    /// screen if the upgrade screen has already been dismissed, then calls `onConfirmed`.
     /// On `.pending`, navigates to dismiss and shows the upgrade pending alert.
     ///
-    /// - Parameter onConfirmed: An optional closure called when the upgrade is confirmed.
+    /// - Parameters:
+    ///   - onConfirmed: An optional closure called when the upgrade is confirmed.
     ///
     private func subscribeToPremiumCheckoutStatus(onConfirmed: (() async -> Void)?) {
+        hasDismissedUpgradeScreen = false
         premiumStatusChangedCancellable = services.billingService
             .premiumCheckoutStatusPublisher()
             .receive(on: DispatchQueue.main)
@@ -136,16 +147,20 @@ class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpg
                     break
                 case .confirmed:
                     premiumStatusChangedCancellable = nil
+                    if hasDismissedUpgradeScreen {
+                        coordinator.navigate(to: .premiumUpgradeComplete)
+                    }
                     if let onConfirmed {
                         Task { @MainActor in await onConfirmed() }
                     }
                 case .pending:
+                    hasDismissedUpgradeScreen = true
                     coordinator.navigate(to: .dismiss(DismissAction { [weak self] in
                         guard let self else { return }
                         coordinator.hideLoadingOverlay()
                         onPendingDismiss?()
                         coordinator.showAlert(.upgradePending {
-                            await self.services.billingService.premiumStatusChanged()
+                            await self.services.billingService.retryPendingUpgrade()
                         })
                     }))
                 case .syncing:

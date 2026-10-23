@@ -1275,10 +1275,10 @@
 "Server" = "Server";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Wis %1$@";
-/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
-"OpensDatePicker" = "Opent de datumkiezer";
+/* Accessibility hint on a collapsed date field announcing that activating it activates the calendar picker. */
+"DoubleTapToActivateThePicker" = "Dubbeltik voor het activeren van de kiezer";
 /* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
-"ClosesDatePicker" = "Sluit de datumkiezer";
+"DoubleTapToCloseThePicker" = "Dubbeltik voor het afsluiten van de kiezer";
 /* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
 "FutureDatesUnavailable" = "Toekomstige datums niet beschikbaar";
 "PremiumRequiredTOTPDescriptionLong" = "Authenticatiesleutel (TOTP) is een Premium-functie. Toegang tot deze functie is niet inbegrepen in je huidige abonnement.";
@@ -1301,3 +1301,4 @@
 "NotNow" = "Niet nu";
 "SyncUnsuccessful" = "Synchronisatie mislukt";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "We konden je kluis niet met de server synchroniseren. Je kluis geeft mogelijk niet je laatste wijzigingen weer. Je kunt het opnieuw proberen of het zal later automatisch worden gesynchroniseerd.";
+"TextToShareRequired" = "Tekst om te delen (verplicht)";

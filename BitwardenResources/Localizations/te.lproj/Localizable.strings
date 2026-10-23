@@ -1275,10 +1275,10 @@
 "Server" = "సర్వర్";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "%1$@ క్లియర్ చేయి";
-/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
-"OpensDatePicker" = "Opens date picker";
+/* Accessibility hint on a collapsed date field announcing that activating it activates the calendar picker. */
+"DoubleTapToActivateThePicker" = "Double tap to activate the picker";
 /* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
-"ClosesDatePicker" = "Closes date picker";
+"DoubleTapToCloseThePicker" = "Double tap to close the picker";
 /* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
 "FutureDatesUnavailable" = "Future dates unavailable";
 "PremiumRequiredTOTPDescriptionLong" = "ఆథెంటికేటర్ కీ (TOTP) ప్రీమియం ఫీచర్. మీ ప్రస్తుత ప్లాన్‌లో ఈ ఫీచర్‌కు ప్రాప్యత లేదు.";
@@ -1301,3 +1301,4 @@
 "NotNow" = "ఇప్పుడు కాదు";
 "SyncUnsuccessful" = "సింక్ విజయవంతం కాలేదు";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "మేము మీ ఖజానాను సర్వర్‌తో సింక్ చేయలేకపోయాము. మీ ఖజానా మీ తాజా మార్పులను ప్రతిబింబించకపోవచ్చు. మీరు ఇప్పుడు మళ్లీ ప్రయత్నించవచ్చు లేదా అది తర్వాత ఆటోమేటిక్‌గా సింక్ అవుతుంది.";
+"TextToShareRequired" = "Text to share (required)";

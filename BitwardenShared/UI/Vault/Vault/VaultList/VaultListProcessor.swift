@@ -68,7 +68,7 @@ final class VaultListProcessor: StateProcessor<
         coordinator: coordinator,
         setURL: { [weak self] url in self?.state.url = url },
         onPendingDismiss: { [weak self] in
-            Task { @MainActor in await self?.dismissPremiumUpgradeActionCard() }
+            self?.hidePremiumUpgradeActionCardForPendingUpgrade()
         },
     )
 
@@ -121,6 +121,8 @@ final class VaultListProcessor: StateProcessor<
         switch effect {
         case .appeared:
             await appeared()
+        case let .accessibilityMoreOptionsActionPressed(item, kind):
+            await performMoreOptionsAction(kind, for: item)
         case .checkAppReviewEligibility:
             await checkAppReviewEligibility()
         case .dismissArchiveOnboardingActionCard:
@@ -136,6 +138,8 @@ final class VaultListProcessor: StateProcessor<
         case .dismissUpgradedToPremiumActionCard:
             state.shouldShowUpgradedToPremiumActionCard = false
             await services.billingService.setUpgradedToPremiumActionCardDismissed()
+        case let .itemPressed(item):
+            handleItemTapped(item)
         case let .morePressed(item):
             await morePressed(item: item)
         case let .profileSwitcher(profileEffect):
@@ -179,8 +183,6 @@ final class VaultListProcessor: StateProcessor<
             reviewPromptTask?.cancel()
         case .goToArchive:
             coordinator.navigate(to: .group(.archive, filter: state.vaultFilterType))
-        case let .itemPressed(item):
-            handleItemTapped(item)
         case .learnMoreAboutPremium:
             state.url = ExternalLinksConstants.learnMoreAboutPremium
             state.shouldShowUpgradedToPremiumActionCard = false
@@ -448,12 +450,12 @@ extension VaultListProcessor {
     /// Entry point to handling things around push notifications.
     private func handleNotifications() async {
         switch await services.notificationService.notificationAuthorization() {
-        case .authorized:
-            await registerForNotifications()
         case .notDetermined:
             await requestNotificationPermissions()
         default:
-            break
+            // Silent push notifications (e.g. login requests and sync) are delivered regardless of
+            // notification authorization, so register even if the user has denied notifications.
+            await registerForNotifications()
         }
     }
 
@@ -482,6 +484,16 @@ extension VaultListProcessor {
         } else {
             showSyncUnsuccessfulAlert(message: message)
         }
+    }
+
+    /// Hides the Premium upgrade action card without persisting a permanent dismissal. Used
+    /// while a Premium upgrade is pending — that's a temporary state, not the user asking to
+    /// stop seeing this card, so unlike `dismissPremiumUpgradeActionCard()` this doesn't touch
+    /// the banner-dismissed preference. `refreshPremiumActionCards()` re-evaluates the card on
+    /// the next appearance or completed sync.
+    ///
+    private func hidePremiumUpgradeActionCardForPendingUpgrade() {
+        state.shouldShowPremiumUpgradeActionCard = false
     }
 
     /// Loads the organization user notification banner data, suppressing it when the user has already dismissed
@@ -535,7 +547,8 @@ extension VaultListProcessor {
             await services.billingService.shouldShowUpgradedToPremiumActionCard()
 
         let isBannerDismissed = await services.billingService.isPremiumUpgradeBannerDismissed()
-        guard !isBannerDismissed,
+        guard await services.billingService.premiumUpgradeLifecycleState() == .notPremium,
+              !isBannerDismissed,
               !state.shouldShowSubscriptionAttentionCard,
               await !services.billingService.isSelfHosted()
         else {
@@ -610,14 +623,14 @@ extension VaultListProcessor {
         coordinator.showAlert(
             .pushNotificationsInformation { [services] in
                 do {
-                    let authorized = try await services.notificationService
+                    _ = try await services.notificationService
                         .requestAuthorization(options: [.alert, .sound, .badge])
-                    if authorized {
-                        await self.registerForNotifications()
-                    }
                 } catch {
                     self.services.errorReporter.log(error: error)
                 }
+                // Register regardless of the user's choice, since silent push notifications don't
+                // require notification authorization.
+                await self.registerForNotifications()
             },
         )
     }
@@ -711,6 +724,30 @@ extension VaultListProcessor {
     ///
     private func morePressed(item: VaultListItem) async {
         await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
+            for: item,
+            delegate: self,
+            handleDisplayToast: { [weak self] toast in
+                self?.state.toast = toast
+            },
+            handleNavigateToPremiumUpgrade: { [weak self] in
+                await self?.navigateToPremiumUpgrade()
+            },
+            handleOpenURL: { [weak self] url in
+                self?.state.url = url
+            },
+        )
+    }
+
+    /// Performs the more-options action identified by `kind` for the given vault item, activated
+    /// via a VoiceOver custom accessibility action.
+    ///
+    /// - Parameters:
+    ///   - kind: The kind of more-options action to perform.
+    ///   - item: The vault list item to perform the action on.
+    ///
+    private func performMoreOptionsAction(_ kind: MoreOptionsActionKind, for item: VaultListItem) async {
+        await vaultItemMoreOptionsHelper.performMoreOptionsAction(
+            kind,
             for: item,
             delegate: self,
             handleDisplayToast: { [weak self] toast in
@@ -821,6 +858,7 @@ extension VaultListProcessor {
     private func streamSyncComplete() async {
         for await _ in services.syncService.syncCompletePublisher() {
             await loadItemTypesUserCanCreate()
+            await refreshPremiumActionCards()
         }
     }
 

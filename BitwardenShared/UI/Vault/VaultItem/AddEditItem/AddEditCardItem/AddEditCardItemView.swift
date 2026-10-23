@@ -161,75 +161,74 @@ struct AddEditCardItemView: View {
 }
 
 #if DEBUG
-struct AddEditCardItemView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            ScrollView {
-                AddEditCardItemView(
-                    store: Store(
-                        processor: StateProcessor(
-                            state: CardItemState() as (any AddEditCardItemState),
-                        ),
+#Preview("Empty Add Edit State") {
+    NavigationView {
+        ScrollView {
+            AddEditCardItemView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: CardItemState() as (any AddEditCardItemState),
                     ),
-                )
-                .padding(16)
-            }
-            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
-            .navigationBar(title: "Empty Add Edit State", titleDisplayMode: .inline)
+                ),
+            )
+            .padding(16)
         }
-        .previewDisplayName("Empty Add Edit State")
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
+        .navigationBar(title: "Empty Add Edit State", titleDisplayMode: .inline)
+    }
+}
 
-        NavigationView {
-            ScrollView {
-                AddEditCardItemView(
-                    store: Store(
-                        processor: StateProcessor(
-                            state: {
-                                var state = CardItemState()
-                                state.brand = .custom(.visa)
-                                state.cardNumber = "4400123456789"
-                                state.cardSecurityCode = "123"
-                                state.cardholderName = "Bitwarden User"
-                                state.expirationMonth = .custom(.aug)
-                                state.expirationYear = "1989"
-                                return state
-                            }() as (any AddEditCardItemState),
-                        ),
+#Preview("Hidden Add Edit State") {
+    NavigationView {
+        ScrollView {
+            AddEditCardItemView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: {
+                            var state = CardItemState()
+                            state.brand = .custom(.visa)
+                            state.cardNumber = "4400123456789"
+                            state.cardSecurityCode = "123"
+                            state.cardholderName = "Bitwarden User"
+                            state.expirationMonth = .custom(.aug)
+                            state.expirationYear = "1989"
+                            return state
+                        }() as (any AddEditCardItemState),
                     ),
-                )
-                .padding(16)
-            }
-            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
-            .navigationBar(title: "Hidden Add Edit State", titleDisplayMode: .inline)
+                ),
+            )
+            .padding(16)
         }
-        .previewDisplayName("Hidden Add Edit State")
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
+        .navigationBar(title: "Hidden Add Edit State", titleDisplayMode: .inline)
+    }
+}
 
-        NavigationView {
-            ScrollView {
-                AddEditCardItemView(
-                    store: Store(
-                        processor: StateProcessor(
-                            state: {
-                                var state = CardItemState()
-                                state.brand = .custom(.visa)
-                                state.cardNumber = "4400123456789"
-                                state.cardSecurityCode = "123"
-                                state.cardholderName = "Bitwarden User"
-                                state.expirationMonth = .custom(.aug)
-                                state.expirationYear = "1989"
-                                state.isCodeVisible = true
-                                state.isNumberVisible = true
-                                return state
-                            }() as (any AddEditCardItemState),
-                        ),
+#Preview("Visible Add Edit State") {
+    NavigationView {
+        ScrollView {
+            AddEditCardItemView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: {
+                            var state = CardItemState()
+                            state.brand = .custom(.visa)
+                            state.cardNumber = "4400123456789"
+                            state.cardSecurityCode = "123"
+                            state.cardholderName = "Bitwarden User"
+                            state.expirationMonth = .custom(.aug)
+                            state.expirationYear = "1989"
+                            state.isCodeVisible = true
+                            state.isNumberVisible = true
+                            return state
+                        }() as (any AddEditCardItemState),
                     ),
-                )
-                .padding(16)
-            }
-            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
-            .navigationBar(title: "Visible Add Edit State", titleDisplayMode: .inline)
+                ),
+            )
+            .padding(16)
         }
-        .previewDisplayName("Visible Add Edit State")
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
+        .navigationBar(title: "Visible Add Edit State", titleDisplayMode: .inline)
     }
 }
 #endif

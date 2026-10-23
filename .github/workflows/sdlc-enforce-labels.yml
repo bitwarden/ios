@@ -1,24 +1,25 @@
 name: SDLC / Enforce PR labels
-run-name: Enforce labels for PR ${{ github.event.pull_request.number || inputs.pr-number }}
 
 on:
-  pull_request:
-    types: [labeled, unlabeled, edited, opened, reopened, synchronize]
-  workflow_dispatch:
+  workflow_call:
     inputs:
       pr-number:
         description: "Pull Request Number"
         required: true
         type: number
+      event-labels:
+        description: "PR labels from the triggering event payload (logging only)"
+        required: false
+        type: string
 
 permissions: {}
 
 env:
-  _PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr-number }}
+  _PR_NUMBER: ${{ inputs.pr-number }}
 
 jobs:
   enforce-label:
-    name: Enforce Label
+    name: Enforce
     runs-on: ubuntu-24.04
     permissions:
       pull-requests: read

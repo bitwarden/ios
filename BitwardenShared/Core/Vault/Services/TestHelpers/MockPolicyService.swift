@@ -40,10 +40,6 @@ class MockPolicyService: PolicyService {
     var replacePoliciesUserId: String?
     var replacePoliciesResult: Result<Void, Error> = .success(())
 
-    var replacePoliciesNewPolicies = [PolicyResponseModel]()
-    var replacePoliciesNewUserId: String?
-    var replacePoliciesNewResult: Result<Void, Error> = .success(())
-
     func applyPasswordGenerationPolicy(options: inout PasswordGenerationOptions) async throws -> Bool {
         applyPasswordGenerationOptionsCalled = true
         if let applyPasswordGenerationOptionsError {
@@ -94,11 +90,5 @@ class MockPolicyService: PolicyService {
         replacePoliciesPolicies = policies
         replacePoliciesUserId = userId
         try replacePoliciesResult.get()
-    }
-
-    func replacePoliciesNew(_ policies: [PolicyResponseModel], userId: String) async throws {
-        replacePoliciesNewPolicies = policies
-        replacePoliciesNewUserId = userId
-        try replacePoliciesNewResult.get()
     }
 }
