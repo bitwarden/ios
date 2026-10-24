@@ -302,7 +302,7 @@ final class DefaultAgentAccessService: AgentAccessService, @unchecked Sendable {
         let current = currentState()
         if current.client != nil, current.userId == userId {
             if let fingerprint = await identityFingerprint(userId: userId) {
-                await register(fingerprint: fingerprint)
+                await register(fingerprint: fingerprint, userId: userId)
             }
             return
         }
@@ -337,7 +337,7 @@ final class DefaultAgentAccessService: AgentAccessService, @unchecked Sendable {
 
             let fingerprint = try await client.getIdentityFingerprint()
             try await store.update(userId: userId) { $0.identityFingerprint = fingerprint }
-            await register(fingerprint: fingerprint)
+            await register(fingerprint: fingerprint, userId: userId)
 
             try await client.connect()
             statusSubject.send(.listening)
@@ -360,9 +360,15 @@ final class DefaultAgentAccessService: AgentAccessService, @unchecked Sendable {
     }
 
     /// Registers the identity with the server. Failures are not fatal.
-    private func register(fingerprint: String) async {
+    private func register(fingerprint: String, userId: String) async {
         do {
-            try await apiService.registerIdentity(fingerprint: fingerprint)
+            let identity = try await store.userData(userId: userId).identity
+            let proof = try AgentAccessIdentityProof.make(
+                identity: identity ?? Data(),
+                fingerprint: fingerprint,
+                userId: userId,
+            )
+            try await apiService.registerIdentity(proof: proof)
         } catch let error as ResponseValidationError where error.response.statusCode == 404 {
             // The feature is off on the server.
         } catch let error as ResponseValidationError where error.response.statusCode == 409 {

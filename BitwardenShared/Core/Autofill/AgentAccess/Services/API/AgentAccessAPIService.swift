@@ -8,9 +8,9 @@ protocol AgentAccessAPIService { // sourcery: AutoMockable
     /// Registers an identity fingerprint for the active user so the server can send push
     /// notifications when a request is waiting at the relay.
     ///
-    /// - Parameter fingerprint: The 64 character lowercase hex identity fingerprint.
+    /// - Parameter proof: The identity fingerprint with the proof that the device holds its key.
     ///
-    func registerIdentity(fingerprint: String) async throws
+    func registerIdentity(proof: AgentAccessIdentityProof) async throws
 
     /// Removes the registration of an identity fingerprint of the active user.
     ///
@@ -20,9 +20,15 @@ protocol AgentAccessAPIService { // sourcery: AutoMockable
 }
 
 extension APIService: AgentAccessAPIService {
-    func registerIdentity(fingerprint: String) async throws {
+    func registerIdentity(proof: AgentAccessIdentityProof) async throws {
         _ = try await apiService.send(
-            RegisterAgentAccessIdentityRequest(requestBody: .init(fingerprint: fingerprint)),
+            RegisterAgentAccessIdentityRequest(
+                requestBody: .init(
+                    fingerprint: proof.fingerprint,
+                    publicKey: proof.publicKey,
+                    signature: proof.signature,
+                ),
+            ),
         )
     }
 

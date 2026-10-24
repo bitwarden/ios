@@ -23,7 +23,8 @@ class AgentAccessServiceTests: BitwardenTestCase {
     var timeProvider: MockTimeProvider!
     var vaultAccessor: MockAgentAccessVaultAccessor!
 
-    let fingerprint = String(repeating: "ab", count: 32)
+    let fingerprint = AgentAccessIdentityProofTests.fingerprint
+    let userId = AgentAccessIdentityProofTests.userId
 
     // MARK: Setup & Teardown
 
@@ -64,13 +65,14 @@ class AgentAccessServiceTests: BitwardenTestCase {
     /// `start(userId:)` creates the client for the default relay, stores and registers the identity
     /// fingerprint, connects and publishes the listening status.
     func test_start() async throws {
-        try await subject.start(userId: "1")
+        try await seedIdentity()
+        try await subject.start(userId: userId)
 
         XCTAssertEqual(clientFactory.makeClientReceivedArguments?.relayURL, AgentAccessConstants.defaultRelayURL)
-        XCTAssertEqual(apiService.registerIdentityReceivedFingerprint, fingerprint)
+        AgentAccessIdentityProofTests.assertValid(apiService.registerIdentityReceivedProof)
         XCTAssertEqual(client.connectCallsCount, 1)
-        XCTAssertEqual(subject.runningUserId, "1")
-        let storedFingerprint = try await store.userData(userId: "1").identityFingerprint
+        XCTAssertEqual(subject.runningUserId, userId)
+        let storedFingerprint = try await store.userData(userId: userId).identityFingerprint
         XCTAssertEqual(storedFingerprint, fingerprint)
         var iterator = subject.statusPublisher().values.makeAsyncIterator()
         let status = await iterator.next()
@@ -109,12 +111,14 @@ class AgentAccessServiceTests: BitwardenTestCase {
 
     /// `start(userId:)` only refreshes the registration when the client already runs for the user.
     func test_start_alreadyRunning() async throws {
-        try await subject.start(userId: "1")
-        try await subject.start(userId: "1")
+        try await seedIdentity()
+        try await subject.start(userId: userId)
+        try await subject.start(userId: userId)
 
         XCTAssertEqual(clientFactory.makeClientCallsCount, 1)
         XCTAssertEqual(client.connectCallsCount, 1)
         XCTAssertEqual(apiService.registerIdentityCallsCount, 2)
+        AgentAccessIdentityProofTests.assertValid(apiService.registerIdentityReceivedProof)
     }
 
     /// `start(userId:)` stops the client of another user first.
@@ -147,7 +151,8 @@ class AgentAccessServiceTests: BitwardenTestCase {
     func test_start_registrationFails() async throws {
         apiService.registerIdentityThrowableError = BitwardenTestError.example
 
-        try await subject.start(userId: "1")
+        try await seedIdentity()
+        try await subject.start(userId: userId)
 
         XCTAssertEqual(client.connectCallsCount, 1)
         XCTAssertEqual(errorReporter.errors.count, 1)
@@ -157,7 +162,8 @@ class AgentAccessServiceTests: BitwardenTestCase {
     func test_start_registrationNotFound() async throws {
         apiService.registerIdentityThrowableError = ResponseValidationError(response: .failure(statusCode: 404))
 
-        try await subject.start(userId: "1")
+        try await seedIdentity()
+        try await subject.start(userId: userId)
 
         XCTAssertEqual(client.connectCallsCount, 1)
         XCTAssertTrue(errorReporter.errors.isEmpty)
@@ -168,11 +174,23 @@ class AgentAccessServiceTests: BitwardenTestCase {
     func test_start_registrationConflict() async throws {
         apiService.registerIdentityThrowableError = ResponseValidationError(response: .failure(statusCode: 409))
 
-        try await subject.start(userId: "1")
+        try await seedIdentity()
+        try await subject.start(userId: userId)
 
         XCTAssertEqual(client.connectCallsCount, 1)
         XCTAssertTrue(errorReporter.errors.isEmpty)
         XCTAssertTrue(flightRecorder.logMessages.contains { $0.contains("registered to another user") })
+    }
+
+    /// `start(userId:)` keeps going without registering when the stored identity cannot sign the proof.
+    func test_start_proofFails() async throws {
+        try await store.update(userId: userId) { $0.identity = Data([1, 2, 3]) }
+
+        try await subject.start(userId: userId)
+
+        XCTAssertFalse(apiService.registerIdentityCalled)
+        XCTAssertEqual(client.connectCallsCount, 1)
+        XCTAssertEqual(errorReporter.errors.count, 1)
     }
 
     // MARK: Tests - stop
@@ -315,6 +333,10 @@ class AgentAccessServiceTests: BitwardenTestCase {
     }
 
     // MARK: Private
+
+    private func seedIdentity() async throws {
+        try await store.update(userId: userId) { $0.identity = AgentAccessIdentityProofTests.identity }
+    }
 
     private func makeSubject(environment: [String: String]) {
         subject = DefaultAgentAccessService(

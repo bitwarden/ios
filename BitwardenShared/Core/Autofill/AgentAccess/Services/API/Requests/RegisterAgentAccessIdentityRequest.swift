@@ -8,6 +8,12 @@ import Networking
 struct RegisterAgentAccessIdentityRequestBody: JSONRequestBody {
     /// The 64 character lowercase hex identity fingerprint.
     let fingerprint: String
+
+    /// The base64 raw Ed25519 public key of the identity.
+    let publicKey: String
+
+    /// The base64 Ed25519 signature proving possession of the identity key for the user.
+    let signature: String
 }
 
 // MARK: - RegisterAgentAccessIdentityRequest

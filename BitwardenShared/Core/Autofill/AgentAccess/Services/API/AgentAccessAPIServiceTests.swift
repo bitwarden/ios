@@ -28,14 +28,18 @@ class AgentAccessAPIServiceTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `registerIdentity(fingerprint:)` performs the register identity request.
+    /// `registerIdentity(proof:)` performs the register identity request.
     func test_registerIdentity() async throws {
         client.result = .httpSuccess(testData: .emptyResponse)
 
-        try await subject.registerIdentity(fingerprint: "abc123")
+        try await subject.registerIdentity(
+            proof: AgentAccessIdentityProof(fingerprint: "abc123", publicKey: "cHVi", signature: "c2ln"),
+        )
 
         XCTAssertEqual(client.requests.count, 1)
-        XCTAssertNotNil(client.requests[0].body)
+        let body = try XCTUnwrap(client.requests[0].body)
+        let json = try XCTUnwrap(JSONSerialization.jsonObject(with: body) as? [String: String])
+        XCTAssertEqual(json, ["fingerprint": "abc123", "publicKey": "cHVi", "signature": "c2ln"])
         XCTAssertEqual(client.requests[0].method, .put)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/agent-access/identities")
     }

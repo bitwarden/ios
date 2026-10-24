@@ -11,7 +11,9 @@ class RegisterAgentAccessIdentityRequestTests: BitwardenTestCase {
 
     override func setUp() {
         super.setUp()
-        subject = RegisterAgentAccessIdentityRequest(requestBody: .init(fingerprint: "abc123"))
+        subject = RegisterAgentAccessIdentityRequest(
+            requestBody: .init(fingerprint: "abc123", publicKey: "cHVi", signature: "c2ln"),
+        )
     }
 
     override func tearDown() {
@@ -24,10 +26,8 @@ class RegisterAgentAccessIdentityRequestTests: BitwardenTestCase {
     /// `body` returns the data for the request.
     func test_body() throws {
         let bodyData = try XCTUnwrap(subject.body?.encode())
-        XCTAssertEqual(
-            String(data: bodyData, encoding: .utf8),
-            "{\"fingerprint\":\"abc123\"}",
-        )
+        let json = try XCTUnwrap(JSONSerialization.jsonObject(with: bodyData) as? [String: String])
+        XCTAssertEqual(json, ["fingerprint": "abc123", "publicKey": "cHVi", "signature": "c2ln"])
     }
 
     /// `method` returns the method of the request.
