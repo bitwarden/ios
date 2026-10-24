@@ -40,8 +40,8 @@ class AgentAccessIdentityProofTests: BitwardenTestCase {
         )
     }
 
-    static func storedKey(seed: Data, publicKey: Data, alg: UInt8 = 0x27) -> Data {
-        var bytes: [UInt8] = [0xA5, 0x01, 0x01, 0x03, alg, 0x20, 0x06]
+    static func storedKey(seed: Data, publicKey: Data, alg: UInt8 = 0x27, crv: UInt8 = 0x27) -> Data {
+        var bytes: [UInt8] = [0xA5, 0x01, 0x01, 0x03, alg, 0x20, crv]
         bytes += [0x21, 0x58, 0x20] + [UInt8](publicKey)
         bytes += [0x23, 0x58, 0x20] + [UInt8](seed)
         return Data(bytes)
@@ -88,6 +88,42 @@ class AgentAccessIdentityProofTests: BitwardenTestCase {
         XCTAssertThrowsError(
             try AgentAccessIdentityProof.make(identity: Data(), fingerprint: Self.fingerprint, userId: "1"),
         ) { XCTAssertEqual($0 as? AgentAccessIdentityProofError, .invalidIdentity) }
+    }
+
+    /// `make` accepts the key exactly as the SDK serializes a generated identity (`crv` is -8).
+    func test_make_sdkGeneratedKey() throws {
+        let identity = Data(
+            hex: "a5010103272027215820f256e517d73c75ac2672b19d933c15f156e6c5bffd9f55a03085244e24bb8ab0"
+                + "235820e4bc47a99bbc15d10f049af3bd463dafa2b9e204c5409e971d0587db4dac4b20",
+        )
+        let publicKey = Data(hex: "f256e517d73c75ac2672b19d933c15f156e6c5bffd9f55a03085244e24bb8ab0")
+
+        let proof = try AgentAccessIdentityProof.make(
+            identity: identity,
+            fingerprint: "ef38c78443922890e9dbd739b01cf84dee4a2a8499c043e0f8c95f804e7390a0",
+            userId: Self.userId,
+        )
+
+        let signature = try XCTUnwrap(Data(base64Encoded: proof.signature))
+        let key = try Curve25519.Signing.PublicKey(rawRepresentation: publicKey)
+        XCTAssertTrue(key.isValidSignature(signature, for: AgentAccessIdentityProof.message(userId: Self.userId)))
+    }
+
+    /// `make` also accepts the registered Ed25519 curve value 6.
+    func test_make_registeredCurveValue() throws {
+        let identity = Self.storedKey(
+            seed: Data((0 ..< 32).map { UInt8($0) }),
+            publicKey: Self.publicKey,
+            crv: 0x06,
+        )
+
+        let proof = try AgentAccessIdentityProof.make(
+            identity: identity,
+            fingerprint: Self.fingerprint,
+            userId: Self.userId,
+        )
+
+        Self.assertValid(proof)
     }
 
     /// `make` throws for a key that is not EdDSA.

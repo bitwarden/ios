@@ -80,7 +80,8 @@ private struct StoredEd25519Key {
     /// The 32 byte public key (`x`, key -2).
     let publicKey: Data
 
-    /// Decodes the key map. Returns `nil` unless it is an OKP Ed25519 key with `alg` EdDSA.
+    /// Decodes the key map. Returns `nil` unless it is an OKP key with `alg` EdDSA. The SDK writes `crv` as -8
+    /// (the EdDSA algorithm value), the registered Ed25519 curve value is 6, so both are accepted.
     init?(_ data: Data) {
         var reader = CborReader(bytes: [UInt8](data))
         guard let count = reader.mapCount() else { return nil }
@@ -97,7 +98,7 @@ private struct StoredEd25519Key {
                 break
             }
         }
-        guard integers[1] == 1, integers[3] == -8, integers[-1] == 6,
+        guard integers[1] == 1, integers[3] == -8, integers[-1] == 6 || integers[-1] == -8,
               let publicKey = byteStrings[-2], let seed = byteStrings[-4] else { return nil }
         self.publicKey = publicKey
         self.seed = seed
