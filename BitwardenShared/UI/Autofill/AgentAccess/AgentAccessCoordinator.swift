@@ -15,6 +15,7 @@ final class AgentAccessCoordinator: Coordinator, HasStackNavigator {
         & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasPasteboardService
+        & HasUserVerificationHelperFactory
 
     // MARK: Private Properties
 

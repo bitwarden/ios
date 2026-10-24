@@ -23,6 +23,8 @@ struct AgentAccessApprovalProcessorTests { // swiftlint:disable:this type_body_l
     let delegate: MockAgentAccessApprovalDelegate
     let errorReporter: MockErrorReporter
     let subject: AgentAccessApprovalProcessor
+    let userVerificationHelper: MockUserVerificationHelper
+    let userVerificationHelperFactory: MockUserVerificationHelperFactory
 
     // MARK: Initialization
 
@@ -33,6 +35,9 @@ struct AgentAccessApprovalProcessorTests { // swiftlint:disable:this type_body_l
         coordinator = MockCoordinator()
         delegate = MockAgentAccessApprovalDelegate()
         errorReporter = MockErrorReporter()
+        userVerificationHelper = MockUserVerificationHelper()
+        userVerificationHelperFactory = MockUserVerificationHelperFactory()
+        userVerificationHelperFactory.createResult = userVerificationHelper
 
         biometricsService.getBiometricAuthStatusReturnValue = .authorized(.faceID)
 
@@ -44,6 +49,7 @@ struct AgentAccessApprovalProcessorTests { // swiftlint:disable:this type_body_l
                 authRepository: authRepository,
                 biometricsService: biometricsService,
                 errorReporter: errorReporter,
+                userVerificationHelperFactory: userVerificationHelperFactory,
             ),
             state: AgentAccessApprovalState(requestId: "request-1"),
         )
@@ -78,6 +84,97 @@ struct AgentAccessApprovalProcessorTests { // swiftlint:disable:this type_body_l
         action?.action()
         #expect(delegate.answeredApproved == true)
         #expect(delegate.dismissedCount == 1)
+    }
+
+    /// `perform(_:)` with `.approve` verifies an account without a master password with the device
+    /// passcode or biometrics and approves the login.
+    @Test
+    func perform_approve_noMasterPassword() async throws {
+        try await loadPendingRequest(selecting: "cipher-1")
+        authRepository.canVerifyMasterPasswordResult = .success(false)
+        userVerificationHelper.verifyDeviceLocalAuthResult = .success(.verified)
+
+        await subject.perform(.approve)
+
+        #expect(userVerificationHelper.verifyDeviceLocalAuthCalled)
+        #expect(userVerificationHelper.verifyDeviceLocalAuthBecauseValue == Localizations.agentAccessBiometricPrompt)
+        #expect(!biometricsService.evaluateBiometricPolicyReasonCalled)
+        #expect(
+            agentAccessRepository.answerReceivedArguments?.decision
+                == .approve(cipherId: "cipher-1", autoApproveMinutes: nil),
+        )
+        #expect(coordinator.alertShown.isEmpty)
+    }
+
+    /// `perform(_:)` with `.approve` doesn't approve when the device verification fails.
+    @Test
+    func perform_approve_noMasterPassword_notVerified() async throws {
+        try await loadPendingRequest(selecting: "cipher-1")
+        authRepository.canVerifyMasterPasswordResult = .success(false)
+        userVerificationHelper.verifyDeviceLocalAuthResult = .success(.notVerified)
+
+        await subject.perform(.approve)
+
+        #expect(!agentAccessRepository.answerCalled)
+        #expect(coordinator.alertShown.isEmpty)
+    }
+
+    /// `perform(_:)` with `.approve` doesn't approve when the user cancels the device verification.
+    @Test
+    func perform_approve_noMasterPassword_cancelled() async throws {
+        try await loadPendingRequest(selecting: "cipher-1")
+        authRepository.canVerifyMasterPasswordResult = .success(false)
+        userVerificationHelper.verifyDeviceLocalAuthResult = .failure(UserVerificationError.cancelled)
+
+        await subject.perform(.approve)
+
+        #expect(!agentAccessRepository.answerCalled)
+        #expect(coordinator.alertShown.isEmpty)
+        #expect(coordinator.errorAlertsShown.isEmpty)
+    }
+
+    /// `perform(_:)` with `.approve` explains when the device has no passcode to verify with.
+    @Test
+    func perform_approve_noMasterPassword_unableToPerform() async throws {
+        try await loadPendingRequest(selecting: "cipher-1")
+        authRepository.canVerifyMasterPasswordResult = .success(false)
+        userVerificationHelper.verifyDeviceLocalAuthResult = .success(.unableToPerform)
+
+        await subject.perform(.approve)
+
+        #expect(!agentAccessRepository.answerCalled)
+        #expect(coordinator.alertShown.last == .defaultAlert(
+            title: Localizations.anErrorHasOccurred,
+            message: Localizations.agentAccessVerificationUnavailable,
+        ))
+    }
+
+    /// `perform(_:)` with `.approve` shows an error when the device verification throws.
+    @Test
+    func perform_approve_noMasterPassword_error() async throws {
+        try await loadPendingRequest(selecting: "cipher-1")
+        authRepository.canVerifyMasterPasswordResult = .success(false)
+        userVerificationHelper.verifyDeviceLocalAuthResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.approve)
+
+        #expect(!agentAccessRepository.answerCalled)
+        #expect(coordinator.errorAlertsShown.last as? BitwardenTestError == .example)
+        #expect(errorReporter.errors.last as? BitwardenTestError == .example)
+    }
+
+    /// `perform(_:)` with `.approve` still tries biometrics when the master password check fails.
+    @Test
+    func perform_approve_canVerifyMasterPasswordThrows() async throws {
+        try await loadPendingRequest(selecting: "cipher-1")
+        authRepository.canVerifyMasterPasswordResult = .failure(BitwardenTestError.example)
+        biometricsService.evaluateBiometricPolicyReasonReturnValue = true
+
+        await subject.perform(.approve)
+
+        #expect(!userVerificationHelper.verifyDeviceLocalAuthCalled)
+        #expect(agentAccessRepository.answerCalled)
+        #expect(errorReporter.errors.last as? BitwardenTestError == .example)
     }
 
     /// `perform(_:)` with `.approve` remembers the approval for the chosen time.

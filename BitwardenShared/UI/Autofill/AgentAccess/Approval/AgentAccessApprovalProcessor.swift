@@ -33,6 +33,7 @@ final class AgentAccessApprovalProcessor: StateProcessor<
         & HasAuthRepository
         & HasBiometricsService
         & HasErrorReporter
+        & HasUserVerificationHelperFactory
 
     // MARK: Private Properties
 
@@ -113,6 +114,20 @@ final class AgentAccessApprovalProcessor: StateProcessor<
             cipherId: cipherId,
             autoApproveMinutes: state.isAutoApproveOn ? state.autoApproveMinutes : nil,
         )
+
+        // Accounts without a master password (key connector, TDE) verify with the device passcode
+        // or biometrics instead.
+        let canVerifyMasterPassword: Bool
+        do {
+            canVerifyMasterPassword = try await services.authRepository.canVerifyMasterPassword()
+        } catch {
+            canVerifyMasterPassword = true
+            services.errorReporter.log(error: error)
+        }
+        guard canVerifyMasterPassword else {
+            await verifyDeviceLocalAuth(thenSubmit: decision)
+            return
+        }
 
         // Biometrics alone are enough to prove the user is present. They are skipped if the device
         // has none enrolled, and the user falls back to their master password if they cancel.
@@ -198,6 +213,32 @@ final class AgentAccessApprovalProcessor: StateProcessor<
             state.status = .expired
         } catch {
             coordinator.hideLoadingOverlay()
+            await coordinator.showErrorAlert(error: error)
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Verifies the user with the device's biometrics or passcode and, if that succeeds, sends the decision.
+    ///
+    /// - Parameter decision: The decision to send once the user is verified.
+    ///
+    private func verifyDeviceLocalAuth(thenSubmit decision: AgentAccessDecision) async {
+        do {
+            let helper = services.userVerificationHelperFactory.create()
+            switch try await helper.verifyDeviceLocalAuth(reason: Localizations.agentAccessBiometricPrompt) {
+            case .verified:
+                await submit(decision)
+            case .notVerified:
+                break
+            case .unableToPerform:
+                coordinator.showAlert(.defaultAlert(
+                    title: Localizations.anErrorHasOccurred,
+                    message: Localizations.agentAccessVerificationUnavailable,
+                ))
+            }
+        } catch UserVerificationError.cancelled {
+            return
+        } catch {
             await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }

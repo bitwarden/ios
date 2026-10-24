@@ -1359,6 +1359,7 @@
 "AgentAccessStatusReconnecting" = "Reconnecting";
 "AgentAccessToken" = "Token";
 "AgentAccessTokenInstructions" = "Give this one-time token to your agent within 10 minutes.";
+"AgentAccessVerificationUnavailable" = "Set a device passcode to approve agent requests.";
 "AgentAccessWaitingForAgent" = "Waiting for your agent";
 /* Label for the row that shows whether the app is connected to the relay. */
 "AgentAccessStatus" = "Status";
