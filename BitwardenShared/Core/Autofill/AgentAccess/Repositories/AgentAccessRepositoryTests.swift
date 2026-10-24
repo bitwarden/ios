@@ -156,14 +156,14 @@ class AgentAccessRepositoryTests: BitwardenTestCase { // swiftlint:disable:this 
         let initial = await subject.relayURL()
         XCTAssertEqual(initial, AgentAccessConstants.defaultRelayURL)
 
-        try await store.update(userId: "1") { $0.relayURL = "ws://localhost:8080" }
+        try await store.update(userId: "1") { $0.relayURL = "wss://relay.example.com" }
         let stored = await subject.relayURL()
-        XCTAssertEqual(stored, "ws://localhost:8080")
+        XCTAssertEqual(stored, "wss://relay.example.com")
     }
 
-    /// `setRelayURL(_:)` rejects URLs that aren't `ws://` or `wss://`.
+    /// `setRelayURL(_:)` rejects URLs that aren't `wss://` (or `ws://` in debug builds).
     func test_setRelayURL_invalid() async throws {
-        for url in ["https://example.com", "example.com", "ws://", ""] {
+        for url in ["https://example.com", "http://example.com", "example.com", "wss://", ""] {
             await assertAsyncThrows(error: AgentAccessError.invalidRelayURL) {
                 try await subject.setRelayURL(url)
             }
@@ -186,8 +186,35 @@ class AgentAccessRepositoryTests: BitwardenTestCase { // swiftlint:disable:this 
 
     /// `setRelayURL(_:)` only saves the URL when the client isn't running.
     func test_setRelayURL_notRunning() async throws {
-        try await subject.setRelayURL("ws://localhost:8080")
+        try await subject.setRelayURL("wss://relay.example.com")
 
+        XCTAssertFalse(service.startCalled)
+        XCTAssertFalse(service.stopCalled)
+    }
+
+    /// `resetRelayURL()` clears the custom URL and reconnects when the client is running.
+    func test_resetRelayURL_reconnects() async throws {
+        try await store.update(userId: "1") { $0.relayURL = "wss://relay.example.com" }
+        service.runningUserId = "1"
+
+        try await subject.resetRelayURL()
+
+        let data = try await store.userData(userId: "1")
+        XCTAssertNil(data.relayURL)
+        XCTAssertEqual(service.stopCallsCount, 1)
+        XCTAssertEqual(service.startReceivedUserId, "1")
+        let url = await subject.relayURL()
+        XCTAssertEqual(url, AgentAccessConstants.defaultRelayURL)
+    }
+
+    /// `resetRelayURL()` only clears the custom URL when the client isn't running.
+    func test_resetRelayURL_notRunning() async throws {
+        try await store.update(userId: "1") { $0.relayURL = "wss://relay.example.com" }
+
+        try await subject.resetRelayURL()
+
+        let data = try await store.userData(userId: "1")
+        XCTAssertNil(data.relayURL)
         XCTAssertFalse(service.startCalled)
         XCTAssertFalse(service.stopCalled)
     }

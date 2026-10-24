@@ -84,17 +84,48 @@ struct AgentAccessHomeProcessorTests {
         #expect(subject.state.autoApproveRules.isEmpty)
     }
 
+    /// `perform(_:)` with `.resetRelayURL` goes back to the default relay.
+    @Test
+    func perform_resetRelayURL() async {
+        subject.state.relayURL = "wss://custom.example.com"
+        subject.state.relayURLInput = "wss://custom.example.com"
+        subject.state.relayURLErrorMessage = "Error"
+        agentAccessRepository.relayURLReturnValue = AgentAccessConstants.defaultRelayURL
+
+        await subject.perform(.resetRelayURL)
+
+        #expect(agentAccessRepository.resetRelayURLCallsCount == 1)
+        #expect(subject.state.relayURL == AgentAccessConstants.defaultRelayURL)
+        #expect(subject.state.relayURLInput == AgentAccessConstants.defaultRelayURL)
+        #expect(subject.state.relayURLErrorMessage == nil)
+        #expect(!subject.state.isCustomRelayURL)
+        #expect(!coordinator.isLoadingOverlayShowing)
+    }
+
+    /// `perform(_:)` with `.resetRelayURL` shows an error alert when the reset fails.
+    @Test
+    func perform_resetRelayURL_error() async {
+        subject.state.relayURL = "wss://custom.example.com"
+        agentAccessRepository.resetRelayURLThrowableError = BitwardenTestError.example
+
+        await subject.perform(.resetRelayURL)
+
+        #expect(coordinator.errorAlertsShown.last as? BitwardenTestError == .example)
+        #expect(errorReporter.errors.last as? BitwardenTestError == .example)
+        #expect(subject.state.relayURL == "wss://custom.example.com")
+    }
+
     /// `perform(_:)` with `.saveRelayURL` saves the trimmed address.
     @Test
     func perform_saveRelayURL() async {
         subject.state.relayURL = AgentAccessConstants.defaultRelayURL
-        subject.state.relayURLInput = "  ws://localhost:8080  "
+        subject.state.relayURLInput = "  wss://custom.example.com  "
 
         await subject.perform(.saveRelayURL)
 
-        #expect(agentAccessRepository.setRelayURLReceivedUrl == "ws://localhost:8080")
-        #expect(subject.state.relayURL == "ws://localhost:8080")
-        #expect(subject.state.relayURLInput == "ws://localhost:8080")
+        #expect(agentAccessRepository.setRelayURLReceivedUrl == "wss://custom.example.com")
+        #expect(subject.state.relayURL == "wss://custom.example.com")
+        #expect(subject.state.relayURLInput == "wss://custom.example.com")
         #expect(subject.state.relayURLErrorMessage == nil)
         #expect(!subject.state.isRelayURLChanged)
         #expect(!coordinator.isLoadingOverlayShowing)
@@ -117,7 +148,7 @@ struct AgentAccessHomeProcessorTests {
     /// `perform(_:)` with `.saveRelayURL` shows an error alert for any other error.
     @Test
     func perform_saveRelayURL_error() async {
-        subject.state.relayURLInput = "ws://localhost:8080"
+        subject.state.relayURLInput = "wss://custom.example.com"
         agentAccessRepository.setRelayURLThrowableError = BitwardenTestError.example
 
         await subject.perform(.saveRelayURL)
@@ -199,15 +230,27 @@ struct AgentAccessHomeProcessorTests {
         #expect(coordinator.routes.last == .pairing)
     }
 
+    /// `receive(_:)` with `.advancedPressed` expands and collapses the advanced section.
+    @Test
+    func receive_advancedPressed() {
+        #expect(!subject.state.isAdvancedExpanded)
+
+        subject.receive(.advancedPressed)
+        #expect(subject.state.isAdvancedExpanded)
+
+        subject.receive(.advancedPressed)
+        #expect(!subject.state.isAdvancedExpanded)
+    }
+
     /// `receive(_:)` with `.relayURLChanged` updates the input and clears the error.
     @Test
     func receive_relayURLChanged() {
         subject.state.relayURL = "wss://relay.example.com"
         subject.state.relayURLErrorMessage = "Error"
 
-        subject.receive(.relayURLChanged("ws://localhost:8080"))
+        subject.receive(.relayURLChanged("wss://custom.example.com"))
 
-        #expect(subject.state.relayURLInput == "ws://localhost:8080")
+        #expect(subject.state.relayURLInput == "wss://custom.example.com")
         #expect(subject.state.relayURLErrorMessage == nil)
         #expect(subject.state.isRelayURLChanged)
     }

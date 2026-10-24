@@ -158,10 +158,14 @@ final class DefaultAgentAccessRepository: AgentAccessRepository { // swiftlint:d
         guard AgentAccessRelayURL.isValid(url) else { throw AgentAccessError.invalidRelayURL }
         let userId = try await activeUserId()
         try await store.update(userId: userId) { $0.relayURL = url }
-        if service.runningUserId == userId {
-            await service.stop()
-            try await service.start(userId: userId)
-        }
+        try await restartIfRunning(userId: userId)
+    }
+
+    func resetRelayURL() async throws {
+        try await requireFeature()
+        let userId = try await activeUserId()
+        try await store.update(userId: userId) { $0.relayURL = nil }
+        try await restartIfRunning(userId: userId)
     }
 
     func statusPublisher() -> AnyPublisher<AgentAccessConnectionStatus, Never> {
@@ -352,6 +356,13 @@ final class DefaultAgentAccessRepository: AgentAccessRepository { // swiftlint:d
     /// Whether the user turned on listening.
     private func listeningEnabled(userId: String) async -> Bool {
         await (try? store.userData(userId: userId).listeningEnabled) ?? false
+    }
+
+    /// Reconnects the client when it is running for the user, so it picks up the saved relay URL.
+    private func restartIfRunning(userId: String) async throws {
+        guard service.runningUserId == userId else { return }
+        await service.stop()
+        try await service.start(userId: userId)
     }
 
     /// Throws if the feature flag is off.

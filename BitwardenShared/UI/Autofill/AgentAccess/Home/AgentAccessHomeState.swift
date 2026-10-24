@@ -13,6 +13,9 @@ struct AgentAccessHomeState: Equatable {
     /// The number of paired agents.
     var connectionsCount = 0
 
+    /// Whether the advanced section with the relay server is expanded.
+    var isAdvancedExpanded = false
+
     /// Whether the active account listens for agent requests.
     var isListeningEnabled = false
 
@@ -33,6 +36,11 @@ struct AgentAccessHomeState: Equatable {
     /// Whether the relay server field holds an address that differs from the saved one.
     var isRelayURLChanged: Bool {
         relayURLInput.trimmingCharacters(in: .whitespacesAndNewlines) != relayURL
+    }
+
+    /// Whether the saved relay server address is not the default.
+    var isCustomRelayURL: Bool {
+        !relayURL.isEmpty && relayURL != AgentAccessConstants.defaultRelayURL
     }
 
     /// The text that describes the connection status.

@@ -62,27 +62,68 @@ class AgentAccessHomeViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .pairPressed)
     }
 
+    /// The relay server field is hidden until the advanced section is expanded.
+    @MainActor
+    func test_relayURLField_collapsedByDefault() throws {
+        XCTAssertThrowsError(try subject.inspect().find(bitwardenTextField: Localizations.agentAccessRelayServer))
+        XCTAssertNoThrow(try subject.inspect().find(button: Localizations.advanced))
+
+        processor.state.isAdvancedExpanded = true
+        XCTAssertNoThrow(try subject.inspect().find(bitwardenTextField: Localizations.agentAccessRelayServer))
+    }
+
+    /// Tapping the advanced button dispatches the `.advancedPressed` action.
+    @MainActor
+    func test_advancedButton_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.advanced)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .advancedPressed)
+    }
+
+    /// The reset button is only shown for a custom relay server.
+    @MainActor
+    func test_resetButton_hiddenForDefault() throws {
+        processor.state.isAdvancedExpanded = true
+        XCTAssertThrowsError(try subject.inspect().find(asyncButton: Localizations.agentAccessResetRelay))
+
+        processor.state.relayURL = "wss://custom.example.com"
+        XCTAssertNoThrow(try subject.inspect().find(asyncButton: Localizations.agentAccessResetRelay))
+    }
+
+    /// Tapping the reset button performs the `.resetRelayURL` effect.
+    @MainActor
+    func test_resetButton_tap() async throws {
+        processor.state.isAdvancedExpanded = true
+        processor.state.relayURL = "wss://custom.example.com"
+        let button = try subject.inspect().find(asyncButton: Localizations.agentAccessResetRelay)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .resetRelayURL)
+    }
+
     /// Updating the relay server field dispatches the `.relayURLChanged` action.
     @MainActor
     func test_relayURLField_updated() throws {
+        processor.state.isAdvancedExpanded = true
         let textField = try subject.inspect().find(bitwardenTextField: Localizations.agentAccessRelayServer)
-        try textField.inputBinding().wrappedValue = "ws://localhost:8080"
-        XCTAssertEqual(processor.dispatchedActions.last, .relayURLChanged("ws://localhost:8080"))
+        try textField.inputBinding().wrappedValue = "wss://custom.example.com"
+        XCTAssertEqual(processor.dispatchedActions.last, .relayURLChanged("wss://custom.example.com"))
     }
 
     /// The save button is hidden until the relay server address changes.
     @MainActor
     func test_saveButton_hiddenUntilChanged() throws {
+        processor.state.isAdvancedExpanded = true
         XCTAssertThrowsError(try subject.inspect().find(asyncButton: Localizations.save))
 
-        processor.state.relayURLInput = "ws://localhost:8080"
+        processor.state.relayURLInput = "wss://custom.example.com"
         XCTAssertNoThrow(try subject.inspect().find(asyncButton: Localizations.save))
     }
 
     /// Tapping the save button performs the `.saveRelayURL` effect.
     @MainActor
     func test_saveButton_tap() async throws {
-        processor.state.relayURLInput = "ws://localhost:8080"
+        processor.state.isAdvancedExpanded = true
+        processor.state.relayURLInput = "wss://custom.example.com"
         let button = try subject.inspect().find(asyncButton: Localizations.save)
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .saveRelayURL)
@@ -91,6 +132,7 @@ class AgentAccessHomeViewTests: BitwardenTestCase {
     /// The relay server error is shown under the field.
     @MainActor
     func test_relayURLError() throws {
+        processor.state.isAdvancedExpanded = true
         processor.state.relayURLErrorMessage = Localizations.agentAccessInvalidRelayURL
         XCTAssertNoThrow(try subject.inspect().find(text: Localizations.agentAccessInvalidRelayURL))
     }

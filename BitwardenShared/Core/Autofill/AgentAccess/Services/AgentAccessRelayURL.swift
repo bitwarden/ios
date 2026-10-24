@@ -5,11 +5,25 @@ import Foundation
 /// Helpers to validate and resolve the relay URL.
 ///
 enum AgentAccessRelayURL {
-    /// Whether the string is a `ws://` or `wss://` URL with a host.
-    static func isValid(_ url: String) -> Bool {
+    /// Whether plain `ws://` URLs are accepted. Only debug builds allow them, for a local relay.
+    static var allowsInsecure: Bool {
+        #if DEBUG
+        true
+        #else
+        false
+        #endif
+    }
+
+    /// Whether the string is a `wss://` URL with a host, or a `ws://` URL when insecure URLs are allowed.
+    ///
+    /// - Parameters:
+    ///   - url: The string to check.
+    ///   - allowsInsecure: Whether plain `ws://` URLs are accepted.
+    ///
+    static func isValid(_ url: String, allowsInsecure: Bool = AgentAccessRelayURL.allowsInsecure) -> Bool {
         guard let components = URLComponents(string: url),
               let scheme = components.scheme?.lowercased(),
-              scheme == "ws" || scheme == "wss",
+              scheme == "wss" || (allowsInsecure && scheme == "ws"),
               let host = components.host,
               !host.isEmpty else {
             return false

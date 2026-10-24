@@ -64,8 +64,9 @@ class AgentAccessHomeViewTests: BitwardenTestCase {
     /// The home screen with an invalid relay server address renders correctly.
     @MainActor
     func disabletest_snapshot_relayURLError() {
+        processor.state.isAdvancedExpanded = true
         processor.state.relayURLInput = "http://example.com"
-        processor.state.relayURLErrorMessage = "Enter a ws:// or wss:// address."
+        processor.state.relayURLErrorMessage = "Enter a wss:// address."
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark],

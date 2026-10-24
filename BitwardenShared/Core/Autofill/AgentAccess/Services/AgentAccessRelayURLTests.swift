@@ -3,20 +3,37 @@ import XCTest
 @testable import BitwardenShared
 
 class AgentAccessRelayURLTests: BitwardenTestCase {
-    /// `isValid(_:)` accepts `ws://` and `wss://` URLs with a host.
+    /// `isValid(_:allowsInsecure:)` accepts `wss://` URLs with a host.
     func test_isValid() {
-        XCTAssertTrue(AgentAccessRelayURL.isValid("ws://localhost:8080"))
-        XCTAssertTrue(AgentAccessRelayURL.isValid("wss://ap.lesspassword.dev"))
-        XCTAssertTrue(AgentAccessRelayURL.isValid("WSS://example.com/path"))
+        XCTAssertTrue(AgentAccessRelayURL.isValid("wss://ap.lesspassword.dev", allowsInsecure: false))
+        XCTAssertTrue(AgentAccessRelayURL.isValid("WSS://example.com/path", allowsInsecure: false))
     }
 
-    /// `isValid(_:)` rejects other schemes and incomplete URLs.
+    /// `isValid(_:allowsInsecure:)` rejects `ws://` URLs unless insecure URLs are allowed.
+    func test_isValid_insecure() {
+        XCTAssertFalse(AgentAccessRelayURL.isValid("ws://localhost:8080", allowsInsecure: false))
+        XCTAssertTrue(AgentAccessRelayURL.isValid("ws://localhost:8080", allowsInsecure: true))
+        XCTAssertTrue(AgentAccessRelayURL.isValid("wss://example.com", allowsInsecure: true))
+    }
+
+    /// `isValid(_:allowsInsecure:)` rejects other schemes and incomplete URLs.
     func test_isValid_invalid() {
-        XCTAssertFalse(AgentAccessRelayURL.isValid("https://example.com"))
-        XCTAssertFalse(AgentAccessRelayURL.isValid("http://example.com"))
-        XCTAssertFalse(AgentAccessRelayURL.isValid("example.com"))
-        XCTAssertFalse(AgentAccessRelayURL.isValid("ws://"))
-        XCTAssertFalse(AgentAccessRelayURL.isValid(""))
+        for allowsInsecure in [false, true] {
+            XCTAssertFalse(AgentAccessRelayURL.isValid("https://example.com", allowsInsecure: allowsInsecure))
+            XCTAssertFalse(AgentAccessRelayURL.isValid("http://example.com", allowsInsecure: allowsInsecure))
+            XCTAssertFalse(AgentAccessRelayURL.isValid("example.com", allowsInsecure: allowsInsecure))
+            XCTAssertFalse(AgentAccessRelayURL.isValid("wss://", allowsInsecure: allowsInsecure))
+            XCTAssertFalse(AgentAccessRelayURL.isValid("", allowsInsecure: allowsInsecure))
+        }
+    }
+
+    /// `allowsInsecure` is only true in debug builds.
+    func test_allowsInsecure() {
+        #if DEBUG
+        XCTAssertTrue(AgentAccessRelayURL.allowsInsecure)
+        #else
+        XCTAssertFalse(AgentAccessRelayURL.allowsInsecure)
+        #endif
     }
 
     /// `resolve(stored:environment:)` prefers the stored URL.

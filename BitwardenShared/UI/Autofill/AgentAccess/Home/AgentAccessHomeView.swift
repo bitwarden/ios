@@ -20,8 +20,6 @@ struct AgentAccessHomeView: View {
 
             navigationSection
 
-            relayServerSection
-
             if !store.state.autoApproveRules.isEmpty {
                 autoApproveSection
             }
@@ -31,6 +29,8 @@ struct AgentAccessHomeView: View {
                 .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                 .padding(.horizontal, 16)
                 .accessibilityIdentifier("AgentAccessPrivacyFooter")
+
+            advancedSection
         }
         .scrollView()
         .navigationBar(title: Localizations.agentAccess, titleDisplayMode: .inline)
@@ -108,7 +108,21 @@ struct AgentAccessHomeView: View {
         }
     }
 
-    /// The relay server field and its save button.
+    /// The collapsed section that holds the custom relay server.
+    private var advancedSection: some View {
+        ExpandableContent(
+            title: Localizations.advanced,
+            isExpanded: store.binding(
+                get: \.isAdvancedExpanded,
+                send: { _ in AgentAccessHomeAction.advancedPressed },
+            ),
+            buttonAccessibilityIdentifier: "AgentAccessAdvancedButton",
+        ) {
+            relayServerSection
+        }
+    }
+
+    /// The relay server field with its save and reset buttons.
     private var relayServerSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             BitwardenTextField(
@@ -137,6 +151,14 @@ struct AgentAccessHomeView: View {
                 }
                 .buttonStyle(.secondary())
                 .accessibilityIdentifier("AgentAccessSaveRelayURLButton")
+            }
+
+            if store.state.isCustomRelayURL {
+                AsyncButton(Localizations.agentAccessResetRelay) {
+                    await store.perform(.resetRelayURL)
+                }
+                .buttonStyle(.secondary())
+                .accessibilityIdentifier("AgentAccessResetRelayURLButton")
             }
         }
     }

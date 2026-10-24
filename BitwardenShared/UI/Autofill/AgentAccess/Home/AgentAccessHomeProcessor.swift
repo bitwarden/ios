@@ -53,6 +53,8 @@ final class AgentAccessHomeProcessor: StateProcessor<
         case let .removeRule(id):
             await services.agentAccessRepository.removeAutoApproveRule(id: id)
             state.autoApproveRules = await services.agentAccessRepository.autoApproveRules()
+        case .resetRelayURL:
+            await resetRelayURL()
         case .saveRelayURL:
             await saveRelayURL()
         case let .setListening(enabled):
@@ -66,6 +68,8 @@ final class AgentAccessHomeProcessor: StateProcessor<
 
     override func receive(_ action: AgentAccessHomeAction) {
         switch action {
+        case .advancedPressed:
+            state.isAdvancedExpanded.toggle()
         case .auditLogPressed:
             coordinator.navigate(to: .auditLog)
         case .connectionsPressed:
@@ -95,6 +99,24 @@ final class AgentAccessHomeProcessor: StateProcessor<
         } catch {
             state.connectionsCount = 0
             services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Goes back to the default relay server and reconnects.
+    ///
+    private func resetRelayURL() async {
+        coordinator.showLoadingOverlay(title: Localizations.saving)
+        defer { coordinator.hideLoadingOverlay() }
+
+        do {
+            try await services.agentAccessRepository.resetRelayURL()
+            let relayURL = await services.agentAccessRepository.relayURL()
+            state.relayURL = relayURL
+            state.relayURLInput = relayURL
+            state.relayURLErrorMessage = nil
+        } catch {
+            services.errorReporter.log(error: error)
+            await coordinator.showErrorAlert(error: error)
         }
     }
 

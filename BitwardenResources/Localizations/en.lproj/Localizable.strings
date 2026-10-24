@@ -1336,7 +1336,7 @@
 "AgentAccessDefaultConnectionName" = "My agent";
 "AgentAccessDeny" = "Deny";
 "AgentAccessExpired" = "This request expired.";
-"AgentAccessInvalidRelayURL" = "Enter a ws:// or wss:// address.";
+"AgentAccessInvalidRelayURL" = "Enter a wss:// address.";
 "AgentAccessLastUsed" = "Last used %1$@";
 "AgentAccessNoMatchingItems" = "No logins in your vault match this request.";
 "AgentAccessNotificationBody" = "An agent is waiting for your approval.";
@@ -1348,6 +1348,7 @@
 "AgentAccessPairingRejected" = "Pairing was rejected.";
 "AgentAccessPrivacyFooter" = "Only the username and password you approve are shared with the agent. Requests travel end to end encrypted through the relay.";
 "AgentAccessRelayServer" = "Relay server";
+"AgentAccessResetRelay" = "Reset to default";
 "AgentAccessRevoke" = "Revoke";
 "AgentAccessRevokeConfirm" = "Revoke access for %1$@? It will need to be paired again.";
 "AgentAccessShareToken" = "Share token";

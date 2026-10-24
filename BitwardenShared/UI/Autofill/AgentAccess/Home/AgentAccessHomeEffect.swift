@@ -12,6 +12,9 @@ enum AgentAccessHomeEffect: Equatable {
     ///
     case removeRule(id: String)
 
+    /// Go back to the default relay server.
+    case resetRelayURL
+
     /// Save the relay server address.
     case saveRelayURL
 
