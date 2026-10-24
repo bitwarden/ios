@@ -11,6 +11,6 @@ enum AgentAccessSdkEvent: Equatable, Sendable {
     case disconnected
     case reconnecting
     case reconnected
-    case error(message: String)
+    case error(message: String, isTerminal: Bool)
     case other
 }

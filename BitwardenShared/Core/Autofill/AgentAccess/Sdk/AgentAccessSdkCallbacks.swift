@@ -163,8 +163,8 @@ extension AgentAccessSdkCallbacks: EventHandler {
             .reconnecting
         case .reconnected:
             .reconnected
-        case let .error(message, _):
-            .error(message: message)
+        case let .error(message, context):
+            .error(message: message, isTerminal: context == AgentAccessConstants.terminalErrorContext)
         default:
             .other
         }

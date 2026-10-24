@@ -12,6 +12,7 @@ enum AgentAccessConstants {
     static let maxAuditEntries = 200
     static let pskPairingLifetime: TimeInterval = 600
     static let rendezvousPairingLifetime: TimeInterval = 300
+    static let terminalErrorContext = "reconnection"
     static let debugRelayURLEnvironmentKey = "AGENT_ACCESS_RELAY_URL"
     static let debugDumpEnvironmentKey = "AGENT_ACCESS_DEBUG_DUMP"
     static let debugAutoPskNameEnvironmentKey = "AGENT_ACCESS_DEBUG_AUTO_PSK_NAME"

@@ -1,4 +1,5 @@
 // swiftlint:disable file_length
+import AgentAccessSdk
 import BitwardenKit
 import BitwardenKitMocks
 import XCTest
@@ -428,10 +429,31 @@ class AgentAccessSessionHandlerTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertEqual(statuses.values, [.connecting, .listening, .reconnecting, .listening])
     }
 
-    /// `handle(event:)` publishes SDK errors as a pairing failure.
-    func test_handleEvent_error() {
-        subject.handle(event: .error(message: "boom"))
+    /// `handle(event:)` ignores transient SDK errors so a pairing in progress keeps waiting.
+    func test_handleEvent_error_transient() {
+        subject.handle(event: .error(message: "boom", isTerminal: false))
+
+        XCTAssertTrue(pairingEvents.values.isEmpty)
+        XCTAssertTrue(statuses.values.isEmpty)
+    }
+
+    /// SDK errors raised while reconnecting are terminal and other SDK errors are transient.
+    func test_callbacks_errorContext() {
+        let callbacks = AgentAccessSdkCallbacks(handler: subject)
+
+        callbacks.onEvent(event: .error(message: "handler", context: "handle_incoming"))
+        callbacks.onEvent(event: .error(message: "noContext", context: nil))
+        XCTAssertTrue(pairingEvents.values.isEmpty)
+
+        callbacks.onEvent(event: .error(message: "gone", context: "reconnection"))
+        XCTAssertEqual(pairingEvents.values, [.failed(message: "gone")])
+    }
+
+    /// `handle(event:)` publishes terminal SDK errors as a failed status and pairing failure.
+    func test_handleEvent_error_terminal() {
+        subject.handle(event: .error(message: "boom", isTerminal: true))
 
         XCTAssertEqual(pairingEvents.values, [.failed(message: "boom")])
+        XCTAssertEqual(statuses.values, [.failed(message: "boom")])
     }
 }

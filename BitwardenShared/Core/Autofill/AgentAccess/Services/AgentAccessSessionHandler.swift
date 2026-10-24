@@ -193,7 +193,9 @@ final class AgentAccessSessionHandler: AgentAccessSdkHandler { // swiftlint:disa
         case .disconnected,
              .reconnecting:
             onStatus(.reconnecting)
-        case let .error(message):
+        case let .error(message, isTerminal):
+            guard isTerminal else { return }
+            onStatus(.failed(message: message))
             onPairingEvent(.failed(message: message))
         case .other:
             break
