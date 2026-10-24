@@ -28,3 +28,7 @@ Sourcery = "Sourcery"
 [type.png]
 extend-glob = ["*.png"]
 check-file = false
+
+[type.staticlib]
+extend-glob = ["*.a"]
+check-file = false
