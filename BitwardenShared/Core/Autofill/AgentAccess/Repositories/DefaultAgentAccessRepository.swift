@@ -267,6 +267,10 @@ final class DefaultAgentAccessRepository: AgentAccessRepository { // swiftlint:d
                 throw AgentAccessError.requestExpired
             }
         case let .approve(cipherId, autoApproveMinutes):
+            let candidates = try await vaultAccessor.candidates(for: request.query, userId: request.userId)
+            guard candidates.contains(where: { $0.id == cipherId }) else {
+                throw AgentAccessError.cipherNotFound
+            }
             let credential = try await vaultAccessor.credential(forCipherId: cipherId, userId: request.userId)
             guard approvalCenter.resolve(id: requestId, outcome: .approved(credential)) != nil else {
                 throw AgentAccessError.requestExpired

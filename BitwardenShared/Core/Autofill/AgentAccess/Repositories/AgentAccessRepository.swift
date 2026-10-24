@@ -20,8 +20,11 @@ protocol AgentAccessRepository: AnyObject { // sourcery: AutoMockable
     /// The relay URL for the active account (default `AgentAccessConstants.defaultRelayURL`).
     func relayURL() async -> String
 
-    /// Saves a new relay URL (`ws://` or `wss://` only) and reconnects.
+    /// Saves a new relay URL (`wss://` only, plus `ws://` in debug builds) and reconnects.
     func setRelayURL(_ url: String) async throws
+
+    /// Clears the custom relay URL so the default is used, and reconnects.
+    func resetRelayURL() async throws
 
     /// Publishes the connection status of the active account.
     func statusPublisher() -> AnyPublisher<AgentAccessConnectionStatus, Never>

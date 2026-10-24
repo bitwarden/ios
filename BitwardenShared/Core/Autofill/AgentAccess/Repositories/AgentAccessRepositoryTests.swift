@@ -359,6 +359,7 @@ class AgentAccessRepositoryTests: BitwardenTestCase { // swiftlint:disable:this 
     /// `answer(requestId:decision:)` delivers the credential of the picked item.
     func test_answer_approve() async throws {
         vaultAccessor.credentialReturnValue = credential
+        vaultAccessor.candidatesReturnValue = [candidate(id: "cipher-1")]
         let request = makeRequest(id: "r1")
         async let outcome = onSdkThread { self.approvalCenter.requestApproval(request) }
         let pending = await waitUntil { !self.approvalCenter.pendingRequests().isEmpty }
@@ -375,6 +376,7 @@ class AgentAccessRepositoryTests: BitwardenTestCase { // swiftlint:disable:this 
     /// `answer(requestId:decision:)` creates an automatic approval rule when asked to remember.
     func test_answer_approveWithAutoApprove() async throws {
         vaultAccessor.credentialReturnValue = credential
+        vaultAccessor.candidatesReturnValue = [candidate(id: "cipher-1")]
         let request = makeRequest(id: "r1")
         async let outcome = onSdkThread { self.approvalCenter.requestApproval(request) }
         let pending = await waitUntil { !self.approvalCenter.pendingRequests().isEmpty }
@@ -393,6 +395,7 @@ class AgentAccessRepositoryTests: BitwardenTestCase { // swiftlint:disable:this 
     /// `answer(requestId:decision:)` ignores a remember duration that isn't offered.
     func test_answer_approveWithInvalidDuration() async throws {
         vaultAccessor.credentialReturnValue = credential
+        vaultAccessor.candidatesReturnValue = [candidate(id: "cipher-1")]
         let request = makeRequest(id: "r1")
         async let outcome = onSdkThread { self.approvalCenter.requestApproval(request) }
         let pending = await waitUntil { !self.approvalCenter.pendingRequests().isEmpty }
@@ -406,6 +409,7 @@ class AgentAccessRepositoryTests: BitwardenTestCase { // swiftlint:disable:this 
 
     /// `answer(requestId:decision:)` leaves the request pending when the item can't be shared.
     func test_answer_approveCipherNotFound() async throws {
+        vaultAccessor.candidatesReturnValue = [candidate(id: "gone")]
         vaultAccessor.credentialThrowableError = AgentAccessError.cipherNotFound
         let request = makeRequest(id: "r1")
         async let outcome = onSdkThread { self.approvalCenter.requestApproval(request) }
@@ -417,6 +421,25 @@ class AgentAccessRepositoryTests: BitwardenTestCase { // swiftlint:disable:this 
         }
 
         XCTAssertNotNil(approvalCenter.pendingRequest(id: "r1"))
+        approvalCenter.denyAll()
+        _ = await outcome
+    }
+
+    /// `answer(requestId:decision:)` rejects an approval for an item that isn't a candidate for the request.
+    func test_answer_approveNotCandidate() async throws {
+        vaultAccessor.candidatesReturnValue = [candidate(id: "cipher-1")]
+        let request = makeRequest(id: "r1")
+        async let outcome = onSdkThread { self.approvalCenter.requestApproval(request) }
+        let pending = await waitUntil { !self.approvalCenter.pendingRequests().isEmpty }
+        XCTAssertTrue(pending)
+
+        await assertAsyncThrows(error: AgentAccessError.cipherNotFound) {
+            try await subject.answer(requestId: "r1", decision: .approve(cipherId: "other", autoApproveMinutes: 10))
+        }
+
+        XCTAssertNil(vaultAccessor.credentialReceivedArguments)
+        XCTAssertNotNil(approvalCenter.pendingRequest(id: "r1"))
+        XCTAssertTrue(approvalCenter.autoApproveRules().isEmpty)
         approvalCenter.denyAll()
         _ = await outcome
     }
@@ -606,6 +629,10 @@ class AgentAccessRepositoryTests: BitwardenTestCase { // swiftlint:disable:this 
             query: nil,
             cipherId: nil,
         )
+    }
+
+    private func candidate(id: String) -> AgentAccessCandidate {
+        AgentAccessCandidate(id: id, name: "Example", username: "u", uri: "https://example.com")
     }
 
     private func makeRequest(
