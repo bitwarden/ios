@@ -6,9 +6,15 @@ enum OtherSettingsEffect {
     /// Load the initial values for the view.
     case loadInitialValues
 
+    /// The app became active again, so the notification status may have changed.
+    case refreshNotificationStatus
+
     /// Streams the last sync time.
     case streamLastSyncTime
 
     /// The sync button was tapped.
     case syncNow
+
+    /// Ask for notification permission, or open iOS Settings if it was denied.
+    case turnOnNotifications
 }

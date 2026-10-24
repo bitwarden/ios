@@ -87,6 +87,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         & HasFlightRecorder
         & HasLanguageStateService
         & HasNotificationCenterService
+        & HasNotificationService
         & HasPasteboardService
         & HasPolicyService
         & HasSettingsRepository

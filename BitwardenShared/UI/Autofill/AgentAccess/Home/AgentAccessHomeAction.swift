@@ -9,6 +9,9 @@ enum AgentAccessHomeAction: Equatable {
     /// The activity row was tapped.
     case auditLogPressed
 
+    /// Clears the URL after it has been opened.
+    case clearURL
+
     /// The connections row was tapped.
     case connectionsPressed
 

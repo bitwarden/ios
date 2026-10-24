@@ -2,16 +2,21 @@ import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import TestHelpers
+import UIKit
+import UserNotifications
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class OtherSettingsProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var agentAccessRepository: MockAgentAccessRepository!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var errorReporter: MockErrorReporter!
+    var notificationService: MockNotificationService!
     var settingsRepository: MockSettingsRepository!
     var subject: OtherSettingsProcessor!
     var watchService: MockWatchService!
@@ -21,16 +26,23 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        agentAccessRepository = MockAgentAccessRepository()
+        agentAccessRepository.isFeatureEnabledReturnValue = false
+        agentAccessRepository.isListeningEnabledReturnValue = false
         configService = MockConfigService()
         coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
         errorReporter = MockErrorReporter()
+        notificationService = MockNotificationService()
+        notificationService.authorizationStatus = .authorized
         settingsRepository = MockSettingsRepository()
         watchService = MockWatchService()
         subject = OtherSettingsProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                agentAccessRepository: agentAccessRepository,
                 configService: configService,
                 errorReporter: errorReporter,
+                notificationService: notificationService,
                 settingsRepository: settingsRepository,
                 watchService: watchService,
             ),
@@ -41,15 +53,111 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        agentAccessRepository = nil
         configService = nil
         coordinator = nil
         errorReporter = nil
+        notificationService = nil
         settingsRepository = nil
         subject = nil
         watchService = nil
     }
 
     // MARK: Tests
+
+    /// `perform(_:)` with `.loadInitialValues` loads the notification status and shows the Agent
+    /// Access warning when Agent Access is on and notifications are off.
+    @MainActor
+    func test_perform_loadInitialValues_notificationsOff() async {
+        agentAccessRepository.isFeatureEnabledReturnValue = true
+        agentAccessRepository.isListeningEnabledReturnValue = true
+        notificationService.authorizationStatus = .denied
+
+        await subject.perform(.loadInitialValues)
+
+        XCTAssertEqual(subject.state.notificationAuthorization, .denied)
+        XCTAssertTrue(subject.state.showAgentAccessNotificationsWarning)
+    }
+
+    /// `perform(_:)` with `.loadInitialValues` doesn't show the Agent Access warning when the
+    /// feature flag is off.
+    @MainActor
+    func test_perform_loadInitialValues_notificationsOff_featureDisabled() async {
+        agentAccessRepository.isFeatureEnabledReturnValue = false
+        agentAccessRepository.isListeningEnabledReturnValue = true
+        notificationService.authorizationStatus = .denied
+
+        await subject.perform(.loadInitialValues)
+
+        XCTAssertEqual(subject.state.notificationAuthorization, .denied)
+        XCTAssertFalse(subject.state.showAgentAccessNotificationsWarning)
+    }
+
+    /// `perform(_:)` with `.loadInitialValues` doesn't show the Agent Access warning when Agent
+    /// Access is off.
+    @MainActor
+    func test_perform_loadInitialValues_notificationsOff_listeningDisabled() async {
+        agentAccessRepository.isFeatureEnabledReturnValue = true
+        agentAccessRepository.isListeningEnabledReturnValue = false
+        notificationService.authorizationStatus = .denied
+
+        await subject.perform(.loadInitialValues)
+
+        XCTAssertFalse(subject.state.showAgentAccessNotificationsWarning)
+    }
+
+    /// `perform(_:)` with `.refreshNotificationStatus` updates the notification status.
+    @MainActor
+    func test_perform_refreshNotificationStatus() async {
+        notificationService.authorizationStatus = .denied
+
+        await subject.perform(.refreshNotificationStatus)
+
+        XCTAssertEqual(subject.state.notificationAuthorization, .denied)
+    }
+
+    /// `perform(_:)` with `.turnOnNotifications` requests permission if it hasn't been decided.
+    @MainActor
+    func test_perform_turnOnNotifications_notDetermined() async {
+        notificationService.authorizationStatus = .notDetermined
+
+        await subject.perform(.turnOnNotifications)
+
+        XCTAssertEqual(notificationService.requestedOptions, [.alert, .sound, .badge])
+        XCTAssertNil(subject.state.url)
+    }
+
+    /// `perform(_:)` with `.turnOnNotifications` opens iOS Settings if permission was denied.
+    @MainActor
+    func test_perform_turnOnNotifications_denied() async {
+        notificationService.authorizationStatus = .denied
+
+        await subject.perform(.turnOnNotifications)
+
+        XCTAssertNil(notificationService.requestedOptions)
+        XCTAssertEqual(subject.state.url, URL(string: UIApplication.openSettingsURLString))
+    }
+
+    /// `perform(_:)` with `.turnOnNotifications` logs an error if the request fails.
+    @MainActor
+    func test_perform_turnOnNotifications_error() async {
+        notificationService.authorizationStatus = .notDetermined
+        notificationService.requestAuthorizationResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.turnOnNotifications)
+
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
+    /// `receive(_:)` with `.clearURL` clears the URL.
+    @MainActor
+    func test_receive_clearURL() {
+        subject.state.url = .example
+
+        subject.receive(.clearURL)
+
+        XCTAssertNil(subject.state.url)
+    }
 
     /// `perform(_:)` with `.loadInitialValues` records an error if getting the allow sync
     /// on refresh value fails.

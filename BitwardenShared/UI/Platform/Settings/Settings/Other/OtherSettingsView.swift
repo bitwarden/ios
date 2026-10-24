@@ -12,6 +12,9 @@ struct OtherSettingsView: View {
     /// An action that opens URLs.
     @Environment(\.openURL) private var openURL
 
+    /// The current phase of the scene.
+    @Environment(\.scenePhase) private var scenePhase
+
     /// The store used to render the view.
     @ObservedObject var store: Store<OtherSettingsState, OtherSettingsAction, OtherSettingsEffect>
 
@@ -34,6 +37,8 @@ struct OtherSettingsView: View {
 
                 siriAndShortcutsAccess
             }
+
+            notifications
         }
         .scrollView()
         .navigationBar(title: Localizations.other, titleDisplayMode: .inline)
@@ -46,6 +51,15 @@ struct OtherSettingsView: View {
         }
         .task {
             await store.perform(.loadInitialValues)
+        }
+        .onChange(of: scenePhase) { newValue in
+            guard newValue == .active else { return }
+            Task { await store.perform(.refreshNotificationStatus) }
+        }
+        .onChange(of: store.state.url) { newValue in
+            guard let url = newValue else { return }
+            openURL(url)
+            store.send(.clearURL)
         }
     }
 
@@ -109,6 +123,47 @@ struct OtherSettingsView: View {
             ),
         )
         .contentBlock()
+    }
+
+    /// The notification status, a button to turn notifications on and the Agent Access warning.
+    private var notifications: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(Localizations.notifications)
+                    .styleGuide(.body)
+                    .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
+
+                Spacer()
+
+                Text(store.state.notificationAuthorization.allowsAlerts ? Localizations.on : Localizations.off)
+                    .styleGuide(.body)
+                    .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
+                    .accessibilityIdentifier("NotificationsStatusLabel")
+            }
+            .padding(16)
+            .accessibilityElement(children: .combine)
+            .contentBlock()
+
+            if !store.state.notificationAuthorization.allowsAlerts {
+                AsyncButton(
+                    store.state.notificationAuthorization == .notDetermined
+                        ? Localizations.turnOnNow
+                        : Localizations.openSettings,
+                ) {
+                    await store.perform(.turnOnNotifications)
+                }
+                .buttonStyle(.secondary())
+                .accessibilityIdentifier("TurnOnNotificationsButton")
+            }
+
+            if store.state.showAgentAccessNotificationsWarning {
+                Text(Localizations.agentAccessNotificationsOffWarning)
+                    .styleGuide(.footnote)
+                    .foregroundStyle(SharedAsset.Colors.error.swiftUIColor)
+                    .padding(.horizontal, 16)
+                    .accessibilityIdentifier("AgentAccessNotificationsWarning")
+            }
+        }
     }
 
     /// Whether to allow access to Siri & Shortcuts using `AppIntent`s.

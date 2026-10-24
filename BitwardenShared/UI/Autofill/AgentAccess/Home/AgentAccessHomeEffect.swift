@@ -6,6 +6,9 @@ enum AgentAccessHomeEffect: Equatable {
     /// The view appeared and the saved values need to be loaded.
     case appeared
 
+    /// The app became active again, so the notification status may have changed.
+    case refreshNotificationStatus
+
     /// Stop an automatic approval.
     ///
     /// - Parameter id: The ID of the rule to remove.
@@ -26,4 +29,7 @@ enum AgentAccessHomeEffect: Equatable {
 
     /// Start listening for connection status changes.
     case streamStatus
+
+    /// Ask for notification permission, or open iOS Settings if it was denied.
+    case turnOnNotifications
 }

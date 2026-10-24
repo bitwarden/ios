@@ -2,6 +2,7 @@
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
+import UserNotifications
 import ViewInspector
 import XCTest
 
@@ -181,5 +182,40 @@ class AgentAccessHomeViewTests: BitwardenTestCase {
     @MainActor
     func test_autoApproveRules_hidden() {
         XCTAssertThrowsError(try subject.inspect().find(text: Localizations.agentAccessAutoApproveRules))
+    }
+
+    /// The notifications warning is hidden when notifications are allowed.
+    @MainActor
+    func test_notificationsWarning_hiddenWhenAllowed() {
+        processor.state.notificationAuthorization = .authorized
+        XCTAssertThrowsError(try subject.inspect().find(text: Localizations.agentAccessNotificationsOffWarning))
+    }
+
+    /// The notifications warning is hidden when Agent Access is off.
+    @MainActor
+    func test_notificationsWarning_hiddenWhenListeningOff() {
+        processor.state.isListeningEnabled = false
+        processor.state.notificationAuthorization = .denied
+        XCTAssertThrowsError(try subject.inspect().find(text: Localizations.agentAccessNotificationsOffWarning))
+    }
+
+    /// Tapping the open settings button in the warning performs the `.turnOnNotifications` effect.
+    @MainActor
+    func test_notificationsWarning_denied_tap() async throws {
+        processor.state.notificationAuthorization = .denied
+        XCTAssertNoThrow(try subject.inspect().find(text: Localizations.agentAccessNotificationsOffWarning))
+        let button = try subject.inspect().find(asyncButton: Localizations.openSettings)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .turnOnNotifications)
+    }
+
+    /// Tapping the turn on button in the warning performs the `.turnOnNotifications` effect when
+    /// permission hasn't been decided.
+    @MainActor
+    func test_notificationsWarning_notDetermined_tap() async throws {
+        processor.state.notificationAuthorization = .notDetermined
+        let button = try subject.inspect().find(asyncButton: Localizations.turnOnNow)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .turnOnNotifications)
     }
 }

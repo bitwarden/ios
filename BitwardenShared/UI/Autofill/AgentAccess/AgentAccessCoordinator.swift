@@ -14,6 +14,7 @@ final class AgentAccessCoordinator: Coordinator, HasStackNavigator {
         & HasBiometricsService
         & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
+        & HasNotificationService
         & HasPasteboardService
         & HasUserVerificationHelperFactory
 

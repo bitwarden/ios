@@ -1,4 +1,6 @@
 import BitwardenResources
+import Foundation
+import UserNotifications
 
 // MARK: - AgentAccessHomeState
 
@@ -19,6 +21,9 @@ struct AgentAccessHomeState: Equatable {
     /// Whether the active account listens for agent requests.
     var isListeningEnabled = false
 
+    /// The notification authorization status of the app.
+    var notificationAuthorization = UNAuthorizationStatus.authorized
+
     /// The saved relay server address.
     var relayURL = ""
 
@@ -31,7 +36,15 @@ struct AgentAccessHomeState: Equatable {
     /// The connection status of the active account.
     var status = AgentAccessConnectionStatus.disabled
 
+    /// The URL to open externally.
+    var url: URL?
+
     // MARK: Computed Properties
+
+    /// Whether to warn that agent requests won't show while the app is in the background.
+    var showNotificationsWarning: Bool {
+        isListeningEnabled && !notificationAuthorization.allowsAlerts
+    }
 
     /// Whether the relay server field holds an address that differs from the saved one.
     var isRelayURLChanged: Bool {

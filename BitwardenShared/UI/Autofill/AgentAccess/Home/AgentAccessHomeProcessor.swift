@@ -1,6 +1,7 @@
 import BitwardenKit
 import BitwardenResources
 import Combine
+import UIKit
 
 // MARK: - AgentAccessHomeProcessor
 
@@ -15,6 +16,7 @@ final class AgentAccessHomeProcessor: StateProcessor<
 
     typealias Services = HasAgentAccessRepository
         & HasErrorReporter
+        & HasNotificationService
 
     // MARK: Private Properties
 
@@ -50,6 +52,8 @@ final class AgentAccessHomeProcessor: StateProcessor<
         switch effect {
         case .appeared:
             await loadData()
+        case .refreshNotificationStatus:
+            state.notificationAuthorization = await services.notificationService.notificationAuthorization()
         case let .removeRule(id):
             await services.agentAccessRepository.removeAutoApproveRule(id: id)
             state.autoApproveRules = await services.agentAccessRepository.autoApproveRules()
@@ -63,6 +67,8 @@ final class AgentAccessHomeProcessor: StateProcessor<
             for await status in services.agentAccessRepository.statusPublisher().values {
                 state.status = status
             }
+        case .turnOnNotifications:
+            await turnOnNotifications()
         }
     }
 
@@ -72,6 +78,8 @@ final class AgentAccessHomeProcessor: StateProcessor<
             state.isAdvancedExpanded.toggle()
         case .auditLogPressed:
             coordinator.navigate(to: .auditLog)
+        case .clearURL:
+            state.url = nil
         case .connectionsPressed:
             coordinator.navigate(to: .connections)
         case .pairPressed:
@@ -94,6 +102,7 @@ final class AgentAccessHomeProcessor: StateProcessor<
         state.relayURLInput = relayURL
         state.relayURLErrorMessage = nil
         state.autoApproveRules = await repository.autoApproveRules()
+        state.notificationAuthorization = await services.notificationService.notificationAuthorization()
         do {
             state.connectionsCount = try await repository.connections().count
         } catch {
@@ -145,16 +154,59 @@ final class AgentAccessHomeProcessor: StateProcessor<
     /// - Parameter enabled: Whether listening should be on.
     ///
     private func setListening(_ enabled: Bool) async {
+        guard await updateListening(enabled), enabled else { return }
+        await askForNotificationPermission()
+    }
+
+    /// Saves whether listening for agent requests is on.
+    ///
+    /// - Parameter enabled: Whether listening should be on.
+    /// - Returns: Whether the change was saved.
+    ///
+    private func updateListening(_ enabled: Bool) async -> Bool {
         coordinator.showLoadingOverlay(title: Localizations.loading)
         defer { coordinator.hideLoadingOverlay() }
 
         do {
             try await services.agentAccessRepository.setListeningEnabled(enabled)
             state.isListeningEnabled = enabled
+            return true
         } catch {
             state.isListeningEnabled = await services.agentAccessRepository.isListeningEnabled()
             services.errorReporter.log(error: error)
             await coordinator.showErrorAlert(error: error)
+            return false
+        }
+    }
+
+    /// Asks for notification permission after Agent Access is turned on, or explains what is lost
+    /// if notifications are denied.
+    ///
+    private func askForNotificationPermission() async {
+        do {
+            let status = try await services.notificationService.requestAlertAuthorizationIfNeeded()
+            state.notificationAuthorization = status
+            if status == .denied {
+                coordinator.showAlert(.agentAccessNotificationsOff { [weak self] in
+                    self?.state.url = URL(string: UIApplication.openSettingsURLString)
+                })
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Asks for notification permission, or opens iOS Settings if it was denied.
+    ///
+    private func turnOnNotifications() async {
+        do {
+            let status = try await services.notificationService.requestAlertAuthorizationIfNeeded()
+            state.notificationAuthorization = status
+            if status == .denied {
+                state.url = URL(string: UIApplication.openSettingsURLString)
+            }
+        } catch {
+            services.errorReporter.log(error: error)
         }
     }
 }

@@ -50,6 +50,33 @@ protocol NotificationService {
     func setDelegate(_ delegate: NotificationServiceDelegate?)
 }
 
+extension NotificationService {
+    /// Asks for notification permission if the user hasn't been asked yet.
+    ///
+    /// - Returns: The notification authorization status after the request, if one was made.
+    ///
+    func requestAlertAuthorizationIfNeeded() async throws -> UNAuthorizationStatus {
+        let status = await notificationAuthorization()
+        guard status == .notDetermined else { return status }
+        _ = try await requestAuthorization(options: [.alert, .sound, .badge])
+        return await notificationAuthorization()
+    }
+}
+
+extension UNAuthorizationStatus {
+    /// Whether the app is allowed to show notifications.
+    var allowsAlerts: Bool {
+        switch self {
+        case .authorized, .ephemeral, .provisional:
+            true
+        case .denied, .notDetermined:
+            false
+        @unknown default:
+            false
+        }
+    }
+}
+
 // MARK: - NotificationServiceDelegate
 
 /// The delegate to handle login request actions originating from notifications.

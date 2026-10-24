@@ -9,6 +9,12 @@ import SwiftUI
 struct AgentAccessHomeView: View {
     // MARK: Properties
 
+    /// An action that opens URLs.
+    @Environment(\.openURL) private var openURL
+
+    /// The current phase of the scene.
+    @Environment(\.scenePhase) private var scenePhase
+
     /// The `Store` for this view.
     @ObservedObject var store: Store<AgentAccessHomeState, AgentAccessHomeAction, AgentAccessHomeEffect>
 
@@ -17,6 +23,10 @@ struct AgentAccessHomeView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             listeningSection
+
+            if store.state.showNotificationsWarning {
+                notificationsWarning
+            }
 
             navigationSection
 
@@ -39,6 +49,15 @@ struct AgentAccessHomeView: View {
         }
         .task {
             await store.perform(.streamStatus)
+        }
+        .onChange(of: scenePhase) { newValue in
+            guard newValue == .active else { return }
+            Task { await store.perform(.refreshNotificationStatus) }
+        }
+        .onChange(of: store.state.url) { newValue in
+            guard let url = newValue else { return }
+            openURL(url)
+            store.send(.clearURL)
         }
     }
 
@@ -77,6 +96,27 @@ struct AgentAccessHomeView: View {
             .padding(16)
             .accessibilityElement(children: .combine)
         }
+    }
+
+    /// The warning shown when notifications are off, with a button to turn them on.
+    private var notificationsWarning: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(Localizations.agentAccessNotificationsOffWarning)
+                .styleGuide(.footnote)
+                .foregroundStyle(SharedAsset.Colors.error.swiftUIColor)
+                .accessibilityIdentifier("AgentAccessNotificationsWarning")
+
+            AsyncButton(
+                store.state.notificationAuthorization == .notDetermined
+                    ? Localizations.turnOnNow
+                    : Localizations.openSettings,
+            ) {
+                await store.perform(.turnOnNotifications)
+            }
+            .buttonStyle(.secondary())
+            .accessibilityIdentifier("AgentAccessTurnOnNotificationsButton")
+        }
+        .padding(.horizontal, 16)
     }
 
     /// The rows that open the other Agent Access screens.

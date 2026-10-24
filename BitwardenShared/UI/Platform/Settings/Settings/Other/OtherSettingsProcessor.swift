@@ -1,6 +1,7 @@
 import BitwardenKit
 import BitwardenResources
 import Foundation
+import UIKit
 import WatchConnectivity
 
 // MARK: - OtherSettingsProcessor
@@ -10,8 +11,10 @@ import WatchConnectivity
 final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSettingsAction, OtherSettingsEffect> {
     // MARK: Types
 
-    typealias Services = HasConfigService
+    typealias Services = HasAgentAccessRepository
+        & HasConfigService
         & HasErrorReporter
+        & HasNotificationService
         & HasSettingsRepository
         & HasSystemDevice
         & HasWatchService
@@ -49,10 +52,14 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
         switch effect {
         case .loadInitialValues:
             await loadInitialValues()
+        case .refreshNotificationStatus:
+            await loadNotificationStatus()
         case .streamLastSyncTime:
             await streamLastSyncTime()
         case .syncNow:
             await syncVault()
+        case .turnOnNotifications:
+            await turnOnNotifications()
         }
     }
 
@@ -61,6 +68,8 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
         case let .clearClipboardValueChanged(newValue):
             state.clearClipboardValue = newValue
             services.settingsRepository.clearClipboardValue = newValue
+        case .clearURL:
+            state.url = nil
         case let .toastShown(newValue):
             state.toast = newValue
         case let .toggleAllowSyncOnRefresh(isOn):
@@ -77,8 +86,20 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
 
     // MARK: Private
 
+    /// Loads the notification status and whether the Agent Access warning applies.
+    private func loadNotificationStatus() async {
+        state.notificationAuthorization = await services.notificationService.notificationAuthorization()
+        let repository = services.agentAccessRepository
+        if await repository.isFeatureEnabled() {
+            state.isAgentAccessEnabled = await repository.isListeningEnabled()
+        } else {
+            state.isAgentAccessEnabled = false
+        }
+    }
+
     /// Load the initial values for the toggles on the view.
     private func loadInitialValues() async {
+        await loadNotificationStatus()
         do {
             state.clearClipboardValue = services.settingsRepository.clearClipboardValue
             state.isAllowUniversalClipboardToggleOn = services.settingsRepository.allowUniversalClipboard
@@ -116,6 +137,20 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
             await coordinator.showErrorAlert(error: error) {
                 await self.syncVault()
             }
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Asks for notification permission, or opens iOS Settings if it was denied.
+    ///
+    private func turnOnNotifications() async {
+        do {
+            let status = try await services.notificationService.requestAlertAuthorizationIfNeeded()
+            state.notificationAuthorization = status
+            if status == .denied {
+                state.url = URL(string: UIApplication.openSettingsURLString)
+            }
+        } catch {
             services.errorReporter.log(error: error)
         }
     }

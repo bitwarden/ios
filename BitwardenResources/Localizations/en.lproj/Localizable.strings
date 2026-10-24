@@ -1377,3 +1377,11 @@
 "AgentAccessRuleUntil" = "Until %1$@";
 /* Shows when an agent was paired. %1$@ is a date. */
 "AgentAccessPairedOn" = "Paired %1$@";
+/* Title of the row and screen section that shows whether the app can show notifications. */
+"Notifications" = "Notifications";
+/* Title of the alert shown when notifications are turned off for the app in iOS settings. */
+"NotificationsAreOff" = "Notifications are off";
+/* Button that opens the app's page in the iOS Settings app. */
+"OpenSettings" = "Open settings";
+/* Warning shown when Agent Access is on but notifications are turned off. */
+"AgentAccessNotificationsOffWarning" = "You won't see agent requests while Bitwarden is in the background. Turn on notifications to get them.";
