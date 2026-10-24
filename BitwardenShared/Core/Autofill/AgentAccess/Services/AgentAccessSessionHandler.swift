@@ -239,6 +239,9 @@ final class AgentAccessSessionHandler: AgentAccessSdkHandler { // swiftlint:disa
             )))
         case .connectionRejected:
             onPairingEvent(.rejected)
+        case .credentialRequested,
+             .sessionRefreshed:
+            touchConnection(fingerprint: fingerprint)
         default:
             break
         }
@@ -322,6 +325,17 @@ final class AgentAccessSessionHandler: AgentAccessSdkHandler { // swiftlint:disa
     }
 
     // MARK: Private Methods
+
+    /// Records that the connection was just used, for its last used date. The SDK only does this
+    /// for the remote side of a connection.
+    private func touchConnection(fingerprint: String) {
+        do {
+            let now = UInt64(timeProvider.presentTime.timeIntervalSince1970)
+            try updateConnection(fingerprint: fingerprint, lastConnectedAt: now)
+        } catch {
+            errorReporter.log(error: error)
+        }
+    }
 
     /// The key counting requests of one connection and query.
     private func counterKey(_ fingerprint: String, _ query: AgentAccessQuery) -> String {

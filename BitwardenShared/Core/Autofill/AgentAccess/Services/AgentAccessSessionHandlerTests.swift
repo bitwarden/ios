@@ -339,6 +339,33 @@ class AgentAccessSessionHandlerTests: BitwardenTestCase { // swiftlint:disable:t
         )
     }
 
+    /// A credential request moves the last used date of the connection forward.
+    func test_handleAuditEvent_credentialRequested_updatesLastUsed() async throws {
+        await onSdkThread {
+            try? self.subject.saveConnection(AgentAccessStoredConnection(
+                fingerprint: "fp",
+                name: "Codex",
+                cachedAt: 100,
+                lastConnectedAt: 200,
+                transportState: nil,
+            ))
+        }
+
+        await onSdkThread {
+            self.subject.handle(auditEvent: AgentAccessSdkAuditEvent(
+                kind: .credentialRequested,
+                remoteFingerprint: "fp",
+                remoteName: nil,
+                query: .domain("example.com"),
+                cipherId: nil,
+            ))
+        }
+
+        let userData = try await store.userData(userId: "1")
+        XCTAssertEqual(userData.connections.first?.lastConnectedAt, 1_700_000_000)
+        XCTAssertEqual(userData.connections.first?.cachedAt, 100)
+    }
+
     /// A rejected connection is audited and published as rejected.
     func test_handleAuditEvent_connectionRejected() async throws {
         await onSdkThread {
