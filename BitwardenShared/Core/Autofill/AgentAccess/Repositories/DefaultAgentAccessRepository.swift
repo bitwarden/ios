@@ -360,6 +360,8 @@ final class DefaultAgentAccessRepository: AgentAccessRepository { // swiftlint:d
         guard await listeningEnabled(userId: userId) else { return }
         do {
             try await service.start(userId: userId)
+        } catch let error as AgentAccessError {
+            await flightRecorder.log("[AgentAccess] Could not start: \(error)")
         } catch {
             errorReporter.log(error: error)
         }

@@ -530,6 +530,16 @@ class AgentAccessRepositoryTests: BitwardenTestCase { // swiftlint:disable:this 
         XCTAssertEqual(errorReporter.errors.count, 1)
     }
 
+    /// `appDidBecomeActive()` only records expected start failures, like an unreachable relay.
+    func test_appDidBecomeActive_startFailsWithAgentAccessError() async throws {
+        try await store.update(userId: "1") { $0.listeningEnabled = true }
+        service.startThrowableError = AgentAccessError.sdk(message: "relay unreachable")
+
+        await subject.appDidBecomeActive()
+
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+    }
+
     /// `appDidEnterBackground()` stops the client when no pairing is pending.
     func test_appDidEnterBackground_stops() async {
         service.hasPendingPairing = false
