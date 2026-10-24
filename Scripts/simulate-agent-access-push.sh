@@ -6,8 +6,8 @@
 #
 #   fingerprint  The 64 character hex identity fingerprint of the recipient (the one the relay saw).
 #   user-id      The ID of the user that owns the identity.
-#   device       The ID of a simulator (from `xcrun simctl list`) or "booted" (default: booted).
-#   bundle-id    App bundle ID (default: com.8bit.bitwarden).
+#   device       The ID of a simulator (from `xcrun simctl list`) or "booted" (default: $DEVICE or booted).
+#   bundle-id    App bundle ID (default: $BUNDLE_ID or com.8bit.bitwarden).
 
 set -euo pipefail
 
@@ -18,8 +18,8 @@ fi
 
 FINGERPRINT="$1"
 USER_ID="$2"
-DEVICE="${3:-booted}"
-BUNDLE_ID="${4:-com.8bit.bitwarden}"
+DEVICE="${3:-${DEVICE:-booted}}"
+BUNDLE_ID="${4:-${BUNDLE_ID:-com.8bit.bitwarden}}"
 
 PAYLOAD_FILE="$(mktemp -t agent-access-push).json"
 trap 'rm -f "$PAYLOAD_FILE"' EXIT
