@@ -1074,7 +1074,7 @@
 "Archived" = "アーカイブ済み";
 "Unarchive" = "アーカイブ解除";
 "ItemMovedToArchive" = "アイテムをアーカイブに移動しました";
-"ItemMovedToVault" = "アイテムをボールトに移動しました";
+"ItemMovedToVault" = "アイテムを保管庫に移動しました";
 "SendingToArchive" = "アーカイブに移動中…";
 "MovingItemToVault" = "アイテムをボールトに移動中";
 "OrganizationNotFound" = "組織が見つかりません。";
@@ -1088,9 +1088,9 @@
 "UpgradeToPremium" = "プレミアムにアップグレード";
 "ThisItemIsArchived" = "このアイテムはアーカイブされています。";
 "YourPremiumSubscriptionEnded" = "プレミアムサブスクリプションが終了しました";
-"YourPremiumSubscriptionEndedArchiveDescriptionLong" = "アーカイブへのアクセスを回復するには、プレミアムサブスクリプションを再開してください。再開前にアーカイブされたアイテムの詳細を編集すると、ボールトに戻されます。";
+"YourPremiumSubscriptionEndedArchiveDescriptionLong" = "アーカイブへのアクセスを回復するには、プレミアム サブスクリプションを再開してください。再開前にアーカイブされたアイテムの詳細を編集した場合、そのアイテムは保管庫に戻されます。";
 "RestartPremium" = "プレミアムを再開";
-"ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "このアイテムはアーカイブされています。変更を保存すると、ボールトに復元されます。";
+"ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "このアイテムはアーカイブされています。変更を保存すると、保管庫に復元されます。";
 "SettingUpAutofill" = "オートフィルを設定中…";
 "AddEmail" = "メールを追加";
 "AnyoneWithPasswordSetByYou" = "あなたが設定したパスワードを持つ任意のユーザー";
