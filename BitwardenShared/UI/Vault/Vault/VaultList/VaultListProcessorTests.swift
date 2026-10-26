@@ -59,6 +59,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         authService = MockAuthService()
         billingRepository = MockBillingRepository()
         billingRepository.isInAppUpgradeAvailableReturnValue = false
+        billingRepository.isPremiumUpgradeBannerAvailableReturnValue = false
         billingService = MockBillingService()
         billingService.isSelfHostedReturnValue = false
         billingService.shouldShowSubscriptionAttentionCardReturnValue = false
@@ -576,7 +577,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// upgrade is no longer pending.
     @MainActor
     func test_perform_streamSyncComplete_showsPremiumUpgradeActionCardWhenNoLongerPending() {
-        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        billingRepository.isPremiumUpgradeBannerAvailableReturnValue = true
         billingService.premiumUpgradeLifecycleStateReturnValue = .pending
         subject.state.shouldShowPremiumUpgradeActionCard = true
 
