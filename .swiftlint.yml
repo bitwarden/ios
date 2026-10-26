@@ -49,6 +49,7 @@ excluded:
   - build
   - vendor/bundle
   - '**/Generated'
+  - AgentAccessSdk/Sources
 
 attributes:
   always_on_same_line:

@@ -9,6 +9,9 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
     /// The keychain item for a user's access token.
     case accessToken(userId: String)
 
+    /// The keychain item for a user's Agent Access identity, connections, settings and audit log.
+    case agentAccessState(userId: String)
+
     /// The keychain item for a user's vault key for Authenticator syncing.
     case authenticatorVaultKey(userId: String)
 
@@ -68,6 +71,7 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
     var accessControlFlags: SecAccessControlCreateFlags? {
         switch self {
         case .accessToken,
+             .agentAccessState,
              .authenticatorVaultKey,
              .clientCertificateIdentity,
              .deviceAuthKeyMetadata,
@@ -106,6 +110,7 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
              .vaultTimeout:
             kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         case .accessToken,
+             .agentAccessState,
              .authenticatorVaultKey,
              .clientCertificateIdentity,
              .fillAssistRulesFingerprint,
@@ -122,6 +127,8 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
         switch self {
         case let .accessToken(userId):
             "accessToken_\(userId)"
+        case let .agentAccessState(userId):
+            "agentAccessState_\(userId)"
         case let .authenticatorVaultKey(userId):
             "authenticatorVaultKey_\(userId)"
         case let .biometrics(userId: id):
@@ -163,7 +170,7 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
 // MARK: - KeychainRepository
 
 // swiftlint:disable:next line_length
-protocol KeychainRepository: AnyObject, ServerCommunicationConfigKeychainRepository, LocalUserDataKeychainRepository { // sourcery: AutoMockable
+protocol KeychainRepository: AnyObject, AgentAccessKeychainRepository, ServerCommunicationConfigKeychainRepository, LocalUserDataKeychainRepository { // sourcery: AutoMockable
     /// Deletes all items stored in the keychain.
     ///
     func deleteAllItems() async throws
@@ -364,6 +371,7 @@ extension DefaultKeychainRepository {
     func deleteItems(for userId: String) async throws {
         let keychainItems: [BitwardenKeychainItem] = [
             .accessToken(userId: userId),
+            .agentAccessState(userId: userId),
             .authenticatorVaultKey(userId: userId),
             .biometrics(userId: userId),
             // Exclude `deviceKey` since it is used to log back into an account.

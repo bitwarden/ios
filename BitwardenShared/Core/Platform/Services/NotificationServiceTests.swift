@@ -10,7 +10,10 @@ import XCTest
 class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var agentAccessRepository: MockAgentAccessRepository!
+    var agentAccessService: MockAgentAccessService!
     var appIDSettingsStore: MockAppIDSettingsStore!
+    var application: MockApplication!
     var billingService: MockBillingService!
     var refreshableApiService: MockRefreshableAPIService!
     var authRepository: MockAuthRepository!
@@ -30,7 +33,10 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     override func setUp() {
         super.setUp()
 
+        agentAccessRepository = MockAgentAccessRepository()
+        agentAccessService = MockAgentAccessService()
         appIDSettingsStore = MockAppIDSettingsStore()
+        application = MockApplication()
         billingService = MockBillingService()
         authRepository = MockAuthRepository()
         authService = MockAuthService()
@@ -45,7 +51,10 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         syncService = MockSyncService()
 
         subject = DefaultNotificationService(
+            agentAccessRepository: agentAccessRepository,
+            agentAccessService: agentAccessService,
             appIDService: AppIDService(appIDSettingsStore: appIDSettingsStore),
+            application: application,
             authRepository: authRepository,
             authService: authService,
             billingService: billingService,
@@ -63,7 +72,10 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     override func tearDown() async throws {
         try await super.tearDown()
 
+        agentAccessRepository = nil
+        agentAccessService = nil
         appIDSettingsStore = nil
+        application = nil
         billingService = nil
         authService = nil
         client = nil
@@ -955,17 +967,136 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertNil(stateService.loginRequest)
         XCTAssertTrue(errorReporter.errors.isEmpty)
     }
+
+    // MARK: Tests - Agent Access
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` ignores an Agent Access push
+    /// when the feature flag is off.
+    @MainActor
+    func test_messageReceived_agentAccess_flagOff() async {
+        stateService.setIsAuthenticated()
+        appIDSettingsStore.appID = "10"
+        agentAccessService.ownsIdentityReturnValue = true
+
+        await subject.messageReceived(agentAccessPush(), notificationDismissed: nil, notificationTapped: true)
+
+        XCTAssertFalse(agentAccessService.ownsIdentityCalled)
+        XCTAssertNil(delegate.agentAccessNotificationTappedUserId)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` ignores an Agent Access push
+    /// for an identity that belongs to another device.
+    @MainActor
+    func test_messageReceived_agentAccess_foreignFingerprint() async {
+        stateService.setIsAuthenticated()
+        appIDSettingsStore.appID = "10"
+        configService.featureFlagsBool[.agentAccess] = true
+        agentAccessService.ownsIdentityReturnValue = false
+
+        await subject.messageReceived(agentAccessPush(), notificationDismissed: nil, notificationTapped: true)
+
+        XCTAssertEqual(agentAccessService.ownsIdentityReceivedArguments?.userId, "1")
+        XCTAssertEqual(agentAccessService.ownsIdentityReceivedArguments?.fingerprint, agentAccessFingerprint())
+        XCTAssertNil(delegate.agentAccessNotificationTappedUserId)
+        XCTAssertFalse(agentAccessRepository.notificationTappedCalled)
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` notifies the delegate when
+    /// an Agent Access alert push is tapped.
+    @MainActor
+    func test_messageReceived_agentAccess_tapped() async {
+        stateService.setIsAuthenticated()
+        appIDSettingsStore.appID = "10"
+        configService.featureFlagsBool[.agentAccess] = true
+        agentAccessService.ownsIdentityReturnValue = true
+
+        await subject.messageReceived(agentAccessPush(), notificationDismissed: nil, notificationTapped: true)
+
+        XCTAssertEqual(delegate.agentAccessNotificationTappedUserId, "1")
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` starts the client without a
+    /// banner when an Agent Access push arrives while the active account is in the foreground.
+    @MainActor
+    func test_messageReceived_agentAccess_activeAccountForeground() async {
+        stateService.setIsAuthenticated()
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        appIDSettingsStore.appID = "10"
+        application.applicationState = .active
+        configService.featureFlagsBool[.agentAccess] = true
+        agentAccessService.ownsIdentityReturnValue = true
+
+        await subject.messageReceived(agentAccessPush(), notificationDismissed: nil, notificationTapped: nil)
+
+        XCTAssertEqual(agentAccessRepository.notificationTappedReceivedUserId, "1")
+        XCTAssertNil(delegate.agentAccessNotificationTappedUserId)
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles a tap on the local
+    /// Agent Access notification.
+    @MainActor
+    func test_messageReceived_agentAccess_localNotificationTapped() async {
+        configService.featureFlagsBool[.agentAccess] = true
+        let message: [AnyHashable: Any] = [
+            "agentAccessUserId": "1",
+            "agentAccessFingerprint": agentAccessFingerprint(),
+        ]
+
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: true)
+
+        XCTAssertEqual(delegate.agentAccessNotificationTappedUserId, "1")
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` takes no action when the
+    /// local Agent Access notification is presented in the foreground.
+    @MainActor
+    func test_messageReceived_agentAccess_localNotificationPresented() async {
+        configService.featureFlagsBool[.agentAccess] = true
+        let message: [AnyHashable: Any] = [
+            "agentAccessUserId": "1",
+            "agentAccessFingerprint": agentAccessFingerprint(),
+        ]
+
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
+        XCTAssertNil(delegate.agentAccessNotificationTappedUserId)
+        XCTAssertFalse(agentAccessRepository.notificationTappedCalled)
+    }
+
+    // MARK: Private
+
+    private func agentAccessFingerprint() -> String {
+        String(repeating: "ab", count: 32)
+    }
+
+    private func agentAccessPush() -> [AnyHashable: Any] {
+        [
+            "data": [
+                "type": NotificationType.agentAccessRequest.rawValue,
+                "contextId": "simulated-other-device",
+                "payload": "{\"Fingerprint\":\"\(agentAccessFingerprint())\",\"UserId\":\"1\"}",
+            ],
+        ]
+    }
 }
 
 // MARK: - MockNotificationServiceDelegate
 
 class MockNotificationServiceDelegate: NotificationServiceDelegate {
+    var agentAccessNotificationTappedUserId: String?
+
     var routeToLandingCalled: Bool = false
 
     var showLoginRequestRequest: LoginRequest?
 
     var switchAccountsAccount: Account?
     var switchAccountsShowAlert: Bool?
+
+    func agentAccessNotificationTapped(userId: String) async {
+        agentAccessNotificationTappedUserId = userId
+    }
 
     func routeToLanding() async {
         routeToLandingCalled = true

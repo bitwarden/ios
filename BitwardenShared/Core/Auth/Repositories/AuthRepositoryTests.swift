@@ -14,6 +14,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     // MARK: Properties
 
     var accountAPIService: APIService!
+    var agentAccessService: MockAgentAccessService!
     var appContextHelper: MockAppContextHelper!
     var appIDSettingsStore: MockAppIDSettingsStore!
     var authService: MockAuthService!
@@ -100,6 +101,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     override func setUp() { // swiftlint:disable:this function_body_length
         super.setUp()
 
+        agentAccessService = MockAgentAccessService()
         appContextHelper = MockAppContextHelper()
         appIDSettingsStore = MockAppIDSettingsStore()
         client = MockHTTPClient()
@@ -141,6 +143,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         subject = DefaultAuthRepository(
             accountAPIService: accountAPIService,
+            agentAccessService: agentAccessService,
             appContextHelper: appContextHelper,
             appIDService: AppIDService(appIDSettingsStore: appIDSettingsStore),
             authService: authService,
@@ -171,6 +174,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         try await super.tearDown()
 
         accountAPIService = nil
+        agentAccessService = nil
         appContextHelper = nil
         appIDSettingsStore = nil
         authService = nil
@@ -2903,6 +2907,38 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(stateService.pinProtectedUserKeyValue["1"], "1")
         XCTAssertEqual(stateService.encryptedPinByUserId["1"], "1")
         XCTAssertEqual(stateService.syncToAuthenticatorByUserId["1"], false)
+    }
+
+    /// `logout` unregisters the active user's Agent Access identity before the keychain items are deleted.
+    func test_logout_unregistersAgentAccessIdentity() async throws {
+        let account = Account.fixture()
+        stateService.accounts = [account]
+        stateService.activeAccount = account
+        var deletedBeforeUnregister: Bool?
+        agentAccessService.unregisterIdentityClosure = { [keychainService] _ in
+            deletedBeforeUnregister = (keychainService?.deleteItemsCallsCount ?? 0) > 0
+        }
+
+        try await subject.logout(userInitiated: true)
+
+        XCTAssertEqual(agentAccessService.unregisterIdentityReceivedUserId, account.profile.userId)
+        XCTAssertEqual(deletedBeforeUnregister, false)
+        XCTAssertEqual(keychainService.deleteItemsCallsCount, 1)
+        XCTAssertEqual(stateService.accountsLoggedOut, [account.profile.userId])
+    }
+
+    /// `logout` doesn't unregister the Agent Access identity of an account that isn't active.
+    func test_logout_inactiveAccountSkipsAgentAccessUnregister() async throws {
+        let active = Account.fixture()
+        let other = Account.fixture(profile: .fixture(userId: "2"))
+        stateService.accounts = [active, other]
+        stateService.activeAccount = active
+
+        try await subject.logout(userId: "2", userInitiated: true)
+
+        XCTAssertFalse(agentAccessService.unregisterIdentityCalled)
+        XCTAssertEqual(keychainService.deleteItemsReceivedUserId, "2")
+        XCTAssertEqual(stateService.accountsLoggedOut, ["2"])
     }
 
     /// Regression test for PM-17704: biometric unlock setting is lost after logout and re-login.

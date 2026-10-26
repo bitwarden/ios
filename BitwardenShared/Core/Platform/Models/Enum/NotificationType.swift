@@ -28,4 +28,6 @@ enum NotificationType: Int, Codable {
     case policyChanged = 25
 
     case premiumStatusChanged = 27
+
+    case agentAccessRequest = 30
 }

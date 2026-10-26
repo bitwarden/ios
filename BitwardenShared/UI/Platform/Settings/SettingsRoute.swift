@@ -17,6 +17,9 @@ public enum SettingsRoute: Equatable, Hashable {
     ///
     case addEditFolder(folder: FolderView?)
 
+    /// A route to the Agent Access screens.
+    case agentAccess
+
     /// A route to the appearance screen.
     case appearance
 

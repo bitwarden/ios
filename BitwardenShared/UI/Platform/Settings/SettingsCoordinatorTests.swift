@@ -100,6 +100,15 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(stackNavigator.alerts, [alert])
     }
 
+    /// `navigate(to:)` with `.agentAccess` starts the Agent Access coordinator and shows its home screen.
+    @MainActor
+    func test_navigateTo_agentAccess() {
+        subject.navigate(to: .agentAccess)
+
+        XCTAssertTrue(module.agentAccessCoordinator.isStarted)
+        XCTAssertEqual(module.agentAccessCoordinator.routes, [.home])
+    }
+
     /// `navigate(to:)` with `.appearance` pushes the appearance view onto the stack navigator.
     @MainActor
     func test_navigateTo_appearance() throws {

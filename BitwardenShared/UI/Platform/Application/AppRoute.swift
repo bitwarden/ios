@@ -3,6 +3,12 @@
 /// A top level route from the initial screen of the app to anywhere in the app.
 ///
 public enum AppRoute: Equatable {
+    /// A route to show an agent request that is waiting for the user's answer.
+    ///
+    /// - Parameter requestId: The ID of the pending agent request.
+    ///
+    case agentAccessApproval(requestId: String)
+
     /// A route to the authentication flow.
     case auth(AuthRoute)
 

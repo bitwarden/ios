@@ -17,6 +17,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     // MARK: Properties
 
     var acquireCookiesSubject: CurrentValueSubject<String?, Never>!
+    var agentAccessRepository: MockAgentAccessRepository!
     var appIntentMediator: MockAppIntentMediator!
     var appModule: MockAppModule!
     var authRepository: MockAuthRepository!
@@ -55,6 +56,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         router = MockRouter(routeForEvent: { _ in .landing })
         acquireCookiesSubject = CurrentValueSubject<String?, Never>(nil)
+        agentAccessRepository = MockAgentAccessRepository()
         appIntentMediator = MockAppIntentMediator()
         appModule = MockAppModule()
         authRepository = MockAuthRepository()
@@ -92,6 +94,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
             debugDidEnterBackground: { [weak self] in self?.didEnterBackgroundCalled += 1 },
             debugWillEnterForeground: { [weak self] in self?.willEnterForegroundCalled += 1 },
             services: ServiceContainer.withMocks(
+                agentAccessRepository: agentAccessRepository,
                 authRepository: authRepository,
                 authenticatorSyncService: authenticatorSyncService,
                 autofillCredentialService: autofillCredentialService,
@@ -122,6 +125,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         super.tearDown()
 
         acquireCookiesSubject = nil
+        agentAccessRepository = nil
         appModule = nil
         authRepository = nil
         autofillCredentialService = nil
@@ -1127,6 +1131,97 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
 
         XCTAssertEqual(masterPasswordValidated, false)
+    }
+
+    /// `init()` lets Agent Access know when the app enters the foreground.
+    @MainActor
+    func test_init_appForeground_agentAccess() async throws {
+        try await waitForAsync { self.willEnterForegroundCalled == 1 }
+
+        notificationCenterService.willEnterForegroundSubject.send()
+        try await waitForAsync { self.willEnterForegroundCalled == 2 }
+
+        XCTAssertEqual(agentAccessRepository.appDidBecomeActiveCallsCount, 2)
+    }
+
+    /// `init()` doesn't start Agent Access in an app extension.
+    @MainActor
+    func test_init_agentAccess_inExtension() async throws {
+        let delegate = MockAppExtensionDelegate()
+        delegate.isInAppExtension = true
+        let agentAccessRepository = MockAgentAccessRepository()
+        let notificationCenterService = MockNotificationCenterService()
+
+        var willEnterForegroundCalled = 0
+        var didEnterBackgroundCalled = 0
+        _ = AppProcessor(
+            appExtensionDelegate: delegate,
+            appModule: appModule,
+            debugDidEnterBackground: { didEnterBackgroundCalled += 1 },
+            debugWillEnterForeground: { willEnterForegroundCalled += 1 },
+            services: ServiceContainer.withMocks(
+                agentAccessRepository: agentAccessRepository,
+                notificationCenterService: notificationCenterService,
+            ),
+        )
+        try await waitForAsync { willEnterForegroundCalled == 1 && didEnterBackgroundCalled == 1 }
+
+        XCTAssertFalse(agentAccessRepository.appDidBecomeActiveCalled)
+        XCTAssertFalse(agentAccessRepository.appDidEnterBackgroundCalled)
+        XCTAssertFalse(agentAccessRepository.activeAccountChangedCalled)
+    }
+
+    /// `init()` lets Agent Access know when the app enters the background.
+    @MainActor
+    func test_init_appBackground_agentAccess() async throws {
+        try await waitForAsync { self.didEnterBackgroundCalled == 1 }
+
+        XCTAssertEqual(agentAccessRepository.appDidEnterBackgroundCallsCount, 1)
+    }
+
+    /// `init()` lets Agent Access know when the active account changes.
+    @MainActor
+    func test_init_activeAccountChanged_agentAccess() async throws {
+        stateService.activeIdSubject.send("2")
+
+        try await waitForAsync { self.agentAccessRepository.activeAccountChangedReceivedUserId == "2" }
+    }
+
+    /// `start(navigator:)` lets Agent Access know the app is active.
+    @MainActor
+    func test_start_agentAccess() async {
+        await subject.start(
+            appContext: .mainApp,
+            initialRoute: .extensionSetup(.extensionActivation(type: .appExtension)),
+            navigator: MockRootNavigator(),
+            window: nil,
+        )
+
+        XCTAssertTrue(agentAccessRepository.appDidBecomeActiveCalled)
+    }
+
+    /// `agentAccessNotificationTapped(userId:)` starts the client without switching when the
+    /// notification belongs to the active account.
+    @MainActor
+    func test_agentAccessNotificationTapped_activeAccount() async {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+
+        await subject.agentAccessNotificationTapped(userId: "1")
+
+        XCTAssertTrue(coordinator.events.isEmpty)
+        XCTAssertEqual(agentAccessRepository.notificationTappedReceivedUserId, "1")
+    }
+
+    /// `agentAccessNotificationTapped(userId:)` switches to the account that owns the notification
+    /// and then starts the client.
+    @MainActor
+    func test_agentAccessNotificationTapped_otherAccount() async {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+
+        await subject.agentAccessNotificationTapped(userId: "2")
+
+        XCTAssertEqual(coordinator.events, [.switchAccounts(userId: "2", isAutomatic: false)])
+        XCTAssertEqual(agentAccessRepository.notificationTappedReceivedUserId, "2")
     }
 
     /// `routeToLanding(_:)` navigates to show the landing view.

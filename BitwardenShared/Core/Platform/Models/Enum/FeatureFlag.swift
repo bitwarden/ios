@@ -21,6 +21,10 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// A feature flag to enable/disable V2 account encryption for TDE.
     static let accountEncryptionV2TDE = FeatureFlag(rawValue: "pm-27279-v2-registration-tde-jit")
 
+    /// A feature flag to enable/disable Agent Access, which lets approved agents request logins.
+    /// Defaults on in debug builds so the feature can be demoed against a local server.
+    static let agentAccess = FeatureFlag(rawValue: "ai-agent-access", initialValue: agentAccessInitialValue)
+
     /// A feature flag to enable/disable scanning a card to autocomplete its details in add/edit cipher.
     static let cardScanner = FeatureFlag(rawValue: "pm-34171-card-scanner")
 
@@ -79,12 +83,21 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// Flag for the VFO1 terminology-alignment foundation work (vault/organization renames).
     static let vfo1Foundation = FeatureFlag(rawValue: "vfo1-foundation")
 
+    private static var agentAccessInitialValue: AnyCodable? {
+        #if DEBUG
+        return .bool(true)
+        #else
+        return nil
+        #endif
+    }
+
     public static var allCases: [FeatureFlag] {
         [
             .accountEncryptionV2JITPassword,
             .accountEncryptionV2KeyConnector,
             .accountEncryptionV2PasswordRegistration,
             .accountEncryptionV2TDE,
+            .agentAccess,
             .cardScanner,
             .debugDisableSelfHostPremiumCheck,
             .deviceAuthKey,

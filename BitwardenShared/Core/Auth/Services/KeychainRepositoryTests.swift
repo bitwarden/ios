@@ -90,6 +90,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
             deletedKeys,
             [
                 BitwardenKeychainItem.accessToken(userId: "1").unformattedKey,
+                BitwardenKeychainItem.agentAccessState(userId: "1").unformattedKey,
                 BitwardenKeychainItem.authenticatorVaultKey(userId: "1").unformattedKey,
                 BitwardenKeychainItem.biometrics(userId: "1").unformattedKey,
                 BitwardenKeychainItem.lastActiveBootEpoch(userId: "1").unformattedKey,

@@ -96,6 +96,7 @@ public class AppProcessor {
         listenForDidEnterBackground(debugDidEnterBackground: debugDidEnterBackground)
         listenForPendingAppIntentActions()
         listenForAcquireCookies()
+        listenForActiveAccountChanges()
     }
 
     // MARK: Methods
@@ -155,6 +156,8 @@ public class AppProcessor {
         } else {
             await coordinator.handleEvent(.didStart)
         }
+
+        await agentAccessDidBecomeActive()
     }
 
     /// Handle incoming URL from iOS AppLinks and redirect it to the correct navigation within the App
@@ -520,6 +523,23 @@ extension AppProcessor {
         return AppRoute.tab(.vault(.vaultItemSelection(totpKeyModel)))
     }
 
+    /// Lets Agent Access start its client when the app becomes active. Agent Access doesn't run
+    /// in app extensions.
+    private func agentAccessDidBecomeActive() async {
+        guard appExtensionDelegate?.isInAppExtension != true else { return }
+        await services.agentAccessRepository.appDidBecomeActive()
+    }
+
+    /// Subscribes to the active account and restarts the Agent Access client for the new account.
+    private func listenForActiveAccountChanges() {
+        guard appExtensionDelegate?.isInAppExtension != true else { return }
+        Task {
+            for await userId in await services.stateService.activeAccountIdPublisher().values {
+                await services.agentAccessRepository.activeAccountChanged(userId: userId)
+            }
+        }
+    }
+
     /// Subscribes to the server communication cookie-acquisition publisher and navigates to the
     /// sync-with-browser flow whenever a non-nil vault URL is received.
     ///
@@ -550,6 +570,9 @@ extension AppProcessor {
                     // No-op: nothing to do if there's no active account.
                 } catch {
                     services.errorReporter.log(error: error)
+                }
+                if appExtensionDelegate?.isInAppExtension != true {
+                    await services.agentAccessRepository.appDidEnterBackground()
                 }
                 #if DEBUG
                 debugDidEnterBackground?()
@@ -594,6 +617,7 @@ extension AppProcessor {
                 }
                 await handleNeverTimeOutAccountBecameActive()
                 await completeAutofillAccountSetupIfEnabled()
+                await agentAccessDidBecomeActive()
                 #if DEBUG
                 debugWillEnterForeground?()
                 #endif
@@ -659,6 +683,18 @@ extension AppProcessor {
 // MARK: - NotificationServiceDelegate
 
 extension AppProcessor: NotificationServiceDelegate {
+    /// An Agent Access notification was tapped. Switches to the account that owns it if necessary
+    /// and starts the Agent Access client so waiting requests are delivered.
+    ///
+    /// - Parameter userId: The ID of the account the notification belongs to.
+    ///
+    func agentAccessNotificationTapped(userId: String) async {
+        if let activeUserId = try? await services.stateService.getActiveAccountId(), activeUserId != userId {
+            await coordinator?.handleEvent(.switchAccounts(userId: userId, isAutomatic: false))
+        }
+        await services.agentAccessRepository.notificationTapped(userId: userId)
+    }
+
     /// Users are logged out, route to landing page.
     ///
     func routeToLanding() async {
