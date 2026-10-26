@@ -1368,34 +1368,24 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// for the first time and `.removeUnlockWithPin` policy is enabled.
     func test_onFetchSyncSucceeded_clearPins() async throws {
         await stateService.addAccount(.fixture())
-        stateService.pinProtectedUserKeyValue["1"] = "pin"
-        stateService.encryptedPinByUserId["1"] = "encPin"
-        stateService.accountVolatileData["1"] = AccountVolatileData(pinProtectedUserKey: "pin")
         stateService.hasPerformedSyncAfterLogin["1"] = false
         policyService.policyAppliesToUserResult[.removeUnlockWithPin] = true
 
         await subject.onFetchSyncSucceeded(userId: "1")
 
-        XCTAssertNil(stateService.pinProtectedUserKeyValue["1"])
-        XCTAssertNil(stateService.encryptedPinByUserId["1"])
-        XCTAssertNil(stateService.accountVolatileData["1"])
+        XCTAssertTrue(authRepository.clearPinsCalled)
     }
 
     /// `onFetchSyncSucceeded(userId:)` doesn't clear the unlock user pins when it has performed sync after login
     /// for the first time and `.removeUnlockWithPin` policy is disabled.
     func test_onFetchSyncSucceeded_doesNotClearPinsWhenRemoveUnlockWithPinPolicyDisabled() async throws {
         await stateService.addAccount(.fixture())
-        stateService.pinProtectedUserKeyValue["1"] = "pin"
-        stateService.encryptedPinByUserId["1"] = "encPin"
-        stateService.accountVolatileData["1"] = AccountVolatileData(pinProtectedUserKey: "pin")
         stateService.hasPerformedSyncAfterLogin["1"] = false
         policyService.policyAppliesToUserResult[.removeUnlockWithPin] = false
 
         await subject.onFetchSyncSucceeded(userId: "1")
 
-        XCTAssertNotNil(stateService.pinProtectedUserKeyValue["1"])
-        XCTAssertNotNil(stateService.encryptedPinByUserId["1"])
-        XCTAssertNotNil(stateService.accountVolatileData["1"])
+        XCTAssertFalse(authRepository.clearPinsCalled)
         XCTAssertTrue(stateService.hasPerformedSyncAfterLogin["1"] == true)
     }
 
@@ -1403,68 +1393,47 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// performed sync after login.
     func test_onFetchSyncSucceeded_doesNotClearPinsWhenNotFirstTimeSyncAfterLogin() async throws {
         await stateService.addAccount(.fixture())
-        stateService.pinProtectedUserKeyValue["1"] = "pin"
-        stateService.encryptedPinByUserId["1"] = "encPin"
-        stateService.accountVolatileData["1"] = AccountVolatileData(pinProtectedUserKey: "pin")
         stateService.hasPerformedSyncAfterLogin["1"] = true
 
         await subject.onFetchSyncSucceeded(userId: "1")
 
         XCTAssertTrue(policyService.policyAppliesToUserPolicies.isEmpty)
-        XCTAssertNotNil(stateService.pinProtectedUserKeyValue["1"])
-        XCTAssertNotNil(stateService.encryptedPinByUserId["1"])
-        XCTAssertNotNil(stateService.accountVolatileData["1"])
+        XCTAssertFalse(authRepository.clearPinsCalled)
     }
 
     /// `onFetchSyncSucceeded(userId:)` doesn't do anything when `getHasPerformedSyncAfterLogin(userId:)` throws.
     func test_onFetchSyncSucceeded_getHasPerformedSyncAfterLoginThrows() async throws {
-        stateService.pinProtectedUserKeyValue["1"] = "pin"
-        stateService.encryptedPinByUserId["1"] = "encPin"
-        stateService.accountVolatileData["1"] = AccountVolatileData(pinProtectedUserKey: "pin")
         stateService.getHasPerformedSyncAfterLoginError = BitwardenTestError.example
 
         await subject.onFetchSyncSucceeded(userId: "1")
 
         XCTAssertTrue(policyService.policyAppliesToUserPolicies.isEmpty)
-        XCTAssertNotNil(stateService.pinProtectedUserKeyValue["1"])
-        XCTAssertNotNil(stateService.encryptedPinByUserId["1"])
-        XCTAssertNotNil(stateService.accountVolatileData["1"])
+        XCTAssertFalse(authRepository.clearPinsCalled)
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
     /// `onFetchSyncSucceeded(userId:)` doesn't do anything when
     /// `setHasPerformedSyncAfterLogin(hasBeenPerformed:, userId:)` throws.
     func test_onFetchSyncSucceeded_setHasPerformedSyncAfterLoginThrows() async throws {
-        stateService.pinProtectedUserKeyValue["1"] = "pin"
-        stateService.encryptedPinByUserId["1"] = "encPin"
-        stateService.accountVolatileData["1"] = AccountVolatileData(pinProtectedUserKey: "pin")
         stateService.setHasPerformedSyncAfterLoginError = BitwardenTestError.example
 
         await subject.onFetchSyncSucceeded(userId: "1")
 
         XCTAssertTrue(policyService.policyAppliesToUserPolicies.isEmpty)
-        XCTAssertNotNil(stateService.pinProtectedUserKeyValue["1"])
-        XCTAssertNotNil(stateService.encryptedPinByUserId["1"])
-        XCTAssertNotNil(stateService.accountVolatileData["1"])
+        XCTAssertFalse(authRepository.clearPinsCalled)
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
-    /// `onFetchSyncSucceeded(userId:)` doesn't clear pins when
-    /// `clearPins(userId:)` throws.
+    /// `onFetchSyncSucceeded(userId:)` logs the error when `clearPins()` throws.
     func test_onFetchSyncSucceeded_clearPinsThrows() async throws {
-        stateService.pinProtectedUserKeyValue["1"] = "pin"
-        stateService.encryptedPinByUserId["1"] = "encPin"
-        stateService.accountVolatileData["1"] = AccountVolatileData(pinProtectedUserKey: "pin")
         stateService.hasPerformedSyncAfterLogin["1"] = false
         policyService.policyAppliesToUserResult[.removeUnlockWithPin] = true
-        stateService.activeAccount = nil
+        authRepository.clearPinsResult = .failure(BitwardenTestError.example)
 
         await subject.onFetchSyncSucceeded(userId: "1")
 
-        XCTAssertNotNil(stateService.pinProtectedUserKeyValue["1"])
-        XCTAssertNotNil(stateService.encryptedPinByUserId["1"])
-        XCTAssertNotNil(stateService.accountVolatileData["1"])
-        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+        XCTAssertTrue(authRepository.clearPinsCalled)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
     /// `onFetchSyncSucceeded(userId:)` triggers a subscription attention card refresh on every sync.
@@ -1472,6 +1441,27 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await subject.onFetchSyncSucceeded(userId: "1")
 
         XCTAssertTrue(billingService.refreshSubscriptionAttentionCardCalled)
+    }
+
+    /// `onFetchSyncSucceeded(userId:)` completes a pending Premium upgrade for the account that
+    /// synced, on every sync — so an upgrade the checkout's own sync didn't confirm still clears
+    /// once a later sync reports it.
+    func test_onFetchSyncSucceeded_completesPendingPremiumUpgrade() async {
+        await subject.onFetchSyncSucceeded(userId: "1")
+
+        XCTAssertTrue(billingService.completeUpgradeIfPendingCalled)
+        XCTAssertEqual(billingService.completeUpgradeIfPendingReceivedUserId, "1")
+    }
+
+    /// `onFetchSyncSucceeded(userId:)` completes a pending Premium upgrade even on a repeat sync,
+    /// after the once-per-login work below it has been skipped.
+    func test_onFetchSyncSucceeded_completesPendingPremiumUpgradeOnRepeatSync() async {
+        stateService.hasPerformedSyncAfterLogin["1"] = true
+
+        await subject.onFetchSyncSucceeded(userId: "1")
+
+        XCTAssertTrue(billingService.completeUpgradeIfPendingCalled)
+        XCTAssertEqual(billingService.completeUpgradeIfPendingReceivedUserId, "1")
     }
 
     /// `removeMasterPassword(organizationName:)` notifies the coordinator to show the remove

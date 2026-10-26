@@ -549,29 +549,29 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertTrue(premiumUpgradeHelper.navigateToPremiumUpgradeCalled)
     }
 
-    /// `perform(_:)` with `.savePressed` and an unverified email shows a validation alert.
+    /// `perform(_:)` with `.savePressed` and valid file input saves the file Send.
     @MainActor
-    func test_perform_savePressed_add_file_noVerifiedEmail() async {
+    func test_perform_savePressed_add_file_success() async {
         sendRepository.doesActivateAccountHavePremiumResult = true
-        sendRepository.doesActiveAccountHaveVerifiedEmailResult = .success(false)
+        let sendView = SendView.fixture(id: "SEND_ID", name: "Name", type: .file)
+        sendRepository.addFileSendResult = .success(sendView)
+        subject.state.mode = .add
         subject.state.name = "Name"
         subject.state.fileData = Data("example".utf8)
         subject.state.fileName = "filename"
         subject.state.type = .file
         await subject.perform(.savePressed)
 
-        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
-        XCTAssertNil(sendRepository.addTextSendSendView)
-        XCTAssertEqual(coordinator.alertShown, [
-            Alert.defaultAlert(message: Localizations.sendFileEmailVerificationRequired),
-        ])
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+        XCTAssertEqual(sendRepository.addFileSendSendView?.name, "Name")
+        XCTAssertEqual(sendRepository.addFileSendData, Data("example".utf8))
+        XCTAssertEqual(coordinator.routes.last, .complete(sendView))
     }
 
     /// `perform(_:)` with `.savePressed` and no file data shows a validation alert.
     @MainActor
     func test_perform_savePressed_add_file_noFileData() async {
         sendRepository.doesActivateAccountHavePremiumResult = true
-        sendRepository.doesActiveAccountHaveVerifiedEmailResult = .success(true)
         subject.state.name = "Name"
         subject.state.fileData = nil
         subject.state.fileName = "filename"
@@ -593,7 +593,6 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     @MainActor
     func test_perform_savePressed_add_file_noFileName() async {
         sendRepository.doesActivateAccountHavePremiumResult = true
-        sendRepository.doesActiveAccountHaveVerifiedEmailResult = .success(true)
         subject.state.name = "Name"
         subject.state.fileData = Data("example".utf8)
         subject.state.fileName = nil
@@ -615,7 +614,6 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     @MainActor
     func test_perform_savePressed_add_file_fileDataTooLarge() async {
         sendRepository.doesActivateAccountHavePremiumResult = true
-        sendRepository.doesActiveAccountHaveVerifiedEmailResult = .success(true)
         subject.state.name = "Name"
         subject.state.fileData = Data(String(repeating: "a", count: Constants.maxFileSizeBytes + 1).utf8)
         subject.state.fileName = "filename"

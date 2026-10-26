@@ -170,16 +170,15 @@ extension DefaultKeyConnectorService: KeyConnectorService {
         }
 
         let account = try await stateService.getActiveAccount()
-        let masterPasswordUnlock = account.profile.userDecryptionOptions?.masterPasswordUnlock
-        guard let encryptedUserKey = masterPasswordUnlock?.masterKeyEncryptedUserKey else {
+        guard let masterPasswordUnlock = account.profile.userDecryptionOptions?.masterPasswordUnlock else {
             throw KeyConnectorServiceError.missingEncryptedUserKey
         }
 
         let masterKey = try await clientService.crypto().deriveKeyConnector(request: DeriveKeyConnectorRequest(
-            userKeyEncrypted: encryptedUserKey,
+            userKeyEncrypted: masterPasswordUnlock.masterKeyEncryptedUserKey,
             password: password,
-            kdf: account.kdf.sdkKdf,
-            email: account.profile.email,
+            kdf: masterPasswordUnlock.kdf.sdkKdf,
+            email: masterPasswordUnlock.salt,
         ))
 
         try await keyConnectorAPIService.postMasterKeyToKeyConnector(

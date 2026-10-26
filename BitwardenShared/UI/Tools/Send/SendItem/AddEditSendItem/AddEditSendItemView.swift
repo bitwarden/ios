@@ -399,6 +399,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         send: { .recipientEmailChanged(index: index, value: $0) },
                     ),
                     accessibilityIdentifier: "SendRecipientEmailEntry",
+                    focus: .field($focusedRecipientEmailIndex, equals: index),
                 ) {
                     if store.state.shouldShowTrashIcon(for: index) {
                         Button {
@@ -411,7 +412,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         .accessibilityIdentifier("RemoveRecipientEmailButton")
                     }
                 }
-                .focused($focusedRecipientEmailIndex, equals: index)
                 .textFieldConfiguration(.email)
                 .accessibilityIdentifier("EmailRecipientCell")
 
@@ -434,7 +434,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     /// The attributes for a text type send.
     @ViewBuilder private var textSendAttributes: some View {
         BitwardenTextView(
-            title: Localizations.textToShare,
+            title: Localizations.textToShareRequired,
             text: store.binding(
                 get: \.text,
                 send: AddEditSendItemAction.textChanged,

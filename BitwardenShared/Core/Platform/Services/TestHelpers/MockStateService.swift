@@ -978,4 +978,34 @@ extension MockStateService {
         try setBiometricAuthenticationEnabledResult.get()
         biometricsEnabled[userId] = isEnabled
     }
+}
+
+// MARK: Premium
+
+extension MockStateService {
+    /// Sets both the personal and inclusive Premium results for the active account, so the mock
+    /// can't report personal Premium without Premium.
+    ///
+    /// These results are also the fallback for any account without its own per-user value, so
+    /// this sets Premium status for those accounts too.
+    ///
+    /// - Parameters:
+    ///   - hasPremium: Whether the account has personally-purchased Premium.
+    ///
+    func setActiveAccountPersonalPremium(_ hasPremium: Bool) {
+        doesActiveAccountHavePremiumPersonallyResult = hasPremium
+        doesActiveAccountHavePremiumResult = hasPremium
+    }
+
+    /// Sets both the personal and inclusive Premium values for an account, so the mock can't
+    /// report personal Premium without Premium.
+    ///
+    /// - Parameters:
+    ///   - hasPremium: Whether the account has personally-purchased Premium.
+    ///   - userId: The account to set Premium status for.
+    ///
+    func setPersonalPremium(_ hasPremium: Bool, userId: String) {
+        doesAccountHavePremiumPersonallyByUserId[userId] = hasPremium
+        doesAccountHavePremiumByUserId[userId] = hasPremium
+    }
 } // swiftlint:disable:this file_length

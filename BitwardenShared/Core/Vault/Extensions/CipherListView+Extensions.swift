@@ -1,5 +1,6 @@
 import BitwardenResources
 import BitwardenSdk
+import Foundation
 
 extension CipherListView {
     // MARK: Properties
@@ -29,6 +30,16 @@ extension CipherListView {
     /// Whether the cipher is normally hidden for flows by being archived or deleted.
     var isHidden: Bool {
         archivedDate != nil || deletedDate != nil
+    }
+
+    /// Whether this cipher can be archived. Mirrors `CipherView.canBeArchived`.
+    var canBeArchived: Bool {
+        archivedDate == nil && deletedDate == nil
+    }
+
+    /// Whether this cipher can be unarchived. Mirrors `CipherView.canBeUnarchived`.
+    var canBeUnarchived: Bool {
+        archivedDate != nil && deletedDate == nil
     }
 
     // MARK: Methods
@@ -174,7 +185,6 @@ extension CipherListView {
             organizationId: cipher.organizationId,
             folderId: cipher.folderId,
             collectionIds: cipher.collectionIds,
-            key: cipher.key,
             name: Localizations.errorCannotDecrypt,
             subtitle: "",
             type: type,
@@ -192,6 +202,7 @@ extension CipherListView {
             archivedDate: cipher.archivedDate,
             copyableFields: [],
             localData: nil,
+            partial: false,
         )
     }
 }

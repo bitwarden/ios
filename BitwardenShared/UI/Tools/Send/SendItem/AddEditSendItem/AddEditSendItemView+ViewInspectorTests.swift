@@ -200,7 +200,7 @@ class AddEditSendItemViewTests: BitwardenTestCase {
     func test_textTextField_updated() throws {
         let textField = try subject.inspect().find(
             type: BitwardenUITextViewType.self,
-            accessibilityLabel: Localizations.textToShare,
+            accessibilityLabel: Localizations.textToShareRequired,
         )
         try textField.inputBinding().wrappedValue = "Text"
         XCTAssertEqual(processor.dispatchedActions.last, .textChanged("Text"))

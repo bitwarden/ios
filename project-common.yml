@@ -14,7 +14,7 @@ include:
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: b7e7be7e7f5adde3cafcb27d79fac80a53c5c3c8 # 3.0.0-7742-9794da5
+    revision: 91a4b810f90617aacc028d0e7aa3e6f85b0269b3 # 4.0.0-8946-f189ba3
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
     exactVersion: 12.14.0
@@ -53,11 +53,15 @@ targetTemplates:
           - "**/Fixtures/*"
           - "**/Mocks/*"
   # Adds common include/excludes for snapshot test targets.
+  # Snapshot tests are currently disabled, so their files are kept in the project but not compiled.
   SnapshotTestTarget:
     sources:
       - path: ${sourcesPath}
         includes:
           - "**/*SnapshotTests.*"
+        buildPhase: none
+      - path: ${sourcesPath}
+        includes:
           - "**/TestHelpers/*"
   # Adds the Sourcery pre-build script.
   SourceryTarget:

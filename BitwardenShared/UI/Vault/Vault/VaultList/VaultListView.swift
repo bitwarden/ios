@@ -80,8 +80,6 @@ private struct SearchableVaultListView: View {
     @ViewBuilder private var emptyVault: some View {
         VStack(spacing: 24) {
             Group {
-                organizationBannerActionCard
-
                 actionCard
 
                 vaultFilterRow
@@ -125,15 +123,11 @@ private struct SearchableVaultListView: View {
                     searchVaultFilterRow
 
                     ForEach(store.state.searchResults) { item in
-                        Button {
-                            store.send(.itemPressed(item: item))
-                        } label: {
-                            vaultItemRow(
-                                for: item,
-                                isLastInSection: store.state.searchResults.last == item,
-                            )
-                            .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
-                        }
+                        vaultItemRow(
+                            for: item,
+                            isLastInSection: store.state.searchResults.last == item,
+                        )
+                        .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
                     }
                 }
             }
@@ -237,8 +231,6 @@ private struct SearchableVaultListView: View {
     @ViewBuilder
     private func vaultContents(with sections: [VaultListSection]) -> some View {
         VStack(spacing: 20) {
-            organizationBannerActionCard
-
             actionCard
 
             vaultFilterRow
@@ -251,11 +243,7 @@ private struct SearchableVaultListView: View {
                         send: { .sectionExpandToggled(sectionId: section.id, isExpanded: $0) },
                     ),
                 ) { item in
-                    Button {
-                        store.send(.itemPressed(item: item))
-                    } label: {
-                        vaultItemRow(for: item, isLastInSection: section.items.last == item)
-                    }
+                    vaultItemRow(for: item, isLastInSection: section.items.last == item)
                 }
             }
         }
@@ -276,6 +264,7 @@ private struct SearchableVaultListView: View {
                 state: { state in
                     VaultListItemRowState(
                         iconBaseURL: state.iconBaseURL,
+                        hasPremium: state.hasPremium,
                         isFromExtension: false,
                         isVfo1FoundationFeatureFlagEnabled: state.isVfo1FoundationFeatureFlagEnabled,
                         item: item,
@@ -291,8 +280,12 @@ private struct SearchableVaultListView: View {
                 },
                 mapEffect: { effect in
                     switch effect {
+                    case let .accessibilityMoreOptionsActionPressed(kind):
+                        .accessibilityMoreOptionsActionPressed(item, kind)
                     case .morePressed:
                         .morePressed(item)
+                    case .pressed:
+                        .itemPressed(item)
                     }
                 },
             ),
@@ -332,6 +325,24 @@ extension SearchableVaultListView {
                 SharedAsset.Icons.archive24.swiftUIImage
                     .foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
             }
+        case let .organizationBanner(data):
+            ActionCard(
+                title: data.headerText,
+                message: data.description,
+                actionButtonState: data.buttonText.map { text in
+                    ActionCard.ButtonState(title: text) {
+                        await store.perform(.dismissOrganizationBanner(fromActionButton: true))
+                    }
+                },
+                dismissButtonState: data.buttonText == nil
+                    ? ActionCard.ButtonState(title: Localizations.dismiss) {
+                        await store.perform(.dismissOrganizationBanner(fromActionButton: false))
+                    }
+                    : nil,
+            ) {
+                SharedAsset.Icons.informationCircle24.swiftUIImage
+                    .foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
+            }
         case .subscriptionNeedsAttention:
             ActionCard(
                 title: Localizations.subscriptionNeedsAttention,
@@ -350,7 +361,7 @@ extension SearchableVaultListView {
                 title: Localizations.unlockAdvancedSecurityFeatures,
                 message: Localizations.aPremiumPlanGivesYouMoreToolsDescriptionLong,
                 actionButtonState: ActionCard.ButtonState(title: Localizations.learnMore) {
-                    store.send(.upgradeToPremium)
+                    await store.perform(.upgradeToPremium)
                 },
                 dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
                     await store.perform(.dismissPremiumUpgradeActionCard)
@@ -358,29 +369,6 @@ extension SearchableVaultListView {
             )
         case nil:
             EmptyView()
-        }
-    }
-
-    /// The action card for the organization user notification banner.
-    @ViewBuilder private var organizationBannerActionCard: some View {
-        if let data = store.state.organizationUserNotificationBannerData {
-            ActionCard(
-                title: data.headerText,
-                message: data.description,
-                actionButtonState: data.buttonText.map { text in
-                    ActionCard.ButtonState(title: text) {
-                        await store.perform(.dismissOrganizationBanner(fromActionButton: true))
-                    }
-                },
-                dismissButtonState: data.buttonText == nil
-                    ? ActionCard.ButtonState(title: Localizations.dismiss) {
-                        await store.perform(.dismissOrganizationBanner(fromActionButton: false))
-                    }
-                    : nil,
-            ) {
-                SharedAsset.Icons.informationCircle24.swiftUIImage
-                    .foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
-            }
         }
     }
 }

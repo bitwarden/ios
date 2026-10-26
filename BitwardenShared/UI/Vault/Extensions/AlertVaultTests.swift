@@ -290,12 +290,9 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         let cipher = CipherView.loginFixture(id: "123", name: "Test Login")
         let alert = Alert.moreOptions(
             context: MoreOptionsAlertContext(
-                canArchive: true,
-                canCopyTotp: false,
-                canUnarchive: false,
+                actionKinds: [.view, .edit, .archive],
                 cipherView: cipher,
                 id: cipher.id!,
-                showEdit: true,
             ),
             action: action,
         )
@@ -325,12 +322,9 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         )
         let alert = Alert.moreOptions(
             context: MoreOptionsAlertContext(
-                canArchive: false,
-                canCopyTotp: false,
-                canUnarchive: false,
+                actionKinds: [.view, .edit, .copyAccountNumber, .copyRoutingNumber],
                 cipherView: cipher,
                 id: cipher.id!,
-                showEdit: true,
             ),
             action: action,
         )
@@ -376,7 +370,7 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertNil(capturedAction)
     }
 
-    /// `static moreOptions(canCopyTotp:cipherView:hasMasterPassword:id:showEdit:action:)` returns
+    /// `moreOptions(context:action:)` returns
     /// the appropriate options for `.driversLicense` type
     @MainActor
     func test_moreOptions_driversLicense() async throws {
@@ -394,12 +388,9 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         )
         let alert = Alert.moreOptions(
             context: MoreOptionsAlertContext(
-                canArchive: false,
-                canCopyTotp: false,
-                canUnarchive: false,
+                actionKinds: [.view, .edit, .copyLicenseNumber],
                 cipherView: cipher,
                 id: cipher.id!,
-                showEdit: true,
             ),
             action: action,
         )
@@ -442,12 +433,9 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         let cipher = CipherView.loginFixture(id: "123", name: "Test Login")
         let alert = Alert.moreOptions(
             context: MoreOptionsAlertContext(
-                canArchive: false,
-                canCopyTotp: false,
-                canUnarchive: false,
+                actionKinds: [.view, .edit],
                 cipherView: cipher,
                 id: cipher.id!,
-                showEdit: true,
             ),
             action: { _ in },
         )
@@ -462,12 +450,9 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         let cipher = CipherView.loginFixture(id: "123", name: "Test Login")
         let alert = Alert.moreOptions(
             context: MoreOptionsAlertContext(
-                canArchive: false,
-                canCopyTotp: false,
-                canUnarchive: false,
+                actionKinds: [.view, .edit],
                 cipherView: cipher,
                 id: cipher.id!,
-                showEdit: true,
             ),
             action: { _ in },
         )
@@ -475,7 +460,7 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertFalse(alert.alertActions.contains(where: { $0.title == Localizations.unarchive }))
     }
 
-    /// `static moreOptions(canCopyTotp:cipherView:hasMasterPassword:id:showEdit:action:)` returns
+    /// `moreOptions(context:action:)` returns
     /// the appropriate options for `.passport` type
     @MainActor
     func test_moreOptions_passport() async throws {
@@ -493,12 +478,9 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         )
         let alert = Alert.moreOptions(
             context: MoreOptionsAlertContext(
-                canArchive: false,
-                canCopyTotp: false,
-                canUnarchive: false,
+                actionKinds: [.view, .edit, .copyPassportNumber],
                 cipherView: cipher,
                 id: cipher.id!,
-                showEdit: true,
             ),
             action: action,
         )
@@ -534,7 +516,7 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertNil(capturedAction)
     }
 
-    /// `static moreOptions(canCopyTotp:cipherView:hasMasterPassword:id:showEdit:action:)` returns
+    /// `moreOptions(context:action:)` returns
     /// the appropriate options for `.sshKey` type
     @MainActor
     func test_moreOptions_sshKey() async throws { // swiftlint:disable:this function_body_length
@@ -552,12 +534,9 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         )
         let alert = Alert.moreOptions(
             context: MoreOptionsAlertContext(
-                canArchive: false,
-                canCopyTotp: false,
-                canUnarchive: false,
+                actionKinds: [.view, .edit, .copyPublicKey, .copyPrivateKey, .copyFingerprint],
                 cipherView: cipher,
                 id: cipher.id!,
-                showEdit: true,
             ),
             action: action,
         )
@@ -630,12 +609,9 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         let cipher = CipherView.loginFixture(archivedDate: .now, id: "123", name: "Test Login")
         let alert = Alert.moreOptions(
             context: MoreOptionsAlertContext(
-                canArchive: false,
-                canCopyTotp: false,
-                canUnarchive: true,
+                actionKinds: [.view, .edit, .unarchive],
                 cipherView: cipher,
                 id: cipher.id!,
-                showEdit: true,
             ),
             action: action,
         )
@@ -677,16 +653,27 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         let subject = Alert.sendTypeRestrictedByPolicy(.text) { called = true }
 
         XCTAssertNil(subject.title)
-        XCTAssertEqual(
-            subject.message,
-            Localizations.dueToAnEnterprisePolicyYouCanOnlyCreateXSends(SendType.text.localizedName),
-        )
+        XCTAssertEqual(subject.message, Localizations.dueToAnEnterprisePolicyYouCanOnlyCreateTextSends)
         XCTAssertEqual(subject.alertActions.count, 1)
         XCTAssertEqual(subject.alertActions[0].title, Localizations.ok)
         XCTAssertEqual(subject.alertActions[0].style, .default)
 
         try await subject.tapAction(title: Localizations.ok)
         XCTAssertTrue(called)
+    }
+
+    /// `sendTypeRestrictedByPolicy(_:action:)` returns the File Sends message when File is the allowed type.
+    func test_sendTypeRestrictedByPolicy_file() {
+        let subject = Alert.sendTypeRestrictedByPolicy(.file) {}
+
+        XCTAssertEqual(subject.message, Localizations.dueToAnEnterprisePolicyYouCanOnlyCreateFileSends)
+    }
+
+    /// `sendTypeRestrictedByPolicy(_:action:)` returns the generic policy message when the allowed type is unknown.
+    func test_sendTypeRestrictedByPolicy_unknown() {
+        let subject = Alert.sendTypeRestrictedByPolicy(.unknown) {}
+
+        XCTAssertEqual(subject.message, Localizations.sendOptionsPolicyInEffect)
     }
 
     /// `specificPeopleUnavailable(action:)` returns an `Alert` notifying the user that the

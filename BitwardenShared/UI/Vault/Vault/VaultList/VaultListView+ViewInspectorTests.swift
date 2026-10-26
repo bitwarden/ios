@@ -14,8 +14,6 @@ import XCTest
 
 // MARK: - VaultListViewTests
 
-// swiftlint:disable file_length
-
 class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
@@ -275,6 +273,21 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertNoThrow(try subject.inspect().find(actionCard: "Upcoming Maintenance"))
     }
 
+    /// The organization banner action card takes precedence over other action cards, which are
+    /// shown once the banner is dismissed.
+    @MainActor
+    func test_orgBannerActionCard_takesPrecedenceOverOtherActionCards() throws {
+        processor.state.loadingState = .data([])
+        processor.state.importLoginsSetupProgress = .incomplete
+        processor.state.organizationUserNotificationBannerData = .fixture()
+        XCTAssertNoThrow(try subject.inspect().find(actionCard: "Upcoming Maintenance"))
+        XCTAssertThrowsError(try subject.inspect().find(actionCard: Localizations.importSavedLogins))
+
+        processor.state.organizationUserNotificationBannerData = nil
+        XCTAssertThrowsError(try subject.inspect().find(actionCard: "Upcoming Maintenance"))
+        XCTAssertNoThrow(try subject.inspect().find(actionCard: Localizations.importSavedLogins))
+    }
+
     /// When the organization banner has a primary button (and a header), the close (X) button is not shown.
     @MainActor
     func test_orgBannerActionCard_primaryButtonHidesCloseButton() throws {
@@ -337,14 +350,14 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         )
     }
 
-    /// Tapping the search result dispatches the `.itemPressed` action.
+    /// Tapping the search result dispatches the `.itemPressed` effect.
     @MainActor
-    func test_searchResult_tap() throws {
+    func test_searchResult_tap() async throws {
         let result = VaultListItem.fixture()
         processor.state.searchResults = [result]
-        let button = try subject.inspect().find(button: "Bitwarden")
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .itemPressed(item: result))
+        let button = try subject.inspect().find(asyncButton: "Bitwarden")
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .itemPressed(result))
     }
 
     /// Tapping the go to settings button in the flight recorder toast banner dispatches the
@@ -371,18 +384,14 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(processor.effects, [.tryAgainTapped])
     }
 
-    /// Tapping the vault item dispatches the `.itemPressed` action.
+    /// Tapping the vault item dispatches the `.itemPressed` effect.
     @MainActor
-    func test_vaultItem_tap() throws {
+    func test_vaultItem_tap() async throws {
         let item = VaultListItem(id: "1", itemType: .group(.login, 123))
         processor.state.loadingState = .data([VaultListSection(id: "1", items: [item], name: "Group")])
-        let button = try subject.inspect().find(LoadingViewType.self)
-            .find(ViewType.Button.self) { view in
-                _ = try view.find { try $0.accessibilityIdentifier() == "LoginCell" }
-                return true
-            }
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .itemPressed(item: item))
+        let button = try subject.inspect().find(asyncButtonWithAccessibilityIdentifier: "VaultListItemRowButton")
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .itemPressed(item))
     }
 
     /// Tapping the vault item copy totp button dispatches the `.copyTOTPCode` action.

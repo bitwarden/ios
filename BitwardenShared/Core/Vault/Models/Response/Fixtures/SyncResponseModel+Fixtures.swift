@@ -6,7 +6,7 @@ extension SyncResponseModel {
         collections: [CollectionDetailsResponseModel] = [],
         domains: DomainsResponseModel? = nil,
         folders: [FolderResponseModel] = [],
-        policies: [PolicyResponseModel] = [],
+        policies: [PolicyResponseModel]? = nil,
         policiesNew: [PolicyResponseModel]? = nil,
         profile: ProfileResponseModel? = nil,
         sends: [SendResponseModel] = [],

@@ -80,6 +80,9 @@ public enum SettingsRoute: Equatable, Hashable {
     /// A route to the Premium upgrade screen.
     case premiumUpgrade
 
+    /// A route to the Premium upgrade complete screen.
+    case premiumUpgradeComplete
+
     /// A route to view the select language view.
     ///
     /// - Parameter currentLanguage: The currently selected language option.
