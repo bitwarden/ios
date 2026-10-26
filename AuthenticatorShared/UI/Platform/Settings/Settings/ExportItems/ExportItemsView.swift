@@ -16,12 +16,14 @@ struct ExportItemsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
+            header
+
             fileFormatField
 
             exportButton
         }
         .scrollView()
-        .navigationBar(title: Localizations.exportItems, titleDisplayMode: .inline)
+        .navigationBar(title: Localizations.export, titleDisplayMode: .inline)
         .task {
             await store.perform(.loadData)
         }
@@ -36,10 +38,10 @@ struct ExportItemsView: View {
 
     /// The button to export the items.
     private var exportButton: some View {
-        Button(Localizations.exportItems) {
+        Button(Localizations.export) {
             store.send(.exportItemsTapped)
         }
-        .buttonStyle(.tertiary())
+        .buttonStyle(.primary())
         .accessibilityIdentifier("ExportItemsButton")
     }
 
@@ -54,6 +56,24 @@ struct ExportItemsView: View {
                 send: ExportItemsAction.fileFormatTypeChanged,
             ),
         )
+    }
+
+    /// The header describing which items are included in the export.
+    private var header: some View {
+        VStack(spacing: 12) {
+            Text(Localizations.includedInThisReport)
+                .styleGuide(.title2, weight: .semibold)
+                .accessibilityIdentifier("ExportItemsHeaderTitle")
+
+            Text(Localizations.onlyCodesStoredLocallyOnThisDeviceDescriptionLong)
+                .styleGuide(.body)
+                .padding(.horizontal, 12)
+                .accessibilityIdentifier("ExportItemsHeaderDescription")
+        }
+        .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
+        .multilineTextAlignment(.center)
+        .frame(maxWidth: .infinity)
+        .padding(.top, 12)
     }
 }
 
