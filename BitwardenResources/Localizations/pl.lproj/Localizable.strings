@@ -1,7 +1,7 @@
 "About" = "O aplikacji";
 "Add" = "Dodaj";
 "AddFolder" = "Dodaj folder";
-"AnErrorHasOccurred" = "Wystąpił błąd.";
+"AnErrorHasOccurred" = "Wystąpił błąd";
 "Back" = "Powrót";
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Anuluj";
@@ -500,8 +500,8 @@
 "SpecialCharacters" = "Znaki specjalne (!@#$%^&*)";
 "PasswordIsVisibleTapToHide" = "Hasło jest widoczne. Kliknij, aby je ukryć.";
 "PasswordIsNotVisibleTapToShow" = "Hasło nie jest widoczne. Kliknij, aby je pokazać.";
-"FieldValueIsVisibleTapToHide" = "%1$@ is visible, tap to hide.";
-"FieldValueIsNotVisibleTapToShow" = "%1$@ is not visible, tap to show.";
+"FieldValueIsVisibleTapToHide" = "Pole %1$@ jest widoczne. Kliknij, aby ukryć.";
+"FieldValueIsNotVisibleTapToShow" = "Pole %1$@ jest ukryte. Kliknij, aby pokazać.";
 "FilterByVault" = "Filtruj elementy według sejfu";
 "AllVaults" = "Wszystkie sejfy";
 "Vaults" = "Sejfy";
@@ -535,9 +535,9 @@
 "CatchAllEmail" = "Adres catch-all";
 "ForwardedEmailAlias" = "Alias przekierowania";
 "RandomWord" = "Losowe słowo";
-"EmailRequiredParenthesis" = "Adres e-mail (wymagany)";
-"DomainNameRequiredParenthesis" = "Nazwa domeny (wymagana)";
-"APIKeyRequiredParenthesis" = "Klucz API (wymagany)";
+"EmailRequiredParenthesis" = "Adres e-mail (wymagane)";
+"DomainNameRequiredParenthesis" = "Nazwa domeny (wymagane)";
+"APIKeyRequiredParenthesis" = "Klucz API (wymagane)";
 "Service" = "Usługa";
 "AddyIo" = "addy.io";
 "FirefoxRelay" = "Firefox Relay";
@@ -1097,7 +1097,7 @@
 "AnyoneWithTheLink" = "Każdy, kto ma link";
 "AnyoneWithThisLinkCanViewThisSend" = "Każdy, kto ma link, może odczytać wysyłkę.";
 "AfterSharingThisSendLinkDescriptionLong" = "Aby wyświetlić wysyłkę, odbiorcy będą musieli zweryfikować adres e-mail za pomocą kodu.";
-"IndividualsWillNeedToEnterThisPasswordDescriptionLong" = "Individuals will need to enter this password to view this Send";
+"IndividualsWillNeedToEnterThisPasswordDescriptionLong" = "Odbiorca będzie musiał wpisać hasło, aby zobaczyć tekst wysyłki";
 "SpecificPeople" = "Konkretni użytkownicy";
 "WhoCanView" = "Kto może odczytać";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Udostępnianie użytkownikom jest funkcją Premium. Twój obecny plan nie zawiera tej funkcji.";
@@ -1276,11 +1276,11 @@
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Wyczyść %1$@";
 /* Accessibility hint on a collapsed date field announcing that activating it activates the calendar picker. */
-"DoubleTapToActivateThePicker" = "Double tap to activate the picker";
+"DoubleTapToActivateThePicker" = "Dotknij dwukrotnie, aby wybrać datę";
 /* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
-"DoubleTapToCloseThePicker" = "Double tap to close the picker";
+"DoubleTapToCloseThePicker" = "Dotknij dwukrotnie, aby zamknąć datę";
 /* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
-"FutureDatesUnavailable" = "Future dates unavailable";
+"FutureDatesUnavailable" = "Przyszłe daty są niedostępne";
 "PremiumRequiredTOTPDescriptionLong" = "Klucz uwierzytelniający (TOTP) jest funkcją Premium. Twój obecny plan nie zawiera tej funkcji.";
 /* Toast shown after a login item is saved. */
 "LoginSaved" = "Dane logowania zostały zapisane";
@@ -1301,4 +1301,4 @@
 "NotNow" = "Nie teraz";
 "SyncUnsuccessful" = "Synchronizacja nie powiodła się";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Nie mogliśmy zsynchronizować sejfu z serwerem. Sejf może nie zawierać najnowszych zmian. Spróbuj ponownie lub poczekaj na automatyczną synchronizację.";
-"TextToShareRequired" = "Text to share (required)";
+"TextToShareRequired" = "Tekst do udostępnienia (wymagane)";
