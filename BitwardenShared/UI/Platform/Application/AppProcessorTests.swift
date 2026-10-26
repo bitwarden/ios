@@ -1632,6 +1632,86 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         )
     }
 
+    /// `applyDebugEnvironmentOverride(userDefaults:hostHomeDirectory:)` sets all the pre-auth URLs
+    /// from the JSON file, taking precedence over the base URL launch argument.
+    @MainActor
+    func test_applyDebugEnvironmentOverride_file() async throws {
+        let userDefaults = try XCTUnwrap(UserDefaults(suiteName: #function))
+        defer { userDefaults.removePersistentDomain(forName: #function) }
+        userDefaults.set(
+            "https://ignored.example.com",
+            forKey: Constants.DebugLaunchArguments.preAuthEnvironmentBaseURL,
+        )
+
+        let homeDirectory = try writeDebugEnvironmentFile(
+            """
+            {
+              "base": "https://vault.example.com",
+              "api": "https://api.example.com",
+              "identity": "https://identity.example.com",
+              "icons": "https://icons.example.com",
+              "notifications": "https://notifications.example.com",
+              "events": "https://events.example.com",
+              "webVault": "https://web.example.com"
+            }
+            """,
+        )
+        defer { try? FileManager.default.removeItem(at: homeDirectory) }
+
+        await subject.applyDebugEnvironmentOverride(userDefaults: userDefaults, hostHomeDirectory: homeDirectory)
+
+        XCTAssertEqual(
+            environmentService.setPreAuthEnvironmentURLsData,
+            EnvironmentURLData(
+                api: URL(string: "https://api.example.com"),
+                base: URL(string: "https://vault.example.com"),
+                events: URL(string: "https://events.example.com"),
+                icons: URL(string: "https://icons.example.com"),
+                identity: URL(string: "https://identity.example.com"),
+                notifications: URL(string: "https://notifications.example.com"),
+                webVault: URL(string: "https://web.example.com"),
+            ),
+        )
+    }
+
+    /// `applyDebugEnvironmentOverride(userDefaults:hostHomeDirectory:)` falls back to the base URL
+    /// launch argument if the JSON file is invalid.
+    @MainActor
+    func test_applyDebugEnvironmentOverride_invalidFile() async throws {
+        let userDefaults = try XCTUnwrap(UserDefaults(suiteName: #function))
+        defer { userDefaults.removePersistentDomain(forName: #function) }
+        userDefaults.set("https://vault.example.com", forKey: Constants.DebugLaunchArguments.preAuthEnvironmentBaseURL)
+
+        let homeDirectory = try writeDebugEnvironmentFile("not json")
+        defer { try? FileManager.default.removeItem(at: homeDirectory) }
+
+        await subject.applyDebugEnvironmentOverride(userDefaults: userDefaults, hostHomeDirectory: homeDirectory)
+
+        XCTAssertEqual(
+            environmentService.setPreAuthEnvironmentURLsData,
+            EnvironmentURLData(base: URL(string: "https://vault.example.com")),
+        )
+        XCTAssertEqual(errorReporter.errors.count, 1)
+    }
+
+    /// `applyDebugEnvironmentOverride(userDefaults:hostHomeDirectory:)` falls back to the base URL
+    /// launch argument if the JSON file doesn't exist.
+    @MainActor
+    func test_applyDebugEnvironmentOverride_missingFile() async throws {
+        let userDefaults = try XCTUnwrap(UserDefaults(suiteName: #function))
+        defer { userDefaults.removePersistentDomain(forName: #function) }
+        userDefaults.set("https://vault.example.com", forKey: Constants.DebugLaunchArguments.preAuthEnvironmentBaseURL)
+
+        let homeDirectory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+
+        await subject.applyDebugEnvironmentOverride(userDefaults: userDefaults, hostHomeDirectory: homeDirectory)
+
+        XCTAssertEqual(
+            environmentService.setPreAuthEnvironmentURLsData,
+            EnvironmentURLData(base: URL(string: "https://vault.example.com")),
+        )
+    }
+
     /// `applyDebugEnvironmentOverride(userDefaults:)` does nothing if the launch argument isn't present.
     @MainActor
     func test_applyDebugEnvironmentOverride_noArgument() async throws {
@@ -1653,6 +1733,24 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await subject.applyDebugEnvironmentOverride(userDefaults: userDefaults)
 
         XCTAssertNil(environmentService.setPreAuthEnvironmentURLsData)
+    }
+
+    /// Writes the contents to the debug environment file inside a new temporary home directory.
+    ///
+    /// - Parameter contents: The contents of the file.
+    /// - Returns: The temporary home directory, which the caller is responsible for removing.
+    ///
+    private func writeDebugEnvironmentFile(_ contents: String) throws -> URL {
+        let homeDirectory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let fileURL = homeDirectory.appendingPathComponent(
+            Constants.DebugLaunchArguments.preAuthEnvironmentFileRelativePath,
+        )
+        try FileManager.default.createDirectory(
+            at: fileURL.deletingLastPathComponent(),
+            withIntermediateDirectories: true,
+        )
+        try Data(contents.utf8).write(to: fileURL)
+        return homeDirectory
     }
     #endif
 

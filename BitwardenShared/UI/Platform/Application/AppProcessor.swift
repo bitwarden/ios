@@ -885,19 +885,54 @@ extension AppProcessor: PendingAppIntentActionMediatorDelegate {
 
 #if DEBUG
 extension AppProcessor {
-    /// Overrides the pre-auth environment base URL with the one passed as the
-    /// `-BWPreAuthEnvironmentBaseURL <url>` launch argument, if any. Intended for UI automation.
+    /// Overrides the pre-auth environment URLs. Intended for UI automation and local development.
     ///
-    /// - Parameter userDefaults: The `UserDefaults` exposing the launch arguments.
+    /// The URLs are read from the JSON file at `~/.bitwarden/debug-environment.json` on the host
+    /// Mac (simulator only), decoded as `EnvironmentURLData`. If the file is missing or invalid,
+    /// it falls back to the `-BWPreAuthEnvironmentBaseURL <url>` launch argument, which sets only
+    /// the base URL.
+    ///
+    /// - Parameters:
+    ///   - userDefaults: The `UserDefaults` exposing the launch arguments.
     ///     Defaults to `.standard`, which surfaces `-key value` launch arguments.
+    ///   - hostHomeDirectory: The home directory of the host Mac. Defaults to the one the
+    ///     simulator exposes through `SIMULATOR_HOST_HOME`.
     ///
-    func applyDebugEnvironmentOverride(userDefaults: UserDefaults = .standard) async {
+    func applyDebugEnvironmentOverride(
+        userDefaults: UserDefaults = .standard,
+        hostHomeDirectory: URL? = ProcessInfo.processInfo.environment["SIMULATOR_HOST_HOME"]
+            .map { URL(fileURLWithPath: $0, isDirectory: true) },
+    ) async {
+        if let urls = debugEnvironmentURLsFromFile(hostHomeDirectory: hostHomeDirectory) {
+            await services.environmentService.setPreAuthURLs(urls: urls)
+            return
+        }
+
         guard let urlString = userDefaults.string(forKey: Constants.DebugLaunchArguments.preAuthEnvironmentBaseURL),
               let url = URL(string: urlString),
               url.scheme != nil else {
             return
         }
         await services.environmentService.setPreAuthURLs(urls: EnvironmentURLData(base: url))
+    }
+
+    /// Reads the debug environment URLs from the JSON file in the host Mac's home directory.
+    ///
+    /// - Parameter hostHomeDirectory: The home directory of the host Mac.
+    /// - Returns: The decoded URLs, or `nil` if there's no home directory or the file is missing or invalid.
+    ///
+    private func debugEnvironmentURLsFromFile(hostHomeDirectory: URL?) -> EnvironmentURLData? {
+        guard let hostHomeDirectory else { return nil }
+        let fileURL = hostHomeDirectory.appendingPathComponent(
+            Constants.DebugLaunchArguments.preAuthEnvironmentFileRelativePath,
+        )
+        guard let data = try? Data(contentsOf: fileURL) else { return nil }
+        do {
+            return try JSONDecoder().decode(EnvironmentURLData.self, from: data)
+        } catch {
+            services.errorReporter.log(error: error)
+            return nil
+        }
     }
 }
 #endif
