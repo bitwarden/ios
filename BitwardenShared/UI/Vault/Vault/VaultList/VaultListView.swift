@@ -361,7 +361,7 @@ extension SearchableVaultListView {
                 title: Localizations.unlockAdvancedSecurityFeatures,
                 message: Localizations.aPremiumPlanGivesYouMoreToolsDescriptionLong,
                 actionButtonState: ActionCard.ButtonState(title: Localizations.learnMore) {
-                    store.send(.upgradeToPremium)
+                    await store.perform(.upgradeToPremium)
                 },
                 dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
                     await store.perform(.dismissPremiumUpgradeActionCard)

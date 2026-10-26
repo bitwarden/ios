@@ -11,9 +11,9 @@
 "CopyPassphrase" = "Copy passphrase";
 "CopyPassword" = "Copia password";
 "CopyUsername" = "Copia nome utente";
-"UseThisPassphrase" = "Use this passphrase";
-"UseThisPassword" = "Use this password";
-"UseThisUsername" = "Use this username";
+"UseThisPassphrase" = "Usa questa passphrase";
+"UseThisPassword" = "Usa questa password";
+"UseThisUsername" = "Usa questo nome utente";
 "Delete" = "Elimina";
 "DeleteAll" = "Elimina tutto";
 "Deleting" = "Eliminazione in corso…";
