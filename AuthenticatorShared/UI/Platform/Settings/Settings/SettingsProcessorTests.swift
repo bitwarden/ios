@@ -34,6 +34,7 @@ class SettingsProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         coordinator = MockCoordinator()
         flightRecorder = MockFlightRecorder()
         pasteboardService = MockPasteboardService()
+        pasteboardService.allowUniversalClipboard = false
         stateService = MockStateService()
         totpItemDisplayStateService = MockTOTPItemDisplayStateService()
         totpItemDisplayStateService.getShowNextTOTPCodeReturnValue = false
@@ -122,16 +123,16 @@ class SettingsProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertTrue(flightRecorder.disableFlightRecorderCalled)
     }
 
-    /// Loading settings restores the persisted Universal Clipboard choice.
+    /// Performing `.loadData` sets the Universal Clipboard toggle to the current value in the `PasteboardService`.
     @MainActor
     func test_perform_loadData_allowUniversalClipboard() async {
         XCTAssertFalse(subject.state.allowUniversalClipboard)
-        appSettingsStore.allowUniversalClipboard = true
+        pasteboardService.allowUniversalClipboard = true
 
         await subject.perform(.loadData)
         XCTAssertTrue(subject.state.allowUniversalClipboard)
 
-        appSettingsStore.allowUniversalClipboard = false
+        pasteboardService.allowUniversalClipboard = false
         await subject.perform(.loadData)
         XCTAssertFalse(subject.state.allowUniversalClipboard)
     }
@@ -379,15 +380,15 @@ class SettingsProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(subject.state.url, ExternalLinksConstants.passwordManagerLink)
     }
 
-    /// Changing the toggle updates both the view state and persisted preference.
+    /// Receiving `.toggleAllowUniversalClipboard` updates the state and the `PasteboardService`.
     @MainActor
     func test_receive_toggleAllowUniversalClipboard() {
         subject.receive(.toggleAllowUniversalClipboard(true))
         XCTAssertTrue(subject.state.allowUniversalClipboard)
-        XCTAssertTrue(appSettingsStore.allowUniversalClipboard)
+        XCTAssertEqual(pasteboardService.updateAllowUniversalClipboardReceivedAllowUniversalClipboard, true)
 
         subject.receive(.toggleAllowUniversalClipboard(false))
         XCTAssertFalse(subject.state.allowUniversalClipboard)
-        XCTAssertFalse(appSettingsStore.allowUniversalClipboard)
+        XCTAssertEqual(pasteboardService.updateAllowUniversalClipboardReceivedAllowUniversalClipboard, false)
     }
 }

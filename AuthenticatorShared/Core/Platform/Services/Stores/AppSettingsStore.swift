@@ -10,9 +10,6 @@ import OSLog
 /// A protocol for an object that persists app setting values.
 ///
 protocol AppSettingsStore: AnyObject {
-    /// Whether copied content can be shared with other devices using Universal Clipboard.
-    var allowUniversalClipboard: Bool { get set }
-
     /// The app's locale.
     var appLocale: String? { get set }
 
@@ -45,6 +42,14 @@ protocol AppSettingsStore: AnyObject {
 
     /// Whether to show the next TOTP code when the current code is about to expire.
     var showNextTOTPCode: Bool { get set }
+
+    /// Whether content copied by the user can be shared with their other devices using Universal Clipboard.
+    ///
+    /// - Parameter userId: The user ID associated with the Universal Clipboard setting.
+    ///
+    /// - Returns: A Boolean value indicating whether Universal Clipboard is allowed.
+    ///
+    func allowUniversalClipboard(userId: String) -> Bool
 
     /// Gets the closed state for the given card.
     ///
@@ -102,6 +107,14 @@ protocol AppSettingsStore: AnyObject {
     /// - Parameter userId: The user ID associated with the server config.
     /// - Returns: The server config for that user ID.
     func serverConfig(userId: String) -> ServerConfig?
+
+    /// Sets whether content copied by the user can be shared with their other devices using Universal Clipboard.
+    ///
+    /// - Parameters:
+    ///   - allowUniversalClipboard: A Boolean value indicating whether Universal Clipboard is allowed.
+    ///   - userId: The user ID associated with the Universal Clipboard setting.
+    ///
+    func setAllowUniversalClipboard(_ allowUniversalClipboard: Bool?, userId: String)
 
     /// Sets the user's Biometric Authentication Preference.
     ///
@@ -290,7 +303,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
     /// The keys used to store their associated values.
     ///
     enum Keys {
-        case allowUniversalClipboard
+        case allowUniversalClipboard(userId: String)
         case appID
         case appLocale
         case appTheme
@@ -314,8 +327,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         /// Returns the key used to store the data under for retrieving it later.
         var storageKey: String {
             let key = switch self {
-            case .allowUniversalClipboard:
-                "allowUniversalClipboard"
+            case let .allowUniversalClipboard(userId):
+                "allowUniversalClipboard_\(userId)"
             case .appID:
                 "appId"
             case .appLocale:
@@ -357,11 +370,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
             }
             return "bwaPreferencesStorage:\(key)"
         }
-    }
-
-    var allowUniversalClipboard: Bool {
-        get { fetch(for: .allowUniversalClipboard) }
-        set { store(newValue, for: .allowUniversalClipboard) }
     }
 
     var appLocale: String? {
@@ -419,6 +427,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         set { store(newValue, for: .showNextTOTPCode) }
     }
 
+    func allowUniversalClipboard(userId: String) -> Bool {
+        fetch(for: .allowUniversalClipboard(userId: userId))
+    }
+
     func cardClosedState(card: ItemListCard) -> Bool {
         fetch(for: .cardClosedState(card: card))
     }
@@ -457,6 +469,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func serverConfig(userId: String) -> ServerConfig? {
         fetch(for: .serverConfig(userId: userId))
+    }
+
+    func setAllowUniversalClipboard(_ allowUniversalClipboard: Bool?, userId: String) {
+        store(allowUniversalClipboard, for: .allowUniversalClipboard(userId: userId))
     }
 
     func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, for userId: String) {

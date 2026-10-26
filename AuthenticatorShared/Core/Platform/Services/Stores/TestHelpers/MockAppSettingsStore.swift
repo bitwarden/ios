@@ -6,8 +6,8 @@ import Foundation
 
 class MockAppSettingsStore: AppSettingsStore {
     var addSitePromptShown = false
-    var allowUniversalClipboard = false
     var allowSyncOnRefreshes = [String: Bool]()
+    var allowUniversalClipboardByUserId = [String: Bool]()
     var appId: String?
     var appLocale: String?
     var appTheme: String?
@@ -57,6 +57,10 @@ class MockAppSettingsStore: AppSettingsStore {
         cardClosedStateValues[card] = true
     }
 
+    func allowUniversalClipboard(userId: String) -> Bool {
+        allowUniversalClipboardByUserId[userId] ?? false
+    }
+
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
         clearClipboardValues[userId] ?? .never
     }
@@ -88,6 +92,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func serverConfig(userId: String) -> ServerConfig? {
         serverConfig[userId]
+    }
+
+    func setAllowUniversalClipboard(_ allowUniversalClipboard: Bool?, userId: String) {
+        allowUniversalClipboardByUserId[userId] = allowUniversalClipboard
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {

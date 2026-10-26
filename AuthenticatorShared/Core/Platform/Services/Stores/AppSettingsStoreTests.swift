@@ -23,21 +23,22 @@ struct AppSettingsStoreTests {
 
     // MARK: Tests
 
-    /// Universal Clipboard is disabled when no preference has been stored.
+    /// `allowUniversalClipboard(userId:)` returns `false` if there isn't a previously stored value.
     @Test
     func allowUniversalClipboard_isInitiallyFalse() {
-        #expect(!subject.allowUniversalClipboard)
+        #expect(!subject.allowUniversalClipboard(userId: "-1"))
     }
 
-    /// The preference survives recreating the store with either value.
-    @Test(arguments: [true, false])
-    func allowUniversalClipboard_persistsAcrossStoreInstances(isEnabled: Bool) {
-        subject.allowUniversalClipboard = !isEnabled
-        subject.allowUniversalClipboard = isEnabled
+    /// `allowUniversalClipboard(userId:)` can be used to get the allow universal clipboard value for a user.
+    @Test
+    func allowUniversalClipboard_withValue() {
+        subject.setAllowUniversalClipboard(true, userId: "1")
+        subject.setAllowUniversalClipboard(false, userId: "2")
 
-        let restoredStore = DefaultAppSettingsStore(userDefaults: userDefaults)
-        #expect(restoredStore.allowUniversalClipboard == isEnabled)
-        #expect(userDefaults.bool(forKey: "bwaPreferencesStorage:allowUniversalClipboard") == isEnabled)
+        #expect(subject.allowUniversalClipboard(userId: "1"))
+        #expect(!subject.allowUniversalClipboard(userId: "2"))
+        #expect(userDefaults.bool(forKey: "bwaPreferencesStorage:allowUniversalClipboard_1"))
+        #expect(!userDefaults.bool(forKey: "bwaPreferencesStorage:allowUniversalClipboard_2"))
     }
 
     /// `appID` returns `nil` if there isn't a previously stored value.

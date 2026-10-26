@@ -2595,6 +2595,10 @@ extension DefaultStateService: BiometricsStateService {
     }
 }
 
+// MARK: PasteboardStateService
+
+extension DefaultStateService: PasteboardStateService {}
+
 // MARK: - DebugStateService
 
 extension DefaultStateService {

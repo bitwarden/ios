@@ -1,109 +1,136 @@
 import UIKit
 import UniformTypeIdentifiers
 
-// MARK: - Pasteboard
-
-/// The pasteboard write operation. This boundary lets tests inspect sharing and expiration options.
-public protocol Pasteboard { // sourcery: AutoMockable
-    /// Writes items with the specified sharing and expiration options.
-    /// - Parameters:
-    ///   - items: The items to copy.
-    ///   - options: The sharing and expiration policy.
-    func setItems(_ items: [[String: Any]], options: [UIPasteboard.OptionsKey: Any])
-}
-
-extension UIPasteboard: Pasteboard {}
-
-// MARK: - PasteboardSettingsProvider
-
-/// Supplies the clipboard preferences managed by an application.
-public protocol PasteboardSettingsProvider: AnyObject { // sourcery: AutoMockable
-    /// Whether copied content can be shared with other devices.
-    var allowUniversalClipboard: Bool { get }
-
-    /// The time after which copied content expires.
-    var clearClipboardValue: ClearClipboardValue { get }
-
-    /// Updates the Universal Clipboard preference.
-    /// - Parameter allowUniversalClipboard: Whether sharing is allowed.
-    func updateAllowUniversalClipboard(_ allowUniversalClipboard: Bool)
-
-    /// Updates the expiration preference.
-    /// - Parameter clearClipboardValue: The expiration period.
-    func updateClearClipboardValue(_ clearClipboardValue: ClearClipboardValue)
-}
-
 // MARK: - PasteboardService
 
-/// A service for copying text with the user's sharing and expiration preferences.
+/// A protocol for a service used by the application for sharing data with other apps.
+///
 public protocol PasteboardService: AnyObject { // sourcery: AutoMockable
-    /// Whether copied content can be shared with other devices.
+    /// Indicates whether Universal Clipboard is allowed when copying.
     var allowUniversalClipboard: Bool { get }
 
-    /// The time after which copied content expires.
+    /// The time after which the clipboard should clear.
     var clearClipboardValue: ClearClipboardValue { get }
 
-    /// Copies a string to the system pasteboard with the current preferences.
-    /// - Parameter string: The string to copy.
+    /// Copies a string value to the system pasteboard and sets a timer to clear the clipboard, if applicable.
+    ///
+    /// - Parameter string: The string value to copy.
+    ///
     func copy(_ string: String)
 
-    /// Updates the Universal Clipboard preference.
-    /// - Parameter allowUniversalClipboard: Whether sharing is allowed.
+    /// Updates the setting to allow or disallow Universal Clipboard.
+    ///
+    /// - Parameter allowUniversalClipboard: A Boolean value indicating whether Universal Clipboard should be allowed.
+    ///
     func updateAllowUniversalClipboard(_ allowUniversalClipboard: Bool)
 
-    /// Updates the expiration preference.
-    /// - Parameter clearClipboardValue: The expiration period.
+    /// Update the timeout period after which the clipboard should be cleared.
+    ///
+    /// - Parameter clearClipboardValue: The time after which the clipboard should be cleared.
+    ///
     func updateClearClipboardValue(_ clearClipboardValue: ClearClipboardValue)
 }
 
 // MARK: - DefaultPasteboardService
 
-/// The default pasteboard writer shared by both applications.
+/// A default implementation of a `PasteboardService` that uses the system pasteboard for sharing
+/// data with other apps.
+///
 public class DefaultPasteboardService: PasteboardService {
     // MARK: Properties
 
-    public var allowUniversalClipboard: Bool { settingsProvider.allowUniversalClipboard }
-    public var clearClipboardValue: ClearClipboardValue { settingsProvider.clearClipboardValue }
+    /// Indicates whether Universal Clipboard is allowed when copying.
+    public private(set) var allowUniversalClipboard: Bool = false
 
-    private let pasteboard: Pasteboard
-    private let settingsProvider: PasteboardSettingsProvider
+    /// The time after which the clipboard should clear.
+    public private(set) var clearClipboardValue: ClearClipboardValue = .never
+
+    /// The service used by the application to report non-fatal errors.
+    private let errorReporter: ErrorReporter
+
+    /// The pasteboard used by this service.
+    private let pasteboard: PasteboardProtocol
+
+    /// The service used by the application to manage the pasteboard state.
+    private let stateService: PasteboardStateService
+
+    /// Provides the present time for calculating when copied content expires.
     private let timeProvider: TimeProvider
 
     // MARK: Initialization
 
-    /// Creates a pasteboard service using the supplied settings and clock.
+    /// Initializes a new `DefaultPasteboardService`.
+    ///
     /// - Parameters:
-    ///   - pasteboard: The destination pasteboard.
-    ///   - settingsProvider: The application's clipboard settings provider.
-    ///   - timeProvider: The clock used to calculate expiration.
+    ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///   - pasteboard: The pasteboard used by the service. Default is `.general`.
+    ///   - stateService: The service used by the application to manage the pasteboard state.
+    ///   - timeProvider: Provides the present time for calculating when copied content expires.
+    ///
     public init(
-        pasteboard: Pasteboard = UIPasteboard.general,
-        settingsProvider: PasteboardSettingsProvider,
+        errorReporter: ErrorReporter,
+        pasteboard: PasteboardProtocol = UIPasteboard.general,
+        stateService: PasteboardStateService,
         timeProvider: TimeProvider = CurrentTime(),
     ) {
+        self.errorReporter = errorReporter
         self.pasteboard = pasteboard
-        self.settingsProvider = settingsProvider
+        self.stateService = stateService
         self.timeProvider = timeProvider
+
+        // Get the value of the clipboard settings for the currently active user.
+        Task {
+            for await userId in await self.stateService.activeAccountIdPublisher().values {
+                guard let userId else {
+                    // Revert to the default values if the user isn't logged in.
+                    clearClipboardValue = .never
+                    allowUniversalClipboard = false
+                    continue
+                }
+                do {
+                    clearClipboardValue = try await self.stateService.getClearClipboardValue(userId: userId)
+                    allowUniversalClipboard = try await self.stateService.getAllowUniversalClipboard(userId: userId)
+                } catch {
+                    self.errorReporter.log(error: error)
+                }
+            }
+        }
     }
 
     // MARK: Methods
 
     public func copy(_ string: String) {
-        let clearClipboardValue = settingsProvider.clearClipboardValue
-        var options: [UIPasteboard.OptionsKey: Any] = [
-            .localOnly: !settingsProvider.allowUniversalClipboard,
-        ]
+        var options: [UIPasteboard.OptionsKey: Any] = [.localOnly: !allowUniversalClipboard]
         if clearClipboardValue != .never {
+            // Set the expiration date if the clear clipboard preference is not never.
             options[.expirationDate] = timeProvider.presentTime.addingTimeInterval(Double(clearClipboardValue.rawValue))
         }
         pasteboard.setItems([[UTType.utf8PlainText.identifier: string]], options: options)
     }
 
     public func updateAllowUniversalClipboard(_ allowUniversalClipboard: Bool) {
-        settingsProvider.updateAllowUniversalClipboard(allowUniversalClipboard)
+        self.allowUniversalClipboard = allowUniversalClipboard
+
+        // Update the value in storage.
+        Task {
+            do {
+                try await self.stateService.setAllowUniversalClipboard(allowUniversalClipboard, userId: nil)
+            } catch {
+                self.errorReporter.log(error: error)
+            }
+        }
     }
 
     public func updateClearClipboardValue(_ clearClipboardValue: ClearClipboardValue) {
-        settingsProvider.updateClearClipboardValue(clearClipboardValue)
+        self.clearClipboardValue = clearClipboardValue
+
+        // Update the value in storage.
+        Task {
+            do {
+                try await self.stateService.setClearClipboardValue(clearClipboardValue, userId: nil)
+            } catch {
+                self.errorReporter.log(error: error)
+            }
+        }
     }
 }

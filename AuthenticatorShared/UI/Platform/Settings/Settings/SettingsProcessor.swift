@@ -130,7 +130,7 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
         case let .toastShown(newValue):
             state.toast = newValue
         case let .toggleAllowUniversalClipboard(isOn):
-            services.appSettingsStore.allowUniversalClipboard = isOn
+            services.pasteboardService.updateAllowUniversalClipboard(isOn)
             state.allowUniversalClipboard = isOn
         case .tutorialTapped:
             coordinator.navigate(to: .tutorial)
@@ -162,7 +162,7 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
 
     /// Load any initial data for the view.
     private func loadData() async {
-        state.allowUniversalClipboard = services.appSettingsStore.allowUniversalClipboard
+        state.allowUniversalClipboard = services.pasteboardService.allowUniversalClipboard
         state.currentLanguage = services.stateService.appLanguage
         state.appTheme = await services.stateService.getAppTheme()
         state.biometricUnlockStatus = await loadBiometricUnlockPreference()
