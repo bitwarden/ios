@@ -653,16 +653,27 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         let subject = Alert.sendTypeRestrictedByPolicy(.text) { called = true }
 
         XCTAssertNil(subject.title)
-        XCTAssertEqual(
-            subject.message,
-            Localizations.dueToAnEnterprisePolicyYouCanOnlyCreateXSends(SendType.text.localizedName),
-        )
+        XCTAssertEqual(subject.message, Localizations.dueToAnEnterprisePolicyYouCanOnlyCreateTextSends)
         XCTAssertEqual(subject.alertActions.count, 1)
         XCTAssertEqual(subject.alertActions[0].title, Localizations.ok)
         XCTAssertEqual(subject.alertActions[0].style, .default)
 
         try await subject.tapAction(title: Localizations.ok)
         XCTAssertTrue(called)
+    }
+
+    /// `sendTypeRestrictedByPolicy(_:action:)` returns the File Sends message when File is the allowed type.
+    func test_sendTypeRestrictedByPolicy_file() {
+        let subject = Alert.sendTypeRestrictedByPolicy(.file) {}
+
+        XCTAssertEqual(subject.message, Localizations.dueToAnEnterprisePolicyYouCanOnlyCreateFileSends)
+    }
+
+    /// `sendTypeRestrictedByPolicy(_:action:)` returns the generic policy message when the allowed type is unknown.
+    func test_sendTypeRestrictedByPolicy_unknown() {
+        let subject = Alert.sendTypeRestrictedByPolicy(.unknown) {}
+
+        XCTAssertEqual(subject.message, Localizations.sendOptionsPolicyInEffect)
     }
 
     /// `specificPeopleUnavailable(action:)` returns an `Alert` notifying the user that the

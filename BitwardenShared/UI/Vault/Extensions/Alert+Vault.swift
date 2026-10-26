@@ -372,9 +372,14 @@ extension Alert {
         _ allowedType: SendType,
         action: @escaping () -> Void,
     ) -> Alert {
-        Alert(
+        let message = switch allowedType {
+        case .file: Localizations.dueToAnEnterprisePolicyYouCanOnlyCreateFileSends
+        case .text: Localizations.dueToAnEnterprisePolicyYouCanOnlyCreateTextSends
+        case .unknown: Localizations.sendOptionsPolicyInEffect
+        }
+        return Alert(
             title: nil,
-            message: Localizations.dueToAnEnterprisePolicyYouCanOnlyCreateXSends(allowedType.localizedName),
+            message: message,
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default) { _, _ in action() },
             ],
