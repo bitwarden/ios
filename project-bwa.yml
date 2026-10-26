@@ -16,7 +16,7 @@ settings:
 packages:
   SwiftProtobuf:
     url: https://github.com/apple/swift-protobuf
-    exactVersion: 1.38.1
+    exactVersion: 1.39.0
 projectReferences:
   BitwardenKit:
     path: BitwardenKit.xcodeproj
