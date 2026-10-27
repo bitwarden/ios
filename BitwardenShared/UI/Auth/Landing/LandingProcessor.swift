@@ -74,8 +74,9 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
                       await metaConfig?.serverConfig?.isCurrentConfig(
                           for: stateService.getPreAuthEnvironmentURLs(),
                       ) == true else { continue }
-                self.state.isCreateAccountButtonHidden = metaConfig?.serverConfig?
-                    .settings?.disableUserRegistration == true
+                let isFedRamp = await stateService.getPreAuthEnvironmentURLs()?.isFedRamp == true
+                self.state.isCreateAccountButtonHidden = isFedRamp
+                    || metaConfig?.serverConfig?.settings?.disableUserRegistration == true
             }
         }
     }
@@ -89,8 +90,11 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     override func perform(_ effect: LandingEffect) async {
         switch effect {
         case .appeared:
-            state.isCreateAccountButtonHidden = await currentPreAuthServerConfig()?
+            // FedRAMP is decided from the URLs so the button is hidden without waiting for `/config`.
+            let isFedRamp = await services.stateService.getPreAuthEnvironmentURLs()?.isFedRamp == true
+            let isRegistrationDisabled = await currentPreAuthServerConfig()?
                 .settings?.disableUserRegistration == true
+            state.isCreateAccountButtonHidden = isFedRamp || isRegistrationDisabled
             await regionHelper.loadRegion()
             await refreshProfileState()
         case .continuePressed:
@@ -273,6 +277,7 @@ extension LandingProcessor: RegionDelegate {
         guard !urls.isEmpty else { return }
         await services.environmentService.setPreAuthURLs(urls: urls)
         state.region = region
+        state.isCreateAccountButtonHidden = urls.isFedRamp
 
         // - Using `Task` for `refreshConfig` ensures that this call doesn't delay other operations,
         //   such as closing the Self-host settings view or triggering `.appeared` events. These issues
