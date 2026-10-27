@@ -177,6 +177,20 @@ public extension InspectableView {
         }
     }
 
+    /// Attempts to locate an async button with the provided accessibility identifier.
+    ///
+    /// - Parameter accessibilityIdentifier: The accessibility identifier to use while searching for a button.
+    /// - Returns: A button, if one can be located.
+    /// - Throws: Throws an error if a view was unable to be located.
+    ///
+    func find(
+        asyncButtonWithAccessibilityIdentifier accessibilityIdentifier: String,
+    ) throws -> InspectableView<AsyncButtonType> {
+        try find(AsyncButtonType.self) { view in
+            try view.accessibilityIdentifier() == accessibilityIdentifier
+        }
+    }
+
     /// Attempts to locate a bitwarden menu field with the provided title.
     ///
     /// - Parameters:

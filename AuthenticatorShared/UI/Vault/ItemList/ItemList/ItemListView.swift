@@ -405,310 +405,87 @@ struct ItemListView: View {
 // MARK: Previews
 
 #if DEBUG
-struct ItemListView_Previews: PreviewProvider { // swiftlint:disable:this type_body_length
-    static var previews: some View {
-        NavigationView {
-            ItemListView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: ItemListState(
-                            loadingState: .loading(nil),
-                        ),
+#Preview("Loading") {
+    NavigationView {
+        ItemListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: ItemListState(
+                        loadingState: .loading(nil),
                     ),
                 ),
-                timeProvider: PreviewTimeProvider(),
-            )
-        }.previewDisplayName("Loading")
+            ),
+            timeProvider: PreviewTimeProvider(),
+        )
+    }
+}
 
-        NavigationView {
-            ItemListView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: ItemListState(
-                            loadingState: .data([]),
-                        ),
+#Preview("Empty") {
+    NavigationView {
+        ItemListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: ItemListState(
+                        loadingState: .data([]),
                     ),
                 ),
-                timeProvider: PreviewTimeProvider(),
-            )
-        }.previewDisplayName("Empty")
+            ),
+            timeProvider: PreviewTimeProvider(),
+        )
+    }
+}
 
-        NavigationView {
-            ItemListView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: ItemListState(
-                            loadingState: .data(
-                                [
-                                    ItemListSection(
-                                        id: "Favorites",
-                                        items: [
-                                            ItemListItem(
-                                                id: "Favorited",
-                                                name: "Favorited",
-                                                accountName: nil,
-                                                itemType: .totp(
-                                                    model: ItemListTotpItem(
-                                                        itemView: .fixture(),
-                                                        totpCode: TOTPCodeModel(
-                                                            code: "123456",
-                                                            codeGenerationDate: Date(),
-                                                            period: 30,
-                                                        ),
-                                                    ),
-                                                ),
-                                            ),
-                                        ],
-                                        name: "Favorites",
-                                    ),
-                                    ItemListSection(
-                                        id: "Section",
-                                        items: [
-                                            ItemListItem(
-                                                id: "One",
-                                                name: "One",
-                                                accountName: nil,
-                                                itemType: .totp(
-                                                    model: ItemListTotpItem(
-                                                        itemView: AuthenticatorItemView.fixture(),
-                                                        totpCode: TOTPCodeModel(
-                                                            code: "123456",
-                                                            codeGenerationDate: Date(),
-                                                            period: 30,
-                                                        ),
-                                                    ),
-                                                ),
-                                            ),
-                                            ItemListItem(
-                                                id: "Two",
-                                                name: "Two",
-                                                accountName: nil,
-                                                itemType: .totp(
-                                                    model: ItemListTotpItem(
-                                                        itemView: AuthenticatorItemView.fixture(),
-                                                        totpCode: TOTPCodeModel(
-                                                            code: "123456",
-                                                            codeGenerationDate: Date(),
-                                                            period: 30,
-                                                        ),
-                                                    ),
-                                                ),
-                                            ),
-                                        ],
-                                        name: "Personal",
-                                    ),
-                                ],
-                            ),
-                        ),
-                    ),
-                ),
-                timeProvider: PreviewTimeProvider(),
-            )
-        }.previewDisplayName("Items with Favorite")
-
-        NavigationView {
-            ItemListView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: ItemListState(
-                            loadingState: .data(
-                                [
-                                    ItemListSection(
-                                        id: "Section",
-                                        items: [
-                                            ItemListItem(
-                                                id: "One",
-                                                name: "One",
-                                                accountName: nil,
-                                                itemType: .totp(
-                                                    model: ItemListTotpItem(
-                                                        itemView: AuthenticatorItemView.fixture(),
-                                                        totpCode: TOTPCodeModel(
-                                                            code: "123456",
-                                                            codeGenerationDate: Date(),
-                                                            period: 30,
-                                                        ),
-                                                    ),
-                                                ),
-                                            ),
-                                            ItemListItem(
-                                                id: "Two",
-                                                name: "Two",
-                                                accountName: nil,
-                                                itemType: .totp(
-                                                    model: ItemListTotpItem(
-                                                        itemView: AuthenticatorItemView.fixture(),
-                                                        totpCode: TOTPCodeModel(
-                                                            code: "123456",
-                                                            codeGenerationDate: Date(),
-                                                            period: 30,
-                                                        ),
-                                                    ),
-                                                ),
-                                            ),
-                                        ],
-                                        name: "",
-                                    ),
-                                ],
-                            ),
-                        ),
-                    ),
-                ),
-                timeProvider: PreviewTimeProvider(),
-            )
-        }.previewDisplayName("Items without Favorite")
-
-        NavigationView {
-            ItemListView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: ItemListState(
-                            searchResults: [],
-                            searchText: "Example",
-                        ),
-                    ),
-                ),
-                timeProvider: PreviewTimeProvider(),
-            )
-        }.previewDisplayName("0 Search Results")
-
-        NavigationView {
-            ItemListView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: ItemListState(
-                            searchResults: [
-                                ItemListItem(
-                                    id: "One",
-                                    name: "One",
-                                    accountName: "person@example.com",
-                                    itemType: .totp(
-                                        model: ItemListTotpItem(
-                                            itemView: AuthenticatorItemView.fixture(),
-                                            totpCode: TOTPCodeModel(
-                                                code: "123456",
-                                                codeGenerationDate: Date(),
-                                                period: 30,
-                                            ),
-                                        ),
-                                    ),
-                                ),
-                            ],
-                            searchText: "One",
-                        ),
-                    ),
-                ),
-                timeProvider: PreviewTimeProvider(),
-            )
-        }.previewDisplayName("1 Search Result")
-
-        NavigationView {
-            ItemListView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: ItemListState(
-                            searchResults: [
-                                ItemListItem(
-                                    id: "One",
-                                    name: "One",
-                                    accountName: "person@example.com",
-                                    itemType: .totp(
-                                        model: ItemListTotpItem(
-                                            itemView: AuthenticatorItemView.fixture(),
-                                            totpCode: TOTPCodeModel(
-                                                code: "123456",
-                                                codeGenerationDate: Date(),
-                                                period: 30,
-                                            ),
-                                        ),
-                                    ),
-                                ),
-                                ItemListItem(
-                                    id: "Two",
-                                    name: "One Direction",
-                                    accountName: nil,
-                                    itemType: .totp(
-                                        model: ItemListTotpItem(
-                                            itemView: AuthenticatorItemView.fixture(),
-                                            totpCode: TOTPCodeModel(
-                                                code: "123456",
-                                                codeGenerationDate: Date(),
-                                                period: 30,
-                                            ),
-                                        ),
-                                    ),
-                                ),
-                                ItemListItem(
-                                    id: "Three",
-                                    name: "One Song",
-                                    accountName: "person@example.com",
-                                    itemType: .totp(
-                                        model: ItemListTotpItem(
-                                            itemView: AuthenticatorItemView.fixture(),
-                                            totpCode: TOTPCodeModel(
-                                                code: "123456",
-                                                codeGenerationDate: Date(),
-                                                period: 30,
-                                            ),
-                                        ),
-                                    ),
-                                ),
-                            ],
-                            searchText: "One",
-                        ),
-                    ),
-                ),
-                timeProvider: PreviewTimeProvider(),
-            )
-        }.previewDisplayName("3 Search Results")
-
-        NavigationView {
-            ItemListView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: ItemListState(
-                            loadingState: .data([ItemListSection.digitsFixture(accountNames: true)]),
-                        ),
-                    ),
-                ),
-                timeProvider: PreviewTimeProvider(),
-            )
-        }.previewDisplayName("Digits")
-
-        NavigationView {
-            ItemListView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: ItemListState(
-                            loadingState: .data([
-                                ItemListSection.digitsFixture(accountNames: true),
+#Preview("Items with Favorite") {
+    NavigationView {
+        ItemListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: ItemListState(
+                        loadingState: .data(
+                            [
                                 ItemListSection(
-                                    id: "",
-                                    items: [.syncError()],
-                                    name: "",
-                                ),
-                            ]),
-                        ),
-                    ),
-                ),
-                timeProvider: PreviewTimeProvider(),
-            )
-        }.previewDisplayName("SyncError")
-
-        NavigationView {
-            ItemListView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: ItemListState(
-                            loadingState: .data([
-                                ItemListSection.digitsFixture(accountNames: true),
-                                ItemListSection(
-                                    id: "",
+                                    id: "Favorites",
                                     items: [
                                         ItemListItem(
-                                            id: "Shared One",
-                                            name: "Share",
-                                            accountName: "person@shared.com",
+                                            id: "Favorited",
+                                            name: "Favorited",
+                                            accountName: nil,
+                                            itemType: .totp(
+                                                model: ItemListTotpItem(
+                                                    itemView: .fixture(),
+                                                    totpCode: TOTPCodeModel(
+                                                        code: "123456",
+                                                        codeGenerationDate: Date(),
+                                                        period: 30,
+                                                    ),
+                                                ),
+                                            ),
+                                        ),
+                                    ],
+                                    name: "Favorites",
+                                ),
+                                ItemListSection(
+                                    id: "Section",
+                                    items: [
+                                        ItemListItem(
+                                            id: "One",
+                                            name: "One",
+                                            accountName: nil,
+                                            itemType: .totp(
+                                                model: ItemListTotpItem(
+                                                    itemView: AuthenticatorItemView.fixture(),
+                                                    totpCode: TOTPCodeModel(
+                                                        code: "123456",
+                                                        codeGenerationDate: Date(),
+                                                        period: 30,
+                                                    ),
+                                                ),
+                                            ),
+                                        ),
+                                        ItemListItem(
+                                            id: "Two",
+                                            name: "Two",
+                                            accountName: nil,
                                             itemType: .totp(
                                                 model: ItemListTotpItem(
                                                     itemView: AuthenticatorItemView.fixture(),
@@ -721,45 +498,286 @@ struct ItemListView_Previews: PreviewProvider { // swiftlint:disable:this type_b
                                             ),
                                         ),
                                     ],
-                                    name: "example.com",
+                                    name: "Personal",
                                 ),
-                            ]),
+                            ],
                         ),
                     ),
                 ),
-                timeProvider: PreviewTimeProvider(),
-            )
-        }.previewDisplayName("SharedItems")
+            ),
+            timeProvider: PreviewTimeProvider(),
+        )
+    }
+}
 
-        NavigationView {
-            ItemListView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: ItemListState(
-                            itemListCardState: .passwordManagerDownload,
-                            loadingState: .data([]),
+#Preview("Items without Favorite") {
+    NavigationView {
+        ItemListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: ItemListState(
+                        loadingState: .data(
+                            [
+                                ItemListSection(
+                                    id: "Section",
+                                    items: [
+                                        ItemListItem(
+                                            id: "One",
+                                            name: "One",
+                                            accountName: nil,
+                                            itemType: .totp(
+                                                model: ItemListTotpItem(
+                                                    itemView: AuthenticatorItemView.fixture(),
+                                                    totpCode: TOTPCodeModel(
+                                                        code: "123456",
+                                                        codeGenerationDate: Date(),
+                                                        period: 30,
+                                                    ),
+                                                ),
+                                            ),
+                                        ),
+                                        ItemListItem(
+                                            id: "Two",
+                                            name: "Two",
+                                            accountName: nil,
+                                            itemType: .totp(
+                                                model: ItemListTotpItem(
+                                                    itemView: AuthenticatorItemView.fixture(),
+                                                    totpCode: TOTPCodeModel(
+                                                        code: "123456",
+                                                        codeGenerationDate: Date(),
+                                                        period: 30,
+                                                    ),
+                                                ),
+                                            ),
+                                        ),
+                                    ],
+                                    name: "",
+                                ),
+                            ],
                         ),
                     ),
                 ),
-                timeProvider: PreviewTimeProvider(),
-            )
-        }
-        .previewDisplayName("Password Manager Download Card")
+            ),
+            timeProvider: PreviewTimeProvider(),
+        )
+    }
+}
 
-        NavigationView {
-            ItemListView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: ItemListState(
-                            itemListCardState: .passwordManagerSync,
-                            loadingState: .data([]),
-                        ),
+#Preview("0 Search Results") {
+    NavigationView {
+        ItemListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: ItemListState(
+                        searchResults: [],
+                        searchText: "Example",
                     ),
                 ),
-                timeProvider: PreviewTimeProvider(),
-            )
-        }
-        .previewDisplayName("Password Manager Sync Card")
+            ),
+            timeProvider: PreviewTimeProvider(),
+        )
+    }
+}
+
+#Preview("1 Search Result") {
+    NavigationView {
+        ItemListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: ItemListState(
+                        searchResults: [
+                            ItemListItem(
+                                id: "One",
+                                name: "One",
+                                accountName: "person@example.com",
+                                itemType: .totp(
+                                    model: ItemListTotpItem(
+                                        itemView: AuthenticatorItemView.fixture(),
+                                        totpCode: TOTPCodeModel(
+                                            code: "123456",
+                                            codeGenerationDate: Date(),
+                                            period: 30,
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        ],
+                        searchText: "One",
+                    ),
+                ),
+            ),
+            timeProvider: PreviewTimeProvider(),
+        )
+    }
+}
+
+#Preview("3 Search Results") {
+    NavigationView {
+        ItemListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: ItemListState(
+                        searchResults: [
+                            ItemListItem(
+                                id: "One",
+                                name: "One",
+                                accountName: "person@example.com",
+                                itemType: .totp(
+                                    model: ItemListTotpItem(
+                                        itemView: AuthenticatorItemView.fixture(),
+                                        totpCode: TOTPCodeModel(
+                                            code: "123456",
+                                            codeGenerationDate: Date(),
+                                            period: 30,
+                                        ),
+                                    ),
+                                ),
+                            ),
+                            ItemListItem(
+                                id: "Two",
+                                name: "One Direction",
+                                accountName: nil,
+                                itemType: .totp(
+                                    model: ItemListTotpItem(
+                                        itemView: AuthenticatorItemView.fixture(),
+                                        totpCode: TOTPCodeModel(
+                                            code: "123456",
+                                            codeGenerationDate: Date(),
+                                            period: 30,
+                                        ),
+                                    ),
+                                ),
+                            ),
+                            ItemListItem(
+                                id: "Three",
+                                name: "One Song",
+                                accountName: "person@example.com",
+                                itemType: .totp(
+                                    model: ItemListTotpItem(
+                                        itemView: AuthenticatorItemView.fixture(),
+                                        totpCode: TOTPCodeModel(
+                                            code: "123456",
+                                            codeGenerationDate: Date(),
+                                            period: 30,
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        ],
+                        searchText: "One",
+                    ),
+                ),
+            ),
+            timeProvider: PreviewTimeProvider(),
+        )
+    }
+}
+
+#Preview("Digits") {
+    NavigationView {
+        ItemListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: ItemListState(
+                        loadingState: .data([ItemListSection.digitsFixture(accountNames: true)]),
+                    ),
+                ),
+            ),
+            timeProvider: PreviewTimeProvider(),
+        )
+    }
+}
+
+#Preview("SyncError") {
+    NavigationView {
+        ItemListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: ItemListState(
+                        loadingState: .data([
+                            ItemListSection.digitsFixture(accountNames: true),
+                            ItemListSection(
+                                id: "",
+                                items: [.syncError()],
+                                name: "",
+                            ),
+                        ]),
+                    ),
+                ),
+            ),
+            timeProvider: PreviewTimeProvider(),
+        )
+    }
+}
+
+#Preview("SharedItems") {
+    NavigationView {
+        ItemListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: ItemListState(
+                        loadingState: .data([
+                            ItemListSection.digitsFixture(accountNames: true),
+                            ItemListSection(
+                                id: "",
+                                items: [
+                                    ItemListItem(
+                                        id: "Shared One",
+                                        name: "Share",
+                                        accountName: "person@shared.com",
+                                        itemType: .totp(
+                                            model: ItemListTotpItem(
+                                                itemView: AuthenticatorItemView.fixture(),
+                                                totpCode: TOTPCodeModel(
+                                                    code: "123456",
+                                                    codeGenerationDate: Date(),
+                                                    period: 30,
+                                                ),
+                                            ),
+                                        ),
+                                    ),
+                                ],
+                                name: "example.com",
+                            ),
+                        ]),
+                    ),
+                ),
+            ),
+            timeProvider: PreviewTimeProvider(),
+        )
+    }
+}
+
+#Preview("Password Manager Download Card") {
+    NavigationView {
+        ItemListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: ItemListState(
+                        itemListCardState: .passwordManagerDownload,
+                        loadingState: .data([]),
+                    ),
+                ),
+            ),
+            timeProvider: PreviewTimeProvider(),
+        )
+    }
+}
+
+#Preview("Password Manager Sync Card") {
+    NavigationView {
+        ItemListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: ItemListState(
+                        itemListCardState: .passwordManagerSync,
+                        loadingState: .data([]),
+                    ),
+                ),
+            ),
+            timeProvider: PreviewTimeProvider(),
+        )
     }
 }
 #endif

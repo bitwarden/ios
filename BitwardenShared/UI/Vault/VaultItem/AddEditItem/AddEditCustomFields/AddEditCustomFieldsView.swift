@@ -140,46 +140,44 @@ struct AddEditCustomFieldsView: View {
 }
 
 #if DEBUG
-struct AddEditCustomFieldsView_Previews: PreviewProvider {
-    static var previews: some View {
-        AddEditCustomFieldsView(
-            store: Store(
-                processor: StateProcessor(
-                    state: AddEditCustomFieldsState(
-                        cipherType: .identity,
-                        customFields: [
-                            CustomFieldState(
-                                linkedIdType: nil,
-                                name: "Custom text",
-                                type: .text,
-                                value: "value goes here",
-                            ),
-                            CustomFieldState(
-                                linkedIdType: nil,
-                                name: "Custom text",
-                                type: .hidden,
-                                value: "value goes here",
-                            ),
-                            CustomFieldState(
-                                linkedIdType: nil,
-                                name: "Custom boolean",
-                                type: .boolean,
-                            ),
-                            CustomFieldState(
-                                linkedIdType: .identityFirstName,
-                                name: "Custom linked field",
-                                type: .linked,
-                            ),
-                        ],
-                    ),
+#Preview {
+    AddEditCustomFieldsView(
+        store: Store(
+            processor: StateProcessor(
+                state: AddEditCustomFieldsState(
+                    cipherType: .identity,
+                    customFields: [
+                        CustomFieldState(
+                            linkedIdType: nil,
+                            name: "Custom text",
+                            type: .text,
+                            value: "value goes here",
+                        ),
+                        CustomFieldState(
+                            linkedIdType: nil,
+                            name: "Custom text",
+                            type: .hidden,
+                            value: "value goes here",
+                        ),
+                        CustomFieldState(
+                            linkedIdType: nil,
+                            name: "Custom boolean",
+                            type: .boolean,
+                        ),
+                        CustomFieldState(
+                            linkedIdType: .identityFirstName,
+                            name: "Custom linked field",
+                            type: .linked,
+                        ),
+                    ],
                 ),
             ),
-        )
-        .padding(16)
-        .background(
-            SharedAsset.Colors.backgroundPrimary.swiftUIColor
-                .ignoresSafeArea(),
-        )
-    }
+        ),
+    )
+    .padding(16)
+    .background(
+        SharedAsset.Colors.backgroundPrimary.swiftUIColor
+            .ignoresSafeArea(),
+    )
 }
 #endif

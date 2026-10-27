@@ -31,8 +31,6 @@ struct BWStateView: View {
     }
 }
 
-struct BWStateView_Previews: PreviewProvider {
-    static var previews: some View {
-        BWStateView(.needSetup, nil)
-    }
+#Preview {
+    BWStateView(.needSetup, nil)
 }
