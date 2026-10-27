@@ -7,8 +7,7 @@ import Foundation
 
 // sourcery: AutoMockable
 /// A service that performs passkey registration and authentication directly through
-/// `BitwardenSdk`'s Fido2 client — the same way the main Bitwarden app and its AutoFill
-/// extension do — without going through the OS's passkey UI or a real vault.
+/// `BitwardenSdk`'s Fido2 client.
 ///
 public protocol PasskeyService: AnyObject {
     /// Asserts a passkey for `rpId` against previously registered credentials.
@@ -42,7 +41,7 @@ public protocol PasskeyService: AnyObject {
 
 // MARK: - HasPasskeyService
 
-/// A protocol for an object that provides an `PasskeyService`.
+/// A protocol for an object that provides a `PasskeyService`.
 protocol HasPasskeyService {
     /// The service used to perform passkey registration and authentication through the
     /// Bitwarden SDK.
