@@ -48,6 +48,9 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     var didEnterBackgroundCalled = 0
     var willEnterForegroundCalled = 0
 
+    /// The suite name of the `UserDefaults` that isolates the debug launch arguments from the host.
+    let debugUserDefaultsSuiteName = "AppProcessorTests"
+
     // MARK: Setup & Teardown
 
     override func setUp() { // swiftlint:disable:this function_body_length
@@ -116,10 +119,21 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
             ),
         )
         subject.coordinator = coordinator.asAnyCoordinator()
+
+        #if DEBUG
+        // Isolate the debug environment override from the developer's machine, so tests don't read
+        // `~/.bitwarden/debug-environment.json` or launch arguments from the host.
+        subject.debugHostHomeDirectory = nil
+        if let userDefaults = UserDefaults(suiteName: debugUserDefaultsSuiteName) {
+            subject.debugUserDefaults = userDefaults
+        }
+        #endif
     }
 
     override func tearDown() {
         super.tearDown()
+
+        UserDefaults.standard.removePersistentDomain(forName: debugUserDefaultsSuiteName)
 
         acquireCookiesSubject = nil
         appModule = nil
@@ -1617,6 +1631,23 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     #if DEBUG
+    /// `prepareEnvironmentConfig()` applies the debug environment override using the injected debug
+    /// inputs instead of the host's.
+    @MainActor
+    func test_prepareEnvironmentConfig_debugEnvironmentOverride() async {
+        subject.debugUserDefaults.set(
+            "https://vault.example.com",
+            forKey: Constants.DebugLaunchArguments.preAuthEnvironmentBaseURL,
+        )
+
+        await subject.prepareEnvironmentConfig()
+
+        XCTAssertEqual(
+            environmentService.setPreAuthEnvironmentURLsData,
+            EnvironmentURLData(base: URL(string: "https://vault.example.com")),
+        )
+    }
+
     /// `applyDebugEnvironmentOverride(userDefaults:hostHomeDirectory:)` sets the pre-auth URLs from the
     /// launch argument.
     @MainActor

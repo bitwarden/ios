@@ -46,6 +46,18 @@ public class AppProcessor {
     /// The root coordinator of the app.
     var coordinator: AnyCoordinator<AppRoute, AppEvent>?
 
+    #if DEBUG
+    /// The home directory of the host Mac used to locate the debug environment file. Defaults to the
+    /// one the simulator exposes through `SIMULATOR_HOST_HOME`. Tests set it to `nil` to be isolated
+    /// from the developer's machine.
+    var debugHostHomeDirectory: URL? = ProcessInfo.processInfo.environment["SIMULATOR_HOST_HOME"]
+        .map { URL(fileURLWithPath: $0, isDirectory: true) }
+
+    /// The `UserDefaults` exposing the debug launch arguments. Defaults to `.standard`, which
+    /// surfaces `-key value` launch arguments.
+    var debugUserDefaults: UserDefaults = .standard
+    #endif
+
     /// A timer to send any accumulated events every five minutes.
     private(set) var sendEventTimer: Timer?
 
@@ -211,7 +223,10 @@ public class AppProcessor {
     /// and getting the current server config.
     public func prepareEnvironmentConfig() async {
         #if DEBUG
-        await applyDebugEnvironmentOverride()
+        await applyDebugEnvironmentOverride(
+            userDefaults: debugUserDefaults,
+            hostHomeDirectory: debugHostHomeDirectory,
+        )
         #endif
 
         await services.environmentService.loadURLsForActiveAccount()
@@ -894,14 +909,11 @@ extension AppProcessor {
     ///
     /// - Parameters:
     ///   - userDefaults: The `UserDefaults` exposing the launch arguments.
-    ///     Defaults to `.standard`, which surfaces `-key value` launch arguments.
-    ///   - hostHomeDirectory: The home directory of the host Mac. Defaults to the one the
-    ///     simulator exposes through `SIMULATOR_HOST_HOME`.
+    ///   - hostHomeDirectory: The home directory of the host Mac, or `nil` if it isn't available.
     ///
     func applyDebugEnvironmentOverride(
-        userDefaults: UserDefaults = .standard,
-        hostHomeDirectory: URL? = ProcessInfo.processInfo.environment["SIMULATOR_HOST_HOME"]
-            .map { URL(fileURLWithPath: $0, isDirectory: true) },
+        userDefaults: UserDefaults,
+        hostHomeDirectory: URL?,
     ) async {
         if let urls = debugEnvironmentURLsFromFile(hostHomeDirectory: hostHomeDirectory) {
             await services.environmentService.setPreAuthURLs(urls: urls)
