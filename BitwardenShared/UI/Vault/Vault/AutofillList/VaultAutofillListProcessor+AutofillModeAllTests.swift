@@ -245,6 +245,31 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase {
         XCTAssertEqual(textAutofillHelper.handleCipherForAutofillCalledWithCipher?.id, "1")
     }
 
+    /// `vaultItemTapped(_:)` requests that the search field's focus is cleared when the keyboard
+    /// session anchor isn't used (iOS 27+).
+    @MainActor
+    func test_perform_vaultItemTapped_clearsSearchFocus_withoutKeyboardSessionAnchor() async {
+        subject.state.usesKeyboardSessionAnchor = false
+        let vaultListItem = VaultListItem(cipherListView: CipherListView.fixture(id: "1", login: .fixture()))!
+
+        await subject.perform(.vaultItemTapped(vaultListItem))
+
+        XCTAssertTrue(subject.state.shouldClearSearchFocus)
+        XCTAssertEqual(textAutofillHelper.handleCipherForAutofillCalledWithCipher?.id, "1")
+    }
+
+    /// `vaultItemTapped(_:)` doesn't change the search field's focus when the keyboard session
+    /// anchor is used (before iOS 27).
+    @MainActor
+    func test_perform_vaultItemTapped_doesNotClearSearchFocus_withKeyboardSessionAnchor() async {
+        subject.state.usesKeyboardSessionAnchor = true
+        let vaultListItem = VaultListItem(cipherListView: CipherListView.fixture(id: "1", login: .fixture()))!
+
+        await subject.perform(.vaultItemTapped(vaultListItem))
+
+        XCTAssertFalse(subject.state.shouldClearSearchFocus)
+    }
+
     /// `vaultItemTapped(_:)` has the text autofill helper handle text to insert autofill for the cipher but it throws.
     @MainActor
     func test_perform_vaultItemTappedThrows() async throws {
@@ -265,5 +290,16 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase {
         let alert = try XCTUnwrap(coordinator.alertShown.first)
         XCTAssertEqual(alert.title, Localizations.anErrorHasOccurred)
         XCTAssertEqual(alert.message, Localizations.failedToAutofillItem("Test"))
+    }
+
+    /// `receive(_:)` with `.searchStateChanged(isSearching: true)` resets the request to clear the
+    /// search field's focus, so a later item tap clears it again.
+    @MainActor
+    func test_receive_searchStateChanged_resetsShouldClearSearchFocus() {
+        subject.state.shouldClearSearchFocus = true
+
+        subject.receive(.searchStateChanged(isSearching: true))
+
+        XCTAssertFalse(subject.state.shouldClearSearchFocus)
     }
 }

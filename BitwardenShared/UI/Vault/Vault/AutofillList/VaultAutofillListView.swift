@@ -93,6 +93,10 @@ struct VaultAutofillListView: View {
         .onChange(of: focusedField) { field in
             store.send(.searchStateChanged(isSearching: field == .search))
         }
+        .onChange(of: store.state.shouldClearSearchFocus) { shouldClear in
+            guard shouldClear else { return }
+            focusedField = nil
+        }
     }
 
     // MARK: Private views

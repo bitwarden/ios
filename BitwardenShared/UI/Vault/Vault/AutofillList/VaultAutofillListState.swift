@@ -52,6 +52,10 @@ struct VaultAutofillListState: Equatable, Sendable {
     /// The text that the user is currently searching for.
     var searchText = ""
 
+    /// Whether the text-to-insert list should clear the inline search field's focus. Set when an
+    /// item is tapped (on iOS 27+) so no extension text field is focused when the request completes.
+    var shouldClearSearchFocus = false
+
     /// Whether the no search results view should be shown.
     var showNoResults = false
 
