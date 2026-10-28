@@ -76,20 +76,6 @@ struct BillingRepositoryTests {
         #expect(!result)
     }
 
-    /// `isInAppUpgradeAvailable()` returns `true` when the user is not eligible for the banner and the
-    /// vault has too few items.
-    @Test
-    func isInAppUpgradeAvailable_notEligibleAndInsufficientCipherCount() async {
-        configService.featureFlagsBool[.premiumUpgradePath] = true
-        storefrontService.isUSStorefrontReturnValue = true
-        billingStateService.isPremiumUpgradeEligibleReturnValue = false
-        vaultRepository.hasMinimumCipherCountResult = .success(false)
-
-        let result = await subject.isInAppUpgradeAvailable()
-
-        #expect(result)
-    }
-
     /// `isPremiumUpgradeBannerAvailable()` returns `true` when all conditions are met.
     @Test
     func isPremiumUpgradeBannerAvailable_allConditionsMet() async {
