@@ -2,6 +2,7 @@
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
+import ViewInspector
 import XCTest
 
 @testable import BitwardenShared
@@ -73,13 +74,14 @@ class AutoFillViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .toggleFillAssist(true))
     }
 
-    /// The Fill Assist info button is independently reachable by VoiceOver and is announced as
-    /// an external link.
+    /// The Fill Assist info button's image has an accessibility label, which names the custom
+    /// accessibility action exposed on the toggle.
     @MainActor
     func test_fillAssistToggle_learnMoreButton_accessibility() throws {
         processor.state.isFillAssistFeatureFlagEnabled = true
-        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.learnMore)
-        try XCTAssertEqual(button.accessibilityHint().string(), Localizations.externalLink)
+        XCTAssertNoThrow(try subject.inspect().find(ViewType.Image.self) { image in
+            try image.accessibilityLabel().string() == Localizations.learnMore
+        })
     }
 
     /// The action card is hidden if the autofill setup progress is complete.
