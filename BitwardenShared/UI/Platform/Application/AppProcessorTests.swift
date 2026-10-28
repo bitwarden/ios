@@ -155,47 +155,25 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     // MARK: Tests
 
-    /// `init()` subscribes to app background events and logs an error if one occurs when
-    /// setting the last active time.
+    /// Backgrounding the app doesn't update the last active time or reschedule the background
+    /// session key cleanup task, since that's handled when the app resigns active.
     @MainActor
-    func test_appBackgrounded_error() {
-        stateService.activeAccount = .fixture()
-        vaultTimeoutService.setLastActiveTimeError = BitwardenTestError.example
-
-        notificationCenterService.didEnterBackgroundSubject.send()
-
-        waitFor(!errorReporter.errors.isEmpty)
-        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
-    }
-
-    /// The user's last active time is updated when the app is backgrounded.
-    @MainActor
-    func test_appBackgrounded_setLastActiveTime() {
+    func test_appBackgrounded_doesNotSetLastActiveTime() {
         let account: Account = .fixture()
         stateService.activeAccount = account
-
         vaultTimeoutService.lastActiveTime[account.profile.userId] = .distantPast
 
         notificationCenterService.didEnterBackgroundSubject.send()
-        waitFor(vaultTimeoutService.lastActiveTime[account.profile.userId] != .distantPast)
+        waitFor(didEnterBackgroundCalled > 0)
 
-        let updated = vaultTimeoutService.lastActiveTime[account.profile.userId]
-
-        XCTAssertEqual(timeProvider.presentTime.timeIntervalSince1970, updated!.timeIntervalSince1970, accuracy: 1.0)
+        XCTAssertEqual(vaultTimeoutService.lastActiveTime[account.profile.userId], .distantPast)
+        XCTAssertFalse(backgroundSessionCleanupService.scheduleNextRefreshCalled)
     }
 
-    /// The background session key cleanup task is rescheduled when the app is backgrounded.
-    @MainActor
-    func test_appBackgrounded_reschedulesSessionCleanup() {
-        notificationCenterService.didEnterBackgroundSubject.send()
-        waitFor(backgroundSessionCleanupService.scheduleNextRefreshCalled)
-        XCTAssertTrue(backgroundSessionCleanupService.scheduleNextRefreshCalled)
-    }
-
-    /// The background session key cleanup task is rescheduled when the app resigns active, to
-    /// cover the case where the app is killed before `didEnterBackground` fires.
+    /// The background session key cleanup task is rescheduled when the app resigns active.
     @MainActor
     func test_appWillResignActive_reschedulesSessionCleanup() {
+        waitFor(notificationCenterService.willResignActiveSubscribed)
         notificationCenterService.willResignActiveSubject.send()
         waitFor(backgroundSessionCleanupService.scheduleNextRefreshCalled)
         XCTAssertTrue(backgroundSessionCleanupService.scheduleNextRefreshCalled)
@@ -208,6 +186,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         stateService.activeAccount = .fixture()
         vaultTimeoutService.setLastActiveTimeError = BitwardenTestError.example
 
+        waitFor(notificationCenterService.willResignActiveSubscribed)
         notificationCenterService.willResignActiveSubject.send()
 
         waitFor(!errorReporter.errors.isEmpty)
@@ -218,6 +197,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// the last active time if there's no active account.
     @MainActor
     func test_appWillResignActive_noActiveAccount() {
+        waitFor(notificationCenterService.willResignActiveSubscribed)
         notificationCenterService.willResignActiveSubject.send()
 
         waitFor(backgroundSessionCleanupService.scheduleNextRefreshCalled)
@@ -233,6 +213,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         vaultTimeoutService.lastActiveTime[account.profile.userId] = .distantPast
 
+        waitFor(notificationCenterService.willResignActiveSubscribed)
         notificationCenterService.willResignActiveSubject.send()
         waitFor(vaultTimeoutService.lastActiveTime[account.profile.userId] != .distantPast)
 
