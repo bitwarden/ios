@@ -780,11 +780,33 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                     ),
                     name: "encrypted name",
                     revisionDate: date,
-                    type: .login,
+                    type: .known(.login),
                     viewPassword: true,
                 ),
             ],
         )
+        XCTAssertEqual(cipherService.replaceCiphersUserId, "1")
+    }
+
+    /// `fetchSync()` succeeds when the sync response contains a cipher with an unrecognized type,
+    /// passing it to the cipher service along with the other ciphers.
+    func test_fetchSync_ciphers_unknownType() async throws {
+        var json = try XCTUnwrap(
+            JSONSerialization.jsonObject(with: APITestData.syncWithCipher.data) as? [String: Any],
+        )
+        let ciphers = try XCTUnwrap(json["ciphers"] as? [[String: Any]])
+        var unknownCipher = try XCTUnwrap(ciphers.first)
+        unknownCipher["id"] = "unknown-cipher-id"
+        unknownCipher["type"] = 99
+        json["ciphers"] = ciphers + [unknownCipher]
+        client.result = try .httpSuccess(testData: APITestData(data: JSONSerialization.data(withJSONObject: json)))
+        stateService.activeAccount = .fixture()
+
+        try await subject.fetchSync(forceSync: false)
+
+        let replacedCiphers = try XCTUnwrap(cipherService.replaceCiphersCiphers)
+        XCTAssertEqual(replacedCiphers.map(\.id), ["3792af7a-4441-11ee-be56-0242ac120002", "unknown-cipher-id"])
+        XCTAssertEqual(replacedCiphers.map(\.type), [.known(.login), .unknown(99)])
         XCTAssertEqual(cipherService.replaceCiphersUserId, "1")
     }
 

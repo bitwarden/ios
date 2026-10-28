@@ -1,6 +1,7 @@
 // swiftlint:disable:this file_name
 // swiftlint:disable file_length
 
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenSdk
 import XCTest
@@ -32,18 +33,57 @@ class BitwardenSdkVaultCipherTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `init(responseModel:)` inits the correct Cipher from CipherDetailsResponseModel with `.sshKey` type.
-    func test_init_fromCipherDetailsResponseModelWithSSHKey() {
+    func test_init_fromCipherDetailsResponseModelWithSSHKey() throws {
         let responseModel = CipherDetailsResponseModel.fixture(
             id: "1",
             sshKey: .fixture(),
-            type: .sshKey,
+            type: .known(.sshKey),
         )
-        let cipher = Cipher(responseModel: responseModel)
+        let cipher = try Cipher(responseModel: responseModel)
         XCTAssertEqual(cipher.id, responseModel.id)
         XCTAssertEqual(Int(cipher.type.rawValue), responseModel.type.rawValue)
         XCTAssertEqual(cipher.sshKey?.publicKey, responseModel.sshKey?.publicKey)
         XCTAssertEqual(cipher.sshKey?.privateKey, responseModel.sshKey?.privateKey)
         XCTAssertEqual(cipher.sshKey?.fingerprint, responseModel.sshKey?.keyFingerprint)
+    }
+
+    /// `init(responseModel:)` throws `DataMappingError.unknownCipherType` if the response model's
+    /// cipher type isn't recognized.
+    func test_init_fromCipherDetailsResponseModelUnknownType() {
+        let responseModel = CipherDetailsResponseModel.fixture(id: "1", type: .unknown(99))
+        XCTAssertThrowsError(try Cipher(responseModel: responseModel)) { error in
+            guard case DataMappingError.unknownCipherType(99) = error else {
+                return XCTFail("Expected DataMappingError.unknownCipherType(99), got \(error)")
+            }
+        }
+    }
+
+    /// `init(cipherMiniResponseModel:collectionIds:originalCipher:)` throws
+    /// `DataMappingError.unknownCipherType` if the response model's cipher type isn't recognized.
+    func test_init_fromCipherMiniResponseModelUnknownType() throws {
+        let json = #"""
+        {
+            "creationDate": "2024-01-01T00:00:00.000Z",
+            "id": "1",
+            "organizationId": "org-1",
+            "organizationUseTotp": false,
+            "reprompt": 0,
+            "revisionDate": "2024-01-01T00:00:00.000Z",
+            "type": 99
+        }
+        """#
+        let model = try CipherMiniResponseModel.decoder.decode(
+            CipherMiniResponseModel.self,
+            from: Data(json.utf8),
+        )
+        XCTAssertEqual(model.type, .unknown(99))
+        XCTAssertThrowsError(
+            try Cipher(cipherMiniResponseModel: model, collectionIds: [], originalCipher: nil),
+        ) { error in
+            guard case DataMappingError.unknownCipherType(99) = error else {
+                return XCTFail("Expected DataMappingError.unknownCipherType(99), got \(error)")
+            }
+        }
     }
 }
 

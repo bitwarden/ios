@@ -1,3 +1,4 @@
+import BitwardenKit
 import TestHelpers
 import XCTest
 
@@ -77,7 +78,7 @@ class SyncAPIServiceTests: BitwardenTestCase {
                         name: "encrypted name",
                         reprompt: CipherRepromptType.none,
                         revisionDate: Date(timeIntervalSince1970: 1_691_656_425.345),
-                        type: .login,
+                        type: .known(.login),
                         viewPassword: true,
                     ),
                 ],
@@ -87,6 +88,25 @@ class SyncAPIServiceTests: BitwardenTestCase {
                 sends: [],
             ),
         )
+    }
+
+    /// `getSync()` decodes a response containing a cipher with an unrecognized type as
+    /// `.unknown`, rather than failing to decode the whole response.
+    func test_sync_withCiphers_unknownType() async throws {
+        var json = try XCTUnwrap(
+            JSONSerialization.jsonObject(with: APITestData.syncWithCipher.data) as? [String: Any],
+        )
+        let ciphers = try XCTUnwrap(json["ciphers"] as? [[String: Any]])
+        var unknownCipher = try XCTUnwrap(ciphers.first)
+        unknownCipher["id"] = "unknown-cipher-id"
+        unknownCipher["type"] = 99
+        json["ciphers"] = ciphers + [unknownCipher]
+        client.result = try .httpSuccess(testData: APITestData(data: JSONSerialization.data(withJSONObject: json)))
+
+        let response = try await subject.getSync()
+
+        XCTAssertEqual(response.ciphers.map(\.id), ["3792af7a-4441-11ee-be56-0242ac120002", "unknown-cipher-id"])
+        XCTAssertEqual(response.ciphers.map(\.type), [.known(.login), .unknown(99)])
     }
 
     /// `getSync()` successfully decodes a response with policies.

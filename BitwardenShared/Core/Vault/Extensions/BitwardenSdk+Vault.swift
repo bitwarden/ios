@@ -9,12 +9,16 @@ import BitwardenSdk
 
 /// Errors thrown from converting between SDK and app types.
 ///
-enum DataMappingError: Error {
+enum DataMappingError: Error, Equatable {
     /// Thrown if an object was unable to be constructed because the data was invalid.
     case invalidData
 
     /// Thrown if a required object identifier is nil.
     case missingId
+
+    /// Thrown if a cipher's type isn't recognized by this version of the app, so it can't be
+    /// converted to the SDK's closed `CipherType`.
+    case unknownCipherType(Int)
 }
 
 // MARK: - Ciphers
@@ -144,7 +148,7 @@ extension CipherDetailsResponseModel {
             revisionDate: cipher.revisionDate,
             secureNote: cipher.secureNote.map(CipherSecureNoteModel.init),
             sshKey: cipher.sshKey.map(CipherSSHKeyModel.init),
-            type: BitwardenShared.CipherType(type: cipher.type),
+            type: OpenEnum(BitwardenShared.CipherType(type: cipher.type)),
             viewPassword: cipher.viewPassword,
         )
     }
@@ -450,10 +454,19 @@ extension BitwardenSdk.Cipher {
         guard let model = cipherData.model else {
             throw DataMappingError.invalidData
         }
-        self.init(responseModel: model)
+        try self.init(responseModel: model)
     }
 
-    init(responseModel model: CipherDetailsResponseModel) {
+    /// Initialize a `Cipher` from a `CipherDetailsResponseModel`.
+    ///
+    /// - Parameter model: The response model for the cipher.
+    /// - Throws: `DataMappingError.unknownCipherType` if the cipher's type isn't recognized by
+    ///   this version of the app.
+    ///
+    init(responseModel model: CipherDetailsResponseModel) throws {
+        guard let type = model.type.knownValue else {
+            throw DataMappingError.unknownCipherType(model.type.rawValue)
+        }
         self.init(
             id: model.id,
             organizationId: model.organizationId,
@@ -462,7 +475,7 @@ extension BitwardenSdk.Cipher {
             key: model.key,
             name: model.name,
             notes: model.notes,
-            type: BitwardenSdk.CipherType(model.type),
+            type: BitwardenSdk.CipherType(type),
             login: model.login.map(Login.init),
             identity: model.identity.map(Identity.init),
             card: model.card.map(Card.init),
@@ -498,11 +511,17 @@ extension BitwardenSdk.Cipher {
     ///   - collectionIds: The collection IDs to associate with the cipher.
     ///   - originalCipher: The original cipher to preserve fields from (folderId, favorite, edit,
     ///     permissions, viewPassword, localData).
+    /// - Throws: `DataMappingError.unknownCipherType` if the cipher's type isn't recognized by
+    ///   this version of the app.
+    ///
     init(
         cipherMiniResponseModel model: CipherMiniResponseModel,
         collectionIds: [String],
         originalCipher: Cipher?,
-    ) {
+    ) throws {
+        guard let type = model.type.knownValue else {
+            throw DataMappingError.unknownCipherType(model.type.rawValue)
+        }
         self.init(
             id: model.id,
             organizationId: model.organizationId,
@@ -511,7 +530,7 @@ extension BitwardenSdk.Cipher {
             key: model.key,
             name: model.name,
             notes: model.notes,
-            type: BitwardenSdk.CipherType(model.type),
+            type: BitwardenSdk.CipherType(type),
             login: model.login.map(Login.init),
             identity: model.identity.map(Identity.init),
             card: model.card.map(Card.init),

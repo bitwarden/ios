@@ -630,6 +630,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             cipherAPIService: apiService,
             cipherDataStore: dataStore,
             fileAPIService: apiService,
+            flightRecorder: flightRecorder,
             stateService: stateService,
         )
 

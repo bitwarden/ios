@@ -98,8 +98,9 @@ struct CipherDetailsResponseModel: JSONResponse, Equatable {
     /// SSH key if the `type` is `.sshKey`.
     let sshKey: CipherSSHKeyModel?
 
-    /// The type of the cipher.
-    let type: CipherType
+    /// The type of the cipher. Wrapped in `OpenEnum` so that a cipher type this version of the
+    /// app doesn't recognize doesn't fail decoding of the sync response.
+    let type: OpenEnum<CipherType>
 
     /// Whether the password can be viewed.
     let viewPassword: Bool

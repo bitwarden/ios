@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import Combine
 import Foundation
@@ -199,6 +200,9 @@ class DefaultCipherService: CipherService {
     /// The service used to make file related API requests.
     private let fileAPIService: FileAPIService
 
+    /// The service used by the application for recording temporary debug logs.
+    private let flightRecorder: FlightRecorder
+
     /// The service used by the application to manage account state.
     private let stateService: StateService
 
@@ -210,17 +214,20 @@ class DefaultCipherService: CipherService {
     ///   - cipherAPIService: The service used to make cipher related API requests.
     ///   - cipherDataStore: The data store for managing the persisted ciphers for the user.
     ///   - fileAPIService: The service used to make file related API requests.
+    ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - stateService: The service used by the application to manage account state.
     ///
     init(
         cipherAPIService: CipherAPIService,
         cipherDataStore: CipherDataStore,
         fileAPIService: FileAPIService,
+        flightRecorder: FlightRecorder,
         stateService: StateService,
     ) {
         self.cipherAPIService = cipherAPIService
         self.cipherDataStore = cipherDataStore
         self.fileAPIService = fileAPIService
+        self.flightRecorder = flightRecorder
         self.stateService = stateService
     }
 }
@@ -249,7 +256,7 @@ extension DefaultCipherService {
         response.collectionIds = cipher.collectionIds
 
         // Add the cipher in local storage.
-        let addedCipher = Cipher(responseModel: response)
+        let addedCipher = try Cipher(responseModel: response)
         try await cipherDataStore.upsertCipher(addedCipher, userId: userId)
         return addedCipher
     }
@@ -290,7 +297,7 @@ extension DefaultCipherService {
             let originalCipher = ciphersById[cipherResponse.id]
 
             // The API doesn't return all fields, so preserve them from the original cipher.
-            let updatedCipher = Cipher(
+            let updatedCipher = try Cipher(
                 cipherMiniResponseModel: cipherResponse,
                 collectionIds: collectionIds,
                 originalCipher: originalCipher,
@@ -369,12 +376,19 @@ extension DefaultCipherService {
     func syncCipherWithServer(withId id: String) async throws {
         let userId = try await stateService.getActiveAccountId()
         let response = try await cipherAPIService.getCipher(withId: id)
-        let cipher = Cipher(responseModel: response)
+        // Like a full sync, a cipher with an unrecognized type is skipped rather than failing the
+        // sync, since the SDK can't represent it.
+        guard let cipher = try await knownCipher(from: response) else { return }
         try await cipherDataStore.upsertCipher(cipher, userId: userId)
     }
 
     func replaceCiphers(_ ciphers: [CipherDetailsResponseModel], userId: String) async throws {
-        try await cipherDataStore.replaceCiphers(ciphers.map(Cipher.init), userId: userId)
+        var knownCiphers = [Cipher]()
+        for responseModel in ciphers {
+            guard let cipher = try await knownCipher(from: responseModel) else { continue }
+            knownCiphers.append(cipher)
+        }
+        try await cipherDataStore.replaceCiphers(knownCiphers, userId: userId)
     }
 
     func restoreCipherWithServer(id: String, _ cipher: Cipher) async throws {
@@ -414,7 +428,7 @@ extension DefaultCipherService {
         response.cipherResponse.collectionIds = cipher.collectionIds
 
         // Update the cipher in local storage.
-        let updatedCipher = Cipher(responseModel: response.cipherResponse)
+        let updatedCipher = try Cipher(responseModel: response.cipherResponse)
         try await cipherDataStore.upsertCipher(updatedCipher, userId: userId)
 
         // Return the updated cipher.
@@ -501,6 +515,25 @@ extension DefaultCipherService {
     func updateCipherWithLocalStorage(_ cipher: Cipher) async throws {
         let userId = try await stateService.getActiveAccountId()
         try await cipherDataStore.upsertCipher(cipher, userId: userId)
+    }
+
+    // MARK: Private
+
+    /// Converts a cipher response model to a `Cipher`, logging and returning `nil` if the cipher's
+    /// type isn't recognized by this version of the app.
+    ///
+    /// - Parameter responseModel: The cipher response model to convert.
+    /// - Returns: The converted `Cipher`, or `nil` if the cipher's type isn't recognized.
+    ///
+    private func knownCipher(from responseModel: CipherDetailsResponseModel) async throws -> Cipher? {
+        do {
+            return try Cipher(responseModel: responseModel)
+        } catch let DataMappingError.unknownCipherType(rawValue) {
+            await flightRecorder.log(
+                "[CipherService] Ignoring cipher \(responseModel.id) with unrecognized type \(rawValue)",
+            )
+            return nil
+        }
     }
 
     // MARK: Publishers
