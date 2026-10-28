@@ -221,7 +221,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
 
         XCTAssertEqual(preparedData.folders.count, 1)
         XCTAssertEqual(preparedData.folders[0].id, "1")
-        XCTAssertEqual(preparedData.foldersCount["1"], 1)
+        XCTAssertEqual(preparedData.folderCipherIds["1"], ["1"])
     }
 
     /// `addFolderItem(cipher:filter:folders:)` doesn't add a folder to the prepared data when the cipher doesn't
@@ -237,7 +237,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
             .build()
 
         XCTAssertTrue(preparedData.folders.isEmpty)
-        XCTAssertTrue(preparedData.foldersCount.isEmpty)
+        XCTAssertTrue(preparedData.folderCipherIds.isEmpty)
     }
 
     /// `addFolderItem(cipher:filter:folders:)` doesn't add a folder to the prepared data when the cipher
@@ -253,7 +253,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
             .build()
 
         XCTAssertTrue(preparedData.folders.isEmpty)
-        XCTAssertTrue(preparedData.foldersCount.isEmpty)
+        XCTAssertTrue(preparedData.folderCipherIds.isEmpty)
     }
 
     /// `addFolderItem(cipher:filter:folders:)` adds a folder to the prepared data when the ciphers belongs
@@ -287,7 +287,36 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
 
         XCTAssertEqual(preparedData.folders.count, 1)
         XCTAssertEqual(preparedData.folders[0].id, "1")
-        XCTAssertEqual(preparedData.foldersCount["1"], 3)
+        XCTAssertEqual(preparedData.folderCipherIds["1"], ["1", "2", "4"])
+    }
+
+    /// `addFolderItem(cipher:filter:folders:)` adds the folder to the prepared data but doesn't track
+    /// the cipher in the folder when the cipher has no ID.
+    func test_addFolderItem_cipherWithoutId() {
+        let cipher = CipherListView.fixture(id: nil, folderId: "1")
+        let preparedData = subject
+            .addFolderItem(
+                cipher: cipher,
+                filter: VaultListFilter(filterType: .myVault),
+                folders: [.fixture(id: "1"), .fixture(id: "2")],
+            )
+            .build()
+
+        XCTAssertEqual(preparedData.folders.map(\.id), ["1"])
+        XCTAssertTrue(preparedData.folderCipherIds.isEmpty)
+    }
+
+    /// `addFolderItem(cipher:filter:folders:)` tracks each cipher in a folder only once when the
+    /// same cipher is added multiple times.
+    func test_addFolderItem_sameCipherMultipleTimes() {
+        let filter = VaultListFilter(filterType: .allVaults)
+        let folders: [Folder] = [.fixture(id: "1")]
+        let preparedData = subject
+            .addFolderItem(cipher: CipherListView.fixture(id: "1", folderId: "1"), filter: filter, folders: folders)
+            .addFolderItem(cipher: CipherListView.fixture(id: "1", folderId: "1"), filter: filter, folders: folders)
+            .build()
+
+        XCTAssertEqual(preparedData.folderCipherIds["1"], ["1"])
     }
 
     /// `addNoFolderItem(cipher:)` adds a "no folder" list item to the prepared data when cipher
@@ -365,7 +394,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
             .incrementCollectionCount(cipher: cipher)
             .build()
 
-        XCTAssertEqual(preparedData.collectionsCount["1"], 1)
+        XCTAssertEqual(preparedData.collectionCipherIds["1"], ["1"])
     }
 
     /// `incrementCollectionCount(cipher:)` increments the collection count for the cipher's collections
@@ -378,8 +407,8 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
             .incrementCollectionCount(cipher: cipher)
             .build()
 
-        XCTAssertEqual(preparedData.collectionsCount["1"], 1)
-        XCTAssertEqual(preparedData.collectionsCount["2"], 1)
+        XCTAssertEqual(preparedData.collectionCipherIds["1"], ["1"])
+        XCTAssertEqual(preparedData.collectionCipherIds["2"], ["1"])
     }
 
     /// `incrementCollectionCount(cipher:)` does not increment the collection count when the cipher
@@ -392,7 +421,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
             .incrementCollectionCount(cipher: cipher)
             .build()
 
-        XCTAssertNil(preparedData.collectionsCount["1"])
+        XCTAssertNil(preparedData.collectionCipherIds["1"])
     }
 
     /// `incrementCollectionCount(cipher:)` does not increment the collection count when the cipher's collection
@@ -405,8 +434,35 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
             .incrementCollectionCount(cipher: cipher)
             .build()
 
-        XCTAssertNil(preparedData.collectionsCount["2"])
-        XCTAssertNil(preparedData.collectionsCount["1"])
+        XCTAssertNil(preparedData.collectionCipherIds["2"])
+        XCTAssertNil(preparedData.collectionCipherIds["1"])
+    }
+
+    /// `incrementCollectionCount(cipher:)` does not track the cipher in its collections when the
+    /// cipher has no ID.
+    func test_incrementCollectionCount_doesNotIncrementWhenCipherHasNoId() {
+        let collection = Collection.fixture(id: "1")
+        let cipher = CipherListView.fixture(id: nil, collectionIds: ["1"])
+        let preparedData = subject
+            .prepareCollections(collections: [collection], filterType: .allVaults)
+            .incrementCollectionCount(cipher: cipher)
+            .build()
+
+        XCTAssertTrue(preparedData.collectionCipherIds.isEmpty)
+    }
+
+    /// `incrementCollectionCount(cipher:)` tracks each cipher in a collection only once when the
+    /// same cipher is counted multiple times.
+    func test_incrementCollectionCount_sameCipherMultipleTimes() {
+        let collection = Collection.fixture(id: "1")
+        let cipher = CipherListView.fixture(id: "1", collectionIds: ["1"])
+        let preparedData = subject
+            .prepareCollections(collections: [collection], filterType: .allVaults)
+            .incrementCollectionCount(cipher: cipher)
+            .incrementCollectionCount(cipher: cipher)
+            .build()
+
+        XCTAssertEqual(preparedData.collectionCipherIds["1"], ["1"])
     }
 
     /// `incrementTOTPCount(cipher:)` increments the TOTP items count when cipher has TOTP and user has access.
@@ -429,7 +485,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
     }
 
     /// `incrementTOTPCount(cipher:)` does not increment the TOTP items count when user does not have Premium
-    ///  or organiation access.
+    ///  or organization access.
     func test_incrementTOTPCount_doesNotIncrementWhenNoAccess() async {
         let cipher = CipherListView.fixture(type: .login(.fixture(totp: "123456")), organizationUseTotp: false)
         totpService.isTotpAuthorizedResult = false
