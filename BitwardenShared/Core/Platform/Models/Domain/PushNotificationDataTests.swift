@@ -172,7 +172,7 @@ class PushNotificationDataTests: BitwardenTestCase {
         ))
     }
 
-    /// `data()` decodes a logout notification with an unknown reason.
+    /// `data()` decodes a logout notification with an unknown reason, preserving the raw value.
     func test_data_logoutNotification_withReasonUnknown() throws {
         let subject = PushNotificationData(
             contextId: nil,
@@ -187,10 +187,13 @@ class PushNotificationDataTests: BitwardenTestCase {
         )
 
         let data: LogoutNotification = try subject.data()
-        XCTAssertEqual(data, LogoutNotification(
+        var expected = LogoutNotification(
             date: Date(year: 2025, month: 10, day: 1),
             reason: .unknown,
             userId: "12345",
-        ))
+        )
+        expected.$reason = .unknown(-2)
+        XCTAssertEqual(data, expected)
+        XCTAssertEqual(data.reason, .unknown)
     }
 }
