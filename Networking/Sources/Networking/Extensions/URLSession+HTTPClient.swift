@@ -16,14 +16,9 @@ extension URLSession: HTTPClient {
                 }
 
                 do {
-                    let temporaryURL = try FileManager.default.url(
-                        for: .applicationSupportDirectory,
-                        in: .userDomainMask,
-                        appropriateFor: nil,
-                        create: true,
-                    )
-                    .appendingPathComponent("temp")
-                    .appendingPathComponent(url.lastPathComponent)
+                    let temporaryURL = FileManager.default.temporaryDirectory
+                        .appendingPathComponent("temp")
+                        .appendingPathComponent(url.lastPathComponent)
 
                     try FileManager.default.createDirectory(at: temporaryURL, withIntermediateDirectories: true)
 
