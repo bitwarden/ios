@@ -256,9 +256,9 @@ struct AttachmentPreviewProcessorTests {
         #expect(subject.state.temporaryUrl == nil)
     }
 
-    /// The processor clears any temporary downloads when it's deallocated.
+    /// The processor removes the file that it downloaded when it's deallocated.
     @Test
-    func deinit_clearsTemporaryDownloads() {
+    func deinit_removesTemporaryDownload() {
         var localSubject: AttachmentPreviewProcessor? = AttachmentPreviewProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(vaultRepository: vaultRepository),
@@ -272,10 +272,10 @@ struct AttachmentPreviewProcessorTests {
         )
         _ = localSubject
 
-        #expect(!vaultRepository.clearTemporaryDownloadsCalled)
+        #expect(vaultRepository.removeTemporaryDownloadUrls.isEmpty)
         localSubject = nil
 
-        #expect(vaultRepository.clearTemporaryDownloadsCalled)
+        #expect(vaultRepository.removeTemporaryDownloadUrls == [temporaryUrl])
     }
 
     // MARK: Private Methods

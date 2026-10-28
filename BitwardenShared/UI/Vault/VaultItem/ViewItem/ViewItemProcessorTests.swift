@@ -1565,6 +1565,34 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
+    /// `.receive(_:)` with `.downloadAttachment(_)` removes the file from the previous download when a
+    /// new attachment is downloaded.
+    @MainActor
+    func test_receive_downloadAttachment_removesPreviousDownload() async throws {
+        let attachment = AttachmentView.fixture(size: "11000000", sizeName: "big")
+        let cipher = CipherView.fixture(attachments: [attachment])
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        subject.state.loadingState = .data(state)
+        let firstUrl = URL(fileURLWithPath: "/tmp/first.txt")
+        let secondUrl = URL(fileURLWithPath: "/tmp/second.txt")
+
+        // Download the attachment, which saves the first file.
+        vaultRepository.downloadAttachmentResult = .success(firstUrl)
+        subject.receive(.downloadAttachment(attachment))
+        var confirmAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await confirmAction.handler?(confirmAction, [])
+        XCTAssertTrue(vaultRepository.removeTemporaryDownloadUrls.isEmpty)
+
+        // Download the attachment again, which replaces the first file.
+        vaultRepository.downloadAttachmentResult = .success(secondUrl)
+        subject.receive(.downloadAttachment(attachment))
+        confirmAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await confirmAction.handler?(confirmAction, [])
+
+        XCTAssertEqual(vaultRepository.removeTemporaryDownloadUrls, [firstUrl])
+        XCTAssertEqual(coordinator.routes.last, .saveFile(temporaryUrl: secondUrl))
+    }
+
     /// `.receive(_:)` with `.downloadAttachment(_)` shows an alert if the data wasn't saved to a url.
     @MainActor
     func test_receive_downloadAttachment_nilUrl() async throws {

@@ -75,6 +75,10 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     /// The services used by this processor.
     private let services: Services
 
+    /// The url of the file most recently downloaded for the save file picker, which is deleted when this
+    /// processor is deallocated.
+    private var temporaryDownloadUrl: URL?
+
     /// The helper used to navigate to the Premium upgrade flow.
     lazy var premiumUpgradeHelper: PremiumUpgradeHelper = DefaultPremiumUpgradeHelper(
         services: services,
@@ -125,8 +129,10 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     }
 
     deinit {
-        // When the view is dismissed, ensure any temporary files are deleted.
-        services.vaultRepository.clearTemporaryDownloads()
+        // When the view is dismissed, delete the file that this view downloaded. Other downloads are left alone.
+        if let temporaryDownloadUrl {
+            services.vaultRepository.removeTemporaryDownload(at: temporaryDownloadUrl)
+        }
     }
 
     // MARK: Methods
@@ -356,6 +362,12 @@ private extension ViewItemProcessor {
             ) else {
                 return coordinator.showAlert(.defaultAlert(title: Localizations.unableToDownloadFile))
             }
+
+            // Only the most recent download is kept, so delete the one it replaces.
+            if let previousUrl = temporaryDownloadUrl, previousUrl != temporaryUrl {
+                services.vaultRepository.removeTemporaryDownload(at: previousUrl)
+            }
+            temporaryDownloadUrl = temporaryUrl
 
             coordinator.hideLoadingOverlay()
             coordinator.navigate(to: .saveFile(temporaryUrl: temporaryUrl))

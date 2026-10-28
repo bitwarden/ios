@@ -246,7 +246,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.downloadAttachmentResult = .success(downloadUrl)
 
         // Decrypted download file (would normally be created by the SDK when decrypting the attachment).
-        let attachmentsUrl = try FileManager.default.attachmentsUrl(for: account.profile.userId)
+        let attachmentsUrl = FileManager.default.attachmentsUrl(for: account.profile.userId)
         try FileManager.default.createDirectory(at: attachmentsUrl, withIntermediateDirectories: true)
         let decryptUrl = attachmentsUrl.appendingPathComponent("file.txt")
         try Data("🗂️".utf8).write(to: decryptUrl)
@@ -740,6 +740,48 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             downloadUrl.path,
         )
         XCTAssertEqual(resultUrl?.lastPathComponent, "sillyGoose.txt")
+    }
+
+    /// `downloadAttachment(_:cipher:)` throws an error and removes the attachments of the account if the
+    /// account is logged out while the attachment is downloading.
+    func test_downloadAttachment_activeAccountChanged_removesAttachments() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        let downloadUrl = FileManager.default.temporaryDirectory.appendingPathComponent("silentGoose.txt")
+        try Data("🪿".utf8).write(to: downloadUrl)
+        cipherService.downloadAttachmentResult = .success(downloadUrl)
+
+        // Simulate the account being logged out while the attachment is downloading, after the decrypted
+        // file has been written to the attachments directory.
+        let attachmentsUrl = FileManager.default.attachmentsUrl(for: account.profile.userId)
+        let decryptedUrl = attachmentsUrl.appendingPathComponent("silentGoose.txt")
+        let mockStateService = stateService
+        cipherService.downloadAttachmentAction = {
+            try? FileManager.default.createDirectory(at: attachmentsUrl, withIntermediateDirectories: true)
+            try? Data("🗂️".utf8).write(to: decryptedUrl)
+            mockStateService?.activeAccount = nil
+        }
+
+        let attachment = AttachmentView.fixture(fileName: "silentGoose.txt")
+        let cipherView = CipherView.fixture(
+            attachments: [attachment],
+            id: "2",
+        )
+        let cipher = Cipher.fixture(
+            attachments: [Attachment(attachmentView: attachment)],
+            id: "2",
+            key: "new key",
+        )
+        cipherService.fetchCipherResult = .success(cipher)
+
+        await assertAsyncThrows(
+            error: BitwardenError.dataError("The active account changed while downloading an attachment"),
+        ) {
+            _ = try await subject.downloadAttachment(attachment, cipher: cipherView)
+        }
+
+        XCTAssertFalse(FileManager.default.fileExists(atPath: attachmentsUrl.path))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: downloadUrl.path))
     }
 
     /// `downloadAttachment(_:cipher:)` throws an error for nil id's.
@@ -1533,7 +1575,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.downloadAttachmentResult = .success(downloadUrl)
 
         // Decrypted download file (would normally be created by the SDK when decrypting the attachment).
-        let attachmentsUrl = try FileManager.default.attachmentsUrl(for: account.profile.userId)
+        let attachmentsUrl = FileManager.default.attachmentsUrl(for: account.profile.userId)
         try FileManager.default.createDirectory(at: attachmentsUrl, withIntermediateDirectories: true)
         let decryptUrl = attachmentsUrl.appendingPathComponent("file.txt")
         try Data("🗂️".utf8).write(to: decryptUrl)

@@ -519,6 +519,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         client.result = .httpSuccess(testData: APITestData(data: Data()))
 
+        let attachmentUrl = try createAttachment(for: anneAccount.profile.userId)
+
         try await subject.deleteAccount(otp: nil, passwordText: "12345")
         let accounts = try await stateService.getAccounts()
 
@@ -527,6 +529,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/api/accounts"))
         XCTAssertEqual(vaultTimeoutService.removedIds, [anneAccount.profile.userId])
+        XCTAssertFalse(FileManager.default.fileExists(atPath: attachmentUrl.path))
     }
 
     /// `existingAccountUserId(email:)` returns the user ID of the existing account with the same
@@ -2234,6 +2237,21 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
     }
 
+    /// `setActiveAccount(userId: )` deletes the attachments of the account that was active before, but
+    /// keeps the attachments of the account that is being made active.
+    func test_setActiveAccount_removesPreviousAccountAttachments() async throws {
+        stateService.accounts = [anneAccount, beeAccount]
+        stateService.activeAccount = anneAccount
+        let annesAttachmentUrl = try createAttachment(for: anneAccount.profile.userId)
+        let beesAttachmentUrl = try createAttachment(for: beeAccount.profile.userId)
+
+        _ = try await subject.setActiveAccount(userId: beeAccount.profile.userId)
+
+        // The previous account's attachments are deleted on a detached task.
+        try await waitForAsync { !FileManager.default.fileExists(atPath: annesAttachmentUrl.path) }
+        XCTAssertTrue(FileManager.default.fileExists(atPath: beesAttachmentUrl.path))
+    }
+
     /// `setPins(_:requirePasswordAfterRestart:)` sets the user's legacy pins when the
     /// `sdkManagedPinUnlock` feature flag is disabled.
     func test_setPins() async throws {
@@ -2879,6 +2897,19 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(vaultTimeoutService.removedIds, [anneAccount.profile.userId])
     }
 
+    /// `logout(userInitiated:)` deletes the attachments that the user downloaded.
+    func test_logout_removesAttachments() async throws {
+        let account = Account.fixture()
+        stateService.accounts = [account]
+        stateService.activeAccount = account
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
+        let attachmentUrl = try createAttachment(for: account.profile.userId)
+
+        try await subject.logout(userInitiated: true)
+
+        XCTAssertFalse(FileManager.default.fileExists(atPath: attachmentUrl.path))
+    }
+
     /// `logout` successfully logs out a user.
     func test_logout_success() async throws {
         let account = Account.fixture()
@@ -2988,6 +3019,23 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(vaultTimeoutService.removedIds, [])
         XCTAssertEqual(stateService.pinProtectedUserKeyValue["1"], "1")
         XCTAssertEqual(stateService.encryptedPinByUserId["1"], "1")
+    }
+
+    /// `logout(userInitiated:)` deletes the attachments that the user downloaded even if logout fails part
+    /// way through.
+    func test_logout_throws_removesAttachments() async throws {
+        let account = Account.fixture()
+        stateService.accounts = [account]
+        stateService.activeAccount = account
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
+        keychainService.deleteItemsThrowableError = BitwardenTestError.example
+        let attachmentUrl = try createAttachment(for: account.profile.userId)
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.logout(userInitiated: true)
+        }
+
+        XCTAssertFalse(FileManager.default.fileExists(atPath: attachmentUrl.path))
     }
 
     /// `unlockVault(password:)` throws an error if the vault is unable to be unlocked.
@@ -3753,5 +3801,24 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertNotNil(client.requests[0].body)
         XCTAssertEqual(client.requests[0].method, .post)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/accounts/verify-otp")
+    }
+
+    // MARK: Private Methods
+
+    /// Creates a downloaded attachment file for a user. The attachments for the user are deleted
+    /// when the test finishes.
+    ///
+    /// - Parameter userId: The ID of the user that downloaded the attachment.
+    /// - Returns: The URL of the attachment file.
+    ///
+    private func createAttachment(for userId: String) throws -> URL {
+        let directoryUrl = FileManager.default.attachmentsUrl(for: userId)
+        try FileManager.default.createDirectory(at: directoryUrl, withIntermediateDirectories: true)
+        let fileUrl = directoryUrl.appendingPathComponent("file.txt")
+        try Data("🗂️".utf8).write(to: fileUrl)
+        addTeardownBlock {
+            try? FileManager.default.removeAttachments(for: userId)
+        }
+        return fileUrl
     }
 } // swiftlint:disable:this file_length
