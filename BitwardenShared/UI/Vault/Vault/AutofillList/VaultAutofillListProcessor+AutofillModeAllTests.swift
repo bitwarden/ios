@@ -107,6 +107,7 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase {
     func test_init() {
         XCTAssertTrue(subject.state.isAutofillingTextToInsertList)
         XCTAssertEqual(subject.state.emptyViewMessage, Localizations.noItemsToList)
+        XCTAssertEqual(subject.state.usesKeyboardSessionAnchor, TextToInsertKeyboardSession.requiresFocusAnchor)
     }
 
     /// `perform(_:)` with `.search()` performs a cipher search and indicates the search processor

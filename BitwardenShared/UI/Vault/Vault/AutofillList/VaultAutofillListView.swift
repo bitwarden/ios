@@ -32,7 +32,8 @@ struct VaultAutofillListView: View {
     /// PM-28227 WORKAROUND:  Which field owns focus in `autofillText` mode. Keeping both transitions inside SwiftUI's
     /// focus system ensures `fromBecomeFirstResponder:0` / `delayEndInputSession:NO` on every
     /// handoff, preventing the 5-second RTI timer that fires when UIKit's explicit
-    /// `becomeFirstResponder()` (`fromBecomeFirstResponder:1`) is used instead.
+    /// `becomeFirstResponder()` (`fromBecomeFirstResponder:1`) is used instead. The `.anchor` field
+    /// only exists when `usesKeyboardSessionAnchor` is `true` (before iOS 27).
     @FocusState private var focusedField: FocusableField?
 
     // MARK: View
@@ -44,11 +45,14 @@ struct VaultAutofillListView: View {
                 // Zero-size anchor that holds the RTI session when the inline search bar is idle.
                 // Using @FocusState (fromBecomeFirstResponder:0) avoids the 5-second timer that
                 // UIKit's explicit becomeFirstResponder() (fromBecomeFirstResponder:1) would start.
-                TextField("", text: .constant(""))
-                    .focused($focusedField, equals: .anchor)
-                    .frame(width: 0, height: 0)
-                    .allowsHitTesting(false)
-                    .accessibilityHidden(true)
+                // Only needed before iOS 27 (see `TextToInsertKeyboardSession.requiresFocusAnchor`).
+                if store.state.usesKeyboardSessionAnchor {
+                    TextField("", text: .constant(""))
+                        .focused($focusedField, equals: .anchor)
+                        .frame(width: 0, height: 0)
+                        .allowsHitTesting(false)
+                        .accessibilityHidden(true)
+                }
             }
             ZStack {
                 VaultAutofillListSearchableView(store: store, timeProvider: timeProvider)
@@ -82,7 +86,7 @@ struct VaultAutofillListView: View {
             }
         }
         .onAppear {
-            if store.state.isAutofillingTextToInsertList {
+            if store.state.isAutofillingTextToInsertList, store.state.usesKeyboardSessionAnchor {
                 focusedField = .anchor
             }
         }
@@ -140,7 +144,7 @@ struct VaultAutofillListView: View {
 
             if focusedField == .search || !store.state.searchText.isEmpty {
                 Button(Localizations.cancel) {
-                    focusedField = .anchor
+                    focusedField = store.state.usesKeyboardSessionAnchor ? .anchor : nil
                     store.send(.searchTextChanged(""))
                 }
                 .transition(.move(edge: .trailing).combined(with: .opacity))

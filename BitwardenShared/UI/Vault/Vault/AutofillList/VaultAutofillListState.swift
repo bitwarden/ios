@@ -61,6 +61,10 @@ struct VaultAutofillListState: Equatable, Sendable {
     /// A toast message to show in the view.
     var toast: Toast?
 
+    /// Whether the text-to-insert list keeps a hidden anchor text field focused to keep the
+    /// keyboard session alive. See `TextToInsertKeyboardSession.requiresFocusAnchor`.
+    var usesKeyboardSessionAnchor: Bool = false
+
     /// Whether to show the add item button.
     var showAddItemButton: Bool {
         !isAutofillingTotpList && excludedCredentialIdFound == nil

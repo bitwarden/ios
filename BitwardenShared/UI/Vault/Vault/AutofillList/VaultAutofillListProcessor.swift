@@ -112,6 +112,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         case .all:
             self.state.isAutofillingTextToInsertList = true
             self.state.emptyViewMessage = Localizations.noItemsToList
+            self.state.usesKeyboardSessionAnchor = TextToInsertKeyboardSession.requiresFocusAnchor
             textAutofillHelper = services.textAutofillHelperFactory.create(delegate: self)
         case .totp:
             self.state.isAutofillingTotpList = true
