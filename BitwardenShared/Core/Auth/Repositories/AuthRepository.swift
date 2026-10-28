@@ -1324,7 +1324,11 @@ extension DefaultAuthRepository: AuthRepository {
         do {
             let sessionKey = try await keychainService.getUserAuthKeyValue(for: .userSessionKey(userId: id))
             do {
-                try await unlockVault(method: .decryptedKey(decryptedUserKey: sessionKey), hadUserInteraction: false)
+                try await unlockVault(
+                    method: .decryptedKey(decryptedUserKey: sessionKey),
+                    hadUserInteraction: false,
+                    shouldStoreUserSessionKey: false,
+                )
             } catch {
                 try? await keychainService.deleteUserAuthKey(for: .userSessionKey(userId: id))
                 throw error
@@ -1462,7 +1466,14 @@ extension DefaultAuthRepository: AuthRepository {
     ///   - method: The unlocking `InitUserCryptoMethod` method
     ///   - hadUserInteraction: If the user interacted with the app to unlock the vault
     ///   or was unlocked using the never lock key.
-    private func unlockVault(method: InitUserCryptoMethod, hadUserInteraction: Bool = true) async throws {
+    ///   - shouldStoreUserSessionKey: Whether to store the `.userSessionKey` Keychain item after
+    ///   unlocking. Pass `false` when unlocking with the session key itself, since the item already
+    ///   holds the same key.
+    private func unlockVault(
+        method: InitUserCryptoMethod,
+        hadUserInteraction: Bool = true,
+        shouldStoreUserSessionKey: Bool = true,
+    ) async throws {
         let account = try await stateService.getActiveAccount()
         let cryptographicState = try await stateService.getAccountCryptographicState()
         let upgradeToken = await stateService.getV2UpgradeToken(userId: account.profile.userId)
@@ -1489,17 +1500,19 @@ extension DefaultAuthRepository: AuthRepository {
         } catch {
             errorReporter.log(error: error)
         }
-        do {
-            let isFeatureEnabled: Bool = await configService.getFeatureFlag(.enableUserSessionKeySharing)
-            let timeoutValue = try await vaultTimeoutService.sessionTimeoutValue(userId: account.profile.userId)
-            if isFeatureEnabled, timeoutValue.allowsUserSessionKeySharing {
-                try await keychainService.setUserAuthKey(
-                    for: .userSessionKey(userId: account.profile.userId),
-                    value: clientService.crypto().getUserEncryptionKey(),
-                )
+        if shouldStoreUserSessionKey {
+            do {
+                let isFeatureEnabled: Bool = await configService.getFeatureFlag(.enableUserSessionKeySharing)
+                let timeoutValue = try await vaultTimeoutService.sessionTimeoutValue(userId: account.profile.userId)
+                if isFeatureEnabled, timeoutValue.allowsUserSessionKeySharing {
+                    try await keychainService.setUserAuthKey(
+                        for: .userSessionKey(userId: account.profile.userId),
+                        value: clientService.crypto().getUserEncryptionKey(),
+                    )
+                }
+            } catch {
+                errorReporter.log(error: error)
             }
-        } catch {
-            errorReporter.log(error: error)
         }
         await configureBiometricUnlockIfNeeded()
     }

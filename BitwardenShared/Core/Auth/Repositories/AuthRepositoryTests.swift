@@ -2613,6 +2613,23 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertFalse(vaultTimeoutService.unlockVaultHadUserInteraction)
     }
 
+    /// `unlockVaultWithSessionKey()` doesn't re-write the `.userSessionKey` item after unlocking,
+    /// since it already holds the same key.
+    func test_unlockVaultWithSessionKey_doesNotStoreSessionKey() async throws {
+        configService.featureFlagsBool[.enableUserSessionKeySharing] = true
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        stateService.accountCryptographicStates[active.profile.userId] = .fixtureV2()
+        vaultTimeoutService.vaultTimeout[active.profile.userId] = .fifteenMinutes
+        keychainService.getUserAuthKeyValueReturnValue = "SESSION_KEY"
+        clientService.mockCrypto.getUserEncryptionKeyReturnValue = "SESSION_KEY"
+
+        let result = try await subject.unlockVaultWithSessionKey()
+
+        XCTAssertTrue(result)
+        XCTAssertFalse(keychainService.setUserAuthKeyCalled)
+    }
+
     /// `unlockVaultWithSessionKey()` returns `false` without throwing when the keychain reports
     /// the OS status for an item that isn't found.
     func test_unlockVaultWithSessionKey_osStatusItemNotFound_returnsFalse() async throws {
