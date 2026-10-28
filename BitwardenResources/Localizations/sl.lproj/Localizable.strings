@@ -1275,10 +1275,10 @@
 "Server" = "Strežnik";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Počisti %1$@";
-/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
-"OpensDatePicker" = "Odpre izbirnik datuma";
+/* Accessibility hint on a collapsed date field announcing that activating it activates the calendar picker. */
+"DoubleTapToActivateThePicker" = "Double tap to activate the picker";
 /* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
-"ClosesDatePicker" = "Zapre izbirnik datuma";
+"DoubleTapToCloseThePicker" = "Double tap to close the picker";
 /* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
 "FutureDatesUnavailable" = "Prihodnji datumi niso na voljo";
 "PremiumRequiredTOTPDescriptionLong" = "Ključ overovitelja (TOTP) je funkcija Premium. Vaš trenutni paket ne vključuje dostopa do te funkcije.";
@@ -1301,3 +1301,4 @@
 "NotNow" = "Ne zdaj";
 "SyncUnsuccessful" = "Sinhronizacija neuspešna";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Vašega trezorja ni bilo mogoče sinhronizirati s strežnikom. Vaš trezor morda ne odraža vaših zadnjih sprememb. Lahko poskusite znova zdaj ali pa se bo sinhronizacija izvedla samodejno kasneje.";
+"TextToShareRequired" = "Besedilo za deljenje (obvezno)";

@@ -136,7 +136,7 @@
 "ItemUpdated" = "הפריט נשמר";
 "Submitting" = "שולח…";
 "Syncing" = "מסנכרן…";
-"SyncingLogins" = "מסנכרן כניסות...";
+"SyncingLogins" = "מסנכרן כניסות…";
 "SyncingComplete" = "הסנכרון הושלם";
 "TouchID" = "טביעת אצבע Touch ID";
 "TwoStepLogin" = "התחברות בשני-שלבים";
@@ -418,7 +418,7 @@
 "MasterPasswordPolicyValidationTitle" = "סיסמה לא חוקית";
 "MasterPasswordPolicyValidationMessage" = "הסיסמה אינה עומדת בדרישות הארגון. אנא בדוק את פרטי מדיניות הסיסמאות ונסה שנית.";
 "Loading" = "טוען";
-"LoadingSubscription" = "טוען מנוי...";
+"LoadingSubscription" = "טוען מנוי…";
 "AcceptPoliciesError" = "לא הסכמת לתנאי השירות ומדיניות הפרטיות.";
 "PrivacyPolicy" = "מדיניות הפרטיות";
 "PersonalOwnershipPolicyInEffect" = "מדיניות ארגונית משפיעה על אפשרויות הבעלות שלך.";
@@ -850,7 +850,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "ייתכן שאתה צריך לאפשר קוד גישה למכשיר או זיהוי ביומטרי.";
 "StartImportCXFDescriptionLong" = "ייבא סיסמאות, מפתחות גישה, כרטיסי אשראי, וכל מידע אישי של זהות ממנהל סיסמאות אחר.\n\nהמידע שלך **לא** יימחק מהספק הקודם שלך.";
 "ImportPasswords" = "ייבא סיסמאות";
-"ImportingEllipsis" = "מייבא...";
+"ImportingEllipsis" = "מייבא…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "האם אתה בטוח שברצונך לבטל את תהליך הייבוא?";
 "ImportFailed" = "הייבוא נכשל";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "הייתה בעיה בייבוא של כל הסיסמאות שלך.\n\nלא נמחקו נתונים.";
@@ -1076,7 +1076,7 @@
 "Unarchive" = "הוצאה מהארכיב";
 "ItemMovedToArchive" = "הפריט הועבר לארכיון";
 "ItemMovedToVault" = "הפריט הועבר לכספת";
-"SendingToArchive" = "שולח לארכיון...";
+"SendingToArchive" = "שולח לארכיון…";
 "MovingItemToVault" = "מעביר פריט לכספת";
 "OrganizationNotFound" = "הארגון לא נמצא.";
 "ItemsTransferred" = "פריטים הועברו";
@@ -1092,7 +1092,7 @@
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "כדי לקבל מחדש גישה לארכיון שלך, הפעל מחדש את מנוי הפרימיום שלך. אם תערוך פרטים עבור פריט בארכיון לפני ההפעלה מחדש, הוא יועבר חזרה לכספת שלך.";
 "RestartPremium" = "הפעל מחדש פרימיום";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "פריט זה בארכיב. שמירת שינויים תשיב אותו לכספת שלך.";
-"SettingUpAutofill" = "מגדיר מילוי אוטומטי...";
+"SettingUpAutofill" = "מגדיר מילוי אוטומטי…";
 "AddEmail" = "הוסף אימייל";
 "AnyoneWithPasswordSetByYou" = "כל מי שיש לו סיסמה שהגדרת";
 "AnyoneWithTheLink" = "כל מי שיש לו את הקישור";
@@ -1192,8 +1192,8 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "הייתה לנו בעיה בפתיחת דף התשלום, אז נסה שוב.";
 "SecureFileStorage" = "אחסון קבצים מאובטח";
 "BreachMonitoring" = "ניטור פרצות אבטחה";
-"ConfirmingYourUpgrade" = "מאשר את השדרוג שלך...";
-"OpeningCheckout" = "פותח תשלום...";
+"ConfirmingYourUpgrade" = "מאשר את השדרוג שלך…";
+"OpeningCheckout" = "פותח תשלום…";
 "UpgradePending" = "שדרוג ממתין";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "השדרוג שלך מעובד. תישאר בתוכנית החינמית עד להשלמתו. סנכרן עכשיו כדי לבדוק, או המשך והוא יתעדכן אוטומטית.";
 "UpgradedToPremium" = "שודרג לפרימיום";
@@ -1276,10 +1276,10 @@
 "Server" = "שרת";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "נקה %1$@";
-/* Accessibility hint on a collapsed date field announcing that activating it opens the calendar picker. */
-"OpensDatePicker" = "Opens date picker";
+/* Accessibility hint on a collapsed date field announcing that activating it activates the calendar picker. */
+"DoubleTapToActivateThePicker" = "Double tap to activate the picker";
 /* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
-"ClosesDatePicker" = "Closes date picker";
+"DoubleTapToCloseThePicker" = "Double tap to close the picker";
 /* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
 "FutureDatesUnavailable" = "Future dates unavailable";
 "PremiumRequiredTOTPDescriptionLong" = "מפתח אימות (TOTP) הוא תכונת פרימיום. התוכנית הנוכחית שלך אינה כוללת גישה לתכונה זו.";
@@ -1302,3 +1302,4 @@
 "NotNow" = "לא כעת";
 "SyncUnsuccessful" = "הסנכרון לא הצליח";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "לא יכולנו לסנכרן את הכספת שלך עם השרת. ייתכן שהכספת שלך לא משקפת את השינויים האחרונים שלך.你可以 עכשיו או שהיא תסתנכרן אוטומטית מאוחר יותר.";
+"TextToShareRequired" = "Text to share (required)";

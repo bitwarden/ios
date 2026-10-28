@@ -27,9 +27,6 @@ enum VaultListAction: Equatable {
     /// The user tapped the button to go to archive.
     case goToArchive
 
-    /// An item in the vault was pressed.
-    case itemPressed(item: VaultListItem)
-
     /// The "Learn more" button on the upgraded to Premium action card was tapped.
     case learnMoreAboutPremium
 
@@ -67,9 +64,6 @@ enum VaultListAction: Equatable {
     ///  - Parameter item: The VaultListItem with an expired code.
     ///
     case totpCodeExpired(_ item: VaultListItem)
-
-    /// The upgrade to Premium button was tapped.
-    case upgradeToPremium
 
     /// The selected vault filter changed.
     case vaultFilterChanged(VaultFilterType)

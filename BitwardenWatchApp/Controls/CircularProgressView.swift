@@ -32,8 +32,6 @@ struct CircularProgressView: View {
     }
 }
 
-struct CircularProgressView_Previews: PreviewProvider {
-    static var previews: some View {
-        CircularProgressView(progress: 0.5, strokeLineWidth: 5, strokeColor: Color.blue, endingStrokeColor: Color.red)
-    }
+#Preview {
+    CircularProgressView(progress: 0.5, strokeLineWidth: 5, strokeColor: Color.blue, endingStrokeColor: Color.red)
 }

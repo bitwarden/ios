@@ -196,13 +196,19 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertNil(stateService.accountCryptographicStates["1"])
     }
 
-    /// `migrateUser()` migrates the user keys and uploads them to the API and Key Connector.
+    /// `migrateUser()` migrates the user keys and uploads them to the API and Key Connector,
+    /// deriving the master key with the salt and KDF params from the master password unlock data.
     func test_migrateUser() async throws {
         let account = Account.fixture(
             profile: .fixture(
+                kdfIterations: 500_000,
                 userDecryptionOptions: UserDecryptionOptions(
                     hasMasterPassword: true,
-                    masterPasswordUnlock: .fixture(masterKeyEncryptedUserKey: "encryptedUserKey"),
+                    masterPasswordUnlock: .fixture(
+                        iterations: 600_000,
+                        masterKeyEncryptedUserKey: "encryptedUserKey",
+                        salt: "UNLOCK_SALT",
+                    ),
                     keyConnectorOption: nil,
                     trustedDeviceOption: nil,
                 ),
@@ -235,8 +241,8 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             DeriveKeyConnectorRequest(
                 userKeyEncrypted: "encryptedUserKey",
                 password: "testPassword123",
-                kdf: account.kdf.sdkKdf,
-                email: "user@bitwarden.com",
+                kdf: .pbkdf2(iterations: 600_000),
+                email: "UNLOCK_SALT",
             ),
         )
         XCTAssertEqual(stateService.userHasMasterPassword["1"], false)

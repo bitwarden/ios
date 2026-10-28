@@ -534,8 +534,8 @@ extension AppProcessor {
     }
 
     /// Subscribes to the did-enter-background notification and performs the necessary work
-    /// each time the app moves to the background, including stopping the event timer and
-    /// recording the last active time for the current user.
+    /// each time the app moves to the background, such as stopping the event timer. The last
+    /// active time is recorded in `listenForWillResignActive()`, which always fires before this.
     ///
     /// - Parameter debugDidEnterBackground: An optional closure invoked in debug builds after
     ///   background work completes, used for testing.
@@ -544,18 +544,6 @@ extension AppProcessor {
         Task {
             for await _ in services.notificationCenterService.didEnterBackgroundPublisher() {
                 stopEventTimer()
-                do {
-                    let userId = try await self.services.stateService.getActiveAccountId()
-                    try await services.vaultTimeoutService.setLastActiveTime(userId: userId)
-                } catch StateServiceError.noActiveAccount {
-                    // No-op: nothing to do if there's no active account.
-                } catch {
-                    services.errorReporter.log(error: error)
-                }
-                // Re-arm the background session key cleanup task with the freshest possible
-                // last-active data, since this is the last guaranteed hook before the app may be
-                // killed and never relaunched.
-                await services.backgroundSessionCleanupService.scheduleNextRefresh()
                 #if DEBUG
                 debugDidEnterBackground?()
                 #endif
@@ -563,9 +551,10 @@ extension AppProcessor {
         }
     }
 
-    /// Subscribes to the will-resign-active notification and records the last active time for
-    /// the current user. This covers the foreground-to-app-switcher-kill path where the app is
-    /// terminated before `didEnterBackground` fires.
+    /// Subscribes to the will-resign-active notification, records the last active time for the
+    /// current user and re-arms the background session key cleanup task. This fires before
+    /// `didEnterBackground` whenever the app is backgrounded, and also covers the app switcher
+    /// kill path where the app is terminated without `didEnterBackground` ever firing.
     ///
     private func listenForWillResignActive() {
         Task {
@@ -578,8 +567,8 @@ extension AppProcessor {
                 } catch {
                     services.errorReporter.log(error: error)
                 }
-                // Re-arm the background session key cleanup task, covering the case where the
-                // app is killed before `didEnterBackground` fires.
+                // Re-arm the background session key cleanup task with the freshest possible
+                // last-active data, since the app may be killed and never relaunched.
                 await services.backgroundSessionCleanupService.scheduleNextRefresh()
             }
         }
@@ -753,7 +742,7 @@ extension AppProcessor: SyncServiceDelegate {
             try await services.stateService.setHasPerformedSyncAfterLogin(true, userId: userId)
 
             if await services.policyService.policyAppliesToUser(.removeUnlockWithPin) {
-                try await services.stateService.clearPins()
+                try await services.authRepository.clearPins()
             }
         } catch {
             services.errorReporter.log(error: error)

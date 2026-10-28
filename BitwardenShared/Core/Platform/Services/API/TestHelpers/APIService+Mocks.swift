@@ -8,6 +8,7 @@ extension APIService {
     convenience init(
         accountTokenProvider: AccountTokenProvider? = nil,
         activeAccountStateProvider: MockActiveAccountStateProvider = MockActiveAccountStateProvider(),
+        appIDService: AppIDService = AppIDService(appIDSettingsStore: MockAppIDSettingsStore()),
         client: HTTPClient,
         fillAssistClient: HTTPClient? = nil,
         environmentService: EnvironmentService = MockEnvironmentService(),
@@ -25,6 +26,7 @@ extension APIService {
         self.init(
             accountTokenProvider: accountTokenProvider,
             activeAccountStateProvider: activeAccountStateProvider,
+            appIDService: appIDService,
             client: client,
             fillAssistClient: fillAssistClient ?? client,
             environmentService: environmentService,

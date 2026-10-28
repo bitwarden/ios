@@ -59,15 +59,13 @@ public struct SectionView<Content: View>: View {
 // MARK: Previews
 
 #if DEBUG
-struct SectionView_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack {
-            SectionView("Section View") {
-                BitwardenTextField(title: Localizations.name, text: .constant("name"))
-            }
+#Preview {
+    VStack {
+        SectionView("Section View") {
+            BitwardenTextField(title: Localizations.name, text: .constant("name"))
         }
-        .padding(16)
-        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
     }
+    .padding(16)
+    .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
 }
 #endif

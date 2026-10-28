@@ -32,6 +32,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             organizationSharedKey: nil,
             send: nil,
             policy: nil,
+            organization: nil,
         )
         sdkStateBridgeStateService = MockSdkStateBridgeStateService()
         stateService = MockStateService()
@@ -373,6 +374,17 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         let user2Sends = try await subject.sends(for: "2")
         XCTAssertNotIdentical(sends, user2Sends)
+    }
+
+    /// `userCryptoManagement(for:)` returns a new `UserCryptoManagementClientService` for every user.
+    func test_userCryptoManagement() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+
+        let userCryptoManagement = try await subject.userCryptoManagement()
+        XCTAssertIdentical(userCryptoManagement, clientBuilder.clients.first?.userCryptoManagementClient)
+
+        let user2UserCryptoManagement = try await subject.userCryptoManagement(for: "2")
+        XCTAssertNotIdentical(userCryptoManagement, user2UserCryptoManagement)
     }
 
     /// `vault(for:)` returns a new `VaultClientProtocol` for every user.

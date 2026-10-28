@@ -16,6 +16,11 @@ class APIService {
     /// The API service used for logging events.
     let eventsService: HTTPService
 
+    /// The service used for requests to absolute, server-provided file URLs (e.g. Azure Blob
+    /// Storage for Send file uploads and attachment downloads). These URLs may not be
+    /// Bitwarden-owned hosts, so headers specific to Bitwarden services shouldn't be added here.
+    let fileTransferService: HTTPService
+
     /// The API service used for HIBP requests.
     let hibpService: HTTPService
 
@@ -45,6 +50,8 @@ class APIService {
     ///   - accountTokenProvider: The `AccountTokenProvider` to use. This is helpful for testing.
     ///   The default will be built by default.
     ///   - activeAccountStateProvider: The provider for the active account state.
+    ///   - appIDService: The service used by the application to manage the app's ID, which is sent
+    ///     as the `Device-Identifier` header on unauthenticated requests.
     ///   - client: The underlying `HTTPClient` that performs the network request. Defaults
     ///     to `URLSession.shared`.
     ///   - environmentService: The service used by the application to retrieve the environment settings.
@@ -57,9 +64,10 @@ class APIService {
     ///     account's tokens.
     ///   - userAgentBuilder: Builds the user agent string from app and device information.
     ///
-    init(
+    init( // swiftlint:disable:this function_body_length
         accountTokenProvider: AccountTokenProvider? = nil,
         activeAccountStateProvider: ActiveAccountStateProvider,
+        appIDService: AppIDService,
         client: HTTPClient = URLSession.shared,
         fillAssistClient: HTTPClient = URLSession.shared,
         environmentService: EnvironmentService,
@@ -78,6 +86,7 @@ class APIService {
                 appVersion: Bundle.main.appVersion,
                 userAgentBuilder: userAgentBuilder,
             ),
+            deviceIdentifierRequestHandler: DeviceIdentifierRequestHandler(appIDService: appIDService),
             loggers: [
                 FlightRecorderHTTPLogger(flightRecorder: flightRecorder),
                 OSLogHTTPLogger(),
@@ -93,7 +102,10 @@ class APIService {
         self.accountTokenProvider = accountTokenProvider ?? DefaultAccountTokenProvider(
             activeAccountStateProvider: activeAccountStateProvider,
             errorReporter: errorReporter,
-            httpService: httpServiceBuilder.makeService(baseURLGetter: { environmentService.identityURL }),
+            httpService: httpServiceBuilder.makeService(
+                baseURLGetter: { environmentService.identityURL },
+                includeDeviceIdentifier: true,
+            ),
             tokenService: tokenService,
         )
 
@@ -103,16 +115,22 @@ class APIService {
         )
         apiUnauthenticatedService = httpServiceBuilder.makeService(
             baseURLGetter: { environmentService.apiURL },
+            includeDeviceIdentifier: true,
         )
         eventsService = httpServiceBuilder.makeService(
             baseURLGetter: { environmentService.eventsURL },
             tokenProvider: self.accountTokenProvider,
+        )
+        fileTransferService = httpServiceBuilder.makeService(
+            // The base URL is unused since file transfer requests use absolute URLs.
+            baseURLGetter: { environmentService.apiURL },
         )
         hibpService = httpServiceBuilder.makeService(
             baseURLGetter: { URL(string: "https://api.pwnedpasswords.com")! },
         )
         identityService = httpServiceBuilder.makeService(
             baseURLGetter: { environmentService.identityURL },
+            includeDeviceIdentifier: true,
         )
         // Fill-Assist requests target an external CDN (GitHub Releases) that uses multi-hop 302
         // redirects. CertificateHTTPClient deliberately blocks 302s for SSO, so we default to

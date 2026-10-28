@@ -676,7 +676,7 @@ extension BitwardenSdk.CipherRepromptType {
     }
 }
 
-extension BitwardenSdk.Fido2Credential: @retroactive Identifiable, @unchecked @retroactive Sendable {
+extension BitwardenSdk.Fido2Credential: @retroactive Identifiable {
     public var id: String { credentialId }
 
     init(cipherLoginFido2Credential model: CipherLoginFido2Credential) {
@@ -697,10 +697,6 @@ extension BitwardenSdk.Fido2Credential: @retroactive Identifiable, @unchecked @r
         )
     }
 }
-
-extension BitwardenSdk.Fido2CredentialView: @unchecked @retroactive Sendable {}
-
-extension BitwardenSdk.Fido2CredentialAutofillView: @unchecked @retroactive Sendable {}
 
 extension BitwardenSdk.Field {
     init(cipherFieldModel model: CipherFieldModel) {
@@ -923,7 +919,7 @@ extension BitwardenSdk.CollectionType {
     }
 }
 
-extension BitwardenSdk.CollectionView: @unchecked @retroactive Sendable, @retroactive Identifiable, TreeNodeModel {}
+extension BitwardenSdk.CollectionView: @retroactive Identifiable, TreeNodeModel {}
 
 // MARK: - Folders (BitwardenSdk)
 
@@ -950,7 +946,7 @@ extension BitwardenSdk.Folder {
     }
 }
 
-extension BitwardenSdk.FolderView: @retroactive Menuable, @unchecked @retroactive Sendable, TreeNodeModel {
+extension BitwardenSdk.FolderView: @retroactive Menuable, TreeNodeModel {
     public static var defaultValueLocalizedName: String {
         Localizations.folderNone
     }
