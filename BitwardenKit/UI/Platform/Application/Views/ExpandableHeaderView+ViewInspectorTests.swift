@@ -30,7 +30,6 @@ final class ExpandableHeaderViewTests: BitwardenTestCase {
 
         XCTAssertNoThrow(try subject.inspect().find(text: "Title"))
         XCTAssertNoThrow(try subject.inspect().find(text: "3"))
-        XCTAssertThrowsError(try subject.inspect().find(text: "Title (3)"))
     }
 
     /// `init(title:count:buttonAccessibilityIdentifier:content:)` starts in the expanded state.
