@@ -90,11 +90,9 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     override func perform(_ effect: LandingEffect) async {
         switch effect {
         case .appeared:
-            // FedRAMP is decided from the URLs so the button is hidden without waiting for `/config`.
-            let isFedRamp = await services.stateService.getPreAuthEnvironmentURLs()?.isFedRamp == true
-            let isRegistrationDisabled = await currentPreAuthServerConfig()?
-                .settings?.disableUserRegistration == true
-            state.isCreateAccountButtonHidden = isFedRamp || isRegistrationDisabled
+            state.isCreateAccountButtonHidden = await isCreateAccountButtonHidden(
+                for: services.stateService.getPreAuthEnvironmentURLs(),
+            )
             await regionHelper.loadRegion()
             await refreshProfileState()
         case .continuePressed:
@@ -146,6 +144,17 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
         let preAuthURLs = await services.stateService.getPreAuthEnvironmentURLs()
         guard serverConfig?.isCurrentConfig(for: preAuthURLs) == true else { return nil }
         return serverConfig
+    }
+
+    /// Whether the create account button should be hidden. FedRAMP is decided from the URLs so the
+    /// button is hidden without waiting for `/config`.
+    ///
+    /// - Parameter urls: The pre-auth environment URLs.
+    ///
+    private func isCreateAccountButtonHidden(for urls: EnvironmentURLData?) async -> Bool {
+        let isRegistrationDisabled = await currentPreAuthServerConfig()?
+            .settings?.disableUserRegistration == true
+        return urls?.isFedRamp == true || isRegistrationDisabled
     }
 
     /// Refreshes the configuration by forcing a refresh from the config service
@@ -277,7 +286,7 @@ extension LandingProcessor: RegionDelegate {
         guard !urls.isEmpty else { return }
         await services.environmentService.setPreAuthURLs(urls: urls)
         state.region = region
-        state.isCreateAccountButtonHidden = urls.isFedRamp
+        state.isCreateAccountButtonHidden = await isCreateAccountButtonHidden(for: urls)
 
         // - Using `Task` for `refreshConfig` ensures that this call doesn't delay other operations,
         //   such as closing the Self-host settings view or triggering `.appeared` events. These issues
