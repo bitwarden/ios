@@ -20,7 +20,6 @@ struct BillingRepositoryTests {
 
     init() {
         billingStateService = MockBillingStateService()
-        billingStateService.isPremiumUpgradeEligibleReturnValue = false
         configService = MockConfigService()
         errorReporter = MockErrorReporter()
         storefrontService = MockStorefrontService()
@@ -42,8 +41,6 @@ struct BillingRepositoryTests {
     func isInAppUpgradeAvailable_allConditionsMet() async {
         configService.featureFlagsBool[.premiumUpgradePath] = true
         storefrontService.isUSStorefrontReturnValue = true
-        billingStateService.isPremiumUpgradeEligibleReturnValue = true
-        vaultRepository.hasMinimumCipherCountResult = .success(true)
 
         let result = await subject.isInAppUpgradeAvailable()
 
@@ -55,8 +52,6 @@ struct BillingRepositoryTests {
     func isInAppUpgradeAvailable_featureFlagDisabled() async {
         configService.featureFlagsBool[.premiumUpgradePath] = false
         storefrontService.isUSStorefrontReturnValue = true
-        billingStateService.isPremiumUpgradeEligibleReturnValue = true
-        vaultRepository.hasMinimumCipherCountResult = .success(true)
 
         let result = await subject.isInAppUpgradeAvailable()
 
@@ -68,8 +63,6 @@ struct BillingRepositoryTests {
     func isInAppUpgradeAvailable_nonUSStorefront() async {
         configService.featureFlagsBool[.premiumUpgradePath] = true
         storefrontService.isUSStorefrontReturnValue = false
-        billingStateService.isPremiumUpgradeEligibleReturnValue = true
-        vaultRepository.hasMinimumCipherCountResult = .success(true)
 
         let result = await subject.isInAppUpgradeAvailable()
 
