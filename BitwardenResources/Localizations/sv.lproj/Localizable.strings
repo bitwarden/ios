@@ -1014,8 +1014,8 @@
 "ScanComplete" = "Skanningen är färdig";
 "ScanTheQRCodeInYourSettings" = "Skanna QR-koden i inställningarna för din tvåstegsverifiering för alla konton.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "Säkra dina konton med Bitwarden Authenticator";
-"SetSaveLocallyAsYourDefaultSaveOption" = "Ställ in \"Spara lokalt\" som ditt standardalternativ?";
-"SetSaveToBitwardenAsYourDefaultSaveOption" = "Ställ in \"Spara till Bitwarden\" som din standardalternativ?";
+"SetSaveLocallyAsYourDefaultSaveOption" = "Vill du ange ”Spara lokalt” som standardalternativ för sparande?";
+"SetSaveToBitwardenAsYourDefaultSaveOption" = "Vill du ange ”Spara i Bitwarden” som standardalternativ för sparande?";
 "SignInUsingUniqueCodes" = "Logga in med unika koder";
 "Skip" = "Hoppa över";
 "Steam" = "Steam";
