@@ -17,6 +17,7 @@ class MockCredentialProviderExtensionDelegate: MockAppExtensionDelegate, Credent
     var completeRegistrationRequestMocker = InvocationMocker<ASPasskeyRegistrationCredential>()
     var completeSavePasswordRequestCalled = false
     var completeTextRequestTextToInsert: String?
+    var releaseKeyboardAnchorCalled = false
     var extensionMode: CredentialProviderMode = .configureAutofill
     var didAppearPublisher = CurrentValueSubject<Bool, Never>(false)
     var setMatchedExcludedCredentialFoundCalled = false
@@ -49,6 +50,10 @@ class MockCredentialProviderExtensionDelegate: MockAppExtensionDelegate, Credent
     @available(iOSApplicationExtension 18.0, *)
     func completeTextRequest(text: String) {
         completeTextRequestTextToInsert = text
+    }
+
+    func releaseKeyboardAnchor() {
+        releaseKeyboardAnchorCalled = true
     }
 
     func getDidAppearPublisher() -> AsyncPublisher<AnyPublisher<Bool, Never>> {

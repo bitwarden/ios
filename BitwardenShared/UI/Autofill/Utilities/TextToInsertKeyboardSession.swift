@@ -6,22 +6,22 @@
 public enum TextToInsertKeyboardSession {
     // MARK: Static Properties
 
-    /// Whether the text-to-insert flow needs to keep a hidden "anchor" text field focused to keep
-    /// the extension's keyboard panel alive.
+    /// Whether all extension text field focus (including the PM-28227 keyboard anchors) should be
+    /// released when the user taps an item to insert, before the request completes.
     ///
-    /// **PM-28227:** Before iOS 27, removing or resigning a focused text field (e.g. the master
-    /// password field after unlocking, or `UISearchController` resigning) starts a ~5 second timer
-    /// that ends the keyboard session and dismisses the extension. A focused anchor field prevents this.
+    /// **PM-28227:** A hidden anchor text field stays focused for the text-to-insert flow so the
+    /// keyboard panel isn't dismissed when a focused text field is removed (e.g. after unlocking).
     ///
-    /// **PM-40959:** iOS 27 no longer dismisses the extension in those cases. On iOS 27.2, if an
-    /// extension text field is focused when the text-to-insert request completes, Safari displays
-    /// the inserted text as blank until the field is refocused (an iOS bug). Skipping the anchor on
-    /// iOS 27+ avoids keeping a field focused for the whole flow.
+    /// **PM-40959:** On iOS 27, if an extension text field is focused when the text-to-insert
+    /// request completes, Safari displays the inserted text as blank until the field is refocused
+    /// (an iOS bug). Releasing focus when an item is tapped means no field is focused by the time
+    /// the user picks which value to insert. iOS 27 no longer dismisses the panel when the anchor's
+    /// focus is released.
     ///
-    public static var requiresFocusAnchor: Bool {
+    public static var releasesFocusOnItemTap: Bool {
         if #available(iOS 27, *) {
-            return false
+            return true
         }
-        return true
+        return false
     }
 }

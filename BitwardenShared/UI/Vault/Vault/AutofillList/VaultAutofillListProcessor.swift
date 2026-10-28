@@ -112,7 +112,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         case .all:
             self.state.isAutofillingTextToInsertList = true
             self.state.emptyViewMessage = Localizations.noItemsToList
-            self.state.usesKeyboardSessionAnchor = TextToInsertKeyboardSession.requiresFocusAnchor
+            self.state.releasesFocusOnItemTap = TextToInsertKeyboardSession.releasesFocusOnItemTap
             textAutofillHelper = services.textAutofillHelperFactory.create(delegate: self)
         case .totp:
             self.state.isAutofillingTotpList = true
@@ -182,11 +182,12 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         case let .profileSwitcher(action):
             handle(action)
         case let .searchStateChanged(isSearching: isSearching):
+            // Any focus change resets the request to clear focus, so a later item tap clears it again.
+            state.shouldClearFocus = false
             guard isSearching else {
                 searchProcessorMediator.stopSearching()
                 return
             }
-            state.shouldClearSearchFocus = false
             searchProcessorMediator.startSearching(mode: autofillListMode) { [weak self] data in
                 self?.searchResultsReceived(data: data)
             }
@@ -511,12 +512,13 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                       || credentialProviderExtensionDelegate.isCreatingFido2Credential {
                 await onCipherForFido2CredentialPicked(cipher: cipher)
             } else if autofillListMode == .all {
-                // On iOS 27+, if an extension text field (e.g. the search field) is focused when the
-                // text-to-insert request completes, Safari shows the inserted text as blank until the
-                // field is refocused. Clear the search field's focus so the keyboard is dismissed
-                // while the user picks which field to insert (PM-40959).
-                if !state.usesKeyboardSessionAnchor {
-                    state.shouldClearSearchFocus = true
+                // On iOS 27+, if an extension text field (the keyboard anchor or the search field) is
+                // focused when the text-to-insert request completes, Safari shows the inserted text as
+                // blank until the field is refocused. Release all focus so no field is focused by the
+                // time the user picks which value to insert (PM-40959).
+                if state.releasesFocusOnItemTap {
+                    credentialProviderExtensionDelegate?.releaseKeyboardAnchor()
+                    state.shouldClearFocus = true
                 }
                 await handleCipherForTextAutofill(cipher: cipher)
             } else {

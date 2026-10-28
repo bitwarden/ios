@@ -107,7 +107,7 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase {
     func test_init() {
         XCTAssertTrue(subject.state.isAutofillingTextToInsertList)
         XCTAssertEqual(subject.state.emptyViewMessage, Localizations.noItemsToList)
-        XCTAssertEqual(subject.state.usesKeyboardSessionAnchor, TextToInsertKeyboardSession.requiresFocusAnchor)
+        XCTAssertEqual(subject.state.releasesFocusOnItemTap, TextToInsertKeyboardSession.releasesFocusOnItemTap)
     }
 
     /// `perform(_:)` with `.search()` performs a cipher search and indicates the search processor
@@ -245,29 +245,31 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase {
         XCTAssertEqual(textAutofillHelper.handleCipherForAutofillCalledWithCipher?.id, "1")
     }
 
-    /// `vaultItemTapped(_:)` requests that the search field's focus is cleared when the keyboard
-    /// session anchor isn't used (iOS 27+).
+    /// `vaultItemTapped(_:)` releases the keyboard anchor and requests that focus is cleared when
+    /// `releasesFocusOnItemTap` is `true` (iOS 27+).
     @MainActor
-    func test_perform_vaultItemTapped_clearsSearchFocus_withoutKeyboardSessionAnchor() async {
-        subject.state.usesKeyboardSessionAnchor = false
+    func test_perform_vaultItemTapped_releasesFocus() async {
+        subject.state.releasesFocusOnItemTap = true
         let vaultListItem = VaultListItem(cipherListView: CipherListView.fixture(id: "1", login: .fixture()))!
 
         await subject.perform(.vaultItemTapped(vaultListItem))
 
-        XCTAssertTrue(subject.state.shouldClearSearchFocus)
+        XCTAssertTrue(appExtensionDelegate.releaseKeyboardAnchorCalled)
+        XCTAssertTrue(subject.state.shouldClearFocus)
         XCTAssertEqual(textAutofillHelper.handleCipherForAutofillCalledWithCipher?.id, "1")
     }
 
-    /// `vaultItemTapped(_:)` doesn't change the search field's focus when the keyboard session
-    /// anchor is used (before iOS 27).
+    /// `vaultItemTapped(_:)` keeps the keyboard anchor and focus when `releasesFocusOnItemTap` is
+    /// `false` (before iOS 27).
     @MainActor
-    func test_perform_vaultItemTapped_doesNotClearSearchFocus_withKeyboardSessionAnchor() async {
-        subject.state.usesKeyboardSessionAnchor = true
+    func test_perform_vaultItemTapped_keepsFocus_whenNotReleasingFocusOnItemTap() async {
+        subject.state.releasesFocusOnItemTap = false
         let vaultListItem = VaultListItem(cipherListView: CipherListView.fixture(id: "1", login: .fixture()))!
 
         await subject.perform(.vaultItemTapped(vaultListItem))
 
-        XCTAssertFalse(subject.state.shouldClearSearchFocus)
+        XCTAssertFalse(appExtensionDelegate.releaseKeyboardAnchorCalled)
+        XCTAssertFalse(subject.state.shouldClearFocus)
     }
 
     /// `vaultItemTapped(_:)` has the text autofill helper handle text to insert autofill for the cipher but it throws.
@@ -292,14 +294,25 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase {
         XCTAssertEqual(alert.message, Localizations.failedToAutofillItem("Test"))
     }
 
-    /// `receive(_:)` with `.searchStateChanged(isSearching: true)` resets the request to clear the
-    /// search field's focus, so a later item tap clears it again.
+    /// `receive(_:)` with `.searchStateChanged(isSearching: false)` resets the request to clear
+    /// focus, so a later item tap clears it again.
     @MainActor
-    func test_receive_searchStateChanged_resetsShouldClearSearchFocus() {
-        subject.state.shouldClearSearchFocus = true
+    func test_receive_searchStateChanged_notSearching_resetsShouldClearFocus() {
+        subject.state.shouldClearFocus = true
+
+        subject.receive(.searchStateChanged(isSearching: false))
+
+        XCTAssertFalse(subject.state.shouldClearFocus)
+    }
+
+    /// `receive(_:)` with `.searchStateChanged(isSearching: true)` resets the request to clear
+    /// focus, so a later item tap clears it again.
+    @MainActor
+    func test_receive_searchStateChanged_searching_resetsShouldClearFocus() {
+        subject.state.shouldClearFocus = true
 
         subject.receive(.searchStateChanged(isSearching: true))
 
-        XCTAssertFalse(subject.state.shouldClearSearchFocus)
+        XCTAssertFalse(subject.state.shouldClearFocus)
     }
 }

@@ -52,9 +52,14 @@ struct VaultAutofillListState: Equatable, Sendable {
     /// The text that the user is currently searching for.
     var searchText = ""
 
+    /// Whether the text-to-insert list releases all text field focus (including the keyboard anchor)
+    /// when an item is tapped. See `TextToInsertKeyboardSession.releasesFocusOnItemTap`.
+    var releasesFocusOnItemTap = false
+
     /// Whether the text-to-insert list should clear the inline search field's focus. Set when an
-    /// item is tapped (on iOS 27+) so no extension text field is focused when the request completes.
-    var shouldClearSearchFocus = false
+    /// item is tapped (on iOS 27+), along with releasing the extension's keyboard anchor, so no
+    /// extension text field is focused when the request completes.
+    var shouldClearFocus = false
 
     /// Whether the no search results view should be shown.
     var showNoResults = false
@@ -64,10 +69,6 @@ struct VaultAutofillListState: Equatable, Sendable {
 
     /// A toast message to show in the view.
     var toast: Toast?
-
-    /// Whether the text-to-insert list keeps a hidden anchor text field focused to keep the
-    /// keyboard session alive. See `TextToInsertKeyboardSession.requiresFocusAnchor`.
-    var usesKeyboardSessionAnchor: Bool = false
 
     /// Whether to show the add item button.
     var showAddItemButton: Bool {

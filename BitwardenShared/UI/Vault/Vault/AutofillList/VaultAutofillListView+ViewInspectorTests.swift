@@ -66,22 +66,11 @@ class VaultAutofillListViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .cancelTapped)
     }
 
-    /// In text-to-insert mode, only the inline search field is shown when
-    /// `usesKeyboardSessionAnchor` is `false`.
+    /// In text-to-insert mode, the inline search field is the only text field in the view.
     @MainActor
-    func test_keyboardSessionAnchor_hidden() throws {
+    func test_textToInsert_showsOnlySearchField() throws {
         processor.state.isAutofillingTextToInsertList = true
-        processor.state.usesKeyboardSessionAnchor = false
         XCTAssertEqual(try subject.inspect().findAll(ViewType.TextField.self).count, 1)
-    }
-
-    /// In text-to-insert mode, the hidden keyboard session anchor text field is shown alongside the
-    /// inline search field when `usesKeyboardSessionAnchor` is `true`.
-    @MainActor
-    func test_keyboardSessionAnchor_shown() throws {
-        processor.state.isAutofillingTextToInsertList = true
-        processor.state.usesKeyboardSessionAnchor = true
-        XCTAssertEqual(try subject.inspect().findAll(ViewType.TextField.self).count, 2)
     }
 
     /// Tapping the retry button in error state performs the `.loadData` effect.

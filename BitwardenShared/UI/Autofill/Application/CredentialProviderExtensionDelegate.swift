@@ -39,6 +39,10 @@ public protocol CredentialProviderExtensionDelegate: AppExtensionDelegate {
     @available(iOSApplicationExtension 18.0, *)
     func completeTextRequest(text: String)
 
+    /// Releases the hidden keyboard anchor text field used in the text-to-insert flow, so it
+    /// no longer holds or reclaims first responder.
+    func releaseKeyboardAnchor()
+
     /// Gets a publisher for when `didAppear` happens.
     func getDidAppearPublisher() -> AsyncPublisher<AnyPublisher<Bool, Never>>
 
