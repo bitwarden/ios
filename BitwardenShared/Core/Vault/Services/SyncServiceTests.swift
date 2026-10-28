@@ -780,7 +780,7 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                     ),
                     name: "encrypted name",
                     revisionDate: date,
-                    type: .known(.login),
+                    type: .login,
                     viewPassword: true,
                 ),
             ],
@@ -806,7 +806,8 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
 
         let replacedCiphers = try XCTUnwrap(cipherService.replaceCiphersCiphers)
         XCTAssertEqual(replacedCiphers.map(\.id), ["3792af7a-4441-11ee-be56-0242ac120002", "unknown-cipher-id"])
-        XCTAssertEqual(replacedCiphers.map(\.type), [.known(.login), .unknown(99)])
+        XCTAssertEqual(replacedCiphers.map(\.type), [.login, nil])
+        XCTAssertEqual(replacedCiphers.last?.$type, .unknown(99))
         XCTAssertEqual(cipherService.replaceCiphersUserId, "1")
     }
 
@@ -1123,7 +1124,7 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertEqual(policyService.replacePoliciesPolicies.count, 4)
         XCTAssertEqual(
             policyService.replacePoliciesPolicies[0],
-            .fixture(enabled: false, id: "policy-0", organizationId: "org-1", type: .known(.twoFactorAuthentication)),
+            .fixture(enabled: false, id: "policy-0", organizationId: "org-1", type: .twoFactorAuthentication),
         )
         XCTAssertEqual(
             policyService.replacePoliciesPolicies[1],
@@ -1140,7 +1141,7 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                 enabled: true,
                 id: "policy-1",
                 organizationId: "org-1",
-                type: .known(.masterPassword),
+                type: .masterPassword,
             ),
         )
         XCTAssertEqual(
@@ -1150,7 +1151,7 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                 id: "policy-3",
                 organizationId: "org-1",
                 revisionDate: nil,
-                type: .known(.onlyOrg),
+                type: .onlyOrg,
             ),
         )
         XCTAssertEqual(
@@ -1161,7 +1162,7 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                 id: "policy-8",
                 organizationId: "org-1",
                 revisionDate: nil,
-                type: .known(.resetPassword),
+                type: .resetPassword,
             ),
         )
         XCTAssertEqual(policyService.replacePoliciesUserId, "1")

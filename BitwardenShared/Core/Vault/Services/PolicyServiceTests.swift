@@ -1067,14 +1067,18 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(policyDataStore.replacePoliciesPolicies, policies)
     }
 
-    /// `replacePolicies(_:userId:)` drops policies with an unrecognized type from the cached list
-    /// of policies, logs them to the flight recorder, and persists them to the data store unchanged.
+    /// `replacePolicies(_:userId:)` drops policies with an unrecognized or missing type from the
+    /// cached list of policies, logs them to the flight recorder, and persists them to the data
+    /// store unchanged.
     func test_replacePolicies_unknownType() async throws {
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture(id: "org-1")])
+        var unknownPolicy = PolicyResponseModel.fixture(id: "2")
+        unknownPolicy.$type = .unknown(99)
         let policies: [PolicyResponseModel] = [
-            .fixture(id: "1", type: .known(.twoFactorAuthentication)),
-            .fixture(id: "2", type: .unknown(99)),
+            .fixture(id: "1", type: .twoFactorAuthentication),
+            unknownPolicy,
+            .fixture(id: "3", type: nil),
         ]
 
         try await subject.replacePolicies(policies, userId: "1")
@@ -1082,7 +1086,10 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(policyDataStore.replacePoliciesPolicies, policies)
         XCTAssertEqual(
             flightRecorder.logMessages,
-            ["[PolicyService] Ignoring policy 2 with unrecognized type 99"],
+            [
+                "[PolicyService] Ignoring policy 2 with unrecognized type 99",
+                "[PolicyService] Ignoring policy 3 with missing type",
+            ],
         )
 
         var evaluatedPolicyIds = [String]()
@@ -1105,7 +1112,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertFalse(policyApplies)
 
         try await subject.replacePolicies(
-            [.fixture(type: .known(.twoFactorAuthentication))],
+            [.fixture(type: .twoFactorAuthentication)],
             userId: "1",
         )
 

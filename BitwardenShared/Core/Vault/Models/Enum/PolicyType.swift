@@ -1,7 +1,8 @@
 /// An enum that describes the restrictions for a policy.
 ///
-/// This intentionally isn't `Codable`: API models decode it via `OpenEnum<PolicyType>` so that an
-/// unrecognized server value doesn't fail decoding of the whole response.
+/// This intentionally isn't `Codable`: API models decode it via `@OpenEnumValue`
+/// (`OpenEnum<PolicyType>`) so that an unrecognized server value doesn't fail decoding of the
+/// whole response.
 ///
 enum PolicyType: Int {
     /// Requires users to have 2fa enabled.

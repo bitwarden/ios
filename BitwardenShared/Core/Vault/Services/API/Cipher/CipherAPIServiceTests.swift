@@ -86,7 +86,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 revisionDate: Date(timeIntervalSince1970: 1_691_656_425.345),
                 secureNote: nil,
                 sshKey: nil,
-                type: .known(.login),
+                type: .login,
                 viewPassword: true,
             ),
         )
@@ -146,7 +146,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 revisionDate: Date(timeIntervalSince1970: 1_691_656_425.345),
                 secureNote: nil,
                 sshKey: nil,
-                type: .known(.login),
+                type: .login,
                 viewPassword: true,
             ),
         )
@@ -202,7 +202,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 revisionDate: Date(timeIntervalSince1970: 1_691_656_425.345),
                 secureNote: nil,
                 sshKey: nil,
-                type: .known(.login),
+                type: .login,
                 viewPassword: true,
             ),
         )
@@ -370,7 +370,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                     revisionDate: Date(timeIntervalSince1970: 1_691_656_425.345),
                     secureNote: nil,
                     sshKey: nil,
-                    type: .known(.login),
+                    type: .login,
                     viewPassword: true,
                 ),
                 fileUploadType: .azure,
@@ -433,7 +433,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 revisionDate: Date(timeIntervalSince1970: 1_691_656_425.345),
                 secureNote: nil,
                 sshKey: nil,
-                type: .known(.login),
+                type: .login,
                 viewPassword: true,
             ),
         )
@@ -501,7 +501,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 revisionDate: Date(timeIntervalSince1970: 1_691_656_425.345),
                 secureNote: nil,
                 sshKey: nil,
-                type: .known(.login),
+                type: .login,
                 viewPassword: true,
             ),
         )

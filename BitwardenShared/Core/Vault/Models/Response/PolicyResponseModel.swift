@@ -21,7 +21,8 @@ struct PolicyResponseModel: Codable, Equatable, Sendable {
     /// The date the policy was last revised.
     let revisionDate: Date?
 
-    /// The policy type. Wrapped in `OpenEnum` so that a policy type this version of the app doesn't
-    /// recognize doesn't fail decoding of the sync response, and round-trips when persisted.
-    let type: OpenEnum<PolicyType>
+    /// The policy type, or `nil` if it's missing or isn't recognized by this version of the app.
+    /// Decoded via `OpenEnum` so that an unrecognized policy type doesn't fail decoding of the sync
+    /// response, and round-trips when persisted. Use `$type` to access the original raw value.
+    @OpenEnumValue var type: PolicyType?
 }

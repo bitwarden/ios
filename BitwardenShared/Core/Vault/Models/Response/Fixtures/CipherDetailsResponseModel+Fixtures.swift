@@ -1,4 +1,3 @@
-import BitwardenKit
 import Foundation
 
 @testable import BitwardenShared
@@ -33,7 +32,7 @@ extension CipherDetailsResponseModel {
         revisionDate: Date = Date(),
         secureNote: CipherSecureNoteModel? = nil,
         sshKey: CipherSSHKeyModel? = nil,
-        type: OpenEnum<CipherType> = .known(.login),
+        type: CipherType? = .login,
         viewPassword: Bool = false,
     ) -> CipherDetailsResponseModel {
         self.init(

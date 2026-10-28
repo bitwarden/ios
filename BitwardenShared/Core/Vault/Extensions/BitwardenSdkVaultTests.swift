@@ -37,11 +37,11 @@ class BitwardenSdkVaultCipherTests: BitwardenTestCase {
         let responseModel = CipherDetailsResponseModel.fixture(
             id: "1",
             sshKey: .fixture(),
-            type: .known(.sshKey),
+            type: .sshKey,
         )
         let cipher = try Cipher(responseModel: responseModel)
         XCTAssertEqual(cipher.id, responseModel.id)
-        XCTAssertEqual(Int(cipher.type.rawValue), responseModel.type.rawValue)
+        XCTAssertEqual(Int(cipher.type.rawValue), responseModel.type?.rawValue)
         XCTAssertEqual(cipher.sshKey?.publicKey, responseModel.sshKey?.publicKey)
         XCTAssertEqual(cipher.sshKey?.privateKey, responseModel.sshKey?.privateKey)
         XCTAssertEqual(cipher.sshKey?.fingerprint, responseModel.sshKey?.keyFingerprint)
@@ -50,11 +50,45 @@ class BitwardenSdkVaultCipherTests: BitwardenTestCase {
     /// `init(responseModel:)` throws `DataMappingError.unknownCipherType` if the response model's
     /// cipher type isn't recognized.
     func test_init_fromCipherDetailsResponseModelUnknownType() {
-        let responseModel = CipherDetailsResponseModel.fixture(id: "1", type: .unknown(99))
+        var responseModel = CipherDetailsResponseModel.fixture(id: "1")
+        responseModel.$type = .unknown(99)
         XCTAssertThrowsError(try Cipher(responseModel: responseModel)) { error in
-            guard case DataMappingError.unknownCipherType(99) = error else {
-                return XCTFail("Expected DataMappingError.unknownCipherType(99), got \(error)")
-            }
+            XCTAssertEqual(error as? DataMappingError, .unknownCipherType(99))
+        }
+    }
+
+    /// `init(responseModel:)` throws `DataMappingError.missingCipherType` if the response model's
+    /// cipher type is missing.
+    func test_init_fromCipherDetailsResponseModelMissingType() {
+        let responseModel = CipherDetailsResponseModel.fixture(id: "1", type: nil)
+        XCTAssertThrowsError(try Cipher(responseModel: responseModel)) { error in
+            XCTAssertEqual(error as? DataMappingError, .missingCipherType)
+        }
+    }
+
+    /// `init(cipherMiniResponseModel:collectionIds:originalCipher:)` throws
+    /// `DataMappingError.missingCipherType` if the response model's cipher type is missing.
+    func test_init_fromCipherMiniResponseModelMissingType() throws {
+        let json = #"""
+        {
+            "creationDate": "2024-01-01T00:00:00.000Z",
+            "id": "1",
+            "organizationId": "org-1",
+            "organizationUseTotp": false,
+            "reprompt": 0,
+            "revisionDate": "2024-01-01T00:00:00.000Z"
+        }
+        """#
+        let model = try CipherMiniResponseModel.decoder.decode(
+            CipherMiniResponseModel.self,
+            from: Data(json.utf8),
+        )
+        XCTAssertNil(model.type)
+        XCTAssertNil(model.$type)
+        XCTAssertThrowsError(
+            try Cipher(cipherMiniResponseModel: model, collectionIds: [], originalCipher: nil),
+        ) { error in
+            XCTAssertEqual(error as? DataMappingError, .missingCipherType)
         }
     }
 
@@ -76,13 +110,12 @@ class BitwardenSdkVaultCipherTests: BitwardenTestCase {
             CipherMiniResponseModel.self,
             from: Data(json.utf8),
         )
-        XCTAssertEqual(model.type, .unknown(99))
+        XCTAssertNil(model.type)
+        XCTAssertEqual(model.$type, .unknown(99))
         XCTAssertThrowsError(
             try Cipher(cipherMiniResponseModel: model, collectionIds: [], originalCipher: nil),
         ) { error in
-            guard case DataMappingError.unknownCipherType(99) = error else {
-                return XCTFail("Expected DataMappingError.unknownCipherType(99), got \(error)")
-            }
+            XCTAssertEqual(error as? DataMappingError, .unknownCipherType(99))
         }
     }
 }

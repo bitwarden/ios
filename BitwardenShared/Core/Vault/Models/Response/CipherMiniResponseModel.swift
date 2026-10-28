@@ -86,7 +86,8 @@ struct CipherMiniResponseModel: JSONResponse, Equatable {
     /// SSH key if the `type` is `.sshKey`.
     let sshKey: CipherSSHKeyModel?
 
-    /// The type of the cipher. Wrapped in `OpenEnum` so that a cipher type this version of the
-    /// app doesn't recognize doesn't fail decoding of the response.
-    let type: OpenEnum<CipherType>
+    /// The type of the cipher, or `nil` if it's missing or isn't recognized by this version of the
+    /// app. Decoded via `OpenEnum` so that an unrecognized cipher type doesn't fail decoding of the
+    /// response. Use `$type` to access the original raw value.
+    @OpenEnumValue var type: CipherType?
 }

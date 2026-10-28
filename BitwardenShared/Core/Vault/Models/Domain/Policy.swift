@@ -29,10 +29,11 @@ extension Policy {
     /// Initialize a `Policy` from a `PolicyResponseModel`.
     ///
     /// - Parameter responseModel: The response model for the policy.
-    /// - Returns: `nil` if the policy's type isn't recognized by this version of the app.
+    /// - Returns: `nil` if the policy's type is missing or isn't recognized by this version of the
+    ///   app.
     ///
     init?(responseModel: PolicyResponseModel) {
-        guard let type = responseModel.type.knownValue else { return nil }
+        guard let type = responseModel.type else { return nil }
         self.init(
             data: responseModel.data,
             enabled: responseModel.enabled,

@@ -17,7 +17,7 @@ class PolicyDataStoreTests: BitwardenTestCase {
             id: "1",
             organizationId: "org-1",
             revisionDate: Date(year: 2025, month: 12, day: 1),
-            type: .known(.twoFactorAuthentication),
+            type: .twoFactorAuthentication,
         ),
         PolicyResponseModel(
             data: nil,
@@ -25,7 +25,7 @@ class PolicyDataStoreTests: BitwardenTestCase {
             id: "2",
             organizationId: "org-1",
             revisionDate: Date(year: 2025, month: 12, day: 1),
-            type: .known(.masterPassword),
+            type: .masterPassword,
         ),
     ]
 
@@ -78,7 +78,8 @@ class PolicyDataStoreTests: BitwardenTestCase {
     /// `replacePolicies(_:userId:)` persists a policy with an unrecognized type with its original
     /// raw value, and `fetchAllPolicies(userId:)` drops it.
     func test_replacePolicies_unknownType() async throws {
-        let unknownPolicy = PolicyResponseModel.fixture(id: "3", organizationId: "org-1", type: .unknown(99))
+        var unknownPolicy = PolicyResponseModel.fixture(id: "3", organizationId: "org-1")
+        unknownPolicy.$type = .unknown(99)
         try await subject.replacePolicies(policies + [unknownPolicy], userId: "1")
 
         let fetchRequest = PolicyData.fetchByUserIdRequest(userId: "1")
@@ -86,7 +87,7 @@ class PolicyDataStoreTests: BitwardenTestCase {
         let persistedData = try subject.backgroundContext.fetch(fetchRequest)
         XCTAssertEqual(persistedData.count, 3)
         let unknownPolicyData = try XCTUnwrap(persistedData.last)
-        XCTAssertEqual(unknownPolicyData.model?.type, .unknown(99))
+        XCTAssertEqual(unknownPolicyData.model?.$type, .unknown(99))
         let modelJSON = try XCTUnwrap(
             JSONSerialization.jsonObject(with: XCTUnwrap(unknownPolicyData.modelData)) as? [String: Any],
         )

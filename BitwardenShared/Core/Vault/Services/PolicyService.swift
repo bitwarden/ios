@@ -495,10 +495,8 @@ extension DefaultPolicyService {
         var knownPolicies = [Policy]()
         for responseModel in policies {
             guard let policy = Policy(responseModel: responseModel) else {
-                await flightRecorder.log(
-                    "[PolicyService] Ignoring policy \(responseModel.id) with unrecognized type "
-                        + "\(responseModel.type.rawValue)",
-                )
+                let reason = responseModel.$type.map { "unrecognized type \($0.rawValue)" } ?? "missing type"
+                await flightRecorder.log("[PolicyService] Ignoring policy \(responseModel.id) with \(reason)")
                 continue
             }
             knownPolicies.append(policy)

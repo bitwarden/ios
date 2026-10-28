@@ -4,8 +4,9 @@ import BitwardenResources
 /// An enum describing the type of data contained in a cipher.
 ///
 /// This is intentionally `Encodable` but not `Decodable`: API response models decode it via
-/// `OpenEnum<CipherType>` so that an unrecognized server value doesn't fail decoding of the whole
-/// response. It stays `Encodable` because `CipherRequestModel` sends it to the server.
+/// `@OpenEnumValue` (`OpenEnum<CipherType>`) so that an unrecognized server value doesn't fail
+/// decoding of the whole response. It stays `Encodable` because `CipherRequestModel` sends it to
+/// the server.
 ///
 public enum CipherType: Int, Encodable, Sendable {
     /// A login containing a username and password.

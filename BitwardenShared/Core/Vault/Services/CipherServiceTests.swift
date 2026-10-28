@@ -316,10 +316,12 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     /// `replaceCiphers(_:userId:)` drops ciphers with an unrecognized type, logs them to the flight
     /// recorder, and persists the remaining ciphers.
     func test_replaceCiphers_unknownType() async throws {
+        var unknownCipher = CipherDetailsResponseModel.fixture(id: "2", name: "Cipher 2")
+        unknownCipher.$type = .unknown(99)
         let ciphers: [CipherDetailsResponseModel] = [
             .fixture(id: "1", name: "Cipher 1"),
-            .fixture(id: "2", name: "Cipher 2", type: .unknown(99)),
-            .fixture(id: "3", name: "Cipher 3", type: .known(.card)),
+            unknownCipher,
+            .fixture(id: "3", name: "Cipher 3", type: .card),
         ]
 
         try await subject.replaceCiphers(ciphers, userId: "1")
@@ -330,6 +332,22 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             flightRecorder.logMessages,
             ["[CipherService] Ignoring cipher 2 with unrecognized type 99"],
         )
+    }
+
+    /// `replaceCiphers(_:userId:)` throws `DataMappingError.missingCipherType` and doesn't update
+    /// the data store if a cipher's type is missing.
+    func test_replaceCiphers_missingType() async throws {
+        let ciphers: [CipherDetailsResponseModel] = [
+            .fixture(id: "1", name: "Cipher 1"),
+            .fixture(id: "2", name: "Cipher 2", type: nil),
+        ]
+
+        await assertAsyncThrows(error: DataMappingError.missingCipherType) {
+            try await subject.replaceCiphers(ciphers, userId: "1")
+        }
+
+        XCTAssertNil(cipherDataStore.replaceCiphersValue)
+        XCTAssertEqual(flightRecorder.logMessages, [])
     }
 
     /// `restoreCipherWithServer(id:_:)` restores the cipher in the backend and local storage.
@@ -447,6 +465,20 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             flightRecorder.logMessages,
             ["[CipherService] Ignoring cipher 3792af7a-4441-11ee-be56-0242ac120002 with unrecognized type 99"],
         )
+    }
+
+    /// `syncCipherWithServer()` throws `DataMappingError.missingCipherType` and doesn't update the
+    /// data store if the cipher's type is missing.
+    func test_syncCipherWithServer_missingType() async throws {
+        stateService.activeAccount = .fixture()
+        client.result = try .httpSuccess(testData: cipherResponse(withType: nil))
+
+        await assertAsyncThrows(error: DataMappingError.missingCipherType) {
+            try await subject.syncCipherWithServer(withId: "3792af7a-4441-11ee-be56-0242ac120002")
+        }
+
+        XCTAssertNil(cipherDataStore.upsertCipherValue)
+        XCTAssertEqual(flightRecorder.logMessages, [])
     }
 
     /// `unarchiveCipherWithServer(id:_:)` unarchives the cipher in the backend and local storage.
@@ -569,14 +601,18 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
     /// Returns the `cipherResponse` test data with its cipher type replaced by `type`.
     ///
-    /// - Parameter type: The raw cipher type to use in the response.
+    /// - Parameter type: The raw cipher type to use in the response, or `nil` to remove it.
     /// - Returns: The modified test data.
     ///
-    private func cipherResponse(withType type: Int) throws -> APITestData {
+    private func cipherResponse(withType type: Int?) throws -> APITestData {
         var json = try XCTUnwrap(
             JSONSerialization.jsonObject(with: APITestData.cipherResponse.data) as? [String: Any],
         )
-        json["type"] = type
+        if let type {
+            json["type"] = type
+        } else {
+            json.removeValue(forKey: "type")
+        }
         return try APITestData(data: JSONSerialization.data(withJSONObject: json))
     }
 } // swiftlint:disable:this file_length

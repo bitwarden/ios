@@ -78,7 +78,7 @@ class SyncAPIServiceTests: BitwardenTestCase {
                         name: "encrypted name",
                         reprompt: CipherRepromptType.none,
                         revisionDate: Date(timeIntervalSince1970: 1_691_656_425.345),
-                        type: .known(.login),
+                        type: .login,
                         viewPassword: true,
                     ),
                 ],
@@ -106,7 +106,8 @@ class SyncAPIServiceTests: BitwardenTestCase {
         let response = try await subject.getSync()
 
         XCTAssertEqual(response.ciphers.map(\.id), ["3792af7a-4441-11ee-be56-0242ac120002", "unknown-cipher-id"])
-        XCTAssertEqual(response.ciphers.map(\.type), [.known(.login), .unknown(99)])
+        XCTAssertEqual(response.ciphers.map(\.type), [.login, nil])
+        XCTAssertEqual(response.ciphers.last?.$type, .unknown(99))
     }
 
     /// `getSync()` successfully decodes a response with policies.
@@ -125,7 +126,7 @@ class SyncAPIServiceTests: BitwardenTestCase {
                         id: "policy-0",
                         organizationId: "org-1",
                         revisionDate: nil,
-                        type: .known(.twoFactorAuthentication),
+                        type: .twoFactorAuthentication,
                     ),
                     PolicyResponseModel(
                         data: [
@@ -141,7 +142,7 @@ class SyncAPIServiceTests: BitwardenTestCase {
                         id: "policy-1",
                         organizationId: "org-1",
                         revisionDate: nil,
-                        type: .known(.masterPassword),
+                        type: .masterPassword,
                     ),
                     PolicyResponseModel(
                         data: nil,
@@ -149,7 +150,7 @@ class SyncAPIServiceTests: BitwardenTestCase {
                         id: "policy-3",
                         organizationId: "org-1",
                         revisionDate: nil,
-                        type: .known(.onlyOrg),
+                        type: .onlyOrg,
                     ),
                     PolicyResponseModel(
                         data: ["autoEnrollEnabled": .bool(false)],
@@ -157,7 +158,7 @@ class SyncAPIServiceTests: BitwardenTestCase {
                         id: "policy-8",
                         organizationId: "org-1",
                         revisionDate: nil,
-                        type: .known(.resetPassword),
+                        type: .resetPassword,
                     ),
                 ],
             ),

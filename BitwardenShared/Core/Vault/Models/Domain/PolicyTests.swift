@@ -10,14 +10,22 @@ struct PolicyTests {
     /// `init(responseModel:)` initializes a policy from a response model with a known type.
     @Test
     func init_responseModel() {
-        let subject = Policy(responseModel: .fixture(type: .known(.disableSend)))
+        let subject = Policy(responseModel: .fixture(type: .disableSend))
         #expect(subject == .fixture(organizationId: "org-1", type: .disableSend))
     }
 
     /// `init(responseModel:)` returns `nil` for a response model with an unrecognized type.
     @Test
     func init_responseModel_unknownType() {
-        #expect(Policy(responseModel: .fixture(type: .unknown(99))) == nil)
+        var responseModel = PolicyResponseModel.fixture()
+        responseModel.$type = .unknown(99)
+        #expect(Policy(responseModel: responseModel) == nil)
+    }
+
+    /// `init(responseModel:)` returns `nil` for a response model with a missing type.
+    @Test
+    func init_responseModel_missingType() {
+        #expect(Policy(responseModel: .fixture(type: nil)) == nil)
     }
 
     /// `policyWithEarliestRevisionDate` returns `nil` for an empty list.
