@@ -158,6 +158,15 @@ public class AppProcessor {
             "App launched, context: \(appContext), version: \(Bundle.main.appVersion) (\(Bundle.main.buildNumber))",
         )
 
+        // Delete any decrypted attachments left behind by a previous session that was force quit or
+        // crashed before they could be cleared. Only the main app downloads attachments, so extensions
+        // don't need to do this.
+        if appContext == .mainApp {
+            Task {
+                await removeDownloadedAttachments()
+            }
+        }
+
         await services.migrationService.performMigrations()
         await prepareEnvironmentConfig()
         await completeAutofillAccountSetupIfEnabled()
@@ -570,6 +579,9 @@ extension AppProcessor {
                 } catch {
                     services.errorReporter.log(error: error)
                 }
+
+                // Decrypted attachments must not stay on disk while the app is in the background.
+                await removeDownloadedAttachments()
                 #if DEBUG
                 debugDidEnterBackground?()
                 #endif
@@ -646,6 +658,27 @@ extension AppProcessor {
     private func stopEventTimer() {
         sendEventTimer?.fire()
         sendEventTimer?.invalidate()
+    }
+
+    /// Deletes all downloaded attachments. The deletion runs as a background task, so that it finishes
+    /// even if the app is suspended before it's complete, and off the main actor, since the attachments
+    /// can be large.
+    private func removeDownloadedAttachments() async {
+        let errorReporter = services.errorReporter
+        let taskId = services.application?.startBackgroundTask(
+            withName: "RemoveDownloadedAttachments",
+            expirationHandler: nil,
+        )
+        await Task.detached {
+            do {
+                try FileManager.default.removeAllAttachments()
+            } catch {
+                errorReporter.log(error: error)
+            }
+        }.value
+        if let taskId {
+            services.application?.endBackgroundTask(taskId)
+        }
     }
 
     /// Sends organization events to the server. Also sets up that regular upload
