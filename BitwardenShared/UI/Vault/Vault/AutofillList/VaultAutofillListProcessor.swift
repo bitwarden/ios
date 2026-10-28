@@ -191,9 +191,16 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             searchProcessorMediator.startSearching(mode: autofillListMode) { [weak self] data in
                 self?.searchResultsReceived(data: data)
             }
-            state.searchText = ""
-            state.ciphersForSearch = []
-            state.showNoResults = false
+            if state.isAutofillingTextToInsertList, !state.searchText.isEmpty {
+                // In text-to-insert mode, the search field can lose focus while keeping its query
+                // (e.g. pressing return, or when an item is tapped on iOS 27+). Keep the visible
+                // query when search is focused again and refresh its results.
+                updateSearchFilter(for: state.searchText)
+            } else {
+                state.searchText = ""
+                state.ciphersForSearch = []
+                state.showNoResults = false
+            }
             state.profileSwitcherState.isVisible = false
             dismissProfileSwitcher()
         case let .searchTextChanged(newValue):
@@ -399,6 +406,15 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
     /// Searches the list of ciphers for those matching the search term.
     ///
     private func searchVault(for searchText: String) async {
+        updateSearchFilter(for: searchText)
+    }
+
+    /// Updates the search filter for the search term, or clears the search results if the term is
+    /// empty.
+    ///
+    /// - Parameter searchText: The search term.
+    ///
+    private func updateSearchFilter(for searchText: String) {
         guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             state.ciphersForSearch = []
             state.showNoResults = false

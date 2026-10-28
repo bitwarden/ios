@@ -11,7 +11,7 @@ import XCTest
 @testable import BitwardenSharedMocks
 
 @available(iOS 18.0, *)
-class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase {
+class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var appExtensionDelegate: MockCredentialProviderExtensionDelegate!
@@ -303,6 +303,28 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase {
         subject.receive(.searchStateChanged(isSearching: false))
 
         XCTAssertFalse(subject.state.shouldClearFocus)
+    }
+
+    /// `receive(_:)` with `.searchStateChanged(isSearching: true)` keeps an existing search query
+    /// in text-to-insert mode and refreshes its results.
+    @MainActor
+    func test_receive_searchStateChanged_searching_keepsExistingSearchText() {
+        subject.state.searchText = "Bit"
+
+        subject.receive(.searchStateChanged(isSearching: true))
+
+        XCTAssertEqual(subject.state.searchText, "Bit")
+        XCTAssertNotNil(searchProcessorMediator.startSearchingReceivedArguments)
+        XCTAssertEqual(
+            searchProcessorMediator.updateFilterReceivedFilter,
+            VaultListFilter(
+                filterType: .allVaults,
+                group: nil,
+                mode: .all,
+                rpID: nil,
+                searchText: "Bit",
+            ),
+        )
     }
 
     /// `receive(_:)` with `.searchStateChanged(isSearching: true)` resets the request to clear
