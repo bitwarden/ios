@@ -29,7 +29,7 @@ class MockVaultRepository: VaultRepository { // swiftlint:disable:this type_body
     var ciphersAutofillSubject = CurrentValueSubject<VaultListData, Error>(VaultListData())
     var cipherDetailsSubject = CurrentValueSubject<CipherView?, Error>(.fixture())
 
-    var clearTemporaryDownloadsCalled = false
+    var removeTemporaryDownloadUrls: [URL] = []
 
     // swiftlint:disable:next identifier_name
     var createAutofillListExcludedCredentialSectionResult: Result<VaultListSection, Error> = .failure(
@@ -199,10 +199,6 @@ class MockVaultRepository: VaultRepository { // swiftlint:disable:this type_body
         return ciphersAutofillSubject.eraseToAnyPublisher().values
     }
 
-    func clearTemporaryDownloads() {
-        clearTemporaryDownloadsCalled = true
-    }
-
     func createAutofillListExcludedCredentialSection(from cipher: CipherView) async throws -> VaultListSection {
         try createAutofillListExcludedCredentialSectionResult.get()
     }
@@ -329,6 +325,10 @@ class MockVaultRepository: VaultRepository { // swiftlint:disable:this type_body
 
     func remove(userId: String?) async {
         removeAccountIds.append(userId)
+    }
+
+    func removeTemporaryDownload(at url: URL) {
+        removeTemporaryDownloadUrls.append(url)
     }
 
     func repromptRequiredForCipher(id: String) async throws -> Bool {

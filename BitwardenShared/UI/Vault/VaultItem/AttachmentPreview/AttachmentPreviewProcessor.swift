@@ -21,6 +21,10 @@ class AttachmentPreviewProcessor: StateProcessor<
     /// The `Coordinator` that handles navigation.
     private let coordinator: AnyCoordinator<VaultItemRoute, VaultItemEvent>
 
+    /// The url of the file downloaded for this preview. This mirrors `state.temporaryUrl`, so that the
+    /// file can be deleted when this processor is deallocated.
+    private var downloadedFileUrl: URL?
+
     /// The services used by this processor.
     private let services: Services
 
@@ -39,6 +43,7 @@ class AttachmentPreviewProcessor: StateProcessor<
         state: AttachmentPreviewState,
     ) {
         self.coordinator = coordinator
+        downloadedFileUrl = state.temporaryUrl
         self.services = services
 
         super.init(state: state)
@@ -46,8 +51,10 @@ class AttachmentPreviewProcessor: StateProcessor<
 
     deinit {
         // When the preview and anything presented on top of it (e.g. the save file picker) are
-        // dismissed, ensure any temporary files are deleted.
-        services.vaultRepository.clearTemporaryDownloads()
+        // dismissed, delete the file that this preview downloaded. Other downloads are left alone.
+        if let downloadedFileUrl {
+            services.vaultRepository.removeTemporaryDownload(at: downloadedFileUrl)
+        }
     }
 
     // MARK: Methods
@@ -119,6 +126,7 @@ class AttachmentPreviewProcessor: StateProcessor<
             }
 
             state.temporaryUrl = temporaryUrl
+            downloadedFileUrl = temporaryUrl
             coordinator.hideLoadingOverlay()
             coordinator.navigate(to: .saveFile(temporaryUrl: temporaryUrl))
         } catch {
