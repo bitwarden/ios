@@ -23,7 +23,7 @@ class SettingsDataStoreTests: BitwardenTestCase {
             id: "1",
             organizationId: "org-1",
             revisionDate: Date(year: 2025, month: 12, day: 1),
-            type: .twoFactorAuthentication,
+            type: .known(.twoFactorAuthentication),
         ),
         PolicyResponseModel(
             data: nil,
@@ -31,7 +31,7 @@ class SettingsDataStoreTests: BitwardenTestCase {
             id: "2",
             organizationId: "org-1",
             revisionDate: Date(year: 2025, month: 12, day: 1),
-            type: .masterPassword,
+            type: .known(.masterPassword),
         ),
     ]
 

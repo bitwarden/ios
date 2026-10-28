@@ -109,6 +109,9 @@ actor DefaultPolicyService: PolicyService {
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
 
+    /// The service used by the application for recording temporary debug logs.
+    let flightRecorder: FlightRecorder
+
     /// The data store for managing the persisted policies for the user.
     let policyDataStore: PolicyDataStore
 
@@ -130,6 +133,7 @@ actor DefaultPolicyService: PolicyService {
     ///     and decryption.
     ///   - configService: The service to get server-specified configuration.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - organizationService: The service for managing the organizations for the user.
     ///   - policyDataStore: The data store for managing the persisted policies for the user.
     ///   - stateService: The service used by the application to manage account state.
@@ -138,6 +142,7 @@ actor DefaultPolicyService: PolicyService {
         clientService: ClientService,
         configService: ConfigService,
         errorReporter: ErrorReporter,
+        flightRecorder: FlightRecorder,
         organizationService: OrganizationService,
         policyDataStore: PolicyDataStore,
         stateService: StateService,
@@ -145,6 +150,7 @@ actor DefaultPolicyService: PolicyService {
         self.clientService = clientService
         self.configService = configService
         self.errorReporter = errorReporter
+        self.flightRecorder = flightRecorder
         self.organizationService = organizationService
         self.policyDataStore = policyDataStore
         self.stateService = stateService
@@ -217,12 +223,10 @@ actor DefaultPolicyService: PolicyService {
         userId: String,
         filter: ((Policy) -> Bool)? = nil,
     ) async throws -> [Policy] {
-        guard let sdkPolicyType = BitwardenSdk.PolicyType(policyType) else {
-            return []
-        }
+        let sdkPolicyType = BitwardenSdk.PolicyType(policyType)
 
         let policies = try await policiesForUser(userId: userId, filter: filter)
-        let sdkPolicies = policies.compactMap { BitwardenSdk.Policy($0) }
+        let sdkPolicies = policies.map { BitwardenSdk.Policy($0) }
         guard !sdkPolicies.isEmpty else {
             return []
         }
@@ -234,7 +238,7 @@ actor DefaultPolicyService: PolicyService {
                 policyType: sdkPolicyType,
             )
 
-        return filtered.map { BitwardenShared.Policy($0) }
+        return filtered.compactMap { BitwardenShared.Policy($0) }
     }
 
     /// Returns all policies for the user, using an in-memory cache.
@@ -488,7 +492,18 @@ extension DefaultPolicyService {
     }
 
     func replacePolicies(_ policies: [PolicyResponseModel], userId: String) async throws {
-        policiesByUserId[userId] = policies.map(Policy.init)
+        var knownPolicies = [Policy]()
+        for responseModel in policies {
+            guard let policy = Policy(responseModel: responseModel) else {
+                await flightRecorder.log(
+                    "[PolicyService] Ignoring policy \(responseModel.id) with unrecognized type "
+                        + "\(responseModel.type.rawValue)",
+                )
+                continue
+            }
+            knownPolicies.append(policy)
+        }
+        policiesByUserId[userId] = knownPolicies
         try await policyDataStore.replacePolicies(policies, userId: userId)
     }
 }

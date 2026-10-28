@@ -26,17 +26,28 @@ struct Policy: Equatable {
 }
 
 extension Policy {
-    init(responseModel: PolicyResponseModel) {
+    /// Initialize a `Policy` from a `PolicyResponseModel`.
+    ///
+    /// - Parameter responseModel: The response model for the policy.
+    /// - Returns: `nil` if the policy's type isn't recognized by this version of the app.
+    ///
+    init?(responseModel: PolicyResponseModel) {
+        guard let type = responseModel.type.knownValue else { return nil }
         self.init(
             data: responseModel.data,
             enabled: responseModel.enabled,
             id: responseModel.id,
             organizationId: responseModel.organizationId,
             revisionDate: responseModel.revisionDate,
-            type: responseModel.type,
+            type: type,
         )
     }
 
+    /// Initialize a `Policy` from a persisted `PolicyData` object.
+    ///
+    /// - Parameter policyData: The persisted policy data.
+    /// - Returns: `nil` if the policy's type isn't recognized by this version of the app.
+    ///
     init?(policyData: PolicyData) throws {
         guard let model = policyData.model else {
             throw DataMappingError.invalidData

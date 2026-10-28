@@ -10,7 +10,7 @@ extension PolicyResponseModel {
         id: String = "policy-1",
         organizationId: String = "org-1",
         revisionDate: Date? = nil,
-        type: PolicyType = .twoFactorAuthentication,
+        type: OpenEnum<PolicyType> = .known(.twoFactorAuthentication),
     ) -> PolicyResponseModel {
         PolicyResponseModel(
             data: data,

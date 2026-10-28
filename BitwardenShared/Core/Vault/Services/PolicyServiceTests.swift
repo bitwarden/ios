@@ -14,6 +14,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     var clientService: MockClientService!
     var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
+    var flightRecorder: MockFlightRecorder!
     var organizationService: MockOrganizationService!
     var policyDataStore: MockPolicyDataStore!
     var stateService: MockStateService!
@@ -82,6 +83,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         clientService = MockClientService()
         configService = MockConfigService()
         errorReporter = MockErrorReporter()
+        flightRecorder = MockFlightRecorder()
         organizationService = MockOrganizationService()
         policyDataStore = MockPolicyDataStore()
         stateService = MockStateService()
@@ -90,6 +92,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             clientService: clientService,
             configService: configService,
             errorReporter: errorReporter,
+            flightRecorder: flightRecorder,
             organizationService: organizationService,
             policyDataStore: policyDataStore,
             stateService: stateService,
@@ -109,6 +112,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         clientService = nil
         configService = nil
         errorReporter = nil
+        flightRecorder = nil
         organizationService = nil
         policyDataStore = nil
         stateService = nil
@@ -1063,6 +1067,34 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(policyDataStore.replacePoliciesPolicies, policies)
     }
 
+    /// `replacePolicies(_:userId:)` drops policies with an unrecognized type from the cached list
+    /// of policies, logs them to the flight recorder, and persists them to the data store unchanged.
+    func test_replacePolicies_unknownType() async throws {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(id: "org-1")])
+        let policies: [PolicyResponseModel] = [
+            .fixture(id: "1", type: .known(.twoFactorAuthentication)),
+            .fixture(id: "2", type: .unknown(99)),
+        ]
+
+        try await subject.replacePolicies(policies, userId: "1")
+
+        XCTAssertEqual(policyDataStore.replacePoliciesPolicies, policies)
+        XCTAssertEqual(
+            flightRecorder.logMessages,
+            ["[PolicyService] Ignoring policy 2 with unrecognized type 99"],
+        )
+
+        var evaluatedPolicyIds = [String]()
+        clientService.mockPolicies.filterByTypeClosure = { policies, _, policyType in
+            evaluatedPolicyIds = policies.map(\.id)
+            return policies.filter { $0.enabled && $0.type == policyType }
+        }
+        let policyApplies = await subject.policyAppliesToUser(.twoFactorAuthentication)
+        XCTAssertTrue(policyApplies)
+        XCTAssertEqual(evaluatedPolicyIds, ["1"])
+    }
+
     /// `replacePolicies(_:userId:)` updates the cached list of policies for the user.
     func test_replacePolicies_updatesPolicyAppliesToUser() async throws {
         stateService.activeAccount = .fixture()
@@ -1073,7 +1105,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertFalse(policyApplies)
 
         try await subject.replacePolicies(
-            [.fixture(type: .twoFactorAuthentication)],
+            [.fixture(type: .known(.twoFactorAuthentication))],
             userId: "1",
         )
 

@@ -105,7 +105,7 @@ class SyncAPIServiceTests: BitwardenTestCase {
                         id: "policy-0",
                         organizationId: "org-1",
                         revisionDate: nil,
-                        type: .twoFactorAuthentication,
+                        type: .known(.twoFactorAuthentication),
                     ),
                     PolicyResponseModel(
                         data: [
@@ -121,7 +121,7 @@ class SyncAPIServiceTests: BitwardenTestCase {
                         id: "policy-1",
                         organizationId: "org-1",
                         revisionDate: nil,
-                        type: .masterPassword,
+                        type: .known(.masterPassword),
                     ),
                     PolicyResponseModel(
                         data: nil,
@@ -129,7 +129,7 @@ class SyncAPIServiceTests: BitwardenTestCase {
                         id: "policy-3",
                         organizationId: "org-1",
                         revisionDate: nil,
-                        type: .onlyOrg,
+                        type: .known(.onlyOrg),
                     ),
                     PolicyResponseModel(
                         data: ["autoEnrollEnabled": .bool(false)],
@@ -137,7 +137,7 @@ class SyncAPIServiceTests: BitwardenTestCase {
                         id: "policy-8",
                         organizationId: "org-1",
                         revisionDate: nil,
-                        type: .resetPassword,
+                        type: .known(.resetPassword),
                     ),
                 ],
             ),

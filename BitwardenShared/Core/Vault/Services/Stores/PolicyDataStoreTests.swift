@@ -3,6 +3,7 @@ import CoreData
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class PolicyDataStoreTests: BitwardenTestCase {
     // MARK: Properties
@@ -16,7 +17,7 @@ class PolicyDataStoreTests: BitwardenTestCase {
             id: "1",
             organizationId: "org-1",
             revisionDate: Date(year: 2025, month: 12, day: 1),
-            type: .twoFactorAuthentication,
+            type: .known(.twoFactorAuthentication),
         ),
         PolicyResponseModel(
             data: nil,
@@ -24,7 +25,7 @@ class PolicyDataStoreTests: BitwardenTestCase {
             id: "2",
             organizationId: "org-1",
             revisionDate: Date(year: 2025, month: 12, day: 1),
-            type: .masterPassword,
+            type: .known(.masterPassword),
         ),
     ]
 
@@ -60,7 +61,7 @@ class PolicyDataStoreTests: BitwardenTestCase {
         try await insertPolicies(policies, userId: "1")
 
         let fetchedPolicies = try await subject.fetchAllPolicies(userId: "1")
-        XCTAssertEqual(fetchedPolicies, policies.map(Policy.init))
+        XCTAssertEqual(fetchedPolicies, policies.compactMap(Policy.init))
 
         let emptyPolicies = try await subject.fetchAllPolicies(userId: "-1")
         XCTAssertEqual(emptyPolicies, [])
@@ -71,7 +72,28 @@ class PolicyDataStoreTests: BitwardenTestCase {
         try await subject.replacePolicies(policies, userId: "1")
 
         let fetchedPolicies = try await subject.fetchAllPolicies(userId: "1")
-        XCTAssertEqual(fetchedPolicies, policies.map(Policy.init))
+        XCTAssertEqual(fetchedPolicies, policies.compactMap(Policy.init))
+    }
+
+    /// `replacePolicies(_:userId:)` persists a policy with an unrecognized type with its original
+    /// raw value, and `fetchAllPolicies(userId:)` drops it.
+    func test_replacePolicies_unknownType() async throws {
+        let unknownPolicy = PolicyResponseModel.fixture(id: "3", organizationId: "org-1", type: .unknown(99))
+        try await subject.replacePolicies(policies + [unknownPolicy], userId: "1")
+
+        let fetchRequest = PolicyData.fetchByUserIdRequest(userId: "1")
+        fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \PolicyData.id, ascending: true)]
+        let persistedData = try subject.backgroundContext.fetch(fetchRequest)
+        XCTAssertEqual(persistedData.count, 3)
+        let unknownPolicyData = try XCTUnwrap(persistedData.last)
+        XCTAssertEqual(unknownPolicyData.model?.type, .unknown(99))
+        let modelJSON = try XCTUnwrap(
+            JSONSerialization.jsonObject(with: XCTUnwrap(unknownPolicyData.modelData)) as? [String: Any],
+        )
+        XCTAssertEqual(modelJSON["type"] as? Int, 99)
+
+        let fetchedPolicies = try await subject.fetchAllPolicies(userId: "1")
+        XCTAssertEqual(fetchedPolicies.map(\.id).sorted(), ["1", "2"])
     }
 
     /// `replacePolicies(_:userId:)` persists the policies in the `PolicyNewData` entity, which was

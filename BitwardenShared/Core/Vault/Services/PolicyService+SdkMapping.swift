@@ -9,11 +9,7 @@ import Foundation
 extension BitwardenSdk.Policy {
     /// Converts an iOS `Policy` to a `BitwardenSdk.Policy`.
     ///
-    /// Returns `nil` when the iOS policy type has no SDK equivalent (e.g., `.unknown`).
-    ///
-    init?(_ policy: BitwardenShared.Policy) {
-        guard let sdkType = BitwardenSdk.PolicyType(policy.type) else { return nil }
-
+    init(_ policy: BitwardenShared.Policy) {
         let dataJson: String? = policy.data.flatMap { dict in
             (try? JSONEncoder().encode(dict)).flatMap { String(data: $0, encoding: .utf8) }
         }
@@ -21,7 +17,7 @@ extension BitwardenSdk.Policy {
         self.init(
             id: policy.id,
             organizationId: policy.organizationId,
-            type: sdkType,
+            type: BitwardenSdk.PolicyType(policy.type),
             data: dataJson,
             enabled: policy.enabled,
             revisionDate: policy.revisionDate,
@@ -32,7 +28,11 @@ extension BitwardenSdk.Policy {
 extension BitwardenShared.Policy {
     /// Converts a `BitwardenSdk.Policy` to an iOS `Policy`.
     ///
-    init(_ sdkPolicy: BitwardenSdk.Policy) {
+    /// Returns `nil` when the SDK policy type has no iOS equivalent.
+    ///
+    init?(_ sdkPolicy: BitwardenSdk.Policy) {
+        guard let type = PolicyType(sdkPolicy.type) else { return nil }
+
         let decodedData: [String: AnyCodable]? = sdkPolicy.data
             .flatMap { $0.data(using: .utf8) }
             .flatMap { try? JSONDecoder().decode([String: AnyCodable].self, from: $0) }
@@ -43,7 +43,7 @@ extension BitwardenShared.Policy {
             id: sdkPolicy.id,
             organizationId: sdkPolicy.organizationId,
             revisionDate: sdkPolicy.revisionDate,
-            type: PolicyType(sdkPolicy.type),
+            type: type,
         )
     }
 }
@@ -70,9 +70,7 @@ extension BitwardenSdk.OrganizationUserPolicyContext {
 extension BitwardenSdk.PolicyType {
     /// Converts an iOS `PolicyType` to the SDK's `BitwardenSdk.PolicyType`.
     ///
-    /// Returns `nil` for iOS-only cases (e.g., `.unknown`) with no SDK equivalent.
-    ///
-    init?(_ type: PolicyType) {
+    init(_ type: PolicyType) {
         switch type {
         case .activateAutofill: self = .activateAutofill
         case .disablePersonalVaultExport: self = .disablePersonalVaultExport
@@ -90,7 +88,6 @@ extension BitwardenSdk.PolicyType {
         case .sendControls: self = .sendControls
         case .sendOptions: self = .sendOptions
         case .twoFactorAuthentication: self = .twoFactorAuthentication
-        case .unknown: return nil
         }
     }
 }
@@ -98,9 +95,9 @@ extension BitwardenSdk.PolicyType {
 extension PolicyType {
     /// Converts an SDK `BitwardenSdk.PolicyType` to the iOS `PolicyType`.
     ///
-    /// SDK-only cases with no iOS equivalent map to `.unknown`.
+    /// Returns `nil` for SDK-only cases with no iOS equivalent.
     ///
-    init(_ sdkType: BitwardenSdk.PolicyType) {
+    init?(_ sdkType: BitwardenSdk.PolicyType) {
         switch sdkType {
         case .activateAutofill: self = .activateAutofill
         case .disablePersonalVaultExport: self = .disablePersonalVaultExport
@@ -108,6 +105,7 @@ extension PolicyType {
         case .masterPassword: self = .masterPassword
         case .maximumVaultTimeout: self = .maximumVaultTimeout
         case .organizationDataOwnership: self = .personalOwnership
+        case .organizationUserNotification: self = .organizationUserNotification
         case .passwordGenerator: self = .passwordGenerator
         case .removeUnlockWithPin: self = .removeUnlockWithPin
         case .requireSso: self = .requireSSO
@@ -123,8 +121,7 @@ extension PolicyType {
              .blockClaimedDomainAccountCreation,
              .fillAssist,
              .freeFamiliesSponsorship,
-             .organizationUserNotification,
-             .uriMatchDefaults: self = .unknown
+             .uriMatchDefaults: return nil
         }
     }
 }

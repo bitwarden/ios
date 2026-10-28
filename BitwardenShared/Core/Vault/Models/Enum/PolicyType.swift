@@ -1,6 +1,9 @@
 /// An enum that describes the restrictions for a policy.
 ///
-enum PolicyType: Int, Codable {
+/// This intentionally isn't `Codable`: API models decode it via `OpenEnum<PolicyType>` so that an
+/// unrecognized server value doesn't fail decoding of the whole response.
+///
+enum PolicyType: Int {
     /// Requires users to have 2fa enabled.
     case twoFactorAuthentication = 0
 
@@ -50,15 +53,4 @@ enum PolicyType: Int, Codable {
     /// supersedes `disableSend` and `sendOptions` when the `pm-31885-send-controls` feature flag
     /// is active on the server.
     case sendControls = 21
-
-    /// An unknown policy type.
-    case unknown = -1
-
-    // MARK: Initialization
-
-    init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        let rawValue = try container.decode(RawValue.self)
-        self = Self(rawValue: rawValue) ?? .unknown
-    }
 }

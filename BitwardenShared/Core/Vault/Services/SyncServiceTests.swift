@@ -1101,7 +1101,7 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertEqual(policyService.replacePoliciesPolicies.count, 4)
         XCTAssertEqual(
             policyService.replacePoliciesPolicies[0],
-            .fixture(enabled: false, id: "policy-0", organizationId: "org-1", type: .twoFactorAuthentication),
+            .fixture(enabled: false, id: "policy-0", organizationId: "org-1", type: .known(.twoFactorAuthentication)),
         )
         XCTAssertEqual(
             policyService.replacePoliciesPolicies[1],
@@ -1118,7 +1118,7 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                 enabled: true,
                 id: "policy-1",
                 organizationId: "org-1",
-                type: .masterPassword,
+                type: .known(.masterPassword),
             ),
         )
         XCTAssertEqual(
@@ -1128,7 +1128,7 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                 id: "policy-3",
                 organizationId: "org-1",
                 revisionDate: nil,
-                type: .onlyOrg,
+                type: .known(.onlyOrg),
             ),
         )
         XCTAssertEqual(
@@ -1139,7 +1139,7 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                 id: "policy-8",
                 organizationId: "org-1",
                 revisionDate: nil,
-                type: .resetPassword,
+                type: .known(.resetPassword),
             ),
         )
         XCTAssertEqual(policyService.replacePoliciesUserId, "1")
