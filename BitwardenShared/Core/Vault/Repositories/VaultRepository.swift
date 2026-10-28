@@ -654,6 +654,13 @@ extension DefaultVaultRepository: VaultRepository {
               let cipherId = cipher.id
         else { throw BitwardenError.dataError("Missing data") }
 
+        // The file name comes from the attachment's metadata, so only its last path component is used. A
+        // name that's empty or refers to the current or parent directory can't be used as a file name.
+        let fileName = attachmentName.split(separator: "/").last.map(String.init) ?? ""
+        guard !fileName.isEmpty, fileName != ".", fileName != ".." else {
+            throw BitwardenError.dataError("Invalid attachment file name")
+        }
+
         guard let encryptedCipher = try await cipherService.fetchCipher(withId: cipherId) else {
             throw BitwardenError.dataError("Unable to fetch cipher with ID \(cipherId)")
         }
@@ -665,7 +672,7 @@ extension DefaultVaultRepository: VaultRepository {
         let storageUrl = FileManager.default.attachmentsUrl(for: userId)
 
         try FileManager.default.createDirectory(at: storageUrl, withIntermediateDirectories: true)
-        let temporaryUrl = storageUrl.appendingPathComponent(attachmentName)
+        let temporaryUrl = storageUrl.appendingPathComponent(fileName)
 
         // Decrypt the downloaded data and move it to the specified temporary location.
         try await clientService.vault().attachments().decryptFile(

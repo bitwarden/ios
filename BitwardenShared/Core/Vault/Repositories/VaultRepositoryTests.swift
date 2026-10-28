@@ -784,6 +784,48 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertFalse(FileManager.default.fileExists(atPath: downloadUrl.path))
     }
 
+    /// `downloadAttachment(_:cipher:)` only uses the last path component of the attachment's file name, so
+    /// that the file is saved within the user's attachments directory.
+    func test_downloadAttachment_fileNameWithPathComponents_savesWithinAttachmentsDirectory() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        let downloadUrl = FileManager.default.temporaryDirectory.appendingPathComponent("sillyGoose.txt")
+        try Data("🪿".utf8).write(to: downloadUrl)
+        cipherService.downloadAttachmentResult = .success(downloadUrl)
+
+        let attachment = AttachmentView.fixture(fileName: "../../sillyGoose.txt")
+        let cipherView = CipherView.fixture(attachments: [attachment], id: "2")
+        let cipher = Cipher.fixture(
+            attachments: [Attachment(attachmentView: attachment)],
+            id: "2",
+            key: "new key",
+        )
+        cipherService.fetchCipherResult = .success(cipher)
+
+        let resultUrl = try await subject.downloadAttachment(attachment, cipher: cipherView)
+
+        let attachmentsUrl = FileManager.default.attachmentsUrl(for: account.profile.userId)
+        XCTAssertEqual(resultUrl, attachmentsUrl.appendingPathComponent("sillyGoose.txt"))
+        XCTAssertEqual(
+            clientService.mockVault.clientAttachments.decryptFileReceivedArguments?.decryptedFilePath,
+            resultUrl?.path,
+        )
+    }
+
+    /// `downloadAttachment(_:cipher:)` throws an error, without downloading anything, if the attachment's
+    /// file name can't be used as a file name.
+    func test_downloadAttachment_invalidFileName() async throws {
+        stateService.activeAccount = .fixture()
+        let attachment = AttachmentView.fixture(fileName: "../")
+        let cipherView = CipherView.fixture(attachments: [attachment], id: "2")
+
+        await assertAsyncThrows(error: BitwardenError.dataError("Invalid attachment file name")) {
+            _ = try await subject.downloadAttachment(attachment, cipher: cipherView)
+        }
+
+        XCTAssertNil(cipherService.downloadAttachmentId)
+    }
+
     /// `downloadAttachment(_:cipher:)` throws an error for nil id's.
     func test_downloadAttachment_nilId() async throws {
         await assertAsyncThrows(error: BitwardenError.dataError("Missing data")) {
