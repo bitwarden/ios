@@ -21,11 +21,13 @@ struct VaultAutofillListView: View {
 
     // MARK: Private properties
 
-    /// Whether the inline search field has focus in `autofillText` mode. The search field is focused
-    /// when the list appears so the keyboard (kept alive by the extension's keyboard anchor during
-    /// unlock) types into a visible field. Focus is managed through SwiftUI's focus system
-    /// (`fromBecomeFirstResponder:0`), which avoids the PM-28227 5-second RTI timer that UIKit's
-    /// explicit `becomeFirstResponder()` (`fromBecomeFirstResponder:1`) would start.
+    /// PM-28227 WORKAROUND: Whether the inline search field has focus in `autofillText` mode. Keeping
+    /// focus inside SwiftUI's focus system ensures `fromBecomeFirstResponder:0` /
+    /// `delayEndInputSession:NO`, preventing the 5-second RTI timer that fires when UIKit's explicit
+    /// `becomeFirstResponder()` (`fromBecomeFirstResponder:1`) is used instead. The search field is
+    /// focused when the list appears so the keyboard (kept alive by the extension's keyboard anchor
+    /// during unlock) types into a visible field. On iOS 27+, focus is cleared when an item is tapped
+    /// so no field is focused when the text-to-insert request completes (PM-40959).
     @FocusState private var isSearchFieldFocused: Bool
 
     // MARK: View
