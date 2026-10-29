@@ -9,7 +9,7 @@ import XCTest
 class TabRouteTests: BitwardenTestCase {
     // MARK: Tests
 
-    /// `.generator` image is the `.restartFilled` asset.
+    /// `.generator` image is the `TabBar.generatorIdle` asset.
     func test_generator_image() {
         XCTAssertEqual(
             TabRoute.generator(.generator()).image?.pngData(),
@@ -22,7 +22,7 @@ class TabRouteTests: BitwardenTestCase {
         XCTAssertEqual(TabRoute.generator(.generator()).index, 2)
     }
 
-    /// `.generator` selected image is the `.restartFilled` asset.
+    /// `.generator` selected image is the `TabBar.generatorActive` asset.
     func test_generator_selectedImage() {
         XCTAssertEqual(
             TabRoute.generator(.generator()).selectedImage?.pngData(),
@@ -35,7 +35,7 @@ class TabRouteTests: BitwardenTestCase {
         XCTAssertEqual(TabRoute.generator(.generator()).title, Localizations.generator)
     }
 
-    /// `.send` image is the `.sendFilled` asset.
+    /// `.send` image is the `TabBar.sendIdle` asset.
     func test_send_image() {
         XCTAssertEqual(
             TabRoute.send.image?.pngData(),
@@ -48,7 +48,7 @@ class TabRouteTests: BitwardenTestCase {
         XCTAssertEqual(TabRoute.send.index, 1)
     }
 
-    /// `.send` selected image is the `.sendFilled` asset.
+    /// `.send` selected image is the `TabBar.sendActive` asset.
     func test_send_selectedImage() {
         XCTAssertEqual(
             TabRoute.send.selectedImage?.pngData(),
@@ -61,7 +61,7 @@ class TabRouteTests: BitwardenTestCase {
         XCTAssertEqual(TabRoute.send.title, Localizations.send)
     }
 
-    /// `.settings` image is the `.gearFilled` asset.
+    /// `.settings` image is the `TabBar.settingsIdle` asset.
     func test_settings_image() {
         XCTAssertEqual(
             TabRoute.settings(.settings(.tab)).image?.pngData(),
@@ -74,7 +74,7 @@ class TabRouteTests: BitwardenTestCase {
         XCTAssertEqual(TabRoute.settings(.settings(.tab)).index, 3)
     }
 
-    /// `.settings` selected image is the `.gearFilled` asset.
+    /// `.settings` selected image is the `TabBar.settingsActive` asset.
     func test_settings_selectedImage() {
         XCTAssertEqual(
             TabRoute.settings(.settings(.tab)).selectedImage?.pngData(),
@@ -90,7 +90,7 @@ class TabRouteTests: BitwardenTestCase {
         )
     }
 
-    /// `.vault` image is the `.lockedFilled` asset.
+    /// `.vault` image is the `TabBar.vaultIdle` asset.
     func test_vault_image() {
         XCTAssertEqual(
             TabRoute.vault(.list).image?.pngData(),
@@ -103,7 +103,7 @@ class TabRouteTests: BitwardenTestCase {
         XCTAssertEqual(TabRoute.vault(.list).index, 0)
     }
 
-    /// `.vault` selected image is the `.lockedFilled` asset.
+    /// `.vault` selected image is the `TabBar.vaultActive` asset.
     func test_vault_selectedImage() {
         XCTAssertEqual(
             TabRoute.vault(.list).selectedImage?.pngData(),
