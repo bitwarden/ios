@@ -37,7 +37,7 @@ extension ExternalLinksConstants {
 
     /// A link to Bitwarden's help page for the "Keep vault unlocked until timeout" setting.
     ///
-    /// TODO: PM-42103 - replace with the final help-center URL once product/support provides one.
+    /// TODO: PM-46008 - replace with the final help-center URL once product/support provides one.
     static let keepVaultUnlockedUntilTimeoutHelp = URL(string: "https://bitwarden.com/help/")!
 
     /// A link to Bitwarden's help page for learning more about Premium features.
