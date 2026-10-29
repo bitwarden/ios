@@ -704,6 +704,21 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(value)
     }
 
+    /// `getAllowUniversalClipboard()` returns the Universal Clipboard setting for the active account.
+    func test_getAllowUniversalClipboard() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.allowUniversalClipboardByUserId["1"] = true
+        let value = try await subject.getAllowUniversalClipboard()
+        XCTAssertTrue(value)
+    }
+
+    /// `getAllowUniversalClipboard()` defaults to `false` if the active account doesn't have a value set.
+    func test_getAllowUniversalClipboard_notSet() async throws {
+        await subject.addAccount(.fixture())
+        let value = try await subject.getAllowUniversalClipboard()
+        XCTAssertFalse(value)
+    }
+
     /// `getAppRehydrationState(userId:)` returns the app rehydration state for the active account.
     func test_getAppRehydrationState() async throws {
         await subject.addAccount(.fixture())
@@ -1987,6 +2002,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.setAllowSyncOnRefresh(true)
         XCTAssertEqual(appSettingsStore.allowSyncOnRefreshes["1"], true)
+    }
+
+    /// `setAllowUniversalClipboard(_:userId:)` sets the Universal Clipboard setting for a user.
+    func test_setAllowUniversalClipboard() async throws {
+        await subject.addAccount(.fixture())
+
+        try await subject.setAllowUniversalClipboard(true)
+        XCTAssertEqual(appSettingsStore.allowUniversalClipboardByUserId["1"], true)
     }
 
     /// `setAppRehydrationState(_:userId:)` sets the app rehydration state for the given account.

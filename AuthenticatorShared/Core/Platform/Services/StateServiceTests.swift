@@ -35,6 +35,26 @@ class StateServiceTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `activeAccountIdPublisher()` publishes the local user ID.
+    func test_activeAccountIdPublisher() async throws {
+        var publisher = await subject.activeAccountIdPublisher().values.makeAsyncIterator()
+        let userId = await publisher.next()
+        XCTAssertEqual(userId, "localtest")
+    }
+
+    /// `getAllowUniversalClipboard(userId:)` returns the Universal Clipboard setting for the local user.
+    func test_getAllowUniversalClipboard() async throws {
+        appSettingsStore.allowUniversalClipboardByUserId["localtest"] = true
+        let value = try await subject.getAllowUniversalClipboard(userId: nil)
+        XCTAssertTrue(value)
+    }
+
+    /// `getAllowUniversalClipboard(userId:)` defaults to `false` if the user doesn't have a value set.
+    func test_getAllowUniversalClipboard_notSet() async throws {
+        let value = try await subject.getAllowUniversalClipboard(userId: nil)
+        XCTAssertFalse(value)
+    }
+
     /// `getFlightRecorderData()` returns the data for the flight recorder.
     func test_getFlightRecorderData() async throws {
         let storedFlightRecorderData = FlightRecorderData()
@@ -67,5 +87,14 @@ class StateServiceTests: BitwardenTestCase {
 
         await subject.setFlightRecorderData(nil)
         XCTAssertNil(appSettingsStore.flightRecorderData)
+    }
+
+    /// `setAllowUniversalClipboard(_:userId:)` sets the Universal Clipboard setting for the local user.
+    func test_setAllowUniversalClipboard() async throws {
+        try await subject.setAllowUniversalClipboard(true, userId: nil)
+        XCTAssertEqual(appSettingsStore.allowUniversalClipboardByUserId["localtest"], true)
+
+        try await subject.setAllowUniversalClipboard(false, userId: nil)
+        XCTAssertEqual(appSettingsStore.allowUniversalClipboardByUserId["localtest"], false)
     }
 }

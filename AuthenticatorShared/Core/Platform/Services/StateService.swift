@@ -301,3 +301,21 @@ extension DefaultStateService: BiometricsStateService {
         appSettingsStore.setBiometricAuthenticationEnabled(isEnabled, for: userId)
     }
 }
+
+// MARK: PasteboardStateService
+
+extension DefaultStateService: PasteboardStateService {
+    func activeAccountIdPublisher() async -> AnyPublisher<String?, Never> {
+        Just(appSettingsStore.localUserId).eraseToAnyPublisher()
+    }
+
+    func getAllowUniversalClipboard(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.allowUniversalClipboard(userId: userId)
+    }
+
+    func setAllowUniversalClipboard(_ allowUniversalClipboard: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setAllowUniversalClipboard(allowUniversalClipboard, userId: userId)
+    }
+}
