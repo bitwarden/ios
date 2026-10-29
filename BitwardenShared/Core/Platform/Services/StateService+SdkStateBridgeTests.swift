@@ -119,7 +119,8 @@ struct StateServiceSdkStateBridgeTests { // swiftlint:disable:this type_body_len
     }
 
     /// `setEphemeralPinEnvelope(_:userId:)` stores the pin protected user key envelope in memory
-    /// for the specified user, and clears the legacy pin protected user key.
+    /// for the specified user, without clearing a legacy pin protected user key that hasn't been
+    /// migrated to a persistent envelope yet.
     @Test
     func setEphemeralPinEnvelope() async {
         appSettingsStore.pinProtectedUserKey["1"] = "LEGACY_PIN_PROTECTED_USER_KEY"
@@ -128,7 +129,7 @@ struct StateServiceSdkStateBridgeTests { // swiftlint:disable:this type_body_len
 
         let volatileData = await subject.accountVolatileData["1"]
         #expect(volatileData?.pinProtectedUserKey == "PIN_PROTECTED_USER_KEY_ENVELOPE")
-        #expect(appSettingsStore.pinProtectedUserKey["1"] == nil)
+        #expect(appSettingsStore.pinProtectedUserKey["1"] == "LEGACY_PIN_PROTECTED_USER_KEY")
     }
 
     /// `setEphemeralPinEnvelope(_:userId:)` clears the in-memory pin protected user key envelope
