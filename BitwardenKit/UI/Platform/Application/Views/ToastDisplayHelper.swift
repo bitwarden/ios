@@ -35,7 +35,7 @@ public enum ToastDisplayHelper {
 
         // Create the toast view.
         let viewController = UIHostingController(rootView: ToastView(toast: .constant(toast)))
-        viewController.view.layer.backgroundColor = nil
+        viewController.view.backgroundColor = .clear
         viewController.view.layer.opacity = 0
         viewController.view.tag = toastTag
 
