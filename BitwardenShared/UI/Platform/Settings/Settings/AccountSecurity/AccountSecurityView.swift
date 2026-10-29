@@ -199,21 +199,21 @@ struct AccountSecurityView: View { // swiftlint:disable:this type_body_length
             if store.state.isSessionKeySharingFeatureEnabled {
                 ContentBlock(dividerLeadingPadding: 16) {
                     BitwardenToggle(
-                        Localizations.keepVaultUnlockedUntilTimeout,
+                        Localizations.unlockOnceUntilTimeout,
                         isOn: store.bindingAsync(
                             get: \.isSessionKeySharingEnabled,
                             perform: AccountSecurityEffect.toggleSessionKeySharing,
                         ),
-                        accessibilityIdentifier: "KeepVaultUnlockedUntilTimeoutSwitch",
+                        accessibilityIdentifier: "UnlockOnceUntilTimeoutSwitch",
                     ) {
                         VStack(alignment: .leading, spacing: 0) {
-                            Text(Localizations.keepVaultUnlockedUntilTimeoutDescriptionLong)
+                            Text(Localizations.unlockOnceUntilTimeoutDescriptionLong)
                                 .styleGuide(.subheadline)
                                 .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
                                 .padding(.top, 12)
 
                             Button {
-                                openURL(ExternalLinksConstants.keepVaultUnlockedUntilTimeoutHelp)
+                                openURL(ExternalLinksConstants.unlockOnceUntilTimeoutHelp)
                             } label: {
                                 Text(Localizations.learnMore)
                                     .styleGuide(.subheadline, weight: .bold)
