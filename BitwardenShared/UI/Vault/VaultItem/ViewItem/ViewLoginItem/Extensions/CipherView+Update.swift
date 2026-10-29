@@ -487,6 +487,7 @@ extension BitwardenSdk.LoginView {
             uris: uris,
             totp: totp,
             autofillOnPageLoad: autofillOnPageLoad,
+            httpAuthenticationEnabled: httpAuthenticationEnabled,
             fido2Credentials: fido2Credentials,
         )
     }
