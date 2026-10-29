@@ -7,6 +7,7 @@ class MockOrganizationService: OrganizationService {
     var fetchAllOrganizationsCalled = false
     var fetchAllOrganizationsResult: Result<[Organization], Error> = .success([])
 
+    var fetchAllOrganizationsUserId: String?
     var fetchAllOrganizationsUserIdResult: Result<[Organization], Error> = .success([])
 
     var initializeOrganizationCryptoCalled = false
@@ -26,6 +27,7 @@ class MockOrganizationService: OrganizationService {
 
     func fetchAllOrganizations(userId: String) async throws -> [Organization] {
         fetchAllOrganizationsCalled = true
+        fetchAllOrganizationsUserId = userId
         return try fetchAllOrganizationsUserIdResult.get()
     }
 

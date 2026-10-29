@@ -276,6 +276,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         try await subject.clearPins()
 
         XCTAssertTrue(clientService.mockUserCryptoManagement.mockPinSettings.unsetPinCalled)
+        XCTAssertNil(clientService.mockUserCryptoManagementUserId)
     }
 
     /// `convertNewUserToKeyConnector()` converts a new user to key connector and unlocks the vault.
@@ -2964,6 +2965,60 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(vaultTimeoutService.removedIds, [anneAccount.profile.userId])
         XCTAssertNil(stateService.pinProtectedUserKeyValue["1"])
         XCTAssertNil(stateService.encryptedPinByUserId["1"])
+        XCTAssertEqual(policyService.policyAppliesToUserUserIds, ["1"])
+    }
+
+    /// `logout(userId:userInitiated:)` for an inactive user clears only that user's pins when the
+    /// Remove unlock with pin policy applies to that user.
+    func test_logout_inactiveUser_clearsInactiveUserPins() async throws {
+        stateService.accounts = [anneAccount, beeAccount]
+        stateService.activeAccount = anneAccount
+        stateService.pinProtectedUserKeyValue = ["1": "1", "2": "2"]
+        stateService.encryptedPinByUserId = ["1": "1", "2": "2"]
+        policyService.policyAppliesToUserResult[.removeUnlockWithPin] = true
+
+        try await subject.logout(userId: "2", userInitiated: false)
+
+        XCTAssertEqual(stateService.accountsLoggedOut, ["2"])
+        XCTAssertEqual(policyService.policyAppliesToUserUserIds, ["2"])
+        XCTAssertNil(stateService.pinProtectedUserKeyValue["2"])
+        XCTAssertNil(stateService.encryptedPinByUserId["2"])
+        XCTAssertEqual(stateService.pinProtectedUserKeyValue["1"], "1")
+        XCTAssertEqual(stateService.encryptedPinByUserId["1"], "1")
+    }
+
+    /// `logout(userId:userInitiated:)` for an inactive user doesn't clear any pins when the Remove
+    /// unlock with pin policy doesn't apply to that user.
+    func test_logout_inactiveUser_policyDoesNotApply() async throws {
+        stateService.accounts = [anneAccount, beeAccount]
+        stateService.activeAccount = anneAccount
+        stateService.pinProtectedUserKeyValue = ["1": "1", "2": "2"]
+        stateService.encryptedPinByUserId = ["1": "1", "2": "2"]
+        policyService.policyAppliesToUserResult[.removeUnlockWithPin] = false
+
+        try await subject.logout(userId: "2", userInitiated: false)
+
+        XCTAssertEqual(stateService.accountsLoggedOut, ["2"])
+        XCTAssertEqual(policyService.policyAppliesToUserUserIds, ["2"])
+        XCTAssertEqual(stateService.pinProtectedUserKeyValue, ["1": "1", "2": "2"])
+        XCTAssertEqual(stateService.encryptedPinByUserId, ["1": "1", "2": "2"])
+    }
+
+    /// `logout(userId:userInitiated:)` for an inactive user unsets that user's SDK-managed PIN when
+    /// the Remove unlock with pin policy applies to that user and the `sdkManagedPinUnlock` feature
+    /// flag is enabled.
+    func test_logout_inactiveUser_sdkManagedPinUnlock_clearsInactiveUserPins() async throws {
+        configService.featureFlagsBool[.sdkManagedPinUnlock] = true
+        stateService.accounts = [anneAccount, beeAccount]
+        stateService.activeAccount = anneAccount
+        policyService.policyAppliesToUserResult[.removeUnlockWithPin] = true
+
+        try await subject.logout(userId: "2", userInitiated: false)
+
+        XCTAssertEqual(stateService.accountsLoggedOut, ["2"])
+        XCTAssertEqual(policyService.policyAppliesToUserUserIds, ["2"])
+        XCTAssertTrue(clientService.mockUserCryptoManagement.mockPinSettings.unsetPinCalled)
+        XCTAssertEqual(clientService.mockUserCryptoManagementUserId, "2")
     }
 
     /// `logout` throws when clearing pins and policy Remove unlock with pin being enabled.
