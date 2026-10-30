@@ -119,12 +119,12 @@ public extension ImageStyle {
     /// - Color: Defaults to `Asset.Colors.textSecondary`
     ///
     /// - Parameters:
-    ///   - color: The foreground color of the image. Defaults to `Asset.Colors.illustrationOutline`.
+    ///   - color: The foreground color of the image. Defaults to `Asset.Colors.illustrationStroke`.
     ///   - scaleWithFont: Whether the image should scale with font size changes.
     ///   - size: The size of the icon.
     ///
     static func viewIcon(
-        color: Color = SharedAsset.Colors.illustrationOutline.swiftUIColor,
+        color: Color = SharedAsset.Colors.illustrationStroke.swiftUIColor,
         scaleWithFont: Bool = true,
         size: CGFloat = 36,
     ) -> ImageStyle {
