@@ -88,9 +88,10 @@ struct TutorialView: View {
                     .frame(height: 146)
 
                 Text(titleText)
-                    .styleGuide(.title2)
+                    .styleGuide(.title, weight: .bold)
 
                 Text(bodyText)
+                    .styleGuide(.title3)
 
                 Spacer()
             }
@@ -103,9 +104,10 @@ struct TutorialView: View {
 
                 VStack(alignment: .leading, spacing: 24) {
                     Text(titleText)
-                        .styleGuide(.title2)
+                        .styleGuide(.title, weight: .bold)
 
                     Text(bodyText)
+                        .styleGuide(.title3)
 
                     Spacer()
                 }
