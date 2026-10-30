@@ -191,10 +191,11 @@
 "CopyTotp" = "Copy TOTP";
 "CopyTotpAutomaticallyDescription" = "If a login has an authenticator key, copy the TOTP verification code to your clipboard when you autofill the login.";
 "CopyTotpAutomatically" = "Copy TOTP automatically";
-"AttachementAdded" = "Attachment added";
+"AttachmentAdded" = "Attachment added";
 "AttachmentDeleted" = "Attachment deleted";
 "ChooseFile" = "Choose file";
 "File" = "File";
+"FileName" = "File name";
 "NoAttachments" = "There are no attachments.";
 "MaxFileSize" = "Maximum file size is 100 MB.";
 "RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
