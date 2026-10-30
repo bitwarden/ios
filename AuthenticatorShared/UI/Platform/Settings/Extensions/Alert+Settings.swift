@@ -45,15 +45,15 @@ extension Alert {
     /// Confirm that the user wants to export their items.
     ///
     /// - Parameters:
-    ///   - action: The action performed when they select export items.
+    ///   - action: The action performed when they select export.
     /// - Returns: An alert confirming that the user wants to export their items unencrypted.
     ///
     static func confirmExportItems(action: @escaping () async -> Void) -> Alert {
         Alert(
-            title: Localizations.exportItemsConfirmationTitle,
-            message: Localizations.exportItemsWarning,
+            title: Localizations.confirmExport,
+            message: Localizations.forYourSecurityDontShareOrSendDescriptionLong,
             alertActions: [
-                AlertAction(title: Localizations.exportItems, style: .default) { _ in await action() },
+                AlertAction(title: Localizations.export, style: .default) { _ in await action() },
                 AlertAction(title: Localizations.cancel, style: .cancel),
             ],
         )
