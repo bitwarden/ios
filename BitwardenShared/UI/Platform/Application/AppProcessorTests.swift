@@ -178,6 +178,24 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
+    /// The downloaded attachments are deleted when the app is backgrounded, so that decrypted files aren't
+    /// left on disk.
+    @MainActor
+    func test_appBackgrounded_removesAttachments() throws {
+        let userId = UUID().uuidString
+        let attachmentUrl = FileManager.default.attachmentsUrl(for: userId).appendingPathComponent("file.txt")
+        try FileManager.default.createDirectory(
+            at: attachmentUrl.deletingLastPathComponent(),
+            withIntermediateDirectories: true,
+        )
+        try Data("attachment".utf8).write(to: attachmentUrl)
+
+        notificationCenterService.didEnterBackgroundSubject.send()
+        waitFor(didEnterBackgroundCalled == 1)
+
+        XCTAssertFalse(FileManager.default.fileExists(atPath: attachmentUrl.path))
+    }
+
     /// The user's last active time is updated when the app is backgrounded.
     @MainActor
     func test_appBackgrounded_setLastActiveTime() {

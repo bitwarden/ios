@@ -54,9 +54,6 @@ public protocol VaultRepository: AnyObject {
     ///
     func canShowVaultFilter() async -> Bool
 
-    /// Removes any temporarily downloaded attachments.
-    func clearTemporaryDownloads()
-
     /// Creates a `VaultListSection` for excluded credentials.
     /// - Parameter cipher: The cipher found in excluded credentials.
     /// - Returns: A `VaultListSection` with the excluded cipher found.
@@ -179,6 +176,12 @@ public protocol VaultRepository: AnyObject {
     /// - Returns: An updated list of items with new TOTP codes.
     ///
     func refreshTOTPCodes(for items: [VaultListItem]) async throws -> [VaultListItem]
+
+    /// Removes a temporarily downloaded attachment, if the file still exists.
+    ///
+    /// - Parameter url: The url where the downloaded attachment is stored.
+    ///
+    func removeTemporaryDownload(at url: URL)
 
     /// Returns whether master password reprompt is required for a cipher.
     ///
@@ -568,20 +571,6 @@ extension DefaultVaultRepository: VaultRepository {
         return !(disablePersonalOwnership && singleOrg)
     }
 
-    func clearTemporaryDownloads() {
-        Task {
-            do {
-                let userId = try await stateService.getActiveAccountId()
-                let url = try FileManager.default.attachmentsUrl(for: userId)
-                if FileManager.default.fileExists(atPath: url.path) {
-                    try FileManager.default.removeItem(at: url)
-                }
-            } catch {
-                errorReporter.log(error: error)
-            }
-        }
-    }
-
     func createAutofillListExcludedCredentialSection(from cipher: CipherView) async throws -> VaultListSection {
         let vaultListItem = try await createFido2VaultListItem(from: cipher)
 
@@ -665,6 +654,13 @@ extension DefaultVaultRepository: VaultRepository {
               let cipherId = cipher.id
         else { throw BitwardenError.dataError("Missing data") }
 
+        // The file name comes from the attachment's metadata, so only its last path component is used. A
+        // name that's empty or refers to the current or parent directory can't be used as a file name.
+        let fileName = attachmentName.split(separator: "/").last.map(String.init) ?? ""
+        guard !fileName.isEmpty, fileName != ".", fileName != ".." else {
+            throw BitwardenError.dataError("Invalid attachment file name")
+        }
+
         guard let encryptedCipher = try await cipherService.fetchCipher(withId: cipherId) else {
             throw BitwardenError.dataError("Unable to fetch cipher with ID \(cipherId)")
         }
@@ -673,10 +669,10 @@ extension DefaultVaultRepository: VaultRepository {
         else { return nil }
 
         // Create a temporary location to write the decrypted data to.
-        let storageUrl = try FileManager.default.attachmentsUrl(for: userId)
+        let storageUrl = FileManager.default.attachmentsUrl(for: userId)
 
         try FileManager.default.createDirectory(at: storageUrl, withIntermediateDirectories: true)
-        let temporaryUrl = storageUrl.appendingPathComponent(attachmentName)
+        let temporaryUrl = storageUrl.appendingPathComponent(fileName)
 
         // Decrypt the downloaded data and move it to the specified temporary location.
         try await clientService.vault().attachments().decryptFile(
@@ -688,6 +684,15 @@ extension DefaultVaultRepository: VaultRepository {
 
         // Remove the encrypted file.
         try FileManager.default.removeItem(at: downloadedUrl)
+
+        // The file must not outlive its account. If the account was logged out, deleted, or switched
+        // while the attachment was downloading, its attachments were already removed, so remove this
+        // file as well.
+        let activeUserId = try? await stateService.getActiveAccountId()
+        guard activeUserId == userId else {
+            try FileManager.default.removeAttachments(for: userId)
+            throw BitwardenError.dataError("The active account changed while downloading an attachment")
+        }
 
         // Return the temporary location where the downloaded data is located.
         return temporaryUrl
@@ -810,6 +815,15 @@ extension DefaultVaultRepository: VaultRepository {
             }
         }
         .sorted { $0.sortValue.localizedStandardCompare($1.sortValue) == .orderedAscending }
+    }
+
+    func removeTemporaryDownload(at url: URL) {
+        do {
+            guard FileManager.default.fileExists(atPath: url.path) else { return }
+            try FileManager.default.removeItem(at: url)
+        } catch {
+            errorReporter.log(error: error)
+        }
     }
 
     func repromptRequiredForCipher(id: String) async throws -> Bool {

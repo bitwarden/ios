@@ -57,6 +57,9 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 
     // MARK: Private Properties
 
+    /// The helper used to download and preview an attachment.
+    private let attachmentPreviewHelper: AttachmentPreviewHelper
+
     /// The `Coordinator` for this processor.
     private let coordinator: AnyCoordinator<VaultItemRoute, VaultItemEvent>
 
@@ -71,6 +74,10 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 
     /// The services used by this processor.
     private let services: Services
+
+    /// The url of the file most recently downloaded for the save file picker, which is deleted when this
+    /// processor is deallocated.
+    private var temporaryDownloadUrl: URL?
 
     /// The helper used to navigate to the Premium upgrade flow.
     lazy var premiumUpgradeHelper: PremiumUpgradeHelper = DefaultPremiumUpgradeHelper(
@@ -90,6 +97,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     /// Creates a new `ViewItemProcessor`.
     ///
     /// - Parameters:
+    ///   - attachmentPreviewHelper: The helper used to download and preview an attachment.
     ///   - coordinator: The `Coordinator` for this processor.
     ///   - delegate: The delegate that is notified when add/edit/delete cipher item have occurred.
     ///   - itemId: The id of the item that is being viewed.
@@ -98,6 +106,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     ///   - vaultItemActionHelper: The helper to execute vault item actions.
     ///
     init(
+        attachmentPreviewHelper: AttachmentPreviewHelper,
         coordinator: AnyCoordinator<VaultItemRoute, VaultItemEvent>,
         delegate: CipherItemOperationDelegate?,
         itemId: String,
@@ -105,6 +114,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         state: ViewItemState,
         vaultItemActionHelper: VaultItemActionHelper,
     ) {
+        self.attachmentPreviewHelper = attachmentPreviewHelper
         self.coordinator = coordinator
         self.delegate = delegate
         self.itemId = itemId
@@ -119,8 +129,10 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     }
 
     deinit {
-        // When the view is dismissed, ensure any temporary files are deleted.
-        services.vaultRepository.clearTemporaryDownloads()
+        // When the view is dismissed, delete the file that this view downloaded. Other downloads are left alone.
+        if let temporaryDownloadUrl {
+            services.vaultRepository.removeTemporaryDownload(at: temporaryDownloadUrl)
+        }
     }
 
     // MARK: Methods
@@ -191,6 +203,11 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             streamCipherDetailsTask = nil
         case .dismissPressed:
             coordinator.navigate(to: .dismiss())
+        case let .attachmentPressed(attachment):
+            guard case let .data(cipherState) = state.loadingState else { return }
+            Task {
+                await attachmentPreviewHelper.showPreview(for: attachment, cipher: cipherState.cipher)
+            }
         case let .downloadAttachment(attachment):
             confirmDownload(attachment)
         case let .driversLicenseItemAction(action):
@@ -292,9 +309,7 @@ private extension ViewItemProcessor {
     ///
     private func confirmDownload(_ attachment: AttachmentView) {
         // If the attachment is larger than 10 MB, make the user confirm downloading it.
-        if let sizeName = attachment.sizeName,
-           let size = Int(attachment.size ?? ""),
-           size >= Constants.largeFileSize {
+        if attachment.isLargeFile, let sizeName = attachment.sizeName {
             coordinator.showAlert(.confirmDownload(fileSize: sizeName) {
                 await self.downloadAttachment(attachment)
             })
@@ -347,6 +362,12 @@ private extension ViewItemProcessor {
             ) else {
                 return coordinator.showAlert(.defaultAlert(title: Localizations.unableToDownloadFile))
             }
+
+            // Only the most recent download is kept, so delete the one it replaces.
+            if let previousUrl = temporaryDownloadUrl, previousUrl != temporaryUrl {
+                services.vaultRepository.removeTemporaryDownload(at: previousUrl)
+            }
+            temporaryDownloadUrl = temporaryUrl
 
             coordinator.hideLoadingOverlay()
             coordinator.navigate(to: .saveFile(temporaryUrl: temporaryUrl))

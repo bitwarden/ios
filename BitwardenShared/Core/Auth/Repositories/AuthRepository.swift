@@ -760,6 +760,11 @@ extension DefaultAuthRepository: AuthRepository {
         )
 
         let userId = try await stateService.getActiveAccountId()
+
+        // Remove the attachments however deletion ends. This runs after the account is deleted, so that a
+        // download still in progress removes its file when it finishes.
+        defer { removeAttachments(for: userId) }
+
         await vaultTimeoutService.remove(userId: userId)
 
         // Delete the account last.
@@ -874,6 +879,10 @@ extension DefaultAuthRepository: AuthRepository {
     func logout(userId: String?, userInitiated: Bool) async throws {
         let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
 
+        // Remove the attachments however logout ends, including when it fails part way through. This runs
+        // after the account is logged out, so that a download still in progress removes its file when it finishes.
+        defer { removeAttachments(for: userId) }
+
         // Clear all user data.
         try await stateService.setSyncToAuthenticator(false, userId: userId)
         try await keychainService.deleteItems(for: userId)
@@ -913,7 +922,19 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func setActiveAccount(userId: String) async throws -> Account {
+        let previousUserId = try? await stateService.getActiveAccountId()
         try await stateService.setActiveAccount(userId: userId)
+        if let previousUserId, previousUserId != userId {
+            // Delete on a detached task so that switching accounts doesn't wait for the files to be deleted.
+            let errorReporter = errorReporter
+            Task.detached {
+                do {
+                    try FileManager.default.removeAttachments(for: previousUserId)
+                } catch {
+                    errorReporter.log(error: error)
+                }
+            }
+        }
         await environmentService.loadURLsForActiveAccount()
         _ = await configService.getConfig()
         return try await stateService.getActiveAccount()
@@ -1281,6 +1302,19 @@ extension DefaultAuthRepository: AuthRepository {
             userInitials: account.initials(),
             webVault: account.settings.environmentUrls?.webVaultHost ?? "",
         )
+    }
+
+    /// Deletes the attachments that a user downloaded. A failure is logged rather than thrown, so
+    /// that it doesn't prevent the user from logging out, deleting their account, or switching accounts.
+    ///
+    /// - Parameter userId: The ID of the user whose attachments should be deleted.
+    ///
+    private func removeAttachments(for userId: String) {
+        do {
+            try FileManager.default.removeAttachments(for: userId)
+        } catch {
+            errorReporter.log(error: error)
+        }
     }
 
     /// Attempts to unlock the vault with a given method.

@@ -13,6 +13,7 @@ import XCTest
 class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var attachmentPreviewHelper: MockAttachmentPreviewHelper!
     var authRepository: MockAuthRepository!
     var billingRepository: MockBillingRepository!
     var billingService: MockBillingService!
@@ -34,6 +35,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     override func setUp() {
         super.setUp()
+        attachmentPreviewHelper = MockAttachmentPreviewHelper()
         authRepository = MockAuthRepository()
         billingRepository = MockBillingRepository()
         billingService = MockBillingService()
@@ -63,6 +65,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             vaultRepository: vaultRepository,
         )
         subject = ViewItemProcessor(
+            attachmentPreviewHelper: attachmentPreviewHelper,
             coordinator: coordinator.asAnyCoordinator(),
             delegate: delegate,
             itemId: "id",
@@ -75,6 +78,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     override func tearDown() {
         super.tearDown()
+        attachmentPreviewHelper = nil
         authRepository = nil
         billingRepository = nil
         billingService = nil
@@ -147,6 +151,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             vaultRepository: vaultRepository,
         )
         subject = ViewItemProcessor(
+            attachmentPreviewHelper: attachmentPreviewHelper,
             coordinator: coordinator.asAnyCoordinator(),
             delegate: delegate,
             itemId: "id",
@@ -1495,6 +1500,22 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertNil(subject.state.url)
     }
 
+    /// `.receive(_:)` with `.attachmentPressed(_)` delegates to the attachment preview helper
+    /// with the attachment and cipher.
+    @MainActor
+    func test_receive_attachmentPressed() throws {
+        let attachment = AttachmentView.fixture(size: "11000000", sizeName: "big")
+        let cipher = CipherView.fixture(attachments: [attachment])
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        subject.state.loadingState = .data(state)
+
+        subject.receive(.attachmentPressed(attachment))
+
+        waitFor(attachmentPreviewHelper.showPreviewCalled)
+        XCTAssertEqual(attachmentPreviewHelper.showPreviewReceivedArguments?.attachment, attachment)
+        XCTAssertEqual(attachmentPreviewHelper.showPreviewReceivedArguments?.cipher, cipher)
+    }
+
     /// `.receive(_:)` with `.downloadAttachment(_)` shows an alert and downloads the attachment for large attachments.
     @MainActor
     func test_receive_downloadAttachment() async throws {
@@ -1542,6 +1563,34 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.downloading)
         XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.unableToDownloadFile))
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
+    /// `.receive(_:)` with `.downloadAttachment(_)` removes the file from the previous download when a
+    /// new attachment is downloaded.
+    @MainActor
+    func test_receive_downloadAttachment_removesPreviousDownload() async throws {
+        let attachment = AttachmentView.fixture(size: "11000000", sizeName: "big")
+        let cipher = CipherView.fixture(attachments: [attachment])
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        subject.state.loadingState = .data(state)
+        let firstUrl = URL(fileURLWithPath: "/tmp/first.txt")
+        let secondUrl = URL(fileURLWithPath: "/tmp/second.txt")
+
+        // Download the attachment, which saves the first file.
+        vaultRepository.downloadAttachmentResult = .success(firstUrl)
+        subject.receive(.downloadAttachment(attachment))
+        var confirmAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await confirmAction.handler?(confirmAction, [])
+        XCTAssertTrue(vaultRepository.removeTemporaryDownloadUrls.isEmpty)
+
+        // Download the attachment again, which replaces the first file.
+        vaultRepository.downloadAttachmentResult = .success(secondUrl)
+        subject.receive(.downloadAttachment(attachment))
+        confirmAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await confirmAction.handler?(confirmAction, [])
+
+        XCTAssertEqual(vaultRepository.removeTemporaryDownloadUrls, [firstUrl])
+        XCTAssertEqual(coordinator.routes.last, .saveFile(temporaryUrl: secondUrl))
     }
 
     /// `.receive(_:)` with `.downloadAttachment(_)` shows an alert if the data wasn't saved to a url.
