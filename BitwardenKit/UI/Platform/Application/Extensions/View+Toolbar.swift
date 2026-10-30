@@ -378,11 +378,13 @@ public extension ToolbarContent {
     /// This intentionally isn't a `@ToolbarContentBuilder` function, since `ToolbarContentBuilder`
     /// doesn't support conditional content prior to iOS 16.
     ///
+    /// - Parameter isHidden: Whether the shared background should be hidden. When `false`, the
+    ///   system's default visibility is used. Defaults to `true`.
     /// - Returns: The toolbar content with its shared background hidden, if available.
     ///
-    func sharedBackgroundHidden() -> some ToolbarContent {
+    func sharedBackgroundHidden(_ isHidden: Bool = true) -> some ToolbarContent {
         if #available(iOS 26, *) {
-            return sharedBackgroundVisibility(.hidden)
+            return sharedBackgroundVisibility(isHidden ? .hidden : .automatic)
         }
         return self
     }
