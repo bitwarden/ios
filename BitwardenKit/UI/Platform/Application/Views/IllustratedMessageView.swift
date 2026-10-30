@@ -52,6 +52,7 @@ public struct IllustratedMessageView<Accessory: View>: View {
                 Text(LocalizedStringKey(message))
                     .styleGuide(style.messageTextStyle)
                     .accessibilityIdentifier("HeaderMessage")
+                    .accessibilityLinks(in: message)
 
                 if let accessory {
                     accessory

@@ -126,6 +126,7 @@ struct StartRegistrationView: View {
                     .styleGuide(.subheadline)
             }
             .accessibilityIdentifier("ReceiveMarketingToggle")
+            .accessibilityLinks(in: store.state.receiveMarketingEmailsText, isDefaultActionEnabled: false)
             .contentBlock()
             .id(ViewIdentifier.StartRegistration.receiveMarketing)
         }
@@ -153,6 +154,7 @@ struct StartRegistrationView: View {
             .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
             .padding([.bottom], 32)
             .multilineTextAlignment(.center)
+            .accessibilityLinks(in: store.state.termsAndPrivacyDisclaimerText)
     }
 }
 
