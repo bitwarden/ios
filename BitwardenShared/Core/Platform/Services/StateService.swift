@@ -23,9 +23,12 @@ protocol StateService: AnyObject, DebugStateService {
     ///
     func addAccount(_ account: Account) async
 
-    /// Clears the pins stored on device and in memory.
+    /// Clears the pins stored on device and in memory for a user.
     ///
-    func clearPins() async throws
+    /// - Parameter userId: The user ID of the user whose pins should be cleared. Defaults to the
+    ///     active user if `nil`.
+    ///
+    func clearPins(userId: String?) async throws
 
     /// Deletes the current active account.
     ///
@@ -924,6 +927,12 @@ extension StateService {
         await setPendingAppIntentActions(actions: actions)
     }
 
+    /// Clears the pins stored on device and in memory for the active user.
+    ///
+    func clearPins() async throws {
+        try await clearPins(userId: nil)
+    }
+
     /// Returns whether the active account has access to Premium features, either personally or via
     /// an enabled organization that grants it.
     ///
@@ -1625,8 +1634,8 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         state.activeUserId = account.profile.userId
     }
 
-    func clearPins() async throws {
-        let userId = try getActiveAccountUserId()
+    func clearPins(userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
         accountVolatileData[userId]?.pinProtectedUserKey = nil
         appSettingsStore.setEncryptedPin(nil, userId: userId)
         appSettingsStore.setPinProtectedUserKey(key: nil, userId: userId)
