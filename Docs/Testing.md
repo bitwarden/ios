@@ -810,7 +810,7 @@ xcodebuild test \
 
 #### Unit Tests
 
-Unit tests can run on **any simulator** thanks to the `SKIP_SIMULATOR_CHECK_FOR_TESTS` environment variable enabled in all Unit test plans.
+Unit tests can run on **any simulator**. The test runner does not enforce a specific device or iOS version.
 
 #### Snapshot Tests
 

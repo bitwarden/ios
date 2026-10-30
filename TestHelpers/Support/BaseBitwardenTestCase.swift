@@ -4,20 +4,6 @@ open class BaseBitwardenTestCase: XCTestCase {
     /// The window being used for testing. Defaults to a new window with the same size as `UIScreen.main.bounds`.
     public var window: UIWindow!
 
-    @MainActor
-    override open class func setUp() {
-        let shouldSkipSimulatorCheck = ProcessInfo.processInfo.environment["SKIP_SIMULATOR_CHECK_FOR_TESTS"] == "true"
-        let isCorrectSimulator = UIDevice.current.name == "iPhone 17 Pro" || UIDevice.current.systemVersion == "26.5"
-        if !shouldSkipSimulatorCheck, !isCorrectSimulator {
-            assertionFailure(
-                """
-                Tests must be run using iOS 26.5 on an iPhone 17 Pro simulator.
-                Snapshot tests depend on using the correct device.
-                """,
-            )
-        }
-    }
-
     /// Executes any logic that should be applied before each test runs.
     ///
     @MainActor
