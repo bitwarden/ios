@@ -559,11 +559,6 @@ extension CredentialProviderViewController: CredentialProviderExtensionDelegate 
         extensionContext.completeRegistrationRequest(using: asPasskeyRegistrationCredential)
     }
 
-    func releaseKeyboardAnchor() {
-        keyboardAnchor?.tearDown()
-        keyboardAnchor = nil
-    }
-
     @available(iOSApplicationExtension 18.0, *)
     func completeTextRequest(text: String) {
         extensionContext.completeRequest(withTextToInsert: text)
@@ -573,6 +568,11 @@ extension CredentialProviderViewController: CredentialProviderExtensionDelegate 
         didAppearSubject
             .eraseToAnyPublisher()
             .values
+    }
+
+    func releaseKeyboardAnchor() {
+        keyboardAnchor?.tearDown()
+        keyboardAnchor = nil
     }
 
     @available(iOSApplicationExtension 18.0, *)

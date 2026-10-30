@@ -49,12 +49,12 @@ struct VaultAutofillListState: Equatable, Sendable {
     /// The user's current account profile state and alternative accounts.
     var profileSwitcherState: ProfileSwitcherState = .empty(shouldAlwaysHideAddAccount: true)
 
-    /// The text that the user is currently searching for.
-    var searchText = ""
-
     /// Whether the text-to-insert list releases all text field focus (including the keyboard anchor)
     /// when an item is tapped. See `TextToInsertKeyboardSession.releasesFocusOnItemTap`.
     var releasesFocusOnItemTap = false
+
+    /// The text that the user is currently searching for.
+    var searchText = ""
 
     /// Whether the text-to-insert list should clear the inline search field's focus. Set when an
     /// item is tapped (on iOS 27+), along with releasing the extension's keyboard anchor, so no

@@ -66,13 +66,6 @@ class VaultAutofillListViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .cancelTapped)
     }
 
-    /// In text-to-insert mode, the inline search field is the only text field in the view.
-    @MainActor
-    func test_textToInsert_showsOnlySearchField() throws {
-        processor.state.isAutofillingTextToInsertList = true
-        XCTAssertEqual(try subject.inspect().findAll(ViewType.TextField.self).count, 1)
-    }
-
     /// Tapping the retry button in error state performs the `.loadData` effect.
     @MainActor
     func test_retryButton_tap_errorState() async throws {

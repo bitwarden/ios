@@ -39,12 +39,12 @@ public protocol CredentialProviderExtensionDelegate: AppExtensionDelegate {
     @available(iOSApplicationExtension 18.0, *)
     func completeTextRequest(text: String)
 
+    /// Gets a publisher for when `didAppear` happens.
+    func getDidAppearPublisher() -> AsyncPublisher<AnyPublisher<Bool, Never>>
+
     /// Releases the hidden keyboard anchor text field used in the text-to-insert flow, so it
     /// no longer holds or reclaims first responder.
     func releaseKeyboardAnchor()
-
-    /// Gets a publisher for when `didAppear` happens.
-    func getDidAppearPublisher() -> AsyncPublisher<AnyPublisher<Bool, Never>>
 
     /// Marks that a credential matching one in the relying party's excluded credentials list was
     /// found and fails the registration request accordingly.

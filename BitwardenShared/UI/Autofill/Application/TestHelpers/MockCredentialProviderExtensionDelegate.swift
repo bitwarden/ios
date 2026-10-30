@@ -52,14 +52,14 @@ class MockCredentialProviderExtensionDelegate: MockAppExtensionDelegate, Credent
         completeTextRequestTextToInsert = text
     }
 
-    func releaseKeyboardAnchor() {
-        releaseKeyboardAnchorCalled = true
-    }
-
     func getDidAppearPublisher() -> AsyncPublisher<AnyPublisher<Bool, Never>> {
         didAppearPublisher
             .eraseToAnyPublisher()
             .values
+    }
+
+    func releaseKeyboardAnchor() {
+        releaseKeyboardAnchorCalled = true
     }
 
     @available(iOSApplicationExtension 18.0, *)
