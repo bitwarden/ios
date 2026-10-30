@@ -10,7 +10,7 @@ import XCTest
 
 // MARK: - VaultListSectionsBuilderFolderTests
 
-class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
+class VaultListSectionsBuilderFolderTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var clientService: MockClientService!
@@ -49,9 +49,9 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
                     .fixture(id: "2", name: "afolder2"),
                     .fixture(id: "3", name: "folder3"),
                 ],
-                foldersCount: [
-                    "1": 20,
-                    "2": 5,
+                folderCipherIds: [
+                    "1": .cipherIds(20, prefix: "folder1"),
+                    "2": .cipherIds(5, prefix: "folder2"),
                 ],
             ),
         )
@@ -102,9 +102,9 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
                     .fixture(id: "2", name: "afolder2"),
                     .fixture(id: "3", name: "folder3"),
                 ],
-                foldersCount: [
-                    "1": 20,
-                    "2": 5,
+                folderCipherIds: [
+                    "1": .cipherIds(20, prefix: "folder1"),
+                    "2": .cipherIds(5, prefix: "folder2"),
                 ],
             ),
         )
@@ -125,7 +125,8 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
     }
 
     /// `addFoldersSection(nestedFolderId:)` adds the folders section to the list of sections
-    /// with the count of ciphers per folder under the nested folder ID.
+    /// with the count of ciphers per folder under the nested folder ID, including the unique ciphers
+    /// of each folder's descendant folders.
     func test_addFoldersSection_withNestedFolderId() async throws {
         setUpSubject(
             withData: VaultListPreparedData(
@@ -136,9 +137,10 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
                     .fixture(id: "4", name: "fol2/sub2"),
                     .fixture(id: "5", name: "fol2/sub2/sub1"),
                 ],
-                foldersCount: [
-                    "3": 15,
-                    "4": 6,
+                folderCipherIds: [
+                    "3": .cipherIds(15, prefix: "folder3"),
+                    "4": .cipherIds(6, prefix: "folder4"),
+                    "5": ["folder4-cipher-0", "folder5-cipher-0"],
                 ],
             ),
         )
@@ -149,7 +151,7 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
             """
             Section[Folders]: Folders
               - Group[3]: sub1 (15)
-              - Group[4]: sub2 (6)
+              - Group[4]: sub2 (7)
             """
         }
     }
@@ -164,9 +166,9 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
                     .fixture(id: "2", name: "afolder2"),
                     .fixture(id: "3", name: "folder3"),
                 ],
-                foldersCount: [
-                    "1": 20,
-                    "2": 5,
+                folderCipherIds: [
+                    "1": .cipherIds(20, prefix: "folder1"),
+                    "2": .cipherIds(5, prefix: "folder2"),
                 ],
                 noFolderItems: [
                     .fixture(cipherListView: .fixture(id: "2", name: "Cipher2")),
@@ -229,9 +231,9 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
                     .fixture(id: "2", name: "afolder2"),
                     .fixture(id: "3", name: "folder3"),
                 ],
-                foldersCount: [
-                    "1": 20,
-                    "2": 5,
+                folderCipherIds: [
+                    "1": .cipherIds(20, prefix: "folder1"),
+                    "2": .cipherIds(5, prefix: "folder2"),
                 ],
                 noFolderItems: [
                     .fixture(cipherListView: .fixture(id: "1", name: "Cipher1")),
@@ -270,9 +272,9 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
                     .fixture(id: "2", name: "afolder2"),
                     .fixture(id: "3", name: "folder3"),
                 ],
-                foldersCount: [
-                    "1": 20,
-                    "2": 5,
+                folderCipherIds: [
+                    "1": .cipherIds(20, prefix: "folder1"),
+                    "2": .cipherIds(5, prefix: "folder2"),
                 ],
                 noFolderItems: noFolderItems,
             ),
@@ -287,6 +289,36 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
               - Group[1]: folder1 (20)
               - Group[3]: folder3 (0)
               - Group[NoFolderFolderItem]: No Folder (101)
+            """
+        }
+    }
+
+    /// `addFoldersSection(nestedFolderId:)` includes the unique ciphers of all descendant folders at
+    /// any depth in a folder's count.
+    func test_addFoldersSection_countIncludesDescendantFolders() async throws {
+        setUpSubject(
+            withData: VaultListPreparedData(
+                folders: [
+                    .fixture(id: "1", name: "F1"),
+                    .fixture(id: "2", name: "F1/Child1"),
+                    .fixture(id: "3", name: "F1/Child1/Grandchild"),
+                    .fixture(id: "4", name: "F1/Child2"),
+                ],
+                folderCipherIds: [
+                    "1": ["a", "b", "c", "d"],
+                    "2": ["e", "f"],
+                    "3": ["g", "h"],
+                    "4": ["d", "i"],
+                ],
+            ),
+        )
+
+        let vaultListData = try await subject.addFoldersSection().build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[Folders]: Folders
+              - Group[1]: F1 (9)
             """
         }
     }

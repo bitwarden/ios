@@ -235,7 +235,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
                 isVfo1FoundationFeatureFlagEnabled: isVfo1FoundationEnabled,
                 itemType: .group(
                     .collection(id: collectionId, name: collectionNode.name, organizationId: collection.organizationId),
-                    preparedData.collectionsCount[collectionId, default: 0],
+                    cipherCount(for: collectionNode, cipherIds: preparedData.collectionCipherIds),
                 ),
             )
         }
@@ -329,7 +329,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
                 itemType: .group(.folder(
                     id: folderId,
                     name: folderNode.name,
-                ), preparedData.foldersCount[folderId, default: 0]),
+                ), cipherCount(for: folderNode, cipherIds: preparedData.folderCipherIds)),
             )
         }
     }
@@ -475,6 +475,31 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
         defer { preparedData = VaultListPreparedData() }
         return vaultListData
     }
+
+    // MARK: Private
+
+    /// Returns the number of unique ciphers in a tree node and all of its descendant nodes at any
+    /// depth. A cipher that belongs to multiple nodes within the subtree is only counted once.
+    ///
+    /// - Parameters:
+    ///   - node: The tree node (e.g. collection or folder) to count the ciphers of.
+    ///   - cipherIds: A dictionary mapping node IDs to the IDs of the ciphers directly in each node.
+    /// - Returns: The number of unique ciphers in the node and its descendants.
+    ///
+    private func cipherCount<T>(for node: TreeNode<T>, cipherIds: [Uuid: Set<Uuid>]) -> Int {
+        func collectCipherIds(in node: TreeNode<T>, into result: inout Set<Uuid>) {
+            if let nodeId = node.node.id, let nodeCipherIds = cipherIds[nodeId] {
+                result.formUnion(nodeCipherIds)
+            }
+            for child in node.children {
+                collectCipherIds(in: child, into: &result)
+            }
+        }
+
+        var uniqueCipherIds = Set<Uuid>()
+        collectCipherIds(in: node, into: &uniqueCipherIds)
+        return uniqueCipherIds.count
+    }
 }
 
 // MARK: - VaultListPreparedData
@@ -494,8 +519,8 @@ struct VaultListPreparedData {
     /// The list of collections available to the user.
     var collections: [Collection] = []
 
-    /// A dictionary mapping collection IDs to the count of ciphers in each collection.
-    var collectionsCount: [Uuid: Int] = [:]
+    /// A dictionary mapping collection IDs to the IDs of the ciphers directly in each collection.
+    var collectionCipherIds: [Uuid: Set<Uuid>] = [:]
 
     /// A dictionary mapping cipher types to their counts in the vault.
     var countPerCipherType: [CipherType: Int] = [
@@ -521,8 +546,8 @@ struct VaultListPreparedData {
     /// The list of folders available to the user.
     var folders: [Folder] = []
 
-    /// A dictionary mapping folder IDs to the count of ciphers in each folder.
-    var foldersCount: [Uuid: Int] = [:]
+    /// A dictionary mapping folder IDs to the IDs of the ciphers directly in each folder.
+    var folderCipherIds: [Uuid: Set<Uuid>] = [:]
 
     /// Vault list items that partially match the search criteria.
     var fuzzyMatchItems: [VaultListItem] = []
