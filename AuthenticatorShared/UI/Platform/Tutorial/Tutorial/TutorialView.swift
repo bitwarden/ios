@@ -59,19 +59,21 @@ struct TutorialView: View {
             .animation(.default, value: store.state.page)
             .transition(.slide)
 
-            Button(store.state.continueButtonText) {
-                store.send(.continueTapped)
-            }
-            .buttonStyle(.primary())
+            VStack(spacing: 12) {
+                Button(store.state.continueButtonText) {
+                    store.send(.continueTapped)
+                }
+                .buttonStyle(.primary())
+                .accessibilityIdentifier("ContinueButton")
 
-            Button {
-                store.send(.skipTapped)
-            } label: {
-                Text(Localizations.skip)
-                    .foregroundColor(SharedAsset.Colors.textInteraction.swiftUIColor)
+                Button(Localizations.skip) {
+                    store.send(.skipTapped)
+                }
+                .buttonStyle(.secondary())
+                .accessibilityIdentifier("SkipButton")
+                .hidden(store.state.isLastPage)
             }
-            .buttonStyle(InlineButtonStyle())
-            .hidden(store.state.isLastPage)
+            .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
         }
         .padding(16)
         .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
