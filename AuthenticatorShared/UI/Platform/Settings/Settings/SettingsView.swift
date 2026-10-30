@@ -94,7 +94,7 @@ struct SettingsView: View {
     private var copyrightNotice: some View {
         Text(store.state.copyrightText)
             .styleGuide(.caption2)
-            .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+            .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
             .multilineTextAlignment(.center)
             .frame(maxWidth: .infinity)
     }
@@ -213,7 +213,7 @@ struct SettingsView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(Localizations.syncWithBitwardenApp)
                         .styleGuide(.body)
-                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                        .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
 
                     Text(LocalizedStringKey(
                         Localizations.learnMoreLink(
@@ -221,8 +221,8 @@ struct SettingsView: View {
                         ),
                     ))
                     .styleGuide(.subheadline, weight: .semibold)
-                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                    .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
+                    .tint(SharedAsset.Colors.textInteraction.swiftUIColor)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .multilineTextAlignment(.leading)
@@ -233,7 +233,7 @@ struct SettingsView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
     }
 
     /// The application's color theme picker view.

@@ -44,7 +44,7 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
             search
                 .hidden(!isSearching)
         }
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .toast(store.binding(
             get: \.toast,
             send: ItemListAction.toastShown,
@@ -108,12 +108,12 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
                     Text(Localizations.noCodes)
                         .multilineTextAlignment(.center)
                         .styleGuide(.headline)
-                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                        .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
 
                     Text(Localizations.addANewCodeToSecure)
                         .multilineTextAlignment(.center)
                         .styleGuide(.callout)
-                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                        .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
 
                     if store.state.showAddItemButton {
                         AsyncButton(Localizations.addCode) {
@@ -263,7 +263,7 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
             store.send(.itemPressed(item))
         }
         .accessibilityIdentifier("ItemCell")
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
     }
 
     /// A view that displays a list of the sections within this vault group.
@@ -287,6 +287,7 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
                     if item.itemType == .syncError {
                         Text(item.name)
                             .styleGuide(.footnote)
+                            .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                     } else {
                         buildRow(item: item, isLastInSection: true)
                             .clipShape(RoundedRectangle(cornerRadius: 10))

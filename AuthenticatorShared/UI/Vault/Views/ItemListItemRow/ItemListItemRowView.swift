@@ -27,7 +27,7 @@ struct ItemListItemRowView: View {
                     showWebIcons: store.state.showWebIcons,
                 )
                 .frame(width: 22, height: 22)
-                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.iconPrimary.swiftUIColor)
                 .padding(.vertical, 19)
                 .accessibilityHidden(true)
                 .accessibilityIdentifier("ItemImage")
@@ -89,13 +89,13 @@ struct ItemListItemRowView: View {
                 Text(name)
                     .styleGuide(.headline)
                     .lineLimit(1)
-                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                     .accessibilityIdentifier("ItemNameLabel")
                 if let accountName = accountName?.nilIfEmpty {
                     Text(accountName)
                         .styleGuide(.subheadline)
                         .lineLimit(1)
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                        .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                         .accessibilityIdentifier("ItemAccountNameLabel")
                 }
             } else {
@@ -103,7 +103,7 @@ struct ItemListItemRowView: View {
                     Text(accountName)
                         .styleGuide(.headline)
                         .lineLimit(1)
-                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                        .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                         .accessibilityIdentifier("ItemAccountNameLabel")
                 }
             }
