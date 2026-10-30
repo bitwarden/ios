@@ -71,6 +71,23 @@ class AttachmentsViewTests: BitwardenTestCase {
         )
     }
 
+    /// The view with a selected attachment renders correctly with an editable name when the
+    /// mobile attachment updates feature is enabled.
+    @MainActor
+    func disabletest_snapshot_attachments_selected_mobileAttachmentUpdates() {
+        processor.state.fileName = "photo.jpg"
+        processor.state.fileNameExtension = ".jpg"
+        processor.state.isMobileAttachmentUpdatesEnabled = true
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [
+                .defaultPortrait,
+                .defaultPortraitDark,
+                .defaultPortraitAX5,
+            ],
+        )
+    }
+
     /// The view with several attachments renders correctly in dark mode.
     @MainActor
     func disabletest_snapshot_attachments_several() {
