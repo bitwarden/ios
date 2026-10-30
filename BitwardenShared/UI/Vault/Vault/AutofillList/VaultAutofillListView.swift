@@ -8,14 +8,6 @@ import SwiftUI
 /// A view that allows the user see a list of their vault item for autofill.
 ///
 struct VaultAutofillListView: View {
-    // MARK: Private types
-
-    /// Which text field in `autofillText` mode currently owns focus.
-    private enum FocusableField: Hashable {
-        case anchor
-        case search
-    }
-
     // MARK: Properties
 
     /// The GroupSearchDelegate used to bridge UIKit to SwiftUI
@@ -29,11 +21,14 @@ struct VaultAutofillListView: View {
 
     // MARK: Private properties
 
-    /// PM-28227 WORKAROUND:  Which field owns focus in `autofillText` mode. Keeping both transitions inside SwiftUI's
-    /// focus system ensures `fromBecomeFirstResponder:0` / `delayEndInputSession:NO` on every
-    /// handoff, preventing the 5-second RTI timer that fires when UIKit's explicit
-    /// `becomeFirstResponder()` (`fromBecomeFirstResponder:1`) is used instead.
-    @FocusState private var focusedField: FocusableField?
+    /// PM-28227 WORKAROUND: Whether the inline search field has focus in `autofillText` mode. Keeping
+    /// focus inside SwiftUI's focus system ensures `fromBecomeFirstResponder:0` /
+    /// `delayEndInputSession:NO`, preventing the 5-second RTI timer that fires when UIKit's explicit
+    /// `becomeFirstResponder()` (`fromBecomeFirstResponder:1`) is used instead. The search field is
+    /// focused when the list appears so the keyboard (kept alive by the extension's keyboard anchor
+    /// during unlock) types into a visible field. On iOS 27+, focus is cleared when an item is tapped
+    /// so no field is focused when the text-to-insert request completes (PM-40959).
+    @FocusState private var isSearchFieldFocused: Bool
 
     // MARK: View
 
@@ -41,14 +36,6 @@ struct VaultAutofillListView: View {
         VStack(spacing: 0) {
             if store.state.isAutofillingTextToInsertList {
                 inlineSearchBarView
-                // Zero-size anchor that holds the RTI session when the inline search bar is idle.
-                // Using @FocusState (fromBecomeFirstResponder:0) avoids the 5-second timer that
-                // UIKit's explicit becomeFirstResponder() (fromBecomeFirstResponder:1) would start.
-                TextField("", text: .constant(""))
-                    .focused($focusedField, equals: .anchor)
-                    .frame(width: 0, height: 0)
-                    .allowsHitTesting(false)
-                    .accessibilityHidden(true)
             }
             ZStack {
                 VaultAutofillListSearchableView(store: store, timeProvider: timeProvider)
@@ -83,11 +70,15 @@ struct VaultAutofillListView: View {
         }
         .onAppear {
             if store.state.isAutofillingTextToInsertList {
-                focusedField = .anchor
+                isSearchFieldFocused = true
             }
         }
-        .onChange(of: focusedField) { field in
-            store.send(.searchStateChanged(isSearching: field == .search))
+        .onChange(of: isSearchFieldFocused) { isFocused in
+            store.send(.searchStateChanged(isSearching: isFocused))
+        }
+        .onChange(of: store.state.shouldClearFocus) { shouldClear in
+            guard shouldClear else { return }
+            isSearchFieldFocused = false
         }
     }
 
@@ -120,7 +111,7 @@ struct VaultAutofillListView: View {
                         send: VaultAutofillListAction.searchTextChanged,
                     ),
                 )
-                .focused($focusedField, equals: .search)
+                .focused($isSearchFieldFocused)
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
                 if !store.state.searchText.isEmpty {
@@ -138,9 +129,10 @@ struct VaultAutofillListView: View {
             .background(Color(.tertiarySystemFill))
             .clipShape(RoundedRectangle(cornerRadius: 10))
 
-            if focusedField == .search || !store.state.searchText.isEmpty {
+            if !store.state.searchText.isEmpty {
                 Button(Localizations.cancel) {
-                    focusedField = .anchor
+                    // Keep the search field focused so the keyboard always types into a visible field.
+                    isSearchFieldFocused = true
                     store.send(.searchTextChanged(""))
                 }
                 .transition(.move(edge: .trailing).combined(with: .opacity))
@@ -148,7 +140,7 @@ struct VaultAutofillListView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
-        .animation(.default, value: focusedField)
+        .animation(.default, value: store.state.searchText.isEmpty)
         .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
     }
 

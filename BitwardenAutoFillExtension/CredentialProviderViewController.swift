@@ -24,6 +24,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 
     /// Zero-frame text field that holds first responder in `autofillText` mode to keep
     /// InputUI's keyboard session alive across view-controller transitions and search dismissals.
+    /// Released when an item is tapped on iOS 27+ (see `TextToInsertKeyboardSession.releasesFocusOnItemTap`).
     private var keyboardAnchor: KeyboardAnchorTextField?
 
     override func viewDidAppear(_ animated: Bool) {
@@ -569,6 +570,11 @@ extension CredentialProviderViewController: CredentialProviderExtensionDelegate 
             .values
     }
 
+    func releaseKeyboardAnchor() {
+        keyboardAnchor?.tearDown()
+        keyboardAnchor = nil
+    }
+
     @available(iOSApplicationExtension 18.0, *)
     func setMatchedExcludedCredentialFound() {
         cancel(error: ASExtensionError(.matchedExcludedCredential))
@@ -587,7 +593,7 @@ extension CredentialProviderViewController: RootNavigator {
 
     func show(child: Navigator) {
         // In autofillText mode, reclaim the anchor before the transition to keep the keyboard
-        // session alive. In other modes keyboardAnchor is nil, so this is a no-op.
+        // session alive. In other modes (or once released) keyboardAnchor is nil, so this is a no-op.
         keyboardAnchor?.becomeFirstResponder()
 
         removeChildViewController()
@@ -633,6 +639,20 @@ private final class KeyboardAnchorTextField: UITextField {
             name: UIResponder.keyboardWillHideNotification,
             object: nil,
         )
+    }
+
+    /// Stops reclaiming first responder, resigns it if needed, and removes the anchor from the view
+    /// hierarchy.
+    func tearDown() {
+        NotificationCenter.default.removeObserver(
+            self,
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil,
+        )
+        if isFirstResponder {
+            resignFirstResponder()
+        }
+        removeFromSuperview()
     }
 
     @objc
