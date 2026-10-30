@@ -56,7 +56,7 @@ xcodebuild test \
   -destination "platform=iOS Simulator,name=$DEVICE,OS=$OS"
 ```
 
-Current values (as of last update): device `iPhone 18 Pro`, OS `27.2`. **Do not hardcode these** — always read from `.test-simulator-device-name` and `.test-simulator-ios-version` at runtime, as they change when the project upgrades its simulator target.
+**Do not hardcode the device or OS** — always read `.test-simulator-device-name` and `.test-simulator-ios-version` at runtime. They change when the project upgrades its simulator target.
 
 CI runs all `-Default` test plans on PRs to `main`, commits to `main`, and release branches. Test execution order is randomized (`randomExecutionOrder: true`).
 
