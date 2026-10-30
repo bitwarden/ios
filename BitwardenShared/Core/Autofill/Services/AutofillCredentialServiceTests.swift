@@ -153,7 +153,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
 
         XCTAssertEqual(credential.password, "password123")
         XCTAssertEqual(credential.user, "user@bitwarden.com")
-        XCTAssertNil(pasteboardService.copiedString)
+        XCTAssertNil(pasteboardService.copyReceivedString)
     }
 
     /// `provideCredential(for:)` throws an error if the cipher with the specified ID doesn't have a
@@ -225,7 +225,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertTrue(autofillCredentialServiceDelegate.unlockVaultWithNeverlockKeyCalled)
         XCTAssertEqual(credential.password, "password123")
         XCTAssertEqual(credential.user, "user@bitwarden.com")
-        XCTAssertNil(pasteboardService.copiedString)
+        XCTAssertNil(pasteboardService.copyReceivedString)
     }
 
     /// `provideCredential(for:)` doesn't unlock the user's vault if they use never lock

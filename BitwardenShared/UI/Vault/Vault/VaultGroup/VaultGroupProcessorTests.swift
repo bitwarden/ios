@@ -563,7 +563,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         try await alert.tapAction(title: Localizations.copyErrorReport)
         XCTAssertEqual(
-            pasteboardService.copiedString,
+            pasteboardService.copyReceivedString,
             """
             \(Localizations.decryptionError)
             \(Localizations.bitwardenCouldNotDecryptThisVaultItemDescriptionLong)
@@ -1028,7 +1028,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     @MainActor
     func test_receive_copyTOTPCode() {
         subject.receive(.copyTOTPCode("123456"))
-        XCTAssertEqual(pasteboardService.copiedString, "123456")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "123456")
         XCTAssertEqual(
             subject.state.toast,
             Toast(title: Localizations.valueHasBeenCopied(Localizations.verificationCode)),

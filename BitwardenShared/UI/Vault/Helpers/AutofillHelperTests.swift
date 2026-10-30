@@ -116,11 +116,11 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(alert.alertActions[2].title, Localizations.cancel)
 
         try await alert.tapAction(title: Localizations.copyUsername)
-        XCTAssertEqual(pasteboardService.copiedString, "user@bitwarden.com")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "user@bitwarden.com")
         XCTAssertEqual(showToastValue, Localizations.valueHasBeenCopied(Localizations.username))
 
         try await alert.tapAction(title: Localizations.copyPassword)
-        XCTAssertEqual(pasteboardService.copiedString, "PASSWORD")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "PASSWORD")
         XCTAssertEqual(showToastValue, Localizations.valueHasBeenCopied(Localizations.password))
     }
 
@@ -203,7 +203,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(alert.alertActions[1].title, Localizations.cancel)
 
         try await alert.tapAction(title: Localizations.copyUsername)
-        XCTAssertEqual(pasteboardService.copiedString, "user@bitwarden.com")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "user@bitwarden.com")
         XCTAssertEqual(showToastValue, Localizations.valueHasBeenCopied(Localizations.username))
     }
 
@@ -227,7 +227,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(alert.alertActions[1].title, Localizations.cancel)
 
         try await alert.tapAction(title: Localizations.copyPassword)
-        XCTAssertEqual(pasteboardService.copiedString, "PASSWORD")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "PASSWORD")
         XCTAssertEqual(showToastValue, Localizations.valueHasBeenCopied(Localizations.password))
     }
 
@@ -260,11 +260,11 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(alert.alertActions[2].title, Localizations.cancel)
 
         try await alert.tapAction(title: Localizations.copyPassword)
-        XCTAssertEqual(pasteboardService.copiedString, "PASSWORD")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "PASSWORD")
         XCTAssertEqual(showToastValue, Localizations.valueHasBeenCopied(Localizations.password))
 
         try await alert.tapAction(title: Localizations.copyTotp)
-        XCTAssertEqual(pasteboardService.copiedString, "123321")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "123321")
         XCTAssertEqual(showToastValue, Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp))
     }
 
@@ -436,7 +436,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let cipher = CipherListView.fixture(id: "1")
         await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
 
-        XCTAssertEqual(pasteboardService.copiedString, "123321")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "123321")
     }
 
     /// `handleCipherForAutofill(cipherListView:)` copies the TOTP code for the login if the
@@ -458,7 +458,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let cipher = CipherListView.fixture(id: "1")
         await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
 
-        XCTAssertEqual(pasteboardService.copiedString, "123321")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "123321")
     }
 
     /// `handleCipherForAutofill(cipherListView:)` doesn't copy the TOTP code for the login if the
@@ -472,7 +472,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let cipher = CipherListView.fixture(id: "1")
         await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
 
-        XCTAssertNil(pasteboardService.copiedString)
+        XCTAssertNil(pasteboardService.copyReceivedString)
     }
 
     /// `handleCipherForAutofill(cipherListView:)` doesn't copy the TOTP code if the user doesn't
@@ -486,7 +486,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let cipher = CipherListView.fixture(id: "1")
         await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
 
-        XCTAssertNil(pasteboardService.copiedString)
+        XCTAssertNil(pasteboardService.copyReceivedString)
     }
 
     // MARK: Tests - FillAssist
