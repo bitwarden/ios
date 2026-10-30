@@ -35,9 +35,6 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// An SDK flag that enables individual cipher encryption.
     static let enableCipherKeyEncryption = FeatureFlag(rawValue: "enableCipherKeyEncryption")
 
-    /// A feature flag to enable/disable the FedRAMP (.gov) region in the region picker.
-    static let fedrampGovRegion = FeatureFlag(rawValue: "fedramp-gov-region")
-
     /// Flag to enable/disable Fill-Assist targeting rules.
     static let fillAssistTargetingRules = FeatureFlag(rawValue: "fill-assist-targeting-rules")
 
@@ -89,7 +86,6 @@ extension FeatureFlag: @retroactive CaseIterable {
             .debugDisableSelfHostPremiumCheck,
             .deviceAuthKey,
             .enableCipherKeyEncryption,
-            .fedrampGovRegion,
             .fillAssistTargetingRules,
             .manageDevices,
             .migrateMyVaultToMyItems,
