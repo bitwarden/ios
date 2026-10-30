@@ -1,3 +1,4 @@
+import BitwardenResources
 import Foundation
 import SwiftUI
 
@@ -26,21 +27,21 @@ extension ImageStyle {
     /// An `ImageStyle` for applying common properties to a circular accessory icon.
     ///
     /// - Size: 16x16pt
-    /// - Color: `Asset.Colors.primaryBitwarden`
+    /// - Color: `SharedAsset.Colors.iconPrimary`
     ///
     static let accessoryIcon = accessoryIcon()
 
     /// An `ImageStyle` for applying common properties to a circular accessory icon.
     ///
     /// - Size: 16x16pt
-    /// - Color: Defaults to `Asset.Colors.primaryBitwarden`
+    /// - Color: Defaults to `SharedAsset.Colors.iconPrimary`
     ///
     /// - Parameters:
-    ///   - color: The foreground color of the image. Defaults to `Asset.Colors.primaryBitwarden`.
+    ///   - color: The foreground color of the image. Defaults to `SharedAsset.Colors.iconPrimary`.
     ///   - scaleWithFont: Whether the image should scale with font size changes.
     ///
     static func accessoryIcon(
-        color: Color = Asset.Colors.primaryBitwarden.swiftUIColor,
+        color: Color = SharedAsset.Colors.iconPrimary.swiftUIColor,
         scaleWithFont: Bool = false,
     ) -> ImageStyle {
         ImageStyle(color: color, scaleWithFont: scaleWithFont, width: 16, height: 16)

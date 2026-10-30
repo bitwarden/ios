@@ -68,13 +68,14 @@ struct TutorialView: View {
                 store.send(.skipTapped)
             } label: {
                 Text(Localizations.skip)
-                    .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textInteraction.swiftUIColor)
             }
             .buttonStyle(InlineButtonStyle())
             .hidden(store.state.isLastPage)
         }
         .padding(16)
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+        .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
     }
 
     @ViewBuilder
