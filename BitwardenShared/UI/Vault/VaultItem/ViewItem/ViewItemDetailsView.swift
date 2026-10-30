@@ -249,11 +249,11 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                 Image(decorative: placeholderIconAsset)
                     .resizable()
                     .scaledToFit()
-                    .foregroundStyle(SharedAsset.Colors.illustrationOutline.swiftUIColor)
+                    .foregroundStyle(SharedAsset.Colors.illustrationStroke.swiftUIColor)
                     .accessibilityHidden(true)
                     .imageStyle(.viewIcon(size: 24))
                     .withCircularBackground(
-                        color: SharedAsset.Colors.illustrationBgPrimary.swiftUIColor,
+                        color: SharedAsset.Colors.illustrationFillPrimary.swiftUIColor,
                         width: 36,
                         height: 36,
                     )
