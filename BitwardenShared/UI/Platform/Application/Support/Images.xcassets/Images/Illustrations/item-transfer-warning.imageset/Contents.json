@@ -3,6 +3,16 @@
     {
       "filename" : "item-transfer-warning.pdf",
       "idiom" : "universal"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "item-transfer-warning-dark.pdf",
+      "idiom" : "universal"
     }
   ],
   "info" : {
