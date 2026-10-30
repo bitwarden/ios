@@ -60,16 +60,10 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(GeneratorType.username.regenerateButtonAccessibilityLabel, Localizations.generateUsername)
     }
 
-    /// `PresentationMode.isCopyButtonVisible` is only `true` when presented in a tab.
-    func test_isCopyButtonVisible() {
-        XCTAssertTrue(GeneratorState.PresentationMode.tab.isCopyButtonVisible)
-        XCTAssertFalse(GeneratorState.PresentationMode.inPlace.isCopyButtonVisible)
-    }
-
-    /// `PresentationMode.isCopyIconButtonVisible` is only `true` when presented in place.
-    func test_isCopyIconButtonVisible() {
-        XCTAssertFalse(GeneratorState.PresentationMode.tab.isCopyIconButtonVisible)
-        XCTAssertTrue(GeneratorState.PresentationMode.inPlace.isCopyIconButtonVisible)
+    /// `PresentationMode.isCreateLoginButtonVisible` is only `true` when presented in a tab.
+    func test_isCreateLoginButtonVisible() {
+        XCTAssertTrue(GeneratorState.PresentationMode.tab.isCreateLoginButtonVisible)
+        XCTAssertFalse(GeneratorState.PresentationMode.inPlace.isCreateLoginButtonVisible)
     }
 
     /// `PresentationMode.isFillButtonVisible` is only `true` when presented in place.

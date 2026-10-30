@@ -102,6 +102,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         case let .addItem(
             group,
             hasPremium,
+            navigatesToViewItemOnSave,
             newCipherOptions,
             organizationId,
             type,
@@ -109,6 +110,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             showAddItem(
                 for: group,
                 hasPremium: hasPremium,
+                navigatesToViewItemOnSave: navigatesToViewItemOnSave,
                 newCipherOptions: newCipherOptions,
                 organizationId: organizationId,
                 type: type,
@@ -194,6 +196,8 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     /// - Parameters:
     ///   - group: An optional `VaultListGroup` to initialize this view with.
     ///   - hasPremium: Whether the user has Premium,
+    ///   - navigatesToViewItemOnSave: Whether saving the new item should replace the add item screen
+    ///     with the new item's view screen in the same navigation stack, rather than dismissing.
     ///   - newCipherOptions: Options that can be used to pre-populate the add item screen.
     ///   - organizationId: The organization id in case an organization was selected in the vault filter.
     ///   - type: The type of item to add.
@@ -203,6 +207,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     private func showAddItem( // swiftlint:disable:this function_parameter_count
         for group: VaultListGroup?,
         hasPremium: Bool,
+        navigatesToViewItemOnSave: Bool,
         newCipherOptions: NewCipherOptions?,
         organizationId: String?,
         type: CipherType,
@@ -227,6 +232,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             services: services,
             state: state,
             vaultItemActionHelper: vaultItemActionHelper,
+            navigatesToViewItemOnSave: navigatesToViewItemOnSave,
         )
         let store = Store(processor: processor)
         let view = AddEditItemView(store: store)

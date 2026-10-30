@@ -311,14 +311,12 @@ struct GeneratorView: View { // swiftlint:disable:this type_body_length
                 )
             }
 
-            if store.state.presentationMode.isCopyIconButtonVisible {
-                AccessoryButton(
-                    asset: SharedAsset.Icons.copy24,
-                    accessibilityLabel: store.state.generatorType.copyButtonAccessibilityLabel,
-                    accessibilityIdentifier: "CopyValueIconButton",
-                ) {
-                    store.send(.copyGeneratedValue)
-                }
+            AccessoryButton(
+                asset: SharedAsset.Icons.copy24,
+                accessibilityLabel: store.state.generatorType.copyButtonAccessibilityLabel,
+                accessibilityIdentifier: "CopyValueIconButton",
+            ) {
+                store.send(.copyGeneratedValue)
             }
         }
 
@@ -326,13 +324,13 @@ struct GeneratorView: View { // swiftlint:disable:this type_body_length
             fillButton
         }
 
-        if store.state.presentationMode.isCopyButtonVisible {
-            Button(Localizations.copy) {
-                store.send(.copyGeneratedValue)
+        if store.state.presentationMode.isCreateLoginButtonVisible {
+            AsyncButton(Localizations.createLogin) {
+                await store.perform(.createLoginPressed)
             }
             .buttonStyle(.primary())
-            .accessibilityIdentifier("CopyValueButton")
-            .accessibilityLabel(store.state.generatorType.copyButtonAccessibilityLabel)
+            .disabled(store.state.generatedValue.isEmpty)
+            .accessibilityIdentifier("CreateLoginButton")
         }
     }
 

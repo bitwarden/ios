@@ -66,7 +66,7 @@ class GeneratorViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
     }
 
-    /// Tapping on the copy button dispatches the `.copyGeneratedValue` action when presented in a tab.
+    /// Tapping on the copy icon button dispatches the `.copyGeneratedValue` action when presented in a tab.
     @MainActor
     func test_generatedValue_copyTap() throws {
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copyPassword)
@@ -103,10 +103,34 @@ class GeneratorViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .copyGeneratedValue)
     }
 
-    /// The full-width copy button is only present when presented in a tab, not when presented in place.
+    /// The create login button is disabled when there's no generated value.
     @MainActor
-    func test_generatedValue_copyButton_notPresentInPlace() throws {
+    func test_createLoginButton_disabledWithoutValue() throws {
+        processor.state.generatedValue = ""
+        let button = try subject.inspect().find(asyncButton: Localizations.createLogin)
+        XCTAssertTrue(button.isDisabled())
+    }
+
+    /// The create login button is only present when presented in a tab, not when presented in place.
+    @MainActor
+    func test_createLoginButton_notPresentInPlace() throws {
         processor.state.presentationMode = .inPlace
+        XCTAssertThrowsError(try subject.inspect().find(asyncButton: Localizations.createLogin))
+    }
+
+    /// Tapping the create login button performs the `.createLoginPressed` effect.
+    @MainActor
+    func test_createLoginButton_tap() async throws {
+        processor.state.generatedValue = "password"
+        let button = try subject.inspect().find(asyncButton: Localizations.createLogin)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .createLoginPressed)
+    }
+
+    /// The full-width copy button is no longer present when presented in a tab.
+    @MainActor
+    func test_generatedValue_copyButton_notPresentInTab() throws {
+        processor.state.presentationMode = .tab
         XCTAssertThrowsError(try subject.inspect().find(button: Localizations.copy))
     }
 
