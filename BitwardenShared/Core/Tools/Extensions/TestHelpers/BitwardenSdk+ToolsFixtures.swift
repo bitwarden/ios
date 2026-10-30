@@ -55,14 +55,26 @@ extension Send {
 
 extension SendItem {
     static func fixture(
+        collectionNames: [EncString]? = nil,
+        creationDate: Date? = nil,
         data: String = "SEALED_CIPHER_BLOB",
         encryptionVersion: SendEncryptionType = .v1,
+        folderName: EncString? = nil,
         itemId: String = "CIPHER_ID",
+        organizationName: String? = nil,
+        revisionDate: Date? = nil,
     ) -> SendItem {
         SendItem(
             encryptionVersion: encryptionVersion,
             data: data,
-            metadata: SendItemMetadata(itemId: itemId),
+            metadata: SendItemMetadata(
+                itemId: itemId,
+                folderName: folderName,
+                collectionNames: collectionNames,
+                organizationName: organizationName,
+                creationDate: creationDate,
+                revisionDate: revisionDate,
+            ),
         )
     }
 }
