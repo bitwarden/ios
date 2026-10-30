@@ -909,20 +909,19 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         }
     }
 
-    /// Returns the Key Connector URL if it exists in the identity token response and if it can be
-    /// used to fetch the user's Key Connector key.
+    /// Returns the Key Connector URL if it exists in the identity token response's user decryption
+    /// options and if it can be used to fetch the user's Key Connector key.
     ///
     /// - Parameter response: The response received from the identity token request.
-    /// - Returns: The Key Connector URL if it exists in the response and if it can be used to
-    ///     fetch the user's Key Connector key.
+    /// - Returns: The Key Connector URL if it exists in the response's user decryption options and
+    ///     if it can be used to fetch the user's Key Connector key.
     ///
     private func keyConnectorUrlForUnlock(_ response: IdentityTokenResponseModel) -> URL? {
-        guard let keyConnectorUrl = response.keyConnectorUrl ??
-            response.userDecryptionOptions?.keyConnectorOption?.keyConnectorUrl,
-            // If the user has a master password, they haven't been migrated to key connector yet
-            // and the master password should still be used for vault unlock.
-            response.userDecryptionOptions?.hasMasterPassword == false,
-            !keyConnectorUrl.isEmpty
+        guard let keyConnectorUrl = response.userDecryptionOptions?.keyConnectorOption?.keyConnectorUrl,
+              // If the user has a master password, they haven't been migrated to key connector yet
+              // and the master password should still be used for vault unlock.
+              response.userDecryptionOptions?.hasMasterPassword == false,
+              !keyConnectorUrl.isEmpty
         else { return nil }
 
         return URL(string: keyConnectorUrl)
