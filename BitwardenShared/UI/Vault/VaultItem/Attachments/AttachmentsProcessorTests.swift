@@ -181,6 +181,24 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(attachmentPreviewHelper.showPreviewReceivedArguments?.cipher, subject.state.cipher)
     }
 
+    /// `.receive(_:)` with `.attachmentTapped(_)` passes a closure to the attachment preview helper
+    /// that navigates to the Premium upgrade flow.
+    @MainActor
+    func test_receive_attachmentTapped_navigateToPremiumUpgrade() throws {
+        subject.state.cipher = .fixture()
+
+        subject.receive(.attachmentTapped(.fixture()))
+
+        waitFor(attachmentPreviewHelper.showPreviewCalled)
+        let handleNavigateToPremiumUpgrade = try XCTUnwrap(
+            attachmentPreviewHelper.showPreviewReceivedArguments?.handleNavigateToPremiumUpgrade,
+        )
+
+        Task { await handleNavigateToPremiumUpgrade() }
+
+        waitFor(premiumUpgradeHelper.navigateToPremiumUpgradeCalled)
+    }
+
     /// `receive(_:)` with `.chooseFilePressed` navigates to the document browser.
     @MainActor
     func test_receive_chooseFilePressed() async throws {
