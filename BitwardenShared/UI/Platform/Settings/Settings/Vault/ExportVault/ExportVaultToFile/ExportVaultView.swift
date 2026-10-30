@@ -47,6 +47,7 @@ struct ExportVaultView: View {
                 .accessibilityIdentifier("ExportVaultButton")
                 .disabled(store.state.disableIndividualVaultExport)
             }
+            .sharedBackgroundHidden()
         }
     }
 

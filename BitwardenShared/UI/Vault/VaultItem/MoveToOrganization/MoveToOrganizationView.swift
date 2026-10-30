@@ -42,6 +42,8 @@ struct MoveToOrganizationView: View {
                         .accessibilityIdentifier("MoveButton")
                     }
                 }
+                // Only hide the background for the text button, the checkmark keeps its glass.
+                .sharedBackgroundHidden(!store.state.isVfo1FoundationFeatureFlagEnabled)
             }
     }
 
@@ -149,6 +151,35 @@ struct MoveToOrganizationView: View {
                                 organizationId: "1",
                             ),
                         ],
+                        organizationId: "1",
+                        ownershipOptions: [.organization(id: "1", name: "Organization")],
+                    ),
+                ),
+            ),
+        )
+    }
+}
+
+#Preview("Organizations - VFO1") {
+    NavigationView {
+        MoveToOrganizationView(
+            store: Store(
+                processor: StateProcessor(
+                    state: MoveToOrganizationState(
+                        cipher: .fixture(),
+                        collections: [
+                            .fixture(
+                                id: "1",
+                                name: "Design",
+                                organizationId: "1",
+                            ),
+                            .fixture(
+                                id: "2",
+                                name: "Engineering",
+                                organizationId: "1",
+                            ),
+                        ],
+                        isVfo1FoundationFeatureFlagEnabled: true,
                         organizationId: "1",
                         ownershipOptions: [.organization(id: "1", name: "Organization")],
                     ),
