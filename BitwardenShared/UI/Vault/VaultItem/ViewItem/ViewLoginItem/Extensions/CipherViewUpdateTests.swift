@@ -672,6 +672,32 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertNil(comparison.sshKey)
     }
 
+    /// `update(totp:)` returns a copy of the login with the TOTP key updated and all of the other
+    /// properties of the existing login preserved.
+    func test_update_totp_succeeds() {
+        let login = BitwardenSdk.LoginView.fixture(
+            fido2Credentials: [.fixture()],
+            httpAuthenticationEnabled: true,
+            password: "password",
+            passwordRevisionDate: now,
+            uris: [.fixture(uri: "https://example.com")],
+            username: "username",
+            totp: "old-totp",
+            autofillOnPageLoad: true,
+        )
+
+        let comparison = login.update(totp: "new-totp")
+
+        XCTAssertEqual(comparison.totp, "new-totp")
+        XCTAssertEqual(comparison.username, login.username)
+        XCTAssertEqual(comparison.password, login.password)
+        XCTAssertEqual(comparison.passwordRevisionDate, login.passwordRevisionDate)
+        XCTAssertEqual(comparison.uris, login.uris)
+        XCTAssertEqual(comparison.autofillOnPageLoad, login.autofillOnPageLoad)
+        XCTAssertEqual(comparison.httpAuthenticationEnabled, true)
+        XCTAssertEqual(comparison.fido2Credentials, login.fido2Credentials)
+    }
+
     /// Tests that the update succeeds with updated properties on SSH key type.
     func test_update_sshKey_succeeds() {
         cipherItemState.type = .sshKey

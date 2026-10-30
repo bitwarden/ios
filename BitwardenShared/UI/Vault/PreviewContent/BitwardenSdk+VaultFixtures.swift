@@ -852,6 +852,7 @@ extension BitwardenSdk.Login {
     static func fixture(
         autofillOnPageLoad: Bool? = nil,
         fido2Credentials: [Fido2Credential]? = nil,
+        httpAuthenticationEnabled: Bool? = nil,
         password: String? = nil,
         passwordRevisionDate: Date? = nil,
         uris: [LoginUri]? = nil,
@@ -865,6 +866,7 @@ extension BitwardenSdk.Login {
             uris: uris,
             totp: totp,
             autofillOnPageLoad: autofillOnPageLoad,
+            httpAuthenticationEnabled: httpAuthenticationEnabled,
             fido2Credentials: fido2Credentials,
         )
     }
@@ -891,6 +893,7 @@ extension BitwardenSdk.LoginListView {
 extension BitwardenSdk.LoginView {
     static func fixture(
         fido2Credentials: [Fido2CredentialView]? = nil,
+        httpAuthenticationEnabled: Bool? = nil,
         password: String? = nil,
         passwordRevisionDate: DateTime? = nil,
         uris: [LoginUriView]? = nil,
@@ -905,6 +908,7 @@ extension BitwardenSdk.LoginView {
             uris: uris,
             totp: totp,
             autofillOnPageLoad: autofillOnPageLoad,
+            httpAuthenticationEnabled: httpAuthenticationEnabled,
             fido2Credentials: fido2Credentials,
         )
     }

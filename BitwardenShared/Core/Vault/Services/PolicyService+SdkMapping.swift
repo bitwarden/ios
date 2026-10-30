@@ -120,6 +120,7 @@ extension PolicyType {
         case .automaticAppLogIn,
              .automaticUserConfirmation,
              .autotypeDefaultSetting,
+             .autotypeGaPolicy,
              .blockClaimedDomainAccountCreation,
              .fillAssist,
              .freeFamiliesSponsorship,

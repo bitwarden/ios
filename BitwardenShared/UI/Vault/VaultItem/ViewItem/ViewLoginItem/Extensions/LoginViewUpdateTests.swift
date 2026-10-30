@@ -77,4 +77,26 @@ final class LoginViewUpdateTests: BitwardenTestCase {
         XCTAssertEqual(comparison.totp, subject.totp)
         XCTAssertEqual(comparison.autofillOnPageLoad, subject.autofillOnPageLoad)
     }
+
+    /// Tests that the init carries `httpAuthenticationEnabled` forward from the existing login view,
+    /// since it isn't editable within the app and would otherwise be cleared on save.
+    func test_update_loginView_preservesHttpAuthenticationEnabled() {
+        subject = LoginView.fixture(httpAuthenticationEnabled: true)
+        loginState.username = "Username"
+        loginState.password = "Password"
+        let comparison = BitwardenSdk.LoginView(
+            loginView: subject,
+            loginState: loginState,
+        )
+        XCTAssertEqual(comparison.httpAuthenticationEnabled, true)
+    }
+
+    /// Tests that `httpAuthenticationEnabled` is `nil` when there's no existing login view.
+    func test_update_nilLoginView_nilHttpAuthenticationEnabled() {
+        let comparison = BitwardenSdk.LoginView(
+            loginView: nil,
+            loginState: loginState,
+        )
+        XCTAssertNil(comparison.httpAuthenticationEnabled)
+    }
 }
