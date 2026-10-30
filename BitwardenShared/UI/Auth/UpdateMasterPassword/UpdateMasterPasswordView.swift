@@ -116,6 +116,7 @@ struct UpdateMasterPasswordView: View {
                     await store.perform(.logoutTapped)
                 }
             }
+            .sharedBackgroundHidden()
 
             ToolbarItemGroup(placement: .topBarTrailing) {
                 primaryActionToolbarButton(Localizations.save) {
@@ -123,6 +124,7 @@ struct UpdateMasterPasswordView: View {
                 }
                 .accessibilityIdentifier("SaveButton")
             }
+            .sharedBackgroundHidden()
         }
         .task {
             await store.perform(.appeared)
