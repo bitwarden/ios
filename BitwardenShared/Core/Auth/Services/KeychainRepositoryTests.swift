@@ -99,6 +99,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
                 BitwardenKeychainItem.refreshToken(userId: "1").unformattedKey,
                 BitwardenKeychainItem.unsuccessfulUnlockAttempts(userId: "1").unformattedKey,
                 BitwardenKeychainItem.userSessionKey(userId: "1").unformattedKey,
+                BitwardenKeychainItem.userSessionKeySharingEnabled(userId: "1").unformattedKey,
             ],
         )
     }
@@ -423,6 +424,67 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
 
         await assertAsyncThrows(error: KeychainServiceError.osStatusError(-1)) {
             try await subject.setUserAuthKey(for: .biometrics(userId: "123"), value: "testValue")
+        }
+    }
+
+    // MARK: Tests - BitwardenKeychainItem.userSessionKeySharingEnabled
+
+    /// `.userSessionKeySharingEnabled(userId:)` uses no extra access control (read on every
+    /// unlock, unlike `.userSessionKey`'s `.userPresence` requirement).
+    ///
+    func test_userSessionKeySharingEnabled_accessControlFlags() {
+        XCTAssertNil(BitwardenKeychainItem.userSessionKeySharingEnabled(userId: "1").accessControlFlags)
+    }
+
+    /// `.userSessionKeySharingEnabled(userId:)` uses the same protection level as `.userSessionKey`
+    /// and `.vaultTimeout`.
+    ///
+    func test_userSessionKeySharingEnabled_protection() {
+        XCTAssertTrue(
+            CFEqual(
+                BitwardenKeychainItem.userSessionKeySharingEnabled(userId: "1").protection,
+                kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+            ),
+        )
+    }
+
+    /// `.userSessionKeySharingEnabled(userId:)` builds the expected storage key.
+    ///
+    func test_userSessionKeySharingEnabled_unformattedKey() {
+        XCTAssertEqual(
+            BitwardenKeychainItem.userSessionKeySharingEnabled(userId: "1").unformattedKey,
+            "userSessionKeySharingEnabled_1",
+        )
+    }
+
+    /// `getUserAuthKeyValue(for:)`/`setUserAuthKey(for:value:)`/`deleteUserAuthKey(for:)` round-trip
+    /// the `.userSessionKeySharingEnabled` item through the facade like any other generic item.
+    ///
+    func test_userSessionKeySharingEnabled_roundTrip() async throws {
+        let item = BitwardenKeychainItem.userSessionKeySharingEnabled(userId: "1")
+
+        try await subject.setUserAuthKey(for: item, value: "true")
+        XCTAssertEqual(keychainServiceFacade.setValueReceivedArguments?.value, "true")
+        XCTAssertEqual(keychainServiceFacade.setValueReceivedArguments?.item as? BitwardenKeychainItem, item)
+
+        keychainServiceFacade.getValueReturnValue = "true"
+        let result = try await subject.getUserAuthKeyValue(for: item)
+        XCTAssertEqual(result, "true")
+        XCTAssertEqual(keychainServiceFacade.getValueReceivedItem?.unformattedKey, item.unformattedKey)
+
+        try await subject.deleteUserAuthKey(for: item)
+        XCTAssertEqual(keychainServiceFacade.deleteValueReceivedItem?.unformattedKey, item.unformattedKey)
+    }
+
+    /// `getUserAuthKeyValue(for:)` rethrows a not-found error for `.userSessionKeySharingEnabled`
+    /// so callers can treat a missing preference as opted-out.
+    ///
+    func test_userSessionKeySharingEnabled_getUserAuthKeyValue_notFound() async {
+        let item = BitwardenKeychainItem.userSessionKeySharingEnabled(userId: "1")
+        keychainServiceFacade.getValueThrowableError = KeychainServiceError.keyNotFound(item)
+
+        await assertAsyncThrows(error: KeychainServiceError.keyNotFound(item)) {
+            _ = try await subject.getUserAuthKeyValue(for: item)
         }
     }
 

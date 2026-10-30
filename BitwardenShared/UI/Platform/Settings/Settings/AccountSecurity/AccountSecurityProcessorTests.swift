@@ -591,6 +591,44 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         )
     }
 
+    /// `perform(_:)` with `.toggleSessionKeySharing(true)` enables session key sharing and updates the state.
+    @MainActor
+    func test_perform_toggleSessionKeySharing_on() async throws {
+        subject.state.isSessionKeySharingEnabled = false
+
+        await subject.perform(.toggleSessionKeySharing(true))
+
+        XCTAssertTrue(subject.state.isSessionKeySharingEnabled)
+        XCTAssertTrue(authRepository.setUserSessionKeySharingEnabledCalled)
+        XCTAssertEqual(authRepository.setUserSessionKeySharingEnabledValues.last?.isEnabled, true)
+    }
+
+    /// `perform(_:)` with `.toggleSessionKeySharing(false)` disables session key sharing and updates the state.
+    @MainActor
+    func test_perform_toggleSessionKeySharing_off() async throws {
+        subject.state.isSessionKeySharingEnabled = true
+
+        await subject.perform(.toggleSessionKeySharing(false))
+
+        XCTAssertFalse(subject.state.isSessionKeySharingEnabled)
+        XCTAssertTrue(authRepository.setUserSessionKeySharingEnabledCalled)
+        XCTAssertEqual(authRepository.setUserSessionKeySharingEnabledValues.last?.isEnabled, false)
+    }
+
+    /// `perform(_:)` with `.toggleSessionKeySharing` shows an alert and leaves the state unchanged
+    /// when the repository call fails.
+    @MainActor
+    func test_perform_toggleSessionKeySharing_error_showsAlertAndLeavesStateUnchanged() async throws {
+        subject.state.isSessionKeySharingEnabled = false
+        authRepository.setUserSessionKeySharingEnabledResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.toggleSessionKeySharing(true))
+
+        XCTAssertFalse(subject.state.isSessionKeySharingEnabled)
+        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.anErrorHasOccurred))
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, BitwardenTestError.example)
+    }
+
     /// `perform(_:)` with `.toggleSyncWithAuthenticator` disables authenticator sync and updates the state.
     @MainActor
     func test_perform_toggleSyncWithAuthenticator_disable() async throws {
@@ -851,6 +889,35 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         await subject.perform(.loadData)
 
         XCTAssertTrue(subject.state.isManageDevicesEnabled)
+    }
+
+    /// `perform(.loadData)` sets `isSessionKeySharingFeatureEnabled` from the
+    /// `enableUserSessionKeySharing` feature flag and loads the user's stored preference.
+    @MainActor
+    func test_perform_loadData_loadsSessionKeySharingFeatureFlagAndPreference() async throws {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.enableUserSessionKeySharing] = true
+        authRepository.isUserSessionKeySharingEnabledResult = .success(true)
+
+        await subject.perform(.loadData)
+
+        XCTAssertTrue(subject.state.isSessionKeySharingFeatureEnabled)
+        XCTAssertTrue(subject.state.isSessionKeySharingEnabled)
+        XCTAssertTrue(authRepository.isUserSessionKeySharingEnabledCalled)
+    }
+
+    /// `perform(.loadData)` does not read the user's session key sharing preference when the
+    /// server feature flag is off.
+    @MainActor
+    func test_perform_loadData_hidesToggleWhenFeatureFlagOff() async throws {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.enableUserSessionKeySharing] = false
+
+        await subject.perform(.loadData)
+
+        XCTAssertFalse(subject.state.isSessionKeySharingFeatureEnabled)
+        XCTAssertFalse(subject.state.isSessionKeySharingEnabled)
+        XCTAssertFalse(authRepository.isUserSessionKeySharingEnabledCalled)
     }
 
     /// `receive(_:)` with `sessionTimeoutActionChanged(:)` presents an alert if `logout` was selected.
