@@ -829,6 +829,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let twoStepLoginService = DefaultTwoStepLoginService(environmentService: environmentService)
 
         let pasteboardService = DefaultPasteboardService(
+            activeAccountIdPublisherProvider: stateService,
             errorReporter: errorReporter,
             stateService: stateService,
         )

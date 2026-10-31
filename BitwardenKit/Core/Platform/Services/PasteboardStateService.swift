@@ -1,16 +1,8 @@
-import Combine
-
 // MARK: - PasteboardStateService
 
 /// A protocol for a service that provides state management functionality around the pasteboard.
 ///
-public protocol PasteboardStateService: ActiveAccountStateProvider { // sourcery: AutoMockable
-    /// A publisher for the active account id.
-    ///
-    /// - Returns: The user ID for the active account, or `nil` if there isn't an active account.
-    ///
-    func activeAccountIdPublisher() async -> AnyPublisher<String?, Never>
-
+public protocol PasteboardStateService: AnyObject { // sourcery: AutoMockable
     /// Gets the Universal Clipboard setting for a user account.
     ///
     /// - Parameter userId: The user ID associated with the Universal Clipboard setting. Defaults to

@@ -30,15 +30,12 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var addFillAssistDebugRuleUsernameId: String?
     var addSitePromptShown = false
     var allowSyncOnRefresh = [String: Bool]()
-    var allowUniversalClipboard = [String: Bool]()
     var appLanguage: LanguageOption = .default
     var appRehydrationState = [String: AppRehydrationState]()
     var appTheme: AppTheme?
     var archiveOnboardingShown = false
     var biometricsEnabled = [String: Bool]()
     var capturedUserId: String?
-    var clearClipboardValues = [String: ClearClipboardValue]()
-    var clearClipboardResult: Result<Void, Error> = .success(())
     var clearFillAssistCacheCalled = false
     var clearFillAssistCacheResult: Result<Void, Error> = .success(())
     // swiftlint:disable:next identifier_name
@@ -284,11 +281,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         return allowSyncOnRefresh[userId] ?? false
     }
 
-    func getAllowUniversalClipboard(userId: String?) async throws -> Bool {
-        let userId = try unwrapUserId(userId)
-        return allowUniversalClipboard[userId] ?? false
-    }
-
     func getAppRehydrationState(userId: String?) async throws -> BitwardenShared.AppRehydrationState? {
         let userId = try unwrapUserId(userId)
         return appRehydrationState[userId]
@@ -300,12 +292,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
 
     func getArchiveOnboardingShown() async -> Bool {
         archiveOnboardingShown
-    }
-
-    func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
-        try clearClipboardResult.get()
-        let userId = try unwrapUserId(userId)
-        return clearClipboardValues[userId] ?? .never
     }
 
     func getCollapsedVaultListSectionIds(userId: String?) async throws -> [String] {
@@ -611,11 +597,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         self.allowSyncOnRefresh[userId] = allowSyncOnRefresh
     }
 
-    func setAllowUniversalClipboard(_ allowUniversalClipboard: Bool, userId: String?) async throws {
-        let userId = try unwrapUserId(userId)
-        self.allowUniversalClipboard[userId] = allowUniversalClipboard
-    }
-
     func setAppRehydrationState(
         _ rehydrationState: BitwardenShared.AppRehydrationState?,
         userId: String?,
@@ -638,12 +619,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
 
     func setArchiveOnboardingShown(_ shown: Bool) async {
         archiveOnboardingShown = shown
-    }
-
-    func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
-        try clearClipboardResult.get()
-        let userId = try unwrapUserId(userId)
-        clearClipboardValues[userId] = clearClipboardValue
     }
 
     @MainActor

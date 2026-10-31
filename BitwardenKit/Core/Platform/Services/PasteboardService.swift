@@ -39,6 +39,9 @@ public protocol PasteboardService: AnyObject { // sourcery: AutoMockable
 public class DefaultPasteboardService: PasteboardService {
     // MARK: Properties
 
+    /// The object used to publish changes to the active account.
+    private let activeAccountIdPublisherProvider: ActiveAccountIdPublisherProvider
+
     /// Indicates whether Universal Clipboard is allowed when copying.
     public private(set) var allowUniversalClipboard: Bool = false
 
@@ -62,17 +65,20 @@ public class DefaultPasteboardService: PasteboardService {
     /// Initializes a new `DefaultPasteboardService`.
     ///
     /// - Parameters:
+    ///   - activeAccountIdPublisherProvider: The object used to publish changes to the active account.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - pasteboard: The pasteboard used by the service. Default is `.general`.
     ///   - stateService: The service used by the application to manage the pasteboard state.
     ///   - timeProvider: Provides the present time for calculating when copied content expires.
     ///
     public init(
+        activeAccountIdPublisherProvider: ActiveAccountIdPublisherProvider,
         errorReporter: ErrorReporter,
         pasteboard: PasteboardProtocol = UIPasteboard.general,
         stateService: PasteboardStateService,
         timeProvider: TimeProvider = CurrentTime(),
     ) {
+        self.activeAccountIdPublisherProvider = activeAccountIdPublisherProvider
         self.errorReporter = errorReporter
         self.pasteboard = pasteboard
         self.stateService = stateService
@@ -80,7 +86,7 @@ public class DefaultPasteboardService: PasteboardService {
 
         // Get the value of the clipboard settings for the currently active user.
         Task {
-            for await userId in await self.stateService.activeAccountIdPublisher().values {
+            for await userId in await self.activeAccountIdPublisherProvider.activeAccountIdPublisher().values {
                 guard let userId else {
                     // Revert to the default values if the user isn't logged in.
                     clearClipboardValue = .never

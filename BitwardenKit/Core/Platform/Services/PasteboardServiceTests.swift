@@ -12,6 +12,7 @@ import UniformTypeIdentifiers
 struct PasteboardServiceTests {
     // MARK: Properties
 
+    let activeAccountIdPublisherProvider = MockActiveAccountIdPublisherProvider()
     let activeAccountIdSubject = CurrentValueSubject<String?, Never>("1")
     let errorReporter = MockErrorReporter()
     let pasteboard = MockPasteboardProtocol()
@@ -22,10 +23,12 @@ struct PasteboardServiceTests {
     // MARK: Setup
 
     init() {
-        stateService.activeAccountIdPublisherReturnValue = activeAccountIdSubject.eraseToAnyPublisher()
+        activeAccountIdPublisherProvider.activeAccountIdPublisherReturnValue = activeAccountIdSubject
+            .eraseToAnyPublisher()
         stateService.getAllowUniversalClipboardReturnValue = false
         stateService.getClearClipboardValueReturnValue = .oneMinute
         subject = DefaultPasteboardService(
+            activeAccountIdPublisherProvider: activeAccountIdPublisherProvider,
             errorReporter: errorReporter,
             pasteboard: pasteboard,
             stateService: stateService,
