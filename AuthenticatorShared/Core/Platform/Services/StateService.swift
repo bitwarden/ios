@@ -263,31 +263,6 @@ actor DefaultStateService:
     }
 }
 
-// MARK: TOTPItemDisplayStateService
-
-extension DefaultStateService: TOTPItemDisplayStateService {
-    func getShowNextTOTPCode() async -> Bool {
-        appSettingsStore.showNextTOTPCode
-    }
-
-    func setShowNextTOTPCode(_ value: Bool) async {
-        appSettingsStore.showNextTOTPCode = value
-    }
-
-    func getShowWebIcons() async -> Bool {
-        !appSettingsStore.disableWebIcons
-    }
-
-    func setShowWebIcons(_ showWebIcons: Bool) async {
-        appSettingsStore.disableWebIcons = !showWebIcons
-        showWebIconsSubject.send(showWebIcons)
-    }
-
-    func showWebIconsPublisher() async -> AnyPublisher<Bool, Never> {
-        showWebIconsSubject.eraseToAnyPublisher()
-    }
-}
-
 // MARK: BiometricsStateService
 
 extension DefaultStateService: BiometricsStateService {
@@ -317,5 +292,30 @@ extension DefaultStateService: PasteboardStateService {
     func setAllowUniversalClipboard(_ allowUniversalClipboard: Bool, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setAllowUniversalClipboard(allowUniversalClipboard, userId: userId)
+    }
+}
+
+// MARK: TOTPItemDisplayStateService
+
+extension DefaultStateService: TOTPItemDisplayStateService {
+    func getShowNextTOTPCode() async -> Bool {
+        appSettingsStore.showNextTOTPCode
+    }
+
+    func setShowNextTOTPCode(_ value: Bool) async {
+        appSettingsStore.showNextTOTPCode = value
+    }
+
+    func getShowWebIcons() async -> Bool {
+        !appSettingsStore.disableWebIcons
+    }
+
+    func setShowWebIcons(_ showWebIcons: Bool) async {
+        appSettingsStore.disableWebIcons = !showWebIcons
+        showWebIconsSubject.send(showWebIcons)
+    }
+
+    func showWebIconsPublisher() async -> AnyPublisher<Bool, Never> {
+        showWebIconsSubject.eraseToAnyPublisher()
     }
 }

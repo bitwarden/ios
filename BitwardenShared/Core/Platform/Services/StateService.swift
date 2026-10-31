@@ -2518,6 +2518,18 @@ struct AccountVolatileData {
     var hasBeenUnlockedInteractively = false
 }
 
+// MARK: Autofill
+
+extension DefaultStateService: AutofillStateService {
+    func getLastRequestToTurnOnCredentialProvider() async -> Date? {
+        appSettingsStore.lastRequestToTurnOnCredentialProvider()
+    }
+
+    func setLastRequestToTurnOnCredentialProvider(_ date: Date?) async {
+        appSettingsStore.setLastRequestToTurnOnCredentialProvider(date)
+    }
+}
+
 // MARK: BillingStateService
 
 extension DefaultStateService: BillingStateService {
@@ -2595,10 +2607,6 @@ extension DefaultStateService: BiometricsStateService {
     }
 }
 
-// MARK: PasteboardStateService
-
-extension DefaultStateService: PasteboardStateService {}
-
 // MARK: - DebugStateService
 
 extension DefaultStateService {
@@ -2658,94 +2666,9 @@ extension DefaultStateService {
     }
 }
 
-// MARK: User Session
+// MARK: PasteboardStateService
 
-extension DefaultStateService: UserSessionStateService {
-    // MARK: Last Active Time
-
-    func getLastActiveTime(userId: String?) async throws -> Date? {
-        let userId = try userId ?? getActiveAccountUserId()
-        return try await userSessionKeychainRepository.getLastActiveTime(userId: userId)
-    }
-
-    func setLastActiveTime(_ date: Date?, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccountUserId()
-        try await userSessionKeychainRepository.setLastActiveTime(date, userId: userId)
-    }
-
-    func getLastActiveMonotonicTime(userId: String?) async throws -> TimeInterval? {
-        let userId = try userId ?? getActiveAccountUserId()
-        return try await userSessionKeychainRepository.getLastActiveMonotonicTime(userId: userId)
-    }
-
-    func setLastActiveMonotonicTime(_ monotonicTime: TimeInterval?, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccountUserId()
-        try await userSessionKeychainRepository.setLastActiveMonotonicTime(monotonicTime, userId: userId)
-    }
-
-    func getLastActiveBootEpoch(userId: String?) async throws -> TimeInterval? {
-        let userId = try userId ?? getActiveAccountUserId()
-        return try await userSessionKeychainRepository.getLastActiveBootEpoch(userId: userId)
-    }
-
-    func setLastActiveBootEpoch(_ bootEpoch: TimeInterval?, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccountUserId()
-        try await userSessionKeychainRepository.setLastActiveBootEpoch(bootEpoch, userId: userId)
-    }
-
-    // MARK: Unsuccessful Unlock Attempts
-
-    func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int {
-        let userId = try userId ?? getActiveAccountUserId()
-        let attempts = try? await userSessionKeychainRepository.getUnsuccessfulUnlockAttempts(userId: userId)
-        return attempts ?? 0
-    }
-
-    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccountUserId()
-        try await userSessionKeychainRepository.setUnsuccessfulUnlockAttempts(attempts, userId: userId)
-    }
-
-    // MARK: Vault Timeout
-
-    func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue {
-        let userId = try getAccount(userId: userId).profile.userId
-        let userAuthKey = try? await keychainRepository.getUserAuthKeyValue(for: .neverLock(userId: userId))
-        guard let rawValue = try? await userSessionKeychainRepository.getVaultTimeout(userId: userId)
-        else {
-            // If there isn't a stored value, it may be because MAUI stored `nil` for never timeout.
-            // So if the never lock key exists, set the timeout to never, otherwise to default.
-            return userAuthKey != nil ? .never : .fifteenMinutes
-        }
-
-        let timeoutValue = SessionTimeoutValue(rawValue: rawValue)
-        if timeoutValue == .never, userAuthKey == nil {
-            // If never lock but no key (possibly due to logging out), return the default timeout.
-            return .fifteenMinutes
-        }
-        return timeoutValue
-    }
-
-    func setVaultTimeout(_ value: SessionTimeoutValue, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccountUserId()
-        try await userSessionKeychainRepository.setVaultTimeout(
-            minutes: value.rawValue,
-            userId: userId,
-        )
-    }
-}
-
-// MARK: Autofill
-
-extension DefaultStateService: AutofillStateService {
-    func getLastRequestToTurnOnCredentialProvider() async -> Date? {
-        appSettingsStore.lastRequestToTurnOnCredentialProvider()
-    }
-
-    func setLastRequestToTurnOnCredentialProvider(_ date: Date?) async {
-        appSettingsStore.setLastRequestToTurnOnCredentialProvider(date)
-    }
-}
+extension DefaultStateService: PasteboardStateService {}
 
 // MARK: SdkStateBridgeStateService
 
@@ -2894,5 +2817,82 @@ extension DefaultStateService: SdkStateBridgeStateService {
 
     func setV2UpgradeToken(_ token: V2UpgradeToken?, userId: String) async {
         appSettingsStore.setV2UpgradeToken(token, userId: userId)
+    }
+}
+
+// MARK: User Session
+
+extension DefaultStateService: UserSessionStateService {
+    // MARK: Last Active Time
+
+    func getLastActiveTime(userId: String?) async throws -> Date? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return try await userSessionKeychainRepository.getLastActiveTime(userId: userId)
+    }
+
+    func setLastActiveTime(_ date: Date?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        try await userSessionKeychainRepository.setLastActiveTime(date, userId: userId)
+    }
+
+    func getLastActiveMonotonicTime(userId: String?) async throws -> TimeInterval? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return try await userSessionKeychainRepository.getLastActiveMonotonicTime(userId: userId)
+    }
+
+    func setLastActiveMonotonicTime(_ monotonicTime: TimeInterval?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        try await userSessionKeychainRepository.setLastActiveMonotonicTime(monotonicTime, userId: userId)
+    }
+
+    func getLastActiveBootEpoch(userId: String?) async throws -> TimeInterval? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return try await userSessionKeychainRepository.getLastActiveBootEpoch(userId: userId)
+    }
+
+    func setLastActiveBootEpoch(_ bootEpoch: TimeInterval?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        try await userSessionKeychainRepository.setLastActiveBootEpoch(bootEpoch, userId: userId)
+    }
+
+    // MARK: Unsuccessful Unlock Attempts
+
+    func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int {
+        let userId = try userId ?? getActiveAccountUserId()
+        let attempts = try? await userSessionKeychainRepository.getUnsuccessfulUnlockAttempts(userId: userId)
+        return attempts ?? 0
+    }
+
+    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        try await userSessionKeychainRepository.setUnsuccessfulUnlockAttempts(attempts, userId: userId)
+    }
+
+    // MARK: Vault Timeout
+
+    func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue {
+        let userId = try getAccount(userId: userId).profile.userId
+        let userAuthKey = try? await keychainRepository.getUserAuthKeyValue(for: .neverLock(userId: userId))
+        guard let rawValue = try? await userSessionKeychainRepository.getVaultTimeout(userId: userId)
+        else {
+            // If there isn't a stored value, it may be because MAUI stored `nil` for never timeout.
+            // So if the never lock key exists, set the timeout to never, otherwise to default.
+            return userAuthKey != nil ? .never : .fifteenMinutes
+        }
+
+        let timeoutValue = SessionTimeoutValue(rawValue: rawValue)
+        if timeoutValue == .never, userAuthKey == nil {
+            // If never lock but no key (possibly due to logging out), return the default timeout.
+            return .fifteenMinutes
+        }
+        return timeoutValue
+    }
+
+    func setVaultTimeout(_ value: SessionTimeoutValue, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        try await userSessionKeychainRepository.setVaultTimeout(
+            minutes: value.rawValue,
+            userId: userId,
+        )
     }
 }
