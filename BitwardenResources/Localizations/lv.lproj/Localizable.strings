@@ -451,9 +451,10 @@
 "HideEmail" = "Slēpt e-pasta adresi no saņēmējiem.";
 "SendOptionsPolicyInEffect" = "Viens vai vairāki apvienības nosacījumi ietekmē Send iespējas.";
 "SendFilePremiumRequired" = "Ar bezmaksas kontu ir iespējams kopīgot tikai tekstu. Ir nepieciešama Premium dalība, lai Send izmantotu datnes.";
-"SendFileEmailVerificationRequired" = "Ir jāapliecina sava e-pasta adrese, lai izmantotu datnes ar Send. E-pasta edresi var apliecināt tīmekļa glabātavā.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Apvienības pamatnostādņu ierobežojums";
 "TextSendsAreNotAllowedDescriptionLong" = "Apvienībā nav atļauti teksta “Send”, un šis “Send” automātiski beigsies iestatītajā izdzēšanas datumā.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "Noklusējuma saglabāšanas iespēja";
 "DownloadTheBitwardenApp" = "Lejupielādēt Bitwarden lietotni";
 "EnsureItsValidJsonAndTryAgain" = "Jānodrošina, ka tas ir derīgs JSON un jāmēģina vēlreiz.";
-"ExportItemsConfirmationTitle" = "Apstiprināt vienumu izgūšanu";
-"ExportItemsWarning" = "Šī izguve satur vienuma datus nešifrētā veidā. Izgūto datni nevajadzētu glabāt vai sūtīt nedrošos veidos (piemēram, e-pastā). Tā ir jāizdzēš uzreiz pēc izmantošanas.";
 "FileCouldNotBeProcessed" = "Datni nevarēja apstrādāt";
 "GetVerificationCodesForAllYourAccounts" = "Iegūsti apliecināšanas kodus visiem saviem kontiem, kuros ir izmantota divpakāpju apliecināšana!";
 "Help" = "Palīdzība";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "Vienādošana nesekmīga";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Mēs nevarējām vienādot glabātavu ar serveri. Glabātava var neatspoguļot jaunākās izmaiņas. Var vēlreiz mēģināt tagad, vai arī tā vēlāk tiks automātiski vienādota.";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "Apstiprināt izgūšanu";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "Šī izguve satur glabātavas datus nešifrētā veidā. Izgūto datni nevajadzētu glabāt vai sūtīt nedrošos veidos (piemēram, e-pastā). Tā ir jāizdzēš uzreiz pēc izmantošanas.";

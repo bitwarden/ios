@@ -451,9 +451,10 @@
 "HideEmail" = "Skrij moj e-poštni naslov od prejemnikov.";
 "SendOptionsPolicyInEffect" = "Ena ali več pravilnikov organizacije vpliva na vaše možnosti pošiljanja.";
 "SendFilePremiumRequired" = "Brezplačni računi so omejeni samo na besedilne pošiljke. Za uporabo datotečnih pošiljk je potrebno članstvo Premium.";
-"SendFileEmailVerificationRequired" = "Če želite uporabljati datotečne pošiljke, morate potrditi svoj e-naslov. To lahko storite v trezorju na spletu.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Zaradi pravil podjetja lahko ustvariš le %1$@ pošiljke.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Omejitev v skladu s politiko organizacije";
 "TextSendsAreNotAllowedDescriptionLong" = "Ta Pošiljka ni dovoljena za tvojo organizacijo in bo samodejno prenehala veljati na predviden datum izbrisa.";
 "ThisSendIsNotCompliantDescriptionLong" = "Ta Pošiljka ni v skladu s politiko pošiljanja tvoje organizacije in bo samodejno prenehala veljati na predviden datum izbrisa.";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "Privzeta možnost shranjevanja";
 "DownloadTheBitwardenApp" = "Prenesite aplikacijo Bitwarden";
 "EnsureItsValidJsonAndTryAgain" = "Prepričajte se, da je veljaven JSON, in poskusite znova.";
-"ExportItemsConfirmationTitle" = "Potrdi izvoz predmetov";
-"ExportItemsWarning" = "Ta izvoz vsebuje podatke vaših predmetov v nešifrirani obliki. Izvožene datoteke ne shranjujte in ne pošiljajte prek nezavarovanih kanalov (kot je e-pošta). Po uporabi jo takoj izbrišite.";
 "FileCouldNotBeProcessed" = "Datoteke ni bilo mogoče obdelati";
 "GetVerificationCodesForAllYourAccounts" = "Pridobite verifikacijske kode za vse svoje račune z dvostopenjskim preverjanjem.";
 "Help" = "Pomoč";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "Sinhronizacija neuspešna";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Vašega trezorja ni bilo mogoče sinhronizirati s strežnikom. Vaš trezor morda ne odraža vaših zadnjih sprememb. Lahko poskusite znova zdaj ali pa se bo sinhronizacija izvedla samodejno kasneje.";
 "TextToShareRequired" = "Besedilo za deljenje (obvezno)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "Potrdi izvoz";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "Za svojo varnost te datoteke ne delite in ne pošiljajte prek nezavarovanih kanalov (kot je e-pošta), po uporabi pa jo izbrišite.";

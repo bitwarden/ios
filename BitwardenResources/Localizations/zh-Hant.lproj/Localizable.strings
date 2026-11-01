@@ -451,9 +451,10 @@
 "HideEmail" = "對收件人隱藏我的電子郵件地址";
 "SendOptionsPolicyInEffect" = "一個或多個組織原則正影響您的 Send 選項。";
 "SendFilePremiumRequired" = "免費帳戶僅限於共用文字。若想使用檔案傳送，需要進階會員資格。";
-"SendFileEmailVerificationRequired" = "您必須驗證電子郵件才能夠使用檔案 Send。您可以在網頁版密碼庫中驗證您的電子郵件。";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "由於企業政策限制，您只能建立 %1$@ Send。";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "由於企業政策限制，您只能建立檔案 Send。";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "由於企業政策限制，您只能建立文字 Send。";
 "OrganizationPolicyRestriction" = "組織政策限制";
 "TextSendsAreNotAllowedDescriptionLong" = "您的組織不允許使用文字 Send，此 Send 將在設定的刪除日期自動到期。";
 "ThisSendIsNotCompliantDescriptionLong" = "此 Send 不符合您組織的 Send 政策，並會在設定的刪除日期自動到期。";
@@ -500,8 +501,8 @@
 "SpecialCharacters" = "特殊字元 (!@#$%^&*)";
 "PasswordIsVisibleTapToHide" = "密碼可見，點選以隱藏。";
 "PasswordIsNotVisibleTapToShow" = "密碼不可見，點選以顯示。";
-"FieldValueIsVisibleTapToHide" = "%1$@ is visible, tap to hide.";
-"FieldValueIsNotVisibleTapToShow" = "%1$@ is not visible, tap to show.";
+"FieldValueIsVisibleTapToHide" = "%1$@ 可見，點選以隱藏。";
+"FieldValueIsNotVisibleTapToShow" = "%1$@ 不可見，點選以顯示。";
 "FilterByVault" = "依密碼庫篩選項目";
 "AllVaults" = "所有密碼庫";
 "Vaults" = "密碼庫";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "預設儲存選項";
 "DownloadTheBitwardenApp" = "下載 Bitwarden 應用程式";
 "EnsureItsValidJsonAndTryAgain" = "請確保檔案為有效的 JSON 格式，然後再試一次。";
-"ExportItemsConfirmationTitle" = "確認匯出項目";
-"ExportItemsWarning" = "此匯出包含未加密的項目資料。您不應在不安全的管道（例如電子郵件）上儲存或傳送匯出檔案。使用完後請立即刪除。";
 "FileCouldNotBeProcessed" = "無法處理檔案";
 "GetVerificationCodesForAllYourAccounts" = "為所有使用兩步驟驗證的帳戶取得驗證碼。";
 "Help" = "說明";
@@ -1277,9 +1276,9 @@
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "清除 %1$@";
 /* Accessibility hint on a collapsed date field announcing that activating it activates the calendar picker. */
-"DoubleTapToActivateThePicker" = "Double tap to activate the picker";
+"DoubleTapToActivateThePicker" = "點兩下以開啟日期選擇器";
 /* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
-"DoubleTapToCloseThePicker" = "Double tap to close the picker";
+"DoubleTapToCloseThePicker" = "點兩下以關閉日期選擇器";
 /* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
 "FutureDatesUnavailable" = "無法選擇未來日期";
 "PremiumRequiredTOTPDescriptionLong" = "驗證器金鑰（TOTP）為 Premium 功能。您目前的方案未包含此功能。";
@@ -1302,4 +1301,9 @@
 "NotNow" = "以後再說";
 "SyncUnsuccessful" = "同步失敗";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "無法將您的保管庫與伺服器同步。您的保管庫可能未反映最新變更。您可以立即重試，或稍後等待系統自動同步。";
-"TextToShareRequired" = "Text to share (required)";
+"TextToShareRequired" = "要分享的文字（必填）";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "此報告包含的內容";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "只有儲存在此裝置本機的代碼會被匯出。同步的代碼不會包含在內。";
+"ConfirmExport" = "確認匯出";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "此次匯出的密碼庫檔案為未加密格式。您不應將它存放或經由不安全的方式（例如電子郵件）傳送。用完後請立即將它刪除。";

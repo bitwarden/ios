@@ -451,9 +451,10 @@
 "HideEmail" = "받는 사람으로부터 나의 이메일 주소 숨기기";
 "SendOptionsPolicyInEffect" = "하나 이상의 단체 정책이 Send 설정에 영향을 미치고 있습니다.";
 "SendFilePremiumRequired" = "무료 계정은 텍스트만 공유할 수 있습니다. Premium 멤버십이 있어야 Send에서 파일을 사용할 수 있습니다";
-"SendFileEmailVerificationRequired" = "이메일을 인증해야 Send에서 파일을 사용할 수 있습니다.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "기본 저장 설정";
 "DownloadTheBitwardenApp" = "Bitwarden 앱 다운로드";
 "EnsureItsValidJsonAndTryAgain" = "유효한 JSON인지 확인하고 다시 시도하세요.";
-"ExportItemsConfirmationTitle" = "항목 내보내기 확인";
-"ExportItemsWarning" = "이 내보내기에는 항목 데이터가 암호화되지 않은 형식으로 포함되어 있습니다. 내보낸 파일을 안전하지 않은 채널(예: 이메일)을 통해 저장하거나 전송해서는 안 됩니다. 사용이 끝난 후 즉시 삭제하세요.";
 "FileCouldNotBeProcessed" = "파일을 처리할 수 없음";
 "GetVerificationCodesForAllYourAccounts" = "2단계 인증을 사용하여 모든 계정에 대한 인증 코드를 받으세요.";
 "Help" = "도움말";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "동기화 실패";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "서버와 보관함을 동기화할 수 없습니다. 보관함에 최신 변경 사항이 반영되지 않았을 수 있습니다. 지금 다시 시도하거나 나중에 자동으로 동기화되도록 두세요.";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "내보내기 확인";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "내보내기는 보관함 데이터가 암호화되지 않은 형식으로 포함됩니다. 내보낸 파일을 안전하지 않은 채널(예: 이메일)을 통해 저장하거나 보내지 마십시오. 사용이 끝난 후에는 즉시 삭제하십시오.";

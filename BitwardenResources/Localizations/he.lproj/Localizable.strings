@@ -451,9 +451,10 @@
 "HideEmail" = "הסתר את כתובת האימייל שלי מהנמענים";
 "SendOptionsPolicyInEffect" = "מדיניות ארגון אחת או יותר משפיעה על אפשרויות הSend שלך.";
 "SendFilePremiumRequired" = "חשבונות חינמיים מוגבלים לשיתוף טקסט בלבד. יש צורך בחשבון פרימיום כדי להשתמש בSend עם קבצים.";
-"SendFileEmailVerificationRequired" = "עליך לאמת את האימייל שלך כדי להשתמש בSend עם קבצים. ניתן לאמת את האימייל באתר הכספת.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -982,8 +983,6 @@
 "DefaultSaveOption" = "אפשרות שמירה ברירת מחדל";
 "DownloadTheBitwardenApp" = "הורד את היישום Bitwarden";
 "EnsureItsValidJsonAndTryAgain" = "וודא שהוא JSON תקני ונסה שוב.";
-"ExportItemsConfirmationTitle" = "אשר ייצוא פריטים";
-"ExportItemsWarning" = "ייצוא זה מכיל את נתוני הפריטים שלך בפורמט לא מוצפן. אתה לא אמור לאחסן או לשלוח את הקובץ המיוצא דרך ערוצים לא מאובטחים (כמו דוא\"ל). מחק אותו מיד לאחר שסיימת להשתמש בו.";
 "FileCouldNotBeProcessed" = "לא היה ניתן לעבד את הקובץ";
 "GetVerificationCodesForAllYourAccounts" = "קבל קודי אימות עבור כל החשבונות שלך המשתמשים באימות דו־שלבי.";
 "Help" = "עזרה";
@@ -1303,3 +1302,8 @@
 "SyncUnsuccessful" = "הסנכרון לא הצליח";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "לא יכולנו לסנכרן את הכספת שלך עם השרת. ייתכן שהכספת שלך לא משקפת את השינויים האחרונים שלך.你可以 עכשיו או שהיא תסתנכרן אוטומטית מאוחר יותר.";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "אשר ייצוא";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "ייצוא זה מכיל את נתוני הכספת שלך בפורמט לא מוצפן. אתה לא אמור לאחסן או לשלוח את הקובץ המיוצא דרך ערוצים לא מאובטחים (כמו דוא\"ל). מחק אותו מיד לאחר שסיימת להשתמש בו.";

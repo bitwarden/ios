@@ -451,9 +451,10 @@
 "HideEmail" = "Ära näita saajatele minu e-posti aadressi.";
 "SendOptionsPolicyInEffect" = "Organisatsiooni seaded mõjutavad sinu Sendi sätteid.";
 "SendFilePremiumRequired" = "Tasuta kontoga on võimalik saata ainult tekste. Failide saatmiseks on vajalik omada tasulist kontot.";
-"SendFileEmailVerificationRequired" = "Sendi kasutamiseks pead kinnitama oma e-posti aadressi. Saad seda teha veebihoidlas.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "Vaikimisi määratud salvestuse valik";
 "DownloadTheBitwardenApp" = "Lae alla Bitwarden'i rakendus";
 "EnsureItsValidJsonAndTryAgain" = "Veenduge, et see on kehtiv JSON, ja proovige uuesti.";
-"ExportItemsConfirmationTitle" = "Kinnita üksuste eksportimine";
-"ExportItemsWarning" = "See eksport sisaldab teie üksuste andmeid krüptimata kujul. Te ei tohiks eksporditud faili hoida ega saata ebaturvaliste kanalite kaudu (nt e-post). Kustutage see kohe pärast kasutamist.";
 "FileCouldNotBeProcessed" = "Faili ei õnnestunud töödelda";
 "GetVerificationCodesForAllYourAccounts" = "Hankige kinnituskoodid kõigi oma kontode jaoks kaheastmelise kinnituse abil.";
 "Help" = "Abi";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "Sünkroonimine ebaõnnestus";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Me ei suutnud teie varahoidlat serveriga sünkroonida. Teie vara ei pruugi kajastada teie viimaseid muudatusi. Võite proovida uuesti kohe või see sünkroonub hiljem automaatselt.";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "Kinnita eksportimine";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "Eksporditav fail sisaldab hoidla sisu, mis on krüpteeringuta. Seda faili ei tohiks kaua käidelda ning mitte mingil juhul ebaturvaliselt saata (näiteks e-postiga). Kustuta see koheselt pärast kasutamist.";

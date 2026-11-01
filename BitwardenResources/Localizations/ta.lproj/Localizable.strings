@@ -452,9 +452,10 @@
 "HideEmail" = "பெறுநர்களிடமிருந்து என் மின்னஞ்சல் முகவரியை மறை";
 "SendOptionsPolicyInEffect" = "ஒன்று அ மேற்பட்ட நிறுவன கொள்கைகள் உமது Send தெரிவுகளை பாதிக்கிறது.";
 "SendFilePremiumRequired" = "இலவச கணக்குகள் சொற்சரம் மட்டும் பகிர்தலுக்கு கட்டுப்படுத்தப்பட்டுள்ளது. Send உடன் கோப்புகளை பயன்படுத்த உயர்தர உறுப்பினர் தகுதி தேவை.";
-"SendFileEmailVerificationRequired" = "Send உடன் கோப்புகளைப் பயன்படுத்த உம் மின்னஞ்சலைக் கட்டாயம் சரிபார்க்க வேண்டும்.  உம் மின்னஞ்சலை வலைப்பெட்டகத்தில் சரிபார்க்கலாம்.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "நிறுவனக் கொள்கை காரணமாக, நீங்கள் %1$@ Sends மட்டுமே உருவாக்க முடியும்.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "நிறுவனக் கொள்கை கட்டுப்பாடு";
 "TextSendsAreNotAllowedDescriptionLong" = "உங்கள் நிறுவனத்திற்கு உரை Sends அனுமதிக்கப்படவில்லை மற்றும் இந்த Send அமைக்கப்பட்ட நீக்கல் தேதியில் தானாகவே காலாவதியாகும்.";
 "ThisSendIsNotCompliantDescriptionLong" = "இந்த Send உங்கள் நிறுவனத்தின் Send கொள்கைக்கு இணங்கவில்லை மற்றும் அமைக்கப்பட்ட நீக்கல் தேதியில் தானாகவே காலாவதியாகும்.";
@@ -982,8 +983,6 @@
 "DefaultSaveOption" = "இயல்புநிலைச் சேமிப்பு விருப்பம்";
 "DownloadTheBitwardenApp" = "Bitwarden பயன்பாட்டைப் பதிவிறக்கவும்";
 "EnsureItsValidJsonAndTryAgain" = "இது ஒரு சரியான JSON என்பதை உறுதிசெய்து மீண்டும் முயற்சிக்கவும்.";
-"ExportItemsConfirmationTitle" = "பொருட்களின் ஏற்றுமதியை உறுதிப்படுத்து";
-"ExportItemsWarning" = "இந்த ஏற்றுமதி உங்கள் பொருள் தரவை என்க்ரிப்ட் செய்யப்படாத வடிவத்தில் கொண்டுள்ளது. ஏற்றுமதி செய்யப்பட்ட கோப்பை பாதுகாப்பற்ற சேனல்களில் (மின்னஞ்சல் போன்றவை) சேமிக்கவோ அல்லது அனுப்பவோ கூடாது. அதைப் பயன்படுத்திய உடனேயே அதை நீக்கிவிட வேண்டும்.";
 "FileCouldNotBeProcessed" = "கோப்பைச் செயல்படுத்த முடியவில்லை";
 "GetVerificationCodesForAllYourAccounts" = "2-படி சரிபார்ப்பைப் பயன்படுத்தி உங்கள் அனைத்துக் கணக்குகளுக்கும் சரிபார்ப்புக் குறியீடுகளைப் பெறுங்கள்.";
 "Help" = "உதவி";
@@ -1303,3 +1302,8 @@
 "SyncUnsuccessful" = "ஒத்திசைவு வெற்றிபெறவில்லை";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "உங்கள் பாதுகாப்பு பையை சேவையகத்துடன் ஒத்திசைக்க முடியவில்லை. உங்கள் பாதுகாப்பு பை உங்கள் சமீபத்திய மாற்றங்களைப் பிரதிபலிக்காமல் இருக்கலாம். நீங்கள் இப்போது மீண்டும் முயற்சிக்கலாம் அல்லது அது பின்னர் தானாக ஒத்திசைக்கும்.";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "ஏற்றுமதியை உறுதிப்படுத்து";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "இவ்வேற்றுமதி உம் பெட்டக தரவை மறையாக்கப்படா வடிவில் கொண்டுள்ளது. சேமிக்கவோ பாதுகாப்பற்ற தடங்களில் (மின்னஞ்சல் போன்றவை) அனுப்பவோ கூடாது. பயன்படுத்தியவுடன் அழித்துவிடவும்.";
