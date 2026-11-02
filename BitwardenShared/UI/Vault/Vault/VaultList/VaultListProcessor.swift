@@ -556,7 +556,7 @@ extension VaultListProcessor {
             return
         }
         state.shouldShowPremiumUpgradeActionCard =
-            await services.billingRepository.isInAppUpgradeAvailable()
+            await services.billingRepository.isPremiumUpgradeBannerAvailable()
     }
 
     /// Refreshes the vault's contents.

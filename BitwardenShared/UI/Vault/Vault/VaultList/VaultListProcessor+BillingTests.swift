@@ -31,6 +31,7 @@ struct VaultListProcessorBillingTests {
     init() {
         billingRepository = MockBillingRepository()
         billingRepository.isInAppUpgradeAvailableReturnValue = false
+        billingRepository.isPremiumUpgradeBannerAvailableReturnValue = false
         billingService = MockBillingService()
         billingService.isSelfHostedReturnValue = false
         billingService.shouldShowSubscriptionAttentionCardReturnValue = false
@@ -145,7 +146,7 @@ struct VaultListProcessorBillingTests {
     ])
     func perform_appeared_premiumActionCards(_ testCase: PremiumActionCardTestCase) async {
         billingService.shouldShowSubscriptionAttentionCardReturnValue = testCase.attentionCardVisible
-        billingRepository.isInAppUpgradeAvailableReturnValue = testCase.upgradeAvailable
+        billingRepository.isPremiumUpgradeBannerAvailableReturnValue = testCase.upgradeAvailable
         billingService.isPremiumUpgradeBannerDismissedReturnValue = testCase.bannerDismissed
 
         await subject.perform(.appeared)
@@ -159,7 +160,7 @@ struct VaultListProcessorBillingTests {
     @Test
     func perform_appeared_premiumUpgradeActionCard_hidden_selfHosted() async {
         billingService.isSelfHostedReturnValue = true
-        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        billingRepository.isPremiumUpgradeBannerAvailableReturnValue = true
         billingService.isPremiumUpgradeBannerDismissedReturnValue = false
 
         await subject.perform(.appeared)
@@ -178,7 +179,7 @@ struct VaultListProcessorBillingTests {
         lifecycleState: PremiumUpgradeLifecycleState,
         expectedVisible: Bool,
     ) async {
-        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        billingRepository.isPremiumUpgradeBannerAvailableReturnValue = true
         billingService.premiumUpgradeLifecycleStateReturnValue = lifecycleState
 
         await subject.perform(.appeared)
