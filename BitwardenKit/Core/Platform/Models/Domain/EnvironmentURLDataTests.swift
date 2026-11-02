@@ -2,7 +2,7 @@ import XCTest
 
 @testable import BitwardenKit
 
-class EnvironmentURLDataTests: XCTestCase {
+class EnvironmentURLDataTests: XCTestCase { // swiftlint:disable:this type_body_length
     // MARK: Tests
 
     /// `changeEmailURL` returns the change email URL for the base URL.
@@ -334,7 +334,12 @@ class EnvironmentURLDataTests: XCTestCase {
 
     /// `isFedRamp` is `false` for the US, EU, internal and self-hosted URLs, and when there is no base URL.
     func test_isFedRamp_false() {
-        for url in ["https://vault.bitwarden.com", "https://vault.usdev.bitwarden.pw", "https://vault.example.com"] {
+        for url in [
+            "https://vault.bitwarden.com",
+            "https://vault.bitwarden.eu",
+            "https://vault.usdev.bitwarden.pw",
+            "https://vault.example.com",
+        ] {
             XCTAssertFalse(EnvironmentURLData(base: URL(string: url)).isFedRamp, url)
         }
         XCTAssertFalse(EnvironmentURLData(base: nil).isFedRamp)
