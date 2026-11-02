@@ -1042,6 +1042,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         let policyApplies = await subject.policyAppliesToUser(.removeUnlockWithPin, userId: "2")
         XCTAssertTrue(policyApplies)
         XCTAssertEqual(organizationService.fetchAllOrganizationsUserId, "2")
+        XCTAssertNotEqual(stateService.activeAccount?.profile.userId, "2")
     }
 
     /// `policyAppliesToUser(_:userId:)` returns `false` if the specified user's organizations
