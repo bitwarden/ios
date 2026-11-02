@@ -451,9 +451,10 @@
 "HideEmail" = "Dölj min e-postadress för mottagare.";
 "SendOptionsPolicyInEffect" = "En eller flera organisationsriktlinjer påverkar dina Send-inställningar.";
 "SendFilePremiumRequired" = "Gratiskonton är begränsade till att endast dela text. Ett premium-medlemskap krävs för att använda filer med Send.";
-"SendFileEmailVerificationRequired" = "Du måste verifiera din e-postadress för att använda filer med Send. Du kan verifiera din e-postadress i webbvalvet.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "På grund av en företagspolicy kan du endast skapa %1$@ Send-objekt.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "På grund av en företagspolicy kan du bara skapa filskickningar.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "På grund av en företagspolicy kan du bara skapa textskickningar.";
 "OrganizationPolicyRestriction" = "Begränsning enligt organisationspolicy";
 "TextSendsAreNotAllowedDescriptionLong" = "Text-Sends är inte tillåtna för din organisation och denna Send upphör automatiskt på det angivna raderingsdatumet.";
 "ThisSendIsNotCompliantDescriptionLong" = "Den här Send uppfyller inte organisationens Send-policy och upphör automatiskt på det angivna raderingsdatumet.";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "Spara alternativ som standard";
 "DownloadTheBitwardenApp" = "Ladda ner Bitwarden-appen";
 "EnsureItsValidJsonAndTryAgain" = "Försäkra dig om att det är giltig JSON och försök igen.";
-"ExportItemsConfirmationTitle" = "Bekräfta objektexport";
-"ExportItemsWarning" = "Denna export innehåller ditt objektdata i okrypterat format. Du bör inte lagra eller skicka den exporterade filen via osäkra kanaler (t.ex. e-post). Ta bort den omedelbart efter att du har använt den.";
 "FileCouldNotBeProcessed" = "Filen kunde inte behandlas";
 "GetVerificationCodesForAllYourAccounts" = "Få verifieringskoder för alla dina konton med tvåstegsverifiering.";
 "Help" = "Hjälp";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "Synkronisering misslyckades";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Vi kunde inte synkronisera ditt valv med servern. Ditt valv kanske inte speglar dina senaste ändringar. Du kan försöka igen nu eller så synkroniseras det automatiskt senare.";
 "TextToShareRequired" = "Text att dela (krävs)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Ingår i den här rapporten";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Endast koder som lagras lokalt på den här enheten exporteras. Synkroniserade koder ingår inte.";
+"ConfirmExport" = "Bekräfta export";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "Denna export innehåller ditt valv i ett okrypterat format. Du bör inte lagra eller skicka den exporterade filen över osäkra kanaler (t.ex. e-post). Radera den omedelbart när du är färdig med den.";

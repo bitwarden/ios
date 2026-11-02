@@ -451,9 +451,10 @@
 "HideEmail" = "Saját email cím elrejtése a címzettek elől.";
 "SendOptionsPolicyInEffect" = "Egy vagy több szervezeti szabály érinti a Send opciókat.";
 "SendFilePremiumRequired" = "Ingyenes fiókkal csak szöveget lehet megosztani. Prémium tagság szükséges a fájlok használatához a Sendnél.";
-"SendFileEmailVerificationRequired" = "Ha fájlokat szeretnénk használni a Senddel, ellenőrizni kell az email címet.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "A vállalati szabályzat miatt csak %1$@ Send elem hozható létre.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "A vállalati szabályzat miatt csak fájl típusú Send elem hozható létre.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "A vállalati szabályzat miatt csak szöveg típusú Send elem hozható létre.";
 "OrganizationPolicyRestriction" = "Szervezeti szabályzat korlátozás";
 "TextSendsAreNotAllowedDescriptionLong" = "Ez a szöveges Send elem nem felel meg a szervezet Küldés házirendjének és ez a Send elem automatikusan lejár a beállított törlési napon.";
 "ThisSendIsNotCompliantDescriptionLong" = "Ez a Send elem nem felel meg a szervezet Küldés házirendjének és automatikusan lejár a beállított törlési napon.";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "Alapértelmezett mentés opció";
 "DownloadTheBitwardenApp" = "Bitwarden alkalmazás letöltése";
 "EnsureItsValidJsonAndTryAgain" = "Győződjünk meg arról, hogy érvényes a JSON és próbáljuk újra.";
-"ExportItemsConfirmationTitle" = "Elem exportálás megerősítése";
-"ExportItemsWarning" = "Ez az exportálás titkosítatlan formátumban tartalmazza az elemadatokat. Nem szabad tárolni vagy elküldeni az exportált fájlt nem biztonságos csatornákon (például emailben). Töröljük azonnal, miután befejeztük a használatát.";
 "FileCouldNotBeProcessed" = "A fájl nem dolgozható fel.";
 "GetVerificationCodesForAllYourAccounts" = "Ellenőrző kódok beszerzése minden olyan fiókhoz, amely támogatja a kétlépcsős ellenőrzést.";
 "Help" = "Súgó";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "A szinkronizáció sikertelen volt.";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Nem lehetett szinkronizálni a széfet a szerverrel. Előfordulhat, hogy a széf nem tükrözi a legújabb változtatásokat. Most újra próbálkozhatunk vagy később automatikusan szinkronizálódik.";
 "TextToShareRequired" = "Megosztandó szöveg (szükséges)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Bevonva ebbe az exportálásba";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Csak az ezen az eszközön helyileg tárolt kódok kerülnek exportálásra. A szinkronizált kódok nem szerepelnek benne.";
+"ConfirmExport" = "Exportálás megerősítése";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "Az exportált széfadatok titkosítatlan formátumban kerülnek elmentésre. Ne tároljuk sehol, illetve ne küldjük el senkinek a fájlt nem biztonságos felületeken (például email). Használat után azonnal töröljük.";

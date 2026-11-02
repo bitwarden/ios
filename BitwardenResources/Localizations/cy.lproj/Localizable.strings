@@ -451,9 +451,10 @@
 "HideEmail" = "Cuddio fy nghyfeiriad ebost rhag derbynwyr";
 "SendOptionsPolicyInEffect" = "Mae un neu fwy o bolisïau sefydliad yn effeithio ar eich opsiynau Anfon.";
 "SendFilePremiumRequired" = "Mae cyfrifon am ddim wedi'u cyfyngu i rannu testun yn unig. Mae angen aelodaeth Premiwm i ddefnyddio ffeiliau gydag Anfon.";
-"SendFileEmailVerificationRequired" = "Rhaid i chi ddilysu'ch e-bost i ddefnyddio ffeiliau gydag Anfon. Gallwch ddilysu'ch e-bost yn y cwpwrdd gwe.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "Opsiwn cadw diofyn";
 "DownloadTheBitwardenApp" = "Lawrlwythwch ap Bitwarden";
 "EnsureItsValidJsonAndTryAgain" = "Sicrhewch ei bod yn JSON dilys a cheisiwch eto.";
-"ExportItemsConfirmationTitle" = "Cadarnhau allforio eitemau";
-"ExportItemsWarning" = "Mae'r allforiad hwn yn cynnwys data'ch eitemau mewn fformat heb ei amgryptio. Ni ddylech storio na anfon y ffeil allforio dros sianeli anniogel (fel e-bost). Dileuwch hi ar unwaith ar ôl i chi orffen ei defnyddio.";
 "FileCouldNotBeProcessed" = "Ni ellid prosesu'r ffeil";
 "GetVerificationCodesForAllYourAccounts" = "Cael codau dilysu ar gyfer eich holl gyfrifon gan ddefnyddio dilysiad dau gam.";
 "Help" = "Cymorth";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "Cydamseru aflwyddiannus";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Ni allem gydamseru'ch cwpwrdd â'r gweinydd. Efallai nad yw'ch cwpwrdd yn adlewyrchu'ch newidiadau diweddaraf. Gallwch geisio eto nawr neu bydd yn cydamseru'n awtomatig yn ddiweddarach.";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "Cadarnhau allforio";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "Er eich diogelwch, peidiwch â rhannu nac anfon y ffeil hon dros sianeli anniogel (fel e-bost), a dilewch hi pan fyddwch wedi gorffen.";

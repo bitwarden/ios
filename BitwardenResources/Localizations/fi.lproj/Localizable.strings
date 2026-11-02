@@ -451,9 +451,10 @@
 "HideEmail" = "Piilota sähköpostiosoitteeni vastaanottajilta";
 "SendOptionsPolicyInEffect" = "Yksi tai useampi organisaatiokäytäntö vaikuttaa Send-asetuksiisi.";
 "SendFilePremiumRequired" = "Ilmaiset tilit on rajoitettu tekstin jakoon. Tiedostojen käyttö Sendeissä vaatii Premium-jäsenyyden.";
-"SendFileEmailVerificationRequired" = "Sinun on vahvistettava sähköpostiosoitteesi käyttääksesi tiedostoja Sendeissä. Voit vahvistaa osoitteesi verkkoholvissa.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "Tallennuksen oletusasetus";
 "DownloadTheBitwardenApp" = "Lataa Bitwarden-sovellus";
 "EnsureItsValidJsonAndTryAgain" = "Tarkista, että tiedosto on JSON-muodossa ja yritä uudelleen.";
-"ExportItemsConfirmationTitle" = "Vahvista kohteiden vienti";
-"ExportItemsWarning" = "Tämä vienti sisältää dataasi salaamattomassa muodossa. Älä säilytä tai lähetä vientitiedostoa suojaamattomista (esim. sähköpostin) kautta. Poista tiedosto välittömästi, kun et enää tarvitse sitä.";
 "FileCouldNotBeProcessed" = "Tiedostoa ei voitu käsitellä";
 "GetVerificationCodesForAllYourAccounts" = "Hanki vahvistuskoodit kaikkiin tileihisi käyttäen kaksivaiheista todennusta.";
 "Help" = "Tuki";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "Synkronointi epäonnistui";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Emme voineet synkronoida holviasi palvelimen kanssa. Holvisi ei välttämättä heijasta viimeisimpiä muutoksiasi. Voit yrittää uudelleen nyt tai se synkronoituu automaattisesti myöhemmin.";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "Vahvista vienti";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "Tämä vienti sisältää holvisi tiedot salaamattomassa muodossa. Sinun ei tulisi säilyttää tai lähettää vietyä tiedostoa suojaamattomien kanavien (kuten sähköpostin) välityksellä. Poista se välittömästi kun sille ei enää ole käyttöä.";

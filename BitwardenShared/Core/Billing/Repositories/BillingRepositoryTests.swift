@@ -20,7 +20,6 @@ struct BillingRepositoryTests {
 
     init() {
         billingStateService = MockBillingStateService()
-        billingStateService.isPremiumUpgradeEligibleReturnValue = false
         configService = MockConfigService()
         errorReporter = MockErrorReporter()
         storefrontService = MockStorefrontService()
@@ -37,82 +36,79 @@ struct BillingRepositoryTests {
 
     // MARK: Tests
 
-    /// `isInAppUpgradeAvailable()` returns `true` when all conditions are met.
-    @Test
-    func isInAppUpgradeAvailable_allConditionsMet() async {
-        configService.featureFlagsBool[.premiumUpgradePath] = true
-        storefrontService.isUSStorefrontReturnValue = true
-        billingStateService.isPremiumUpgradeEligibleReturnValue = true
-        vaultRepository.hasMinimumCipherCountResult = .success(true)
-
-        let result = await subject.isInAppUpgradeAvailable()
-
-        #expect(result)
-    }
-
     /// `isInAppUpgradeAvailable()` returns `false` when the feature flag is disabled.
     @Test
     func isInAppUpgradeAvailable_featureFlagDisabled() async {
         configService.featureFlagsBool[.premiumUpgradePath] = false
         storefrontService.isUSStorefrontReturnValue = true
-        billingStateService.isPremiumUpgradeEligibleReturnValue = true
-        vaultRepository.hasMinimumCipherCountResult = .success(true)
 
         let result = await subject.isInAppUpgradeAvailable()
 
         #expect(!result)
     }
 
-    /// `isInAppUpgradeAvailable()` returns `false` when the storefront is not US.
-    @Test
-    func isInAppUpgradeAvailable_nonUSStorefront() async {
+    /// `isInAppUpgradeAvailable()` returns `true` only when the storefront is US.
+    @Test(arguments: [
+        (isUSStorefront: false, expectedResult: false),
+        (isUSStorefront: true, expectedResult: true),
+    ])
+    func isInAppUpgradeAvailable_storefront(isUSStorefront: Bool, expectedResult: Bool) async {
         configService.featureFlagsBool[.premiumUpgradePath] = true
-        storefrontService.isUSStorefrontReturnValue = false
-        billingStateService.isPremiumUpgradeEligibleReturnValue = true
-        vaultRepository.hasMinimumCipherCountResult = .success(true)
+        storefrontService.isUSStorefrontReturnValue = isUSStorefront
 
         let result = await subject.isInAppUpgradeAvailable()
 
-        #expect(!result)
+        #expect(result == expectedResult)
     }
 
-    /// `isInAppUpgradeAvailable()` returns `false` when the user is not eligible for Premium upgrade.
+    /// `isPremiumUpgradeBannerAvailable()` returns `false` and logs the error when `hasMinimumCipherCount` throws.
     @Test
-    func isInAppUpgradeAvailable_notEligible() async {
-        configService.featureFlagsBool[.premiumUpgradePath] = true
-        storefrontService.isUSStorefrontReturnValue = true
-        billingStateService.isPremiumUpgradeEligibleReturnValue = false
-        vaultRepository.hasMinimumCipherCountResult = .success(true)
-
-        let result = await subject.isInAppUpgradeAvailable()
-
-        #expect(!result)
-    }
-
-    /// `isInAppUpgradeAvailable()` returns `false` when the vault has fewer than the minimum cipher count.
-    @Test
-    func isInAppUpgradeAvailable_insufficientCipherCount() async {
-        configService.featureFlagsBool[.premiumUpgradePath] = true
-        storefrontService.isUSStorefrontReturnValue = true
-        billingStateService.isPremiumUpgradeEligibleReturnValue = true
-        vaultRepository.hasMinimumCipherCountResult = .success(false)
-
-        let result = await subject.isInAppUpgradeAvailable()
-
-        #expect(!result)
-    }
-
-    /// `isInAppUpgradeAvailable()` returns `false` and logs the error when `hasMinimumCipherCount` throws.
-    @Test
-    func isInAppUpgradeAvailable_cipherCountThrows() async {
+    func isPremiumUpgradeBannerAvailable_cipherCountThrows() async {
         configService.featureFlagsBool[.premiumUpgradePath] = true
         storefrontService.isUSStorefrontReturnValue = true
         billingStateService.isPremiumUpgradeEligibleReturnValue = true
         vaultRepository.hasMinimumCipherCountResult = .failure(BitwardenTestError.example)
 
-        let result = await subject.isInAppUpgradeAvailable()
+        let result = await subject.isPremiumUpgradeBannerAvailable()
 
         #expect(!result)
         #expect(errorReporter.errors as? [BitwardenTestError] == [.example])
+    }
+
+    /// `isPremiumUpgradeBannerAvailable()` returns `true` only when the vault has the minimum cipher count,
+    /// the user is eligible for Premium upgrade, and the storefront is US.
+    @Test(arguments: [
+        (hasMinimumCipherCount: false, isEligible: true, isUSStorefront: true, expectedResult: false),
+        (hasMinimumCipherCount: true, isEligible: false, isUSStorefront: true, expectedResult: false),
+        (hasMinimumCipherCount: true, isEligible: true, isUSStorefront: false, expectedResult: false),
+        (hasMinimumCipherCount: true, isEligible: true, isUSStorefront: true, expectedResult: true),
+    ])
+    func isPremiumUpgradeBannerAvailable_conditions(
+        hasMinimumCipherCount: Bool,
+        isEligible: Bool,
+        isUSStorefront: Bool,
+        expectedResult: Bool,
+    ) async {
+        configService.featureFlagsBool[.premiumUpgradePath] = true
+        storefrontService.isUSStorefrontReturnValue = isUSStorefront
+        billingStateService.isPremiumUpgradeEligibleReturnValue = isEligible
+        vaultRepository.hasMinimumCipherCountResult = .success(hasMinimumCipherCount)
+
+        let result = await subject.isPremiumUpgradeBannerAvailable()
+
+        #expect(result == expectedResult)
+    }
+
+    /// `isPremiumUpgradeBannerAvailable()` returns `false` when the feature flag is disabled.
+    @Test
+    func isPremiumUpgradeBannerAvailable_featureFlagDisabled() async {
+        configService.featureFlagsBool[.premiumUpgradePath] = false
+        storefrontService.isUSStorefrontReturnValue = true
+        billingStateService.isPremiumUpgradeEligibleReturnValue = true
+        vaultRepository.hasMinimumCipherCountResult = .success(true)
+
+        let result = await subject.isPremiumUpgradeBannerAvailable()
+
+        #expect(!result)
     }
 }

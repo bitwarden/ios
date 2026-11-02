@@ -34,6 +34,7 @@ class MockPolicyService: PolicyService {
     var policyAppliesToUserResult = [BitwardenShared.PolicyType: Bool]()
     var policyAppliesToUserPoliciesType = [BitwardenShared.PolicyType]()
     var policyAppliesToUserPolicies = [BitwardenShared.Policy]()
+    var policyAppliesToUserUserIds = [String]()
     var getRestrictedItemCipherTypesResult: [BitwardenShared.CipherType] = []
 
     var replacePoliciesPolicies = [PolicyResponseModel]()
@@ -83,6 +84,12 @@ class MockPolicyService: PolicyService {
 
     func policyAppliesToUser(_ policyType: BitwardenShared.PolicyType) async -> Bool {
         policyAppliesToUserPoliciesType.append(policyType)
+        return policyAppliesToUserResult[policyType] ?? false
+    }
+
+    func policyAppliesToUser(_ policyType: BitwardenShared.PolicyType, userId: String) async -> Bool {
+        policyAppliesToUserPoliciesType.append(policyType)
+        policyAppliesToUserUserIds.append(userId)
         return policyAppliesToUserResult[policyType] ?? false
     }
 

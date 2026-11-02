@@ -451,9 +451,10 @@
 "HideEmail" = "Sembunyikan alamat email saya dari penerima";
 "SendOptionsPolicyInEffect" = "Satu atau lebih kebijakan orgnanisasi mempengaruhi pilihan Send Anda.";
 "SendFilePremiumRequired" = "Akun gratis dibatasi hanya untuk berbagi teks. Keanggotaan premium diperlukan untuk menggunakan berkas dengan Kirim.";
-"SendFileEmailVerificationRequired" = "Anda harus memverifikasi email untuk menggunakan berkas dengan Kirim. Anda dapat memverifikasi email Anda di brankas web.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "Pilihan simpan standar";
 "DownloadTheBitwardenApp" = "Unduh aplikasi Bitwarden";
 "EnsureItsValidJsonAndTryAgain" = "Pastikan itu JSON yang valid dan coba lagi.";
-"ExportItemsConfirmationTitle" = "Konfirmasi ekspor item";
-"ExportItemsWarning" = "Ekspor ini berisi data item Anda dalam format tidak terenkripsi. Jangan menyimpan atau mengirim file ekspor melalui saluran yang tidak aman (seperti email). Hapus segera setelah selesai digunakan.";
 "FileCouldNotBeProcessed" = "File tidak dapat diproses";
 "GetVerificationCodesForAllYourAccounts" = "Dapatkan kode verifikasi untuk semua akun Anda menggunakan verifikasi 2-langkah.";
 "Help" = "Bantuan";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "Sinkronisasi gagal";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Kami tidak dapat menyinkronkan brankas Anda dengan server. Brankas Anda mungkin tidak mencerminkan perubahan terbaru Anda. Anda dapat mencoba lagi sekarang atau akan disinkronkan secara otomatis nanti.";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "Konfirmasi ekspor";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "Ekspor ini berisi data vault Anda dalam format yang tidak dienkripsi. Anda tidak boleh menyimpan atau mengirim file yang diekspor melalui saluran yang tidak aman (seperti emel). Hapus segera setelah Anda selesai menggunakannya.";

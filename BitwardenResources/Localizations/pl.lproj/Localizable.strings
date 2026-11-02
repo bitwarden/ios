@@ -451,9 +451,10 @@
 "HideEmail" = "Ukryj mój adres e-mail przed odbiorcami";
 "SendOptionsPolicyInEffect" = "Co najmniej jedna zasada organizacji wpływa na ustawienia wysyłek.";
 "SendFilePremiumRequired" = "Darmowe konta są ograniczone do udostępniania tylko tekstu. Konto Premium jest wymagane do udostępniania plików.";
-"SendFileEmailVerificationRequired" = "Musisz zweryfikować adres e-mail, aby wysyłać pliki za pomocą wysyłek.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Ze względu na zasadę organizacji, możesz utworzyć tylko wysyłkę pliku.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Ze względu na zasadę organizacji, możesz utworzyć tylko wysyłkę tekstu.";
 "OrganizationPolicyRestriction" = "Ograniczenie przez zasadę organizacji";
 "TextSendsAreNotAllowedDescriptionLong" = "Wysyłki tekstów nie są dozwolone w organizacji. Wysyłka wygaśnie automatycznie w dacie jej usunięcia.";
 "ThisSendIsNotCompliantDescriptionLong" = "Wysyłka nie jest zgodna z zasadami organizacji i wygaśnie automatycznie w dacie jej usunięcia.";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "Domyślna opcja zapisywania";
 "DownloadTheBitwardenApp" = "Pobierz aplikację Bitwarden";
 "EnsureItsValidJsonAndTryAgain" = "Upewnij się, że plik JSON jest prawidłowy i spróbuj ponownie.";
-"ExportItemsConfirmationTitle" = "Potwierdź eksportowanie elementów";
-"ExportItemsWarning" = "Plik zawiera dane elementu w niezaszyfrowanym formacie. Nie należy go przechowywać ani przesyłać poprzez niezabezpieczone kanały (takie jak poczta e-mail). Usuń go natychmiast po użyciu.";
 "FileCouldNotBeProcessed" = "Plik nie może zostać przetworzony";
 "GetVerificationCodesForAllYourAccounts" = "Uzyskaj kody weryfikacyjne dla wszystkich swoich kont, które obsługują logowanie dwustopniowe.";
 "Help" = "Pomoc";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "Synchronizacja nie powiodła się";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Nie mogliśmy zsynchronizować sejfu z serwerem. Sejf może nie zawierać najnowszych zmian. Spróbuj ponownie lub poczekaj na automatyczną synchronizację.";
 "TextToShareRequired" = "Tekst do udostępnienia (wymagane)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Tylko kody przechowywane lokalnie na tym urządzeniu zostaną wyeksportowane. Zsynchronizowane kody nie są uwzględniane.";
+"ConfirmExport" = "Potwierdź eksportowanie";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "Nie udostępniaj ani nie wysyłaj tego pliku za pomocą niezabezpieczonych kanałów (takich jak poczta e-mail) i usuń go po zakończeniu pracy.";

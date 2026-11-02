@@ -451,9 +451,10 @@
 "HideEmail" = "メールアドレスを受信者に表示しない";
 "SendOptionsPolicyInEffect" = "一つ以上の組織ポリシーが Send の設定に影響しています。";
 "SendFilePremiumRequired" = "無料アカウントではテキストの共有のみに制限されています。Send でファイルを送信するにはプレミアム会員登録が必要です。";
-"SendFileEmailVerificationRequired" = "Send でファイルを送信するにはメールアドレスを確認する必要があります。";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "エンタープライズポリシーにより、%1$@ Send のみを作成できます。";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "エンタープライズポリシーにより、ファイル Send のみを作成できます。";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "エンタープライズポリシーにより、テキスト Send のみを作成できます。";
 "OrganizationPolicyRestriction" = "組織ポリシーの制限";
 "TextSendsAreNotAllowedDescriptionLong" = "この組織ではテキスト Send が許可されていないため、設定された削除日時に自動的に失効します。";
 "ThisSendIsNotCompliantDescriptionLong" = "この Send は組織の Send ポリシーに準拠していないため、設定された削除日時に自動的に失効します。";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "デフォルトの保存オプション";
 "DownloadTheBitwardenApp" = "Bitwarden アプリをダウンロード";
 "EnsureItsValidJsonAndTryAgain" = "有効なJSONであることを確認し、もう一度やり直してください。";
-"ExportItemsConfirmationTitle" = "項目のエクスポートを確認";
-"ExportItemsWarning" = "このエクスポートには、暗号化されていない形式の項目データが含まれています。安全でない通信路（電子メールなど）を介してエクスポートされたファイルを保存または送信しないでください。使用後は、すぐにファイルを削除してください。";
 "FileCouldNotBeProcessed" = "ファイルを処理できませんでした";
 "GetVerificationCodesForAllYourAccounts" = "2段階認証を使用するあらゆるアカウントの認証コードを確認できます。";
 "Help" = "ヘルプ";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "同期に失敗しました";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "サーバーとあなたの保管庫を同期できませんでした。あなたの保管庫は最新の変更を反映していない可能性があります。 後で自動的に同期しますが、今すぐ再試行することもできます。";
 "TextToShareRequired" = "共有するテキスト (必須)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "このレポートに含まれているもの";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "このデバイスにローカル保存されているコードのみをエクスポートします。同期されたコードは含まれません。";
+"ConfirmExport" = "エクスポートの確認";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "このエクスポートデータは暗号化されていない形式の保管庫データを含んでいます。メールなどのセキュリティ保護されていない方法で共有したり保管したりしないでください。使用した後はすぐに削除してください。";

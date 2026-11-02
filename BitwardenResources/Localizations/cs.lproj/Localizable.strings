@@ -451,9 +451,10 @@
 "HideEmail" = "Skrýt mou e-mailovou adresu před příjemci";
 "SendOptionsPolicyInEffect" = "Jedna nebo více zásad organizace ovlivňuje nastavení Send.";
 "SendFilePremiumRequired" = "Bezplatné účty jsou omezeny jen na sdílení textu. K používání souborů pomocí Send je vyžadováno členství Premium.";
-"SendFileEmailVerificationRequired" = "Abyste mohli tuto funkci používat, musíte ověřit svůj e-mail. Svůj e-mail můžete ověřit ve webovém trezoru.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "V souladu s podnikovými zásadami můžete vytvořit jen %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "V souladu s podnikovými zásadami můžete vytvořit jen Sends se soubory.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "V souladu s podnikovými zásadami můžete vytvořit jen textové Send.";
 "OrganizationPolicyRestriction" = "Omezení zásad organizace";
 "TextSendsAreNotAllowedDescriptionLong" = "Vaší organizaci není povoleno odesílat textové Sends a tato zpráva automaticky vyprší v nastavený den smazání.";
 "ThisSendIsNotCompliantDescriptionLong" = "Tento Send není v souladu se zásadami Vaší organizace a jeho platnost automaticky vyprší v nastavený den smazání.";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "Výchozí volby ukládání";
 "DownloadTheBitwardenApp" = "Stáhnout aplikaci Bitwarden";
 "EnsureItsValidJsonAndTryAgain" = "Ujistěte se, že je to platný JSON a zkuste to znovu.";
-"ExportItemsConfirmationTitle" = "Potvrdit export položek";
-"ExportItemsWarning" = "Tento export obsahuje data položek v nezašifrovaném formátu. Soubor exportu byste neměli ukládat ani odesílat přes nezabezpečené kanály (např. e-mailem). Smažte jej okamžitě po jeho použití.";
 "FileCouldNotBeProcessed" = "Soubor nelze zpracovat";
 "GetVerificationCodesForAllYourAccounts" = "Získejte ověřovací kódy pro všechny své účty pomocí dvoufázového ověření.";
 "Help" = "Nápověda";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "Synchronizace byla neúspěšná";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Nepodařilo se nám synchronizovat Váš trezor se serverem. Váš trezor nemusí obsahovat Vaše nejnovější změny. Můžete to zkusit znovu hned teď, nebo se synchronizace provede automaticky později.";
 "TextToShareRequired" = "Text ke sdílení (povinný)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Zahrnuto do této zprávy";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Budou exportovány jen kódy uložené v tomto zařízení. Synchronizované kódy nejsou zahrnuty.";
+"ConfirmExport" = "Potvrdit export";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "Z důvodu bezpečnosti nesdílejte ani neposílejte tento soubor na nezabezpečené kanály (jako je e-mail) a smažte jej, když jste hotovi.";

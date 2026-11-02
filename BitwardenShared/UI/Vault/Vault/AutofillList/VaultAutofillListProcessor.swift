@@ -112,6 +112,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         case .all:
             self.state.isAutofillingTextToInsertList = true
             self.state.emptyViewMessage = Localizations.noItemsToList
+            self.state.releasesFocusOnItemTap = TextToInsertKeyboardSession.releasesFocusOnItemTap
             textAutofillHelper = services.textAutofillHelperFactory.create(delegate: self)
         case .totp:
             self.state.isAutofillingTotpList = true
@@ -181,6 +182,8 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         case let .profileSwitcher(action):
             handle(action)
         case let .searchStateChanged(isSearching: isSearching):
+            // Any focus change resets the request to clear focus, so a later item tap clears it again.
+            state.shouldClearFocus = false
             guard isSearching else {
                 searchProcessorMediator.stopSearching()
                 return
@@ -188,9 +191,16 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             searchProcessorMediator.startSearching(mode: autofillListMode) { [weak self] data in
                 self?.searchResultsReceived(data: data)
             }
-            state.searchText = ""
-            state.ciphersForSearch = []
-            state.showNoResults = false
+            if state.isAutofillingTextToInsertList, !state.searchText.isEmpty {
+                // In text-to-insert mode, the search field can lose focus while keeping its query
+                // (e.g. pressing return, or when an item is tapped on iOS 27+). Keep the visible
+                // query when search is focused again and refresh its results.
+                updateSearchFilter(for: state.searchText)
+            } else {
+                state.searchText = ""
+                state.ciphersForSearch = []
+                state.showNoResults = false
+            }
             state.profileSwitcherState.isVisible = false
             dismissProfileSwitcher()
         case let .searchTextChanged(newValue):
@@ -396,6 +406,15 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
     /// Searches the list of ciphers for those matching the search term.
     ///
     private func searchVault(for searchText: String) async {
+        updateSearchFilter(for: searchText)
+    }
+
+    /// Updates the search filter for the search term, or clears the search results if the term is
+    /// empty.
+    ///
+    /// - Parameter searchText: The search term.
+    ///
+    private func updateSearchFilter(for searchText: String) {
         guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             state.ciphersForSearch = []
             state.showNoResults = false
@@ -509,6 +528,14 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                       || credentialProviderExtensionDelegate.isCreatingFido2Credential {
                 await onCipherForFido2CredentialPicked(cipher: cipher)
             } else if autofillListMode == .all {
+                // On iOS 27+, if an extension text field (the keyboard anchor or the search field) is
+                // focused when the text-to-insert request completes, Safari shows the inserted text as
+                // blank until the field is refocused. Release all focus so no field is focused by the
+                // time the user picks which value to insert (PM-40959).
+                if state.releasesFocusOnItemTap {
+                    credentialProviderExtensionDelegate?.releaseKeyboardAnchor()
+                    state.shouldClearFocus = true
+                }
                 await handleCipherForTextAutofill(cipher: cipher)
             } else {
                 await autofillHelper.handleCipherForAutofill(cipherListView: cipher) { [weak self] toastText in

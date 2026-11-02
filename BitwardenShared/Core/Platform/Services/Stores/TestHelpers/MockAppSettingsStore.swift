@@ -65,6 +65,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var pinProtectedUserKeyEnvelope = [String: String]()
     var premiumUpgradeBannerDismissedByUserId = [String: Bool]()
     var premiumUpgradePendingByUserId = [String: Bool]()
+    var previousPersonalPremiumByUserId = [String: Bool]()
     var subscriptionAttentionCardVisibleByUserId = [String: Bool]()
     var upgradedToPremiumCardVisibleByUserId = [String: Bool]()
     var accountCreationEnvironmentURLs = [String: EnvironmentURLData]()
@@ -227,6 +228,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func premiumUpgradePending(userId: String) -> Bool {
         premiumUpgradePendingByUserId[userId] ?? false
+    }
+
+    func previousPersonalPremium(userId: String) -> Bool? {
+        previousPersonalPremiumByUserId[userId]
     }
 
     func subscriptionAttentionCardVisible(userId: String) -> Bool {
@@ -398,6 +403,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func setPremiumUpgradePending(_ pending: Bool, userId: String) {
         premiumUpgradePendingByUserId[userId] = pending
+    }
+
+    func setPreviousPersonalPremium(_ previousPersonalPremium: Bool?, userId: String) {
+        previousPersonalPremiumByUserId[userId] = previousPersonalPremium
     }
 
     func setSubscriptionAttentionCardVisible(_ visible: Bool, userId: String) {

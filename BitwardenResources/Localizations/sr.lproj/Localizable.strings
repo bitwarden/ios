@@ -451,9 +451,10 @@
 "HideEmail" = "Сакриј моју е-адресу од примаоца.";
 "SendOptionsPolicyInEffect" = "Једна или више смерница организације утичу на опције „Send“-а.";
 "SendFilePremiumRequired" = "Бесплатни налози су ограничени само на дељење текста. Премиум чланство је потребно да би се користиле датотеке са „Send“-ом.";
-"SendFileEmailVerificationRequired" = "Морате да проверите е-пошту да бисте користили датотеке са „Send“-ом.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "Подразумевана опција чувања";
 "DownloadTheBitwardenApp" = "Преузмите апликацију Bitwarden";
 "EnsureItsValidJsonAndTryAgain" = "Уверите се да је JSON важећи и покушајте поново.";
-"ExportItemsConfirmationTitle" = "Потврдите извоз ставки";
-"ExportItemsWarning" = "Овај извоз садржи ставке у нешифрираном формату. Не бисте смели да сачувате или шаљете извезену датотеку преко несигурних канала (као што је имејл). Избришите датотеку одмах након што завршите са коришћењем.";
 "FileCouldNotBeProcessed" = "Није могуће обрадити датотеку";
 "GetVerificationCodesForAllYourAccounts" = "Добијте верификационе кодове за све ваше налоге помоћу верификације у 2 корака.";
 "Help" = "Помоћ";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "Sinhronizacija neuspešna";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Nismo mogli da sinhronizujemo vaš trezor sa serverom. Vaš trezor možda ne odražava vaše najnovije izmene. Možete pokušati ponovo sada ili će se sinhronizovati automatski kasnije.";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "Потврдите извоз";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "Овај извоз садржи податке сефа у нешифрираном формату. Не би требало да чуваш или шаљеш извезену датотеку преко несигурних канала (као што је Е-пошта). Избриши датотеку одмах након што завршиш са коришћењем.";

@@ -451,9 +451,10 @@
 "HideEmail" = "Приховувати мою адресу електронної пошти від отримувачів";
 "SendOptionsPolicyInEffect" = "На параметри відправлень впливають одна чи декілька політик організації.";
 "SendFilePremiumRequired" = "З безплатним обліковим записом можна відправляти лише текст. Щоб відправляти файли, необхідна передплата Premium.";
-"SendFileEmailVerificationRequired" = "Для відправлення файлів необхідно підтвердити електронну пошту. Ви можете виконати підтвердження у вебсховищі.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Відповідно до політики компанії, ви можете створити лише %1$@ відправлень.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Відповідно до політики компанії, ви можете створювати лише запити на відправлення файлів.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Відповідно до політики компанії, ви можете створювати лише текстові відправлення.";
 "OrganizationPolicyRestriction" = "Обмеження політики організації";
 "TextSendsAreNotAllowedDescriptionLong" = "Для вашої організації не дозволено текстові відправлення, тому це відправлення автоматично видалиться у визначену дату.";
 "ThisSendIsNotCompliantDescriptionLong" = "Це відправлення не відповідає політиці вашої організації щодо відправлень і автоматично видалиться у визначену дату.";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "Типовий параметр збереження";
 "DownloadTheBitwardenApp" = "Завантажити програму Bitwarden";
 "EnsureItsValidJsonAndTryAgain" = "Переконайтеся, що це правильний файл JSON, і повторіть спробу.";
-"ExportItemsConfirmationTitle" = "Підтвердити експорт записів";
-"ExportItemsWarning" = "Ваші експортовані дані незашифровані. Не зберігайте і не надсилайте їх незахищеними каналами (як-от електронна пошта). Після використання негайно видаліть їх.";
 "FileCouldNotBeProcessed" = "Неможливо обробити файл";
 "GetVerificationCodesForAllYourAccounts" = "Отримуйте коди підтвердження для всіх облікових записів з двоетапною перевіркою.";
 "Help" = "Допомога";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "Не вдалося синхронізувати";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Не вдалося синхронізувати ваше сховище з сервером. Ваше сховище може не показувати останні зміни. Ви можете повторити спробу зараз або синхронізація відбудеться згодом автоматично.";
 "TextToShareRequired" = "Текст для надсилання (обов'язково)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "У цьому звіті міститься";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Будуть експортовані лише коди, збережені локально на цьому пристрої. Синхронізовані коди не враховуються.";
+"ConfirmExport" = "Підтвердити експорт";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "З міркувань безпеки не зберігайте і не надсилайте цей файл незахищеними каналами (як-от електронна пошта). Після використання негайно видаліть файл.";

@@ -74,6 +74,15 @@ protocol PolicyService: AnyObject {
     ///
     func policyAppliesToUser(_ policyType: PolicyType) async -> Bool
 
+    /// Determines whether a policy applies to a specific user.
+    ///
+    /// - Parameters:
+    ///   - policyType: The policy to check.
+    ///   - userId: The user ID of the user to check the policy for.
+    /// - Returns: Whether the policy applies to the user.
+    ///
+    func policyAppliesToUser(_ policyType: PolicyType, userId: String) async -> Bool
+
     /// Replaces the list of policies for the user.
     ///
     /// - Parameters:
@@ -143,29 +152,39 @@ actor DefaultPolicyService: PolicyService {
 
     // MARK: Private
 
-    /// Determines whether a policy applies to the active user.
+    /// Determines whether a policy applies to a user.
     ///
     /// - Parameters:
     ///   - policyType: The policy to check.
+    ///   - userId: The user ID of the user to check the policy for. Defaults to the active user if `nil`.
     ///   - filter: An optional filter to apply to the list of policies.
     /// - Returns: Whether the policy applies to the user.
     ///
-    private func policyAppliesToUser(_ policyType: PolicyType, filter: ((Policy) -> Bool)? = nil) async -> Bool {
-        await !policiesApplyingToUser(policyType, filter: filter).isEmpty
+    private func policyAppliesToUser(
+        _ policyType: PolicyType,
+        userId: String? = nil,
+        filter: ((Policy) -> Bool)? = nil,
+    ) async -> Bool {
+        await !policiesApplyingToUser(policyType, userId: userId, filter: filter).isEmpty
     }
 
-    /// The list of policies for a policy type that apply to the active user.
+    /// The list of policies for a policy type that apply to a user.
     ///
     /// Evaluation is delegated to the Bitwarden SDK via `PoliciesClient.filterByType`.
     ///
     /// - Parameters:
     ///   - policyType: The policy to check.
+    ///   - userId: The user ID of the user to check the policy for. Defaults to the active user if `nil`.
     ///   - filter: An optional filter to apply to the list of policies before SDK evaluation.
     /// - Returns: The list of policies that apply to the user.
     ///
-    private func policiesApplyingToUser(_ policyType: PolicyType, filter: ((Policy) -> Bool)? = nil) async -> [Policy] {
-        guard let userId = try? await stateService.getActiveAccountId(),
-              let organizations = try? await organizationService.fetchAllOrganizations()
+    private func policiesApplyingToUser(
+        _ policyType: PolicyType,
+        userId: String? = nil,
+        filter: ((Policy) -> Bool)? = nil,
+    ) async -> [Policy] {
+        guard let userId = try? await stateService.getAccountIdOrActiveId(userId: userId),
+              let organizations = try? await organizationService.fetchAllOrganizations(userId: userId)
         else {
             return []
         }
@@ -461,7 +480,11 @@ extension DefaultPolicyService {
     }
 
     func policyAppliesToUser(_ policyType: PolicyType) async -> Bool {
-        await policyAppliesToUser(policyType, filter: nil)
+        await policyAppliesToUser(policyType, userId: nil, filter: nil)
+    }
+
+    func policyAppliesToUser(_ policyType: PolicyType, userId: String) async -> Bool {
+        await policyAppliesToUser(policyType, userId: userId, filter: nil)
     }
 
     func replacePolicies(_ policies: [PolicyResponseModel], userId: String) async throws {
