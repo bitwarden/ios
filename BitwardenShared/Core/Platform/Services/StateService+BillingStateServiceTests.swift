@@ -221,6 +221,43 @@ struct StateServiceBillingStateServiceTests {
         #expect(otherAccountPending)
     }
 
+    // MARK: Previous Personal Premium
+
+    /// `getPreviousPersonalPremium(userId:)` returns the stored value for the active account.
+    @Test(arguments: [nil, false, true] as [Bool?])
+    func getPreviousPersonalPremium(storedValue: Bool?) async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.previousPersonalPremiumByUserId["1"] = storedValue
+
+        let result = try await subject.getPreviousPersonalPremium(userId: nil)
+
+        #expect(result == storedValue)
+    }
+
+    /// `getPreviousPersonalPremium(userId:)` throws when there is no active account.
+    @Test
+    func getPreviousPersonalPremium_noActiveAccount() async {
+        await #expect(throws: StateServiceError.noActiveAccount) {
+            _ = try await subject.getPreviousPersonalPremium(userId: nil)
+        }
+    }
+
+    /// `setPreviousPersonalPremium(_:userId:)` persists the value for the active account, and
+    /// clears it when given `nil`.
+    @Test
+    func setPreviousPersonalPremium() async throws {
+        await subject.addAccount(.fixture())
+
+        try await subject.setPreviousPersonalPremium(true, userId: nil)
+        #expect(appSettingsStore.previousPersonalPremiumByUserId["1"] == true)
+
+        try await subject.setPreviousPersonalPremium(false, userId: nil)
+        #expect(appSettingsStore.previousPersonalPremiumByUserId["1"] == false)
+
+        try await subject.setPreviousPersonalPremium(nil, userId: nil)
+        #expect(appSettingsStore.previousPersonalPremiumByUserId["1"] == nil)
+    }
+
     // MARK: Subscription Attention Card
 
     /// `getSubscriptionAttentionCardVisible()` returns `false` when no value has been set.
