@@ -451,9 +451,10 @@
 "HideEmail" = "Ezkutatu nire emaila hartzaileei";
 "SendOptionsPolicyInEffect" = "Erakundeko politika batek edo gehiagok Send-eko aukerei eragiten diote.";
 "SendFilePremiumRequired" = "Doako kontuak testuak partekatzera mugatzen dira. Premium bazkidetza behar da Send-ekin fitxategiak partekatzeko.";
-"SendFileEmailVerificationRequired" = "Emaila egiaztatu behar duzu fitxategiak Send-ekin partekatzeko. Emaila webguneko kutxa gotorrean egiazta dezakezu.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "Gordetzeko aukera lehenetsia";
 "DownloadTheBitwardenApp" = "Deskargatu Bitwarden aplikazioa";
 "EnsureItsValidJsonAndTryAgain" = "Ziurtatu JSON balioduna dela eta saiatu berriro.";
-"ExportItemsConfirmationTitle" = "Berretsi elementuen esportazioa";
-"ExportItemsWarning" = "Esportazio honek zure elementuen datuak enkriptatu gabeko formatuan ditu. Ez zenuke esportatutako fitxategia kanal ez-seguruetan (posta elektronikoa adibidez) gorde edo bidali behar. Ezabatu berehala erabiltzen amaitutakoan.";
 "FileCouldNotBeProcessed" = "Fitxategia ezin izan da prozesatu";
 "GetVerificationCodesForAllYourAccounts" = "Lortu egiaztapen-kodeak zure kontu guztietarako bi urratsetako egiaztapena erabiliz.";
 "Help" = "Laguntza";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "Sinkronizazioa ez da arrakastatsua izan";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Ezin dugu zure kutxa zerbitzariarekin sinkronizatu. Baliteke zure kutxak ez islatzea zure azken aldaketak. Orain saia zaitezke berriro edo automatikoki sinkronizatuko da geroago.";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "Berretsi esportazioa";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "Esportazio honek kutxa gotorraren datuak zifratu gabeko formatuan biltzen ditu. Ez zenuke gorde edo kanal ez-seguruetaik (emaila, adibidez) bidali behar. Erabili eta berehala ezabatu.";

@@ -451,9 +451,10 @@
 "HideEmail" = "Скриване на е-пощата ми от получателите.";
 "SendOptionsPolicyInEffect" = "Поне една политика на организация влияе на настройките за изпращане.";
 "SendFilePremiumRequired" = "Безплатните регистрации могат да споделят само текст. Необходим е платен абонамент, за да можете да изпращате файлове.";
-"SendFileEmailVerificationRequired" = "Трябва да потвърдите е-пощата си, за да можете да изпращате файлове.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Поради определена политика за големите организации, може да създадете не повече от %1$@ Изпращания.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Поради определена политика за големите организации, може да създавате само файлови Изпращания.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Поради определена политика за големите организации, може да създавате само текстови Изпращания.";
 "OrganizationPolicyRestriction" = "Ограничение за политиката на организацията";
 "TextSendsAreNotAllowedDescriptionLong" = "Текстовите Изпращания не са разрешени от организацията Ви. Това Изпращане автоматично ще загуби давност на зададената дата за изтриване.";
 "ThisSendIsNotCompliantDescriptionLong" = "Това Изпращане не отговаря на политиката за Изпращания на организацията Ви и автоматично ще загуби давност на зададената дата за изтриване.";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "Настройка за запазване по подразбиране";
 "DownloadTheBitwardenApp" = "Свалете приложението на Битуорден";
 "EnsureItsValidJsonAndTryAgain" = "Уверете се, че това е правилно форматиран JSON и опитайте отново.";
-"ExportItemsConfirmationTitle" = "Потвърждаване на изнасянето на елементите";
-"ExportItemsWarning" = "Изнесеният файл ще съдържа данни за елементите в незащитен формат. Не го пращайте по незащитени канали (напр. е-поща). Изтрийте файла незабавно след като свършите работата си с него.";
 "FileCouldNotBeProcessed" = "Файлът не може да бъде обработен";
 "GetVerificationCodesForAllYourAccounts" = "Получавайте кодове за потвърждаване за всичките си акаунти, които използват двустепенно удостоверяване.";
 "Help" = "Помощ";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "Синхронизирането беше неуспешно";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Трезорът не беше синхронизиран със сървъра. Последните промени може да не се виждат в трезора. По-късно ще се направи нов опит за синхронизиране, но може да опитате отново и още сега.";
 "TextToShareRequired" = "Текст за споделяне (задължително)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Включено в този доклад";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Само съхраняваните на това устройство кодове ще бъдат изнесени. Синхронизираните кодове няма да бъдат включени.";
+"ConfirmExport" = "Потвърждаване на изнасянето";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "Данните от трезора ви ще се изнесат в незащитен формат. Не го пращайте по незащитени канали като е-поща. Изтрийте файла незабавно след като свършите работата си с него.";

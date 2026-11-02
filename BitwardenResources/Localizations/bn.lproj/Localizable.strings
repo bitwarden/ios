@@ -451,9 +451,10 @@
 "HideEmail" = "প্রাপকদের কাছ থেকে আমার ইমেল ঠিকানা লুকান";
 "SendOptionsPolicyInEffect" = "এক বা একাধিক সংগঠন নীতি আপনার সেন্ড বিকল্পগুলিকে প্রভাবিত করছে।";
 "SendFilePremiumRequired" = "বিনামূল্যের অ্যাকাউন্টগুলি শুধুমাত্র পাঠ্য শেয়ার করার মধ্যে সীমাবদ্ধ। সেন্ডের সাথে ফাইল ব্যবহার করার জন্য একটি প্রিমিয়াম সদস্যতা প্রয়োজন।";
-"SendFileEmailVerificationRequired" = "সেন্ডের সাথে ফাইল ব্যবহার করতে আপনাকে অবশ্যই আপনার ইমেল যাচাই করতে হবে। আপনি ওয়েব ভল্টে আপনার ইমেল যাচাই করতে পারেন।";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "ডিফল্ট সংরক্ষণ বিকল্প";
 "DownloadTheBitwardenApp" = "Bitwarden অ্যাপ ডাউনলোড করুন";
 "EnsureItsValidJsonAndTryAgain" = "এটি বৈধ JSON তা নিশ্চিত করে আবার চেষ্টা করুন।";
-"ExportItemsConfirmationTitle" = "আইটেম রপ্তানি নিশ্চিত করুন";
-"ExportItemsWarning" = "এই রপ্তানিতে আপনার আইটেম ডেটা একটি অনএনক্রিপ্টেড ফরম্যাটে রয়েছে। আপনার রপ্তানি করা ফাইলটি অনিরাপদ চ্যানেলগুলির (যেমন ইমেল) মাধ্যমে সংরক্ষণ বা পাঠানো উচিত নয়। এটি ব্যবহার শেষ করার সাথে সাথেই মুছে ফেলুন।";
 "FileCouldNotBeProcessed" = "ফাইল প্রক্রিয়া করা যায়নি";
 "GetVerificationCodesForAllYourAccounts" = "2-পদক্ষেপ যাচাইকরণ ব্যবহার করে আপনার সমস্ত অ্যাকাউন্টের জন্য যাচাইকরণ কোড পান।";
 "Help" = "সাহায্য";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "সিঙ্ক সফল হয়নি";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "আমরা সার্ভারের সাথে আপনার ভল্ট সিঙ্ক করতে পারিনি। আপনার ভল্ট আপনার সর্বশেষ পরিবর্তনগুলি প্রতিফলিত নাও করতে পারে। আপনি এখন আবার চেষ্টা করতে পারেন অথবা এটি পরে স্বয়ংক্রিয়ভাবে সিঙ্ক হবে।";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "রপ্তানি নিশ্চিত করুন";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "এই রফতানীতে একটি বিনা-এনক্রিপ্টেড করা বিন্যাসে আপনার ভল্ট তথ্য রয়েছে। আপনার রফতানিকৃত হওয়া ফাইল নিরাপত্তাহীন চ্যানেলগুলির মাধ্যমে (যেমন ইমেল) সংরক্ষণ বা প্রেরণ করা উচিত নয়। আপনি এটি ব্যবহার করে কাজ শেষ করার পর সাথে সাথে মুছে ফেলুন।";

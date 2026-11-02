@@ -451,9 +451,10 @@
 "HideEmail" = "Versteek my e-posadres vir ontvangers.";
 "SendOptionsPolicyInEffect" = "Een of meer organisasiebeleide beïnvloed u Send-opsies.";
 "SendFilePremiumRequired" = "Met gratis rekeninge kan u slegs teks deel. ’n Premie-lidmaatskap word vereis om lêers met Send te gebruik.";
-"SendFileEmailVerificationRequired" = "U moet u e-pos bevestig om lêers met Send te kan gebruik. U kan u e-pos in die webkluis bevestig.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "Verstek bewaaropsie";
 "DownloadTheBitwardenApp" = "Laai die Bitwarden-toep af";
 "EnsureItsValidJsonAndTryAgain" = "Maak seker dit is geldige JSON en probeer weer.";
-"ExportItemsConfirmationTitle" = "Bevestig itemuitvoer";
-"ExportItemsWarning" = "Hierdie uitvoer bevat u itemdata in 'n ongeënkripteerde formaat. U moet nie die uitgevoerde lêer oor onveilige kanale (soos e-pos) stoor of stuur nie. Vee dit onmiddellik uit nadat u dit gebruik het.";
 "FileCouldNotBeProcessed" = "Lêer kon nie verwerk word nie";
 "GetVerificationCodesForAllYourAccounts" = "Kry verifikasiekodes vir al u rekeninge met behulp van 2-stap-verifikasie.";
 "Help" = "Help";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "Sinchronisering onsuksesvol";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Ons kon nie u kluis met die bediener sinchroniseer nie. U kluis weerspieël moontlik nie u nuutste veranderinge nie. U kan nou weer probeer, of dit sal later outomaties sinchroniseer.";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "Bevestig uitstuur";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "Hierdie uitstuur bevat u kluisdata in ’n ongeënkripteerde formaat. U behoort dit nie oor onbeveiligde kanale (soos e-pos) te bewaar of verstuur nie. Skrap dit sodra u dit klaar gebruik het.";

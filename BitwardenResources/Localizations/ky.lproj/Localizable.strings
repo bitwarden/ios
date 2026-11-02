@@ -451,9 +451,10 @@
 "HideEmail" = "Менин электрондук почта дарегимди кабыл алуучулардан жашыруу";
 "SendOptionsPolicyInEffect" = "Бир же бир нече уюм саясаты сиздин Send параметрлериңизге таасир этүүдө.";
 "SendFilePremiumRequired" = "Акысыз аккаунттар текст менен гана бөлүшүүгө чектелген. Send менен файлдарды колдонуу үчүн Premium мүчөлүгү талап кылынат.";
-"SendFileEmailVerificationRequired" = "Send менен файлдарды колдонуу үчүн электрондук почтаңызды текшерүүдөн өтүшүңүз керек. Электрондук почтаңызды веб купчулда текшере аласыз.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "Дөөлөттүү сактоо опциясы";
 "DownloadTheBitwardenApp" = "Bitwarden колдонмосун жүктөп алыңыз";
 "EnsureItsValidJsonAndTryAgain" = "Анын туура JSON экенин текшерип, кайра аракет кылыңыз.";
-"ExportItemsConfirmationTitle" = "Элементтерди экспорттоону ырастоо";
-"ExportItemsWarning" = "Бул экспорт сиздин элемент маалыматтарыңызды шифрленбеген форматта камтыйт. Экспорттолгон файлды коопсуз эмес каналдар (мисалы, электрондук почта) аркылуу сактабаңыз же жөнөтпөңүз. Аны колдонуп бүткөндөн кийин дароо өчүрүңүз.";
 "FileCouldNotBeProcessed" = "Файлды иштеп чыгуу мүмкүн болбой калды";
 "GetVerificationCodesForAllYourAccounts" = "Эки кадамдуу текшерүүнү колдонуп, бардык аккаунттарыңыз үчүн текшерүү коддорун алыңыз.";
 "Help" = "Жардам";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "Синхрондоштуруу ийгиликсиз болду";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Сейфиңизди сервер менен синхрондоштура албадык. Сейфиңиз акыркы өзгөртүүлөрдү чагылдырбашы мүмкүн. Азыр кайра аракет кылсаңыз болот же ал кийинчерээк автоматтык түрдө синхрондошот.";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "Экспортту ырастоо";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "Коопсуздугуңуз үчүн, бул файлды коопсуз эмес каналдар (мисалы, электрондук почта) аркылуу бөлүшпөңүз же жөнөтпөңүз жана колдонуп бүткөндөн кийин өчүрүңүз.";

@@ -310,7 +310,7 @@
 "NoEmailAddressesEntered" = "Geen e-mailadressen ingevoerd";
 "EnterAtLeastOneValidEmailToShareSend" = "Voer ten minste één geldig e-mailadres in om deze Send te delen.";
 "OneOrMoreEmailAddressesIncorrect" = "Een of meer e-mailadressen zijn onjuist. Controleer en probeer het opnieuw.";
-"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Voeg alleen de volgende domeinen toe: %1$@. Controleer en probeer het opnieuw.";
 "Cards" = "Kaarten";
 "Identities" = "Identiteiten";
 "Logins" = "Logins";
@@ -451,9 +451,10 @@
 "HideEmail" = "Verberg mijn e-mailadres voor ontvangers";
 "SendOptionsPolicyInEffect" = "Een of meer organisatiebeleidseisen heeft invloed op de mogelijkheden van je Send.";
 "SendFilePremiumRequired" = "Met een gratis account kun je alleen tekst delen. Voor het delen van bestanden heb je een Premium-abonnement nodig.";
-"SendFileEmailVerificationRequired" = "Je moet je e-mailadres verifiëren om bestanden met Send te kunnen gebruiken.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Als gevolg van een ondernemingsbeleid kunt je slechts %1$@ Sends aanmaken.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Als gevolg van een ondernemingsbeleid kunt je alleen bestands-Sends aanmaken.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Als gevolg van een ondernemingsbeleid kunt je alleen tekst-Sends aanmaken.";
 "OrganizationPolicyRestriction" = "Beperking van het organisatiebeleid";
 "TextSendsAreNotAllowedDescriptionLong" = "Tekst-Sends zijn niet in overeenstemming met het Send-beleid van je organisatie en deze Send vervalt automatisch op de aangegeven datum van verwijdering.";
 "ThisSendIsNotCompliantDescriptionLong" = "Deze Send is niet in overeenstemming met het Send-beleid van je organisatie en vervalt automatisch op de aangegeven datum van verwijdering.";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "Standaard opslaan optie";
 "DownloadTheBitwardenApp" = "Bitwarden-app downloaden";
 "EnsureItsValidJsonAndTryAgain" = "Zorg ervoor dat het geldige JSON is en probeer het opnieuw.";
-"ExportItemsConfirmationTitle" = "Items exporteren bevestigen";
-"ExportItemsWarning" = "Deze export bevat je itemgegevens in een niet-versleutelde indeling. Je moet het geëxporteerde bestand niet opslaan of versturen via onbeveiligde kanalen (zoals e-mail). Verwijder het onmiddellijk nadat je het hebt gebruikt.";
 "FileCouldNotBeProcessed" = "Bestand kon niet worden verwerkt";
 "GetVerificationCodesForAllYourAccounts" = "Ontvang verificatiecodes voor al je accounts met behulp van tweestapsverificatie.";
 "Help" = "Help";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "Synchronisatie mislukt";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "We konden je kluis niet met de server synchroniseren. Je kluis geeft mogelijk niet je laatste wijzigingen weer. Je kunt het opnieuw proberen of het zal later automatisch worden gesynchroniseerd.";
 "TextToShareRequired" = "Tekst om te delen (verplicht)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Inbegrepen in dit rapport";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Alleen lokaal opgeslagen codes op dit apparaat worden geëxporteerd. Gesynchroniseerde codes worden niet meegenomen.";
+"ConfirmExport" = "Export bevestigen";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "Deze export bevat jouw kluisgegevens in een niet-versleutelde opmaak. Je moet het geëxporteerde bestand niet opslaan of verzenden over onbeveiligde kanalen (zoals e-mail). Verwijder het exportbestand direct na gebruik.";

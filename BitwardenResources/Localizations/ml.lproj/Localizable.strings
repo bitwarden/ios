@@ -451,9 +451,10 @@
 "HideEmail" = "എന്റെ ഇമെയിൽ വിലാസം സ്വീകർത്താക്കളിൽ നിന്ന് മറയ്ക്കുക";
 "SendOptionsPolicyInEffect" = "ഒന്നോ അതിലധികമോ സംഘടന നയങ്ങൾ നിങ്ങളുടെ Send ഓപ്ഷനുകളെ ബാധിക്കുന്നു.";
 "SendFilePremiumRequired" = "സൗജന്യ അക്കൗണ്ടുകൾ ടെക്സ്റ്റ് മാത്രം പങ്കിടുന്നതിന് പരിമിതപ്പെടുത്തിയിരിക്കുന്നു. Send-നൊപ്പം ഫയലുകൾ ഉപയോഗിക്കുന്നതിന് ഒരു പ്രീമിയം അംഗത്വം ആവശ്യമാണ്.";
-"SendFileEmailVerificationRequired" = "Send-നൊപ്പം ഫയലുകൾ ഉപയോഗിക്കുന്നതിന് നിങ്ങൾ നിങ്ങളുടെ ഇമെയിൽ പരിശോധിക്കണം. നിങ്ങൾക്ക് വെബ് വോൾട്ടിൽ നിങ്ങളുടെ ഇമെയിൽ പരിശോധിക്കാം.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "സ്വതവേയുള്ള സംരക്ഷണ ഓപ്ഷൻ";
 "DownloadTheBitwardenApp" = "Bitwarden ആപ്പ് ഡൗൺലോഡ് ചെയ്യുക";
 "EnsureItsValidJsonAndTryAgain" = "ഇത് സാധുവായ JSON ആണെന്ന് ഉറപ്പാക്കി വീണ്ടും ശ്രമിക്കുക.";
-"ExportItemsConfirmationTitle" = "ഇനങ്ങൾ കയറ്റുമതി സ്ഥിരീകരിക്കുക";
-"ExportItemsWarning" = "ഈ കയറ്റുമതിയിൽ നിങ്ങളുടെ ഇന ഡാറ്റ എൻക്രിപ്റ്റ് ചെയ്യാത്ത ഫോർമാറ്റിൽ അടങ്ങിയിരിക്കുന്നു. കയറ്റുമതി ചെയ്ത ഫയൽ സുരക്ഷിതമല്ലാത്ത ചാനലുകളിൽ (ഉദാ: ഇമെയിൽ) സൂക്ഷിക്കുകയോ അയയ്ക്കുകയോ ചെയ്യരുത്. ഇത് ഉപയോഗിച്ച് കഴിഞ്ഞാലുടൻ ഇത് ഇല്ലാതാക്കുക.";
 "FileCouldNotBeProcessed" = "ഫയൽ പ്രോസസ്സ് ചെയ്യാനായില്ല";
 "GetVerificationCodesForAllYourAccounts" = "2-സ്റ്റെപ്പ് പരിശോധന ഉപയോഗിച്ച് നിങ്ങളുടെ എല്ലാ അക്കൗണ്ടുകൾക്കുമുള്ള പരിശോധന കോഡുകൾ നേടുക.";
 "Help" = "സഹായം";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "സമന്വയിപ്പിക്കൽ പരാജയപ്പെട്ടു";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "ഞങ്ങൾക്ക് നിങ്ങളുടെ വോൾട്ട് സെർവറുമായി സമന്വയിപ്പിക്കാൻ കഴിഞ്ഞില്ല. നിങ്ങളുടെ വോൾട്ട് നിങ്ങളുടെ ഏറ്റവും പുതിയ മാറ്റങ്ങൾ പ്രതിഫലിപ്പിച്ചേക്കില്ല. നിങ്ങൾക്ക് ഇപ്പോൾ വീണ്ടും ശ്രമിക്കാം അല്ലെങ്കിൽ അത് പിന്നീട് യാന്ത്രികമായി സമന്വയിപ്പിക്കും.";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "കയറ്റുമതി സ്ഥിരീകരിക്കുക";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "ഈ എക്‌സ്‌പോർട്ടിൽ എൻക്രിപ്റ്റ് ചെയ്യാത്ത ഫോർമാറ്റിൽ നിങ്ങളുടെ വാൾട് ഡാറ്റ അടങ്ങിയിരിക്കുന്നു. എക്‌സ്‌പോർട് ചെയ്ത ഫയൽ സുരക്ഷിതമല്ലാത്ത ചാനലുകളിൽ (ഇമെയിൽ പോലുള്ളവ) നിങ്ങൾ സംഭരിക്കുകയോ അയയ്ക്കുകയോ ചെയ്യരുത്. നിങ്ങൾ ഇത് ഉപയോഗിച്ചുകഴിഞ്ഞാലുടൻ അത് മായ്ച്ചുകളയണം.";
