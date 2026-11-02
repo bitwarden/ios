@@ -3,6 +3,8 @@ import BitwardenResources
 import Foundation
 import OSLog
 
+// swiftlint:disable file_length
+
 // MARK: - AccountSecurityProcessor
 
 /// The processor used to manage state and handle actions for the account security screen.
@@ -78,6 +80,8 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
             )
         case .streamSettingsBadge:
             await streamSettingsBadge()
+        case let .toggleSessionKeySharing(isOn):
+            await setSessionKeySharing(isOn)
         case let .toggleSyncWithAuthenticator(isOn):
             await setSyncToAuthenticator(isOn)
         case let .toggleUnlockWithBiometrics(isOn):
@@ -185,6 +189,13 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
 
             state.isManageDevicesEnabled = await services.configService.getFeatureFlag(.manageDevices)
 
+            state.isSessionKeySharingFeatureEnabled = await services.configService.getFeatureFlag(
+                .enableUserSessionKeySharing,
+            )
+            if state.isSessionKeySharingFeatureEnabled {
+                state.isSessionKeySharingEnabled = try await services.authRepository.isUserSessionKeySharingEnabled()
+            }
+
             if state.biometricUnlockStatus.isEnabled || state.isUnlockWithPINCodeOn {
                 await completeAccountSetupVaultUnlockIfNeeded()
             }
@@ -215,6 +226,21 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
     private func refreshVaultTimeoutAction() async {
         if let sessionTimeoutAction = try? await services.authRepository.sessionTimeoutAction() {
             state.sessionTimeoutAction = sessionTimeoutAction
+        }
+    }
+
+    /// Sets whether the user opts in to sharing their session key across the app and its
+    /// extensions.
+    ///
+    /// - Parameter isOn: Whether or not the user wants session key sharing enabled.
+    ///
+    private func setSessionKeySharing(_ isOn: Bool) async {
+        do {
+            try await services.authRepository.setUserSessionKeySharingEnabled(isOn)
+            state.isSessionKeySharingEnabled = isOn
+        } catch {
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            services.errorReporter.log(error: error)
         }
     }
 

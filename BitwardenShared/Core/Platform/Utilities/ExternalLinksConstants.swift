@@ -35,6 +35,11 @@ extension ExternalLinksConstants {
     /// A link to the import logins help page.
     static let importHelp = URL(string: "https://bitwarden.com/help/import-data/")!
 
+    /// A link to Bitwarden's help page for the "Unlock once until timeout" setting.
+    ///
+    /// TODO: PM-46008 - replace with the final help-center URL once product/support provides one.
+    static let unlockOnceUntilTimeoutHelp = URL(string: "https://bitwarden.com/help/")!
+
     /// A link to Bitwarden's help page for learning more about Premium features.
     static let learnMoreAboutPremium = URL(string: "https://bitwarden.com/help/password-manager-plans/")!
 
