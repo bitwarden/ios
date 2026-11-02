@@ -451,9 +451,10 @@
 "HideEmail" = "Skjul min e-mailadresse for modtagere";
 "SendOptionsPolicyInEffect" = "Én eller flere organisationspolitikker påvirker dine Send-valgmuligheder.";
 "SendFilePremiumRequired" = "Gratis konti er begrænsede til tekstdeling alene. Et Premium-medlemskab kræves for a bruge filer med Send.";
-"SendFileEmailVerificationRequired" = "Du skal bekræfte din e-mail for at bruge filer med Send. Du kan bekræfte din e-mail i web-boksen.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "Standard gem-valg";
 "DownloadTheBitwardenApp" = "Download Bitwarden-appen";
 "EnsureItsValidJsonAndTryAgain" = "Sørg for, at det er gyldig JSON, og prøv igen.";
-"ExportItemsConfirmationTitle" = "Bekræft eksport af emner";
-"ExportItemsWarning" = "Denne eksport indeholder boksdataene i ukrypteret form. Man bør ikke gemme eller sende den eksporterede fil via usikre kanaler (f.eks. e-mail). Slet den straks efter, at man er færdig med at bruge den.";
 "FileCouldNotBeProcessed" = "Filen kunne ikke behandles";
 "GetVerificationCodesForAllYourAccounts" = "Få bekræftelseskoder for alle kontiene, som understøtter totrinsbekræftelse.";
 "Help" = "Hjælp";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "Synkronisering mislykkedes";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Vi kunne ikke synkronisere din vault med serveren. Din vault afspejler muligvis ikke dine seneste ændringer. Du kan prøve igen nu, eller den synkroniseres automatisk senere.";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "Bekræft eksport";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "Denne eksport indeholder dine boksdata i en ukrypteret form. Du bør ikke gemme eller sende den eksporterede fil via usikre kanaler (f.eks. e-mail). Slet den straks efter at du er færdig med at bruge den.";

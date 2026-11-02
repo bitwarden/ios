@@ -451,9 +451,10 @@
 "HideEmail" = "ලබන්නන්ගෙන් මගේ විද්‍යුත් තැපැල් ලිපිනය සඟවන්න";
 "SendOptionsPolicyInEffect" = "එක් හෝ කිහිපයක් සංවිධාන ප්‍රතිපත්ති ඔබගේ යැවීම් විකල්පවලට බලපායි.";
 "SendFilePremiumRequired" = "නිදහස් ගිණුම් පෙළ පමණක් බෙදාගැනීමට සීමා කර ඇත. යැවීම සමඟ ගොනු භාවිතා කිරීමට වාරික සාමාජිකත්වයක් අවශ්‍ය වේ.";
-"SendFileEmailVerificationRequired" = "යැවීම සමඟ ගොනු භාවිතා කිරීමට ඔබ ඔබගේ විද්‍යුත් තැපෑල සත්‍යාපනය කළ යුතුය. ඔබට වෙබ් සුරක්ෂිතාගාරයේ ඔබගේ විද්‍යුත් තැපෑල සත්‍යාපනය කළ හැක.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "පෙරනිමි සුරැකුම් විකල්පය";
 "DownloadTheBitwardenApp" = "Bitwarden යෙදුම බාගත කරන්න";
 "EnsureItsValidJsonAndTryAgain" = "එය වලංගු JSON බවට සහතික වී නැවත උත්සාහ කරන්න.";
-"ExportItemsConfirmationTitle" = "අයිතම අපනයනය තහවුරු කරන්න";
-"ExportItemsWarning" = "මෙම අපනයනයෙහි ඔබගේ අයිතම දත්ත ගුප්තකේතනය නොකළ ආකෘතියක අඩංගු වේ. ඔබ අපනයනය කළ ගොනුව ආරක්ෂිත නොවන නාලිකා හරහා (විද්‍යුත් තැපෑල වැනි) ගබඩා නොකළ යුතුය හෝ යැවිය යුතු නොවේ. එය භාවිතා කිරීමෙන් පසු වහාම මකා දමන්න.";
 "FileCouldNotBeProcessed" = "ගොනුව සැකසිය නොහැකි විය";
 "GetVerificationCodesForAllYourAccounts" = "පියවර 2 සත්‍යාපනය භාවිතයෙන් ඔබගේ සියලු ගිණුම් සඳහා සත්‍යාපන කේත ලබා ගන්න.";
 "Help" = "උදව්";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "සමමුහුර්තකරණය අසාර්ථකයි";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "අපට ඔබගේ සුරක්ෂිතාගාරය සේවාදායකය සමඟ සමමුහුර්ත කිරීමට නොහැකි විය. ඔබගේ සුරක්ෂිතාගාරය ඔබගේ නවතම වෙනස්කම් පිළිබිඹු නොකරනු ඇත. ඔබට දැන් නැවත උත්සාහ කළ හැක, නැතහොත් එය පසුව ස්වයංක්‍රීයව සමමුහුර්ත වනු ඇත.";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "අපනයනය තහවුරු කරන්න";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "ඔබගේ ආරක්ෂාව සඳහා, මෙම ගොනුව ආරක්ෂිත නොවන නාලිකා හරහා (විද්‍යුත් තැපෑල වැනි) බෙදාගන්න හෝ යවන්න එපා, භාවිතා කිරීමෙන් පසු එය මකා දමන්න.";

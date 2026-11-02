@@ -451,9 +451,10 @@
 "HideEmail" = "对接收者隐藏我的电子邮箱地址";
 "SendOptionsPolicyInEffect" = "一个或多个组织策略正在影响您的 Send 设置。";
 "SendFilePremiumRequired" = "免费账户仅限于共享文本。需要高级版成员资格才能使用文件 Send。";
-"SendFileEmailVerificationRequired" = "您必须验证电子邮箱才能使用文件 Send。您可以在网页密码库中验证您的电子邮箱。";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "由于某个企业策略，您只能创建 %1$@ Send。";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "由于某个企业策略，您只能创建文件 Send。";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "由于某个企业策略，您只能创建文本 Send。";
 "OrganizationPolicyRestriction" = "组织策略限制";
 "TextSendsAreNotAllowedDescriptionLong" = "您的组织不允许文本 Send，此 Send 将在设置的删除日期自动过期。";
 "ThisSendIsNotCompliantDescriptionLong" = "此 Send 不符合您组织的 Send 策略，将在设置的删除日期自动过期。";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "默认保存选项";
 "DownloadTheBitwardenApp" = "下载 Bitwarden App";
 "EnsureItsValidJsonAndTryAgain" = "请确保它是有效的 JSON 文件然后重试。";
-"ExportItemsConfirmationTitle" = "确认项目导出";
-"ExportItemsWarning" = "此导出包含未加密格式的项目数据。您不应该通过不安全的渠道（例如电子邮件）来存储或发送此导出文件。使用完后请立即将其删除。";
 "FileCouldNotBeProcessed" = "文件无法处理";
 "GetVerificationCodesForAllYourAccounts" = "获取使用两步验证的所有账户的验证码。";
 "Help" = "帮助";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "同步失败";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "我们无法将您的密码库与服务器同步。您的密码库可能无法反映您的最新更改。您可以现在重试，或稍后它将自动同步。";
 "TextToShareRequired" = "要分享的文本（必填）";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "包含在此报告中";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "仅会导出此设备上本地存储的代码。不包括已同步的代码。";
+"ConfirmExport" = "确认导出";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "为了您的安全，请不要通过不安全的渠道（例如电子邮件）分享或发送此文件，并在使用完后将其删除。";

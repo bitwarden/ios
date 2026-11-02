@@ -302,6 +302,15 @@ protocol AppSettingsStore: AnyObject {
     ///
     func premiumUpgradePending(userId: String) -> Bool
 
+    /// Gets the personal Premium value last recorded for the given user.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID.
+    /// - Returns: The personal Premium value last recorded, or `nil` if no value has been recorded
+    ///   for the user.
+    ///
+    func previousPersonalPremium(userId: String) -> Bool?
+
     /// Gets whether the "subscription needs attention" action card should be shown for the given user.
     ///
     /// - Parameter userId: The user ID.
@@ -588,6 +597,15 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID.
     ///
     func setPremiumUpgradePending(_ pending: Bool, userId: String)
+
+    /// Sets the personal Premium value last recorded for the given user.
+    ///
+    /// - Parameters:
+    ///   - previousPersonalPremium: The personal Premium value to record, or `nil` to clear the
+    ///     recorded value.
+    ///   - userId: The user ID.
+    ///
+    func setPreviousPersonalPremium(_ previousPersonalPremium: Bool?, userId: String)
 
     /// Sets whether the "subscription needs attention" action card should be shown for the given user.
     ///
@@ -946,6 +964,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case preAuthServerConfig
         case premiumUpgradeBannerDismissed(userId: String)
         case premiumUpgradePending(userId: String)
+        case previousPersonalPremium(userId: String)
         case rememberedEmail
         case rememberedOrgIdentifier
         case reviewPromptData
@@ -1067,6 +1086,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "premiumUpgradeBannerDismissed_\(userId)"
             case let .premiumUpgradePending(userId):
                 "premiumUpgradePending_\(userId)"
+            case let .previousPersonalPremium(userId):
+                "previousPersonalPremium_\(userId)"
             case .rememberedEmail:
                 "rememberedEmail"
             case .rememberedOrgIdentifier:
@@ -1350,6 +1371,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .premiumUpgradePending(userId: userId))
     }
 
+    func previousPersonalPremium(userId: String) -> Bool? {
+        fetch(for: .previousPersonalPremium(userId: userId))
+    }
+
     func subscriptionAttentionCardVisible(userId: String) -> Bool {
         fetch(for: .subscriptionAttentionCardVisible(userId: userId))
     }
@@ -1497,6 +1522,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func setPremiumUpgradePending(_ pending: Bool, userId: String) {
         store(pending, for: .premiumUpgradePending(userId: userId))
+    }
+
+    func setPreviousPersonalPremium(_ previousPersonalPremium: Bool?, userId: String) {
+        store(previousPersonalPremium, for: .previousPersonalPremium(userId: userId))
     }
 
     func setSubscriptionAttentionCardVisible(_ visible: Bool, userId: String) {
