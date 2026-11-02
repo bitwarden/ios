@@ -111,7 +111,6 @@ struct SetMasterPasswordView: View {
                 }
                 .accessibilityIdentifier("SubmitButton")
             }
-            .sharedBackgroundHidden()
         }
         .task {
             await store.perform(.appeared)

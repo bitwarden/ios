@@ -47,7 +47,6 @@ struct ExportVaultView: View {
                 .accessibilityIdentifier("ExportVaultButton")
                 .disabled(store.state.disableIndividualVaultExport)
             }
-            .sharedBackgroundHidden()
         }
     }
 
@@ -153,7 +152,9 @@ struct ExportVaultView: View {
 // MARK: - Previews
 
 #Preview("Export Vault") {
-    ExportVaultView(store: Store(processor: StateProcessor(state: ExportVaultState())))
+    NavigationView {
+        ExportVaultView(store: Store(processor: StateProcessor(state: ExportVaultState())))
+    }
 }
 
 #Preview("Export Vault without Master Password") {
@@ -161,11 +162,13 @@ struct ExportVaultView: View {
 }
 
 #Preview("Disabled Export") {
-    ExportVaultView(
-        store: Store(
-            processor: StateProcessor(
-                state: ExportVaultState(disableIndividualVaultExport: true),
+    NavigationView {
+        ExportVaultView(
+            store: Store(
+                processor: StateProcessor(
+                    state: ExportVaultState(disableIndividualVaultExport: true),
+                ),
             ),
-        ),
-    )
+        )
+    }
 }

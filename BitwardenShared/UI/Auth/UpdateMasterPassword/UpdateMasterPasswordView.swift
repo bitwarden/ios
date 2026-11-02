@@ -112,11 +112,24 @@ struct UpdateMasterPasswordView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItemGroup(placement: .topBarLeading) {
-                toolbarButton(Localizations.logOut) {
+                AsyncButton {
                     await store.perform(.logoutTapped)
+                } label: {
+                    Text(Localizations.logOut)
+                        .apply { text in
+                            // On iOS 26, widen the Liquid Glass background to match the prominent
+                            // primary action button on the other side of the toolbar.
+                            if #available(iOS 26, *) {
+                                text.padding(.horizontal, 8)
+                            } else {
+                                text
+                            }
+                        }
                 }
+                .buttonStyle(.toolbar)
+                .frame(minHeight: 44)
+                .fixedSize()
             }
-            .sharedBackgroundHidden()
 
             ToolbarItemGroup(placement: .topBarTrailing) {
                 primaryActionToolbarButton(Localizations.save) {
@@ -124,7 +137,6 @@ struct UpdateMasterPasswordView: View {
                 }
                 .accessibilityIdentifier("SaveButton")
             }
-            .sharedBackgroundHidden()
         }
         .task {
             await store.perform(.appeared)

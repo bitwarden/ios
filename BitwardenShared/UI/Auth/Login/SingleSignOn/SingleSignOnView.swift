@@ -33,7 +33,6 @@ struct SingleSignOnView: View {
                 }
                 .accessibilityIdentifier("SSOLoginButton")
             }
-            .sharedBackgroundHidden()
         }
         .task {
             await store.perform(.loadSingleSignOnDetails)

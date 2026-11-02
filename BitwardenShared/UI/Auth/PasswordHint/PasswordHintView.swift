@@ -39,7 +39,6 @@ struct PasswordHintView: View {
                 .accessibilityIdentifier("SubmitButton")
                 .disabled(!store.state.isSubmitButtonEnabled)
             }
-            .sharedBackgroundHidden()
         }
     }
 }

@@ -36,14 +36,12 @@ struct MoveToOrganizationView: View {
                             await store.perform(.moveCipher)
                         }
                     } else {
-                        toolbarButton(Localizations.move) {
+                        primaryActionToolbarButton(Localizations.move) {
                             await store.perform(.moveCipher)
                         }
                         .accessibilityIdentifier("MoveButton")
                     }
                 }
-                // Only hide the background for the text button, the checkmark keeps its glass.
-                .sharedBackgroundHidden(!store.state.isVfo1FoundationFeatureFlagEnabled)
             }
     }
 

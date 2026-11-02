@@ -105,7 +105,7 @@ public extension View {
             .accessibilityIdentifier(accessibilityIdentifier)
             .accessibilityLabel(label)
         }
-        return toolbarButton(label, action: action)
+        return primaryActionToolbarButton(label, action: action)
             .accessibilityIdentifier(accessibilityIdentifier)
     }
 
@@ -131,7 +131,7 @@ public extension View {
             Text(label)
                 .styleGuide(.body, weight: .semibold)
         }
-        .buttonStyle(.toolbar)
+        .buttonStyle(.primaryActionToolbar)
         // Ideally we would set both `minHeight` and `minWidth` to 44. Setting `minWidth` causes
         // padding to be applied equally on both sides of the image. This results in extra padding
         // along the margin though.
@@ -150,7 +150,7 @@ public extension View {
             Text(label)
                 .styleGuide(.body, weight: .semibold)
         }
-        .buttonStyle(.toolbar)
+        .buttonStyle(.primaryActionToolbar)
         // Ideally we would set both `minHeight` and `minWidth` to 44. Setting `minWidth` causes
         // padding to be applied equally on both sides of the image. This results in extra padding
         // along the margin though.
@@ -367,29 +367,6 @@ public extension View {
     }
 }
 
-// MARK: - ToolbarContent
-
-/// Helper functions extended off the `ToolbarContent` protocol.
-///
-public extension ToolbarContent {
-    /// Hides the shared Liquid Glass background behind the toolbar content on iOS 26 and later.
-    /// On earlier versions of iOS, this is a no-op.
-    ///
-    /// This intentionally isn't a `@ToolbarContentBuilder` function, since `ToolbarContentBuilder`
-    /// doesn't support conditional content prior to iOS 16.
-    ///
-    /// - Parameter isHidden: Whether the shared background should be hidden. When `false`, the
-    ///   system's default visibility is used. Defaults to `true`.
-    /// - Returns: The toolbar content with its shared background hidden, if available.
-    ///
-    func sharedBackgroundHidden(_ isHidden: Bool = true) -> some ToolbarContent {
-        if #available(iOS 26, *) {
-            return sharedBackgroundVisibility(isHidden ? .hidden : .automatic)
-        }
-        return self
-    }
-}
-
 // MARK: Private
 
 extension View {
@@ -406,4 +383,4 @@ extension View {
         guard #unavailable(iOS 26) else { return true }
         return UIDevice.current.userInterfaceIdiom == .pad
     }
-} // swiftlint:disable:this file_length
+}
