@@ -2295,6 +2295,16 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.setPinProtectedUserKey(key: nil, userId: userId)
     }
 
+    /// PM-45325 repro (do not merge): stores a legacy (pre-envelope) persistent PIN, mirroring the
+    /// `setPinKeys` implementation from before PIN envelopes (#1876).
+    func setLegacyPinKeys(encryptedPin: String, pinProtectedUserKey: String) throws {
+        let userId = try getActiveAccountUserId()
+        accountVolatileData[userId]?.pinProtectedUserKey = nil
+        appSettingsStore.setPinProtectedUserKeyEnvelope(key: nil, userId: userId)
+        appSettingsStore.setPinProtectedUserKey(key: pinProtectedUserKey, userId: userId)
+        appSettingsStore.setEncryptedPin(encryptedPin, userId: userId)
+    }
+
     func setPinProtectedUserKeyToMemory(_ pinProtectedUserKey: String) async throws {
         try accountVolatileData[
             getActiveAccountUserId(),

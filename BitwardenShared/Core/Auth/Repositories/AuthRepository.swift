@@ -1026,6 +1026,17 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func setPins(_ pin: String, requirePasswordAfterRestart: Bool) async throws {
+        // PM-45325 repro (do not merge): enroll a legacy persistent PIN the way the app did before
+        // PIN envelopes (#1876), regardless of the `sdkManagedPinUnlock` flag.
+        if !requirePasswordAfterRestart, let defaultStateService = stateService as? DefaultStateService {
+            let pinKey = try await clientService.crypto().derivePinKey(pin: pin)
+            try await defaultStateService.setLegacyPinKeys(
+                encryptedPin: pinKey.encryptedPin,
+                pinProtectedUserKey: pinKey.pinProtectedUserKey,
+            )
+            return
+        }
+
         guard await configService.getFeatureFlag(.sdkManagedPinUnlock) else {
             let enrollPinResponse = try await clientService.crypto().enrollPin(pin: pin)
             try await stateService.setPinKeys(
