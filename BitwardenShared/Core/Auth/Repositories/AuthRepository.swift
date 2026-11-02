@@ -167,6 +167,17 @@ protocol AuthRepository: AnyObject {
     ///
     func passwordStrength(email: String, password: String, isPreAuth: Bool) async throws -> UInt8
 
+    /// Purges the `.userSessionKey` Keychain item for any account whose session timeout has
+    /// elapsed, without locking or logging out the account.
+    ///
+    /// This is the narrow, side-effect-free counterpart to
+    /// `checkSessionTimeouts(isAppRestart:handleActiveUser:)` that's safe to call from a
+    /// background context (e.g. a `BGAppRefreshTask`): it never calls `lockVault` or `logout`,
+    /// which `checkSessionTimeouts` can do for non-active accounts depending on org policy.
+    /// Full lock/logout handling remains foreground-only, via `checkSessionTimeouts`.
+    ///
+    func purgeExpiredUserSessionKeys() async
+
     /// Gets the profiles state for a user.
     ///
     /// - Parameters:
@@ -251,6 +262,14 @@ protocol AuthRepository: AnyObject {
     ///
     func setVaultTimeout(value newValue: SessionTimeoutValue, userId: String?) async throws
 
+    /// Starts observing server config changes to reactively purge `.userSessionKey` items when
+    /// `enableUserSessionKeySharing` flips OFF for a server.
+    ///
+    /// Must be called once at app launch. Safe to call from a synchronous context — starts an
+    /// async `Task` internally.
+    ///
+    func startObservingUserSessionKeyFeatureFlag()
+
     /// Attempts to unlock the user's vault using information returned from the login with device method.
     ///
     /// - Parameters:
@@ -293,6 +312,12 @@ protocol AuthRepository: AnyObject {
     /// - Parameter pin: The user's PIN.
     ///
     func unlockVaultWithPIN(pin: String) async throws
+
+    /// Attempts to unlock the user's vault with the stored user session key.
+    ///
+    /// - Returns: `true` if the session key was found and the vault was unlocked; `false` if no session key is stored.
+    ///
+    func unlockVaultWithSessionKey() async throws -> Bool
 
     /// Updates the user's master password.
     ///
@@ -469,6 +494,9 @@ class DefaultAuthRepository {
     /// The service to get server-specified configuration.
     private let configService: ConfigService
 
+    /// Tracks the config-change subscription task started by `startObservingUserSessionKeyFeatureFlag()`.
+    private var configSubscriptionTask: Task<Void, Never>?
+
     /// The service used by the application to manage the environment settings.
     private let environmentService: EnvironmentService
 
@@ -480,6 +508,10 @@ class DefaultAuthRepository {
 
     /// The service used by the application for recording temporary debug logs.
     private let flightRecorder: FlightRecorder
+
+    /// Last-seen value of `enableUserSessionKeySharing` per userId, used to detect ON→OFF
+    /// transitions (including across app kills, where the value starts as `nil`).
+    private var lastKnownUserSessionKeyFlagValues: [String: Bool] = [:]
 
     /// The keychain service used by this repository.
     private let keychainService: KeychainRepository
@@ -645,6 +677,7 @@ extension DefaultAuthRepository: AuthRepository {
                     && !account.isLoggedOut // Isn't already logged out (soft-logout)
 
                 if (shouldTimeout && !account.isLoggedOut) || shouldLogoutDueToNoUnlockMethod {
+                    try? await keychainService.deleteUserAuthKey(for: .userSessionKey(userId: userId))
                     if userId == activeUserId {
                         await handleActiveUser?(activeUserId)
                     } else {
@@ -856,7 +889,9 @@ extension DefaultAuthRepository: AuthRepository {
         await vaultTimeoutService.lockVault(userId: userId)
         if isManuallyLocking {
             do {
-                try await stateService.setManuallyLockedAccount(true, userId: userId)
+                let resolvedId = try await stateService.getAccountIdOrActiveId(userId: userId)
+                try? await keychainService.deleteUserAuthKey(for: .userSessionKey(userId: resolvedId))
+                try await stateService.setManuallyLockedAccount(true, userId: resolvedId)
             } catch {
                 errorReporter.log(error: error)
             }
@@ -894,6 +929,55 @@ extension DefaultAuthRepository: AuthRepository {
     func passwordStrength(email: String, password: String, isPreAuth: Bool) async throws -> UInt8 {
         try await clientService.auth(isPreAuth: isPreAuth)
             .passwordStrength(password: password, email: email, additionalInputs: [])
+    }
+
+    func purgeExpiredUserSessionKeys() async {
+        do {
+            let accounts = try await getAccounts()
+            guard !accounts.isEmpty else { return }
+
+            var purgedCount = 0
+            for account in accounts {
+                let userId = account.userId
+                guard !account.isLoggedOut else {
+                    await flightRecorder.log("[SessionCleanup] Skipped \(userId): logged out")
+                    continue
+                }
+
+                // Isolate failures per account so one failing account doesn't skip the rest.
+                do {
+                    let timeoutValue = try await vaultTimeoutService.sessionTimeoutValue(userId: userId)
+                    guard timeoutValue.allowsUserSessionKeySharing else {
+                        await flightRecorder.log(
+                            "[SessionCleanup] Skipped \(userId): timeout value doesn't share the session key",
+                        )
+                        continue
+                    }
+
+                    let hasTimedOut = try await vaultTimeoutService.hasPassedSessionTimeout(
+                        userId: userId,
+                        isAppRestart: false,
+                    )
+                    guard hasTimedOut else {
+                        await flightRecorder.log("[SessionCleanup] Skipped \(userId): session timeout not yet elapsed")
+                        continue
+                    }
+
+                    try await keychainService.deleteUserAuthKey(for: .userSessionKey(userId: userId))
+                    purgedCount += 1
+                    await flightRecorder.log("[SessionCleanup] Purged expired userSessionKey for \(userId)")
+                } catch {
+                    await flightRecorder.log("[SessionCleanup] Purge failed for \(userId): \(error)")
+                    errorReporter.log(error: error)
+                }
+            }
+
+            await flightRecorder.log("[SessionCleanup] Finished, purged \(purgedCount) expired userSessionKey item(s)")
+        } catch StateServiceError.noAccounts, StateServiceError.noActiveAccount {
+            // No-op: nothing to do if there's no accounts.
+        } catch {
+            errorReporter.log(error: error)
+        }
     }
 
     func sessionTimeoutAction(userId: String?) async throws -> SessionTimeoutAction {
@@ -1066,11 +1150,51 @@ extension DefaultAuthRepository: AuthRepository {
             )
         }
 
+        // Delete the session key when switching to a timeout that excludes it, or write it back
+        // when switching from a timeout that excludes it to one that allows sharing while the
+        // vault is already unlocked. If the current value already allows sharing, the key is
+        // already on the keychain and doesn't need to be written again.
+        do {
+            if !newValue.allowsUserSessionKeySharing {
+                try await keychainService.deleteUserAuthKey(for: .userSessionKey(userId: id))
+            } else if currentValue?.allowsUserSessionKeySharing != true,
+                      await configService.getFeatureFlag(.enableUserSessionKeySharing),
+                      try await !isLocked(userId: id) {
+                try await keychainService.setUserAuthKey(
+                    for: .userSessionKey(userId: id),
+                    value: clientService.crypto().getUserEncryptionKey(),
+                )
+            }
+        } catch {
+            errorReporter.log(error: error)
+        }
+
         // Then configure the vault timeout service with the correct value.
         try await vaultTimeoutService.setVaultTimeout(
             value: newValue,
             userId: id,
         )
+    }
+
+    func startObservingUserSessionKeyFeatureFlag() {
+        let configService = configService
+        configSubscriptionTask = Task { [weak self] in
+            for await metaConfig in await configService.configPublisher() {
+                guard let self,
+                      let metaConfig,
+                      !metaConfig.isPreAuth,
+                      let userId = metaConfig.userId else { continue }
+                let flagKey = FeatureFlag.enableUserSessionKeySharing.rawValue
+                let newValue = metaConfig.serverConfig?.featureStates[flagKey]?.boolValue ?? false
+                let previousValue = lastKnownUserSessionKeyFlagValues[userId]
+                lastKnownUserSessionKeyFlagValues[userId] = newValue
+                // Fire when the flag is OFF and the previous value was either nil (unknown after a
+                // kill/relaunch — treat conservatively) or true (just flipped OFF). Deleting a
+                // non-existent Keychain item is a safe no-op.
+                guard newValue == false, previousValue != false else { continue }
+                await removeUserSessionKeys(forAccountsOnSameServerAs: userId)
+            }
+        }
     }
 
     func unlockVaultFromLoginWithDevice(privateKey: String, key: String) async throws {
@@ -1182,6 +1306,39 @@ extension DefaultAuthRepository: AuthRepository {
         try await unlockVault(method: .pin(pin: pin, pinProtectedUserKey: pinProtectedUserKey))
     }
 
+    func unlockVaultWithSessionKey() async throws -> Bool {
+        guard await configService.getFeatureFlag(.enableUserSessionKeySharing) else {
+            return false
+        }
+
+        let id = try await stateService.getActiveAccountId()
+
+        // Don't rely on callers having purged expired keys: the account's timeout may have elapsed
+        // or been changed to a value that doesn't allow sharing (e.g. by a policy).
+        guard try await vaultTimeoutService.sessionTimeoutValue(userId: id).allowsUserSessionKeySharing,
+              try await !vaultTimeoutService.hasPassedSessionTimeout(userId: id) else {
+            try? await keychainService.deleteUserAuthKey(for: .userSessionKey(userId: id))
+            return false
+        }
+
+        do {
+            let sessionKey = try await keychainService.getUserAuthKeyValue(for: .userSessionKey(userId: id))
+            do {
+                try await unlockVault(
+                    method: .decryptedKey(decryptedUserKey: sessionKey),
+                    hadUserInteraction: false,
+                    shouldStoreUserSessionKey: false,
+                )
+            } catch {
+                try? await keychainService.deleteUserAuthKey(for: .userSessionKey(userId: id))
+                throw error
+            }
+            return true
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
+            return false
+        }
+    }
+
     func validatePassword(_ password: String) async throws -> Bool {
         if let passwordHash = try await stateService.getMasterPasswordHash() {
             return try await clientService.auth().validatePassword(password: password, passwordHash: passwordHash)
@@ -1283,13 +1440,40 @@ extension DefaultAuthRepository: AuthRepository {
         )
     }
 
+    /// Deletes the `.userSessionKey` Keychain item for every account whose `environmentUrls`
+    /// matches the given user's server.
+    ///
+    /// - Parameter userId: The user ID whose server determines which accounts are affected.
+    ///
+    private func removeUserSessionKeys(forAccountsOnSameServerAs userId: String) async {
+        do {
+            let targetUrls = try await stateService.getEnvironmentURLs(userId: userId)
+            let accounts = try await stateService.getAccounts()
+            for account in accounts {
+                guard account.settings.environmentUrls == targetUrls else { continue }
+                try? await keychainService.deleteUserAuthKey(
+                    for: .userSessionKey(userId: account.profile.userId),
+                )
+            }
+        } catch {
+            errorReporter.log(error: error)
+        }
+    }
+
     /// Attempts to unlock the vault with a given method.
     ///
     /// - Parameters:
     ///   - method: The unlocking `InitUserCryptoMethod` method
     ///   - hadUserInteraction: If the user interacted with the app to unlock the vault
     ///   or was unlocked using the never lock key.
-    private func unlockVault(method: InitUserCryptoMethod, hadUserInteraction: Bool = true) async throws {
+    ///   - shouldStoreUserSessionKey: Whether to store the `.userSessionKey` Keychain item after
+    ///   unlocking. Pass `false` when unlocking with the session key itself, since the item already
+    ///   holds the same key.
+    private func unlockVault(
+        method: InitUserCryptoMethod,
+        hadUserInteraction: Bool = true,
+        shouldStoreUserSessionKey: Bool = true,
+    ) async throws {
         let account = try await stateService.getActiveAccount()
         let cryptographicState = try await stateService.getAccountCryptographicState()
         let upgradeToken = await stateService.getV2UpgradeToken(userId: account.profile.userId)
@@ -1315,6 +1499,20 @@ extension DefaultAuthRepository: AuthRepository {
             try await stateService.setManuallyLockedAccount(false, userId: account.profile.userId)
         } catch {
             errorReporter.log(error: error)
+        }
+        if shouldStoreUserSessionKey {
+            do {
+                let isFeatureEnabled: Bool = await configService.getFeatureFlag(.enableUserSessionKeySharing)
+                let timeoutValue = try await vaultTimeoutService.sessionTimeoutValue(userId: account.profile.userId)
+                if isFeatureEnabled, timeoutValue.allowsUserSessionKeySharing {
+                    try await keychainService.setUserAuthKey(
+                        for: .userSessionKey(userId: account.profile.userId),
+                        value: clientService.crypto().getUserEncryptionKey(),
+                    )
+                }
+            } catch {
+                errorReporter.log(error: error)
+            }
         }
         await configureBiometricUnlockIfNeeded()
     }

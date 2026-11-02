@@ -22,6 +22,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     var authRepository: MockAuthRepository!
     var authenticatorSyncService: MockAuthenticatorSyncService!
     var autofillCredentialService: MockAutofillCredentialService!
+    var backgroundSessionCleanupService: MockBackgroundSessionCleanupService!
     var billingService: MockBillingService!
     var clientService: MockClientService!
     var configService: MockConfigService!
@@ -63,6 +64,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         authRepository = MockAuthRepository()
         authenticatorSyncService = MockAuthenticatorSyncService()
         autofillCredentialService = MockAutofillCredentialService()
+        backgroundSessionCleanupService = MockBackgroundSessionCleanupService()
         billingService = MockBillingService()
         clientService = MockClientService()
         configService = MockConfigService()
@@ -98,6 +100,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 authRepository: authRepository,
                 authenticatorSyncService: authenticatorSyncService,
                 autofillCredentialService: autofillCredentialService,
+                backgroundSessionCleanupService: backgroundSessionCleanupService,
                 billingService: billingService,
                 clientService: clientService,
                 configService: configService,
@@ -139,6 +142,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         appModule = nil
         authRepository = nil
         autofillCredentialService = nil
+        backgroundSessionCleanupService = nil
         billingService = nil
         clientService = nil
         configService = nil
@@ -165,28 +169,66 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     // MARK: Tests
 
-    /// `init()` subscribes to app background events and logs an error if one occurs when
+    /// Backgrounding the app doesn't update the last active time or reschedule the background
+    /// session key cleanup task, since that's handled when the app resigns active.
+    @MainActor
+    func test_appBackgrounded_doesNotSetLastActiveTime() {
+        let account: Account = .fixture()
+        stateService.activeAccount = account
+        vaultTimeoutService.lastActiveTime[account.profile.userId] = .distantPast
+
+        notificationCenterService.didEnterBackgroundSubject.send()
+        waitFor(didEnterBackgroundCalled > 0)
+
+        XCTAssertEqual(vaultTimeoutService.lastActiveTime[account.profile.userId], .distantPast)
+        XCTAssertFalse(backgroundSessionCleanupService.scheduleNextRefreshCalled)
+    }
+
+    /// The background session key cleanup task is rescheduled when the app resigns active.
+    @MainActor
+    func test_appWillResignActive_reschedulesSessionCleanup() {
+        waitFor(notificationCenterService.willResignActiveSubscribed)
+        notificationCenterService.willResignActiveSubject.send()
+        waitFor(backgroundSessionCleanupService.scheduleNextRefreshCalled)
+        XCTAssertTrue(backgroundSessionCleanupService.scheduleNextRefreshCalled)
+    }
+
+    /// `init()` subscribes to app will-resign-active events and logs an error if one occurs when
     /// setting the last active time.
     @MainActor
-    func test_appBackgrounded_error() {
+    func test_appWillResignActive_error() {
         stateService.activeAccount = .fixture()
         vaultTimeoutService.setLastActiveTimeError = BitwardenTestError.example
 
-        notificationCenterService.didEnterBackgroundSubject.send()
+        waitFor(notificationCenterService.willResignActiveSubscribed)
+        notificationCenterService.willResignActiveSubject.send()
 
         waitFor(!errorReporter.errors.isEmpty)
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
-    /// The user's last active time is updated when the app is backgrounded.
+    /// `init()` subscribes to app will-resign-active events but does not log an error or update
+    /// the last active time if there's no active account.
     @MainActor
-    func test_appBackgrounded_setLastActiveTime() {
+    func test_appWillResignActive_noActiveAccount() {
+        waitFor(notificationCenterService.willResignActiveSubscribed)
+        notificationCenterService.willResignActiveSubject.send()
+
+        waitFor(backgroundSessionCleanupService.scheduleNextRefreshCalled)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+        XCTAssertTrue(vaultTimeoutService.lastActiveTime.isEmpty)
+    }
+
+    /// The user's last active time is updated when the app resigns active.
+    @MainActor
+    func test_appWillResignActive_setLastActiveTime() {
         let account: Account = .fixture()
         stateService.activeAccount = account
 
         vaultTimeoutService.lastActiveTime[account.profile.userId] = .distantPast
 
-        notificationCenterService.didEnterBackgroundSubject.send()
+        waitFor(notificationCenterService.willResignActiveSubscribed)
+        notificationCenterService.willResignActiveSubject.send()
         waitFor(vaultTimeoutService.lastActiveTime[account.profile.userId] != .distantPast)
 
         let updated = vaultTimeoutService.lastActiveTime[account.profile.userId]
