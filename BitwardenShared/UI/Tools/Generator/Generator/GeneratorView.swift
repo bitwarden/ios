@@ -329,7 +329,7 @@ struct GeneratorView: View { // swiftlint:disable:this type_body_length
                 await store.perform(.createLoginPressed)
             }
             .buttonStyle(.primary())
-            .disabled(store.state.generatedValue.isEmpty)
+            .disabled(!store.state.hasGeneratedValue)
             .accessibilityIdentifier("CreateLoginButton")
         }
     }

@@ -222,7 +222,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     /// Navigates to the add login screen, prefilled with the generated value.
     ///
     private func createLogin() async {
-        guard !state.generatedValue.isEmpty else { return }
+        guard state.hasGeneratedValue else { return }
 
         let newCipherOptions = switch state.generatorType {
         case .passphrase, .password:

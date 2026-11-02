@@ -569,6 +569,18 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         )
     }
 
+    /// `perform(_:)` with `.createLoginPressed` doesn't navigate if the generated value is the
+    /// placeholder username, e.g. when a forwarded email service isn't configured.
+    @MainActor
+    func test_perform_createLoginPressed_placeholderUsername() async {
+        subject.state.generatorType = .username
+        subject.state.generatedValue = Constants.defaultGeneratedUsername
+
+        await subject.perform(.createLoginPressed)
+
+        XCTAssertTrue(coordinator.routes.isEmpty)
+    }
+
     /// `perform(_:)` with `.createLoginPressed` navigates to the add login route with the generated
     /// username prefilled as the username.
     @MainActor

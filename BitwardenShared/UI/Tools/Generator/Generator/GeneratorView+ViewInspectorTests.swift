@@ -9,7 +9,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class GeneratorViewTests: BitwardenTestCase {
+class GeneratorViewTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Types
 
     /// Wraps the generator view in a navigation controller with the hairline divider removed for
@@ -107,6 +107,15 @@ class GeneratorViewTests: BitwardenTestCase {
     @MainActor
     func test_createLoginButton_disabledWithoutValue() throws {
         processor.state.generatedValue = ""
+        let button = try subject.inspect().find(asyncButton: Localizations.createLogin)
+        XCTAssertTrue(button.isDisabled())
+    }
+
+    /// The create login button is disabled when the generated value is the placeholder username.
+    @MainActor
+    func test_createLoginButton_disabledWithPlaceholderUsername() throws {
+        processor.state.generatorType = .username
+        processor.state.generatedValue = Constants.defaultGeneratedUsername
         let button = try subject.inspect().find(asyncButton: Localizations.createLogin)
         XCTAssertTrue(button.isDisabled())
     }

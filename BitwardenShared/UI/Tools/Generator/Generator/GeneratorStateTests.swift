@@ -60,6 +60,21 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(GeneratorType.username.regenerateButtonAccessibilityLabel, Localizations.generateUsername)
     }
 
+    /// `hasGeneratedValue` is `false` when the generated value is empty or the placeholder
+    /// username, and `true` otherwise.
+    func test_hasGeneratedValue() {
+        var subject = GeneratorState()
+
+        subject.generatedValue = ""
+        XCTAssertFalse(subject.hasGeneratedValue)
+
+        subject.generatedValue = Constants.defaultGeneratedUsername
+        XCTAssertFalse(subject.hasGeneratedValue)
+
+        subject.generatedValue = "password"
+        XCTAssertTrue(subject.hasGeneratedValue)
+    }
+
     /// `PresentationMode.isCreateLoginButtonVisible` is only `true` when presented in a tab.
     func test_isCreateLoginButtonVisible() {
         XCTAssertTrue(GeneratorState.PresentationMode.tab.isCreateLoginButtonVisible)

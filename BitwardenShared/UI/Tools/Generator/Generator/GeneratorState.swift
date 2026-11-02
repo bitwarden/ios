@@ -226,6 +226,12 @@ struct GeneratorState: Equatable {
         ]
     }
 
+    /// Whether there's a usable generated value, excluding the placeholder that's shown while a
+    /// username is generating or when a username can't be generated.
+    var hasGeneratedValue: Bool {
+        !generatedValue.isEmpty && generatedValue != Constants.defaultGeneratedUsername
+    }
+
     // MARK: Methods
 
     /// Returns whether the specified `GeneratorType` should be disabled from user selection.
