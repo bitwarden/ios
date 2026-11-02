@@ -1101,6 +1101,26 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:premiumUpgradePending_1"))
     }
 
+    /// `previousPersonalPremium(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_previousPersonalPremium_isInitiallyNil() {
+        XCTAssertNil(subject.previousPersonalPremium(userId: "1"))
+    }
+
+    /// `previousPersonalPremium(userId:)` can be used to get, set, and clear the persisted value in user defaults.
+    func test_previousPersonalPremium_withValue() {
+        subject.setPreviousPersonalPremium(true, userId: "1")
+        XCTAssertEqual(subject.previousPersonalPremium(userId: "1"), true)
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:previousPersonalPremium_1"), "true")
+
+        subject.setPreviousPersonalPremium(false, userId: "1")
+        XCTAssertEqual(subject.previousPersonalPremium(userId: "1"), false)
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:previousPersonalPremium_1"), "false")
+
+        subject.setPreviousPersonalPremium(nil, userId: "1")
+        XCTAssertNil(subject.previousPersonalPremium(userId: "1"))
+        XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:previousPersonalPremium_1"))
+    }
+
     /// `upgradedToPremiumActionCardVisible(userId:)` returns `false` if there isn't a previously stored value.
     func test_upgradedToPremiumActionCardVisible_isInitiallyFalse() {
         XCTAssertFalse(subject.upgradedToPremiumActionCardVisible(userId: "1"))
