@@ -102,6 +102,11 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
             await handleProfileSwitcherEffect(profileEffect)
         case .regionPressed:
             var excludedRegions: [RegionType] = [.gov]
+            if state.region == .gov {
+                // prevent exclusion if previously selected
+                // TODO: PM-37634 remove while cleaning up the fedrampGovRegion feature flag
+                excludedRegions = []
+            }
             if await currentPreAuthServerConfig() != nil,
                await services.configService.getFeatureFlag(.fedrampGovRegion, isPreAuth: true) {
                 excludedRegions = []
