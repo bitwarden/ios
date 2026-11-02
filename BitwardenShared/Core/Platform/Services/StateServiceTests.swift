@@ -161,6 +161,29 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNil(appSettingsStore.pinProtectedUserKeyEnvelope["1"])
     }
 
+    /// `clearPins(userId:)` clears the specified user's pins without affecting the active user's pins.
+    func test_clearPins_userId() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+        await subject.addAccount(.fixture(profile: .fixture(userId: "2")))
+
+        appSettingsStore.encryptedPinByUserId["1"] = "encryptedPin1"
+        appSettingsStore.pinProtectedUserKey["1"] = "pinProtectedUserKey1"
+        appSettingsStore.pinProtectedUserKeyEnvelope["1"] = "pinProtectedUserKeyEnvelope1"
+        appSettingsStore.encryptedPinByUserId["2"] = "encryptedPin2"
+        appSettingsStore.pinProtectedUserKey["2"] = "pinProtectedUserKey2"
+        appSettingsStore.pinProtectedUserKeyEnvelope["2"] = "pinProtectedUserKeyEnvelope2"
+
+        try await subject.clearPins(userId: "1")
+
+        XCTAssertNil(appSettingsStore.encryptedPinByUserId["1"])
+        XCTAssertNil(appSettingsStore.pinProtectedUserKey["1"])
+        XCTAssertNil(appSettingsStore.pinProtectedUserKeyEnvelope["1"])
+
+        XCTAssertEqual(appSettingsStore.encryptedPinByUserId["2"], "encryptedPin2")
+        XCTAssertEqual(appSettingsStore.pinProtectedUserKey["2"], "pinProtectedUserKey2")
+        XCTAssertEqual(appSettingsStore.pinProtectedUserKeyEnvelope["2"], "pinProtectedUserKeyEnvelope2")
+    }
+
     /// `deleteAccount()` deletes the active user's account, removing it from the state.
     func test_deleteAccount() async throws {
         let newAccount = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
