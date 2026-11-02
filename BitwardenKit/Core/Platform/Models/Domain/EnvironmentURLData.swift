@@ -102,10 +102,7 @@ public extension EnvironmentURLData {
             && webVault == nil
     }
 
-    /// Whether the base URL belongs to a FedRAMP environment, including its dev and staging hosts.
-    ///
-    /// shortcut: substring match like Android, so a self-hosted host that contains one of these
-    /// strings also matches; tighten if that ever matters.
+    /// Whether the base URL belongs to a FedRAMP environment, including subdomains.
     var isFedRamp: Bool {
         guard let host = base?.host else { return false }
         return [
@@ -113,7 +110,7 @@ public extension EnvironmentURLData {
             "fedramp.usdev.bitwarden.pw",
             "gw.dev.bitwarden.pw",
             "gw.stg.bitwarden.pw",
-        ].contains { host.contains($0) }
+        ].contains { host.hasSuffix($0) }
     }
 
     /// The URL for managing the subscription plan.
