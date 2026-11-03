@@ -18,6 +18,10 @@
       {
         "key" : "TZ",
         "value" : "UTC"
+      },
+      {
+        "key" : "SKIP_SIMULATOR_CHECK_FOR_TESTS",
+        "value" : "true"
       }
     ],
     "language" : "en",
