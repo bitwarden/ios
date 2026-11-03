@@ -64,7 +64,7 @@ env:
 jobs:
   test:
     name: Test
-    runs-on: xcode-27
+    runs-on: xcode-27-xlarge
     timeout-minutes: 50
     permissions:
       contents: read

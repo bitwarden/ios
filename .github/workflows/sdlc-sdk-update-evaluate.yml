@@ -17,7 +17,7 @@ env:
 jobs:
   evaluate:
     name: Evaluate SDK Update
-    runs-on: xcode-27
+    runs-on: xcode-27-xlarge
     timeout-minutes: 90
     if: ${{ github.event.pull_request.head.ref == 'sdlc/sdk-update' && github.event.pull_request.head.repo.full_name == github.repository }}
     permissions:
