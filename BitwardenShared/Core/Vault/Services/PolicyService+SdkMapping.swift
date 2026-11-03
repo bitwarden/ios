@@ -4,14 +4,14 @@ import BitwardenKit
 import BitwardenSdk
 import Foundation
 
-// MARK: - Policy ↔ SDK PolicyView
+// MARK: - Policy ↔ SDK Policy
 
-extension BitwardenSdk.PolicyView {
-    /// Converts an iOS `Policy` to a `BitwardenSdk.PolicyView`.
+extension BitwardenSdk.Policy {
+    /// Converts an iOS `Policy` to a `BitwardenSdk.Policy`.
     ///
     /// Returns `nil` when the iOS policy type has no SDK equivalent (e.g., `.unknown`).
     ///
-    init?(_ policy: Policy) {
+    init?(_ policy: BitwardenShared.Policy) {
         guard let sdkType = BitwardenSdk.PolicyType(policy.type) else { return nil }
 
         let dataJson: String? = policy.data.flatMap { dict in
@@ -29,21 +29,21 @@ extension BitwardenSdk.PolicyView {
     }
 }
 
-extension Policy {
-    /// Converts a `BitwardenSdk.PolicyView` to an iOS `Policy`.
+extension BitwardenShared.Policy {
+    /// Converts a `BitwardenSdk.Policy` to an iOS `Policy`.
     ///
-    init(_ policyView: BitwardenSdk.PolicyView) {
-        let decodedData: [String: AnyCodable]? = policyView.data
+    init(_ sdkPolicy: BitwardenSdk.Policy) {
+        let decodedData: [String: AnyCodable]? = sdkPolicy.data
             .flatMap { $0.data(using: .utf8) }
             .flatMap { try? JSONDecoder().decode([String: AnyCodable].self, from: $0) }
 
         self.init(
             data: decodedData,
-            enabled: policyView.enabled,
-            id: policyView.id,
-            organizationId: policyView.organizationId,
-            revisionDate: policyView.revisionDate,
-            type: PolicyType(policyView.type),
+            enabled: sdkPolicy.enabled,
+            id: sdkPolicy.id,
+            organizationId: sdkPolicy.organizationId,
+            revisionDate: sdkPolicy.revisionDate,
+            type: PolicyType(sdkPolicy.type),
         )
     }
 }

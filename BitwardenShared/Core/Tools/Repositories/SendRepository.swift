@@ -37,12 +37,6 @@ public protocol SendRepository: AnyObject {
     ///
     func doesActiveAccountHavePremium() async -> Bool
 
-    /// Validates the user's active account has a verified email.
-    ///
-    /// - Returns: Whether the active account has a verified email.
-    ///
-    func doesActiveAccountHaveVerifiedEmail() async throws -> Bool
-
     /// Performs an API request to sync the user's send data. The publishers in the repository can
     /// be used to subscribe to the send data, which are updated as a result of the request.
     ///
@@ -179,11 +173,6 @@ class DefaultSendRepository: SendRepository {
 
     func doesActiveAccountHavePremium() async -> Bool {
         await stateService.doesActiveAccountHavePremium()
-    }
-
-    func doesActiveAccountHaveVerifiedEmail() async throws -> Bool {
-        let account = try await stateService.getActiveAccount()
-        return account.profile.emailVerified ?? false
     }
 
     // MARK: Data Methods

@@ -20,6 +20,12 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
     /// A flag indicating if this field is currently focused.
     private var isFocused: Bool { isTextFieldFocused || isSecureFieldFocused }
 
+    /// Whether the field contains a password (or other sensitive value) that can be masked.
+    private var isPassword: Bool { isPasswordVisible != nil || canViewPassword == false }
+
+    /// Whether the field should render as a masked `SecureField` rather than a plain `TextField`.
+    private var isPasswordMasked: Bool { isPassword && !(isPasswordVisible?.wrappedValue ?? false) }
+
     /// A flag indicating if the secure field is currently focused.
     @FocusState private var isSecureFieldFocused
 
@@ -78,6 +84,12 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
     /// Whether the password can be viewed (only applies if a password exists in the field).
     let canViewPassword: Bool
 
+    /// An optional external focus binding, applied directly to the native text/secure field
+    /// rather than to this whole compound view. Chaining `.focused(_:equals:)` onto the whole view
+    /// makes Full Keyboard Access treat the entire row (including trailing accessory buttons and
+    /// footer content) as a single focus target, hiding everything but the field itself.
+    let focus: BitwardenTextFieldFocus?
+
     /// Whether a password in this text field is visible.
     let isPasswordVisible: Binding<Bool>?
 
@@ -89,6 +101,16 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
 
     /// The accessibility identifier for the button to toggle password visibility.
     let passwordVisibilityAccessibilityId: String?
+
+    /// The name of the field to include in the password visibility toggle's accessibility label
+    /// (e.g. "Account number"), so VoiceOver announces which field the toggle affects instead of
+    /// the generic "Password" wording. Defaults to `nil`, which falls back to the generic wording.
+    let passwordVisibilityFieldName: String?
+
+    /// Whether VoiceOver should announce the entered text's characters individually (e.g.
+    /// "1 2 3 4" instead of "one thousand two hundred thirty-four") rather than using its default
+    /// heuristics for the text.
+    let spellOutAccessibilityValue: Bool
 
     // MARK: View
 
@@ -105,7 +127,6 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
                 : SharedAsset.Colors.backgroundSecondaryDisabled.swiftUIColor,
         )
         .clipShape(RoundedRectangle(cornerRadius: 8))
-        .accessibilityElement(children: .contain)
         .onChange(of: text) { newValue in
             if let count = pendingEchoes[newValue], count > 0 {
                 pendingEchoes[newValue] = count == 1 ? nil : count - 1
@@ -115,9 +136,7 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
             localText = newValue
         }
         .onTapGesture {
-            let isPassword = isPasswordVisible != nil || canViewPassword == false
-            let isPasswordVisible = isPasswordVisible?.wrappedValue ?? false
-            if isPassword, !isPasswordVisible {
+            if isPasswordMasked {
                 isSecureFieldFocused = true
             } else {
                 isTextFieldFocused = true
@@ -142,9 +161,9 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
                         asset: isPasswordVisible.wrappedValue
                             ? SharedAsset.Icons.eyeSlash24
                             : SharedAsset.Icons.eye24,
-                        accessibilityLabel: isPasswordVisible.wrappedValue
-                            ? Localizations.passwordIsVisibleTapToHide
-                            : Localizations.passwordIsNotVisibleTapToShow,
+                        accessibilityLabel: passwordVisibilityAccessibilityLabel(
+                            isVisible: isPasswordVisible.wrappedValue,
+                        ),
                     ) {
                         isPasswordVisible.wrappedValue.toggle()
                     }
@@ -186,50 +205,57 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
     /// The text field.
     private var textField: some View {
         HStack(spacing: 8) {
-            ZStack {
-                let isPassword = isPasswordVisible != nil || canViewPassword == false
-                let isPasswordVisible = isPasswordVisible?.wrappedValue ?? false
-                let isPasswordMasked = !isPasswordVisible && isPassword
-                TextField("", text: textFieldBinding)
-                    .focused($isTextFieldFocused)
-                    .styleGuide(isPassword ? .bodyMonospaced : .body, includeLineSpacing: false)
-                    // After some investigation, we found that .accessibilityIdentifier(..)
-                    // calls should be placed before setting an id
-                    // or hiding the field to avoid breaking accessibilityIds used on our mobile automation test suite
+            if isPasswordMasked {
+                SecureField("", text: textFieldBinding)
+                    .focused($isSecureFieldFocused)
+                    .focused(focus)
                     .accessibilityIdentifier(accessibilityIdentifier ?? "BitwardenTextField")
-                    .hidden(isPasswordMasked)
+                    .styleGuide(.bodyMonospaced, includeLineSpacing: false)
                     .id(title)
-                    .introspect(.textField, on: .iOS(.v15, .v16, .v17, .v18, .v26)) { textField in
-                        textField.smartDashesType = isPassword ? .no : .default
-                        textField.smartQuotesType = isPassword ? .no : .default
-                    }
                     .accessibilityLabel(title ?? "")
-                    .accessibilityHidden(isPasswordMasked)
                     .foregroundStyle(
                         isEnabled && !isTextFieldDisabled
                             ? SharedAsset.Colors.textPrimary.swiftUIColor
                             : SharedAsset.Colors.textDisabled.swiftUIColor,
                     )
                     .disabled(isTextFieldDisabled)
-                if isPasswordMasked {
-                    SecureField("", text: textFieldBinding)
-                        .focused($isSecureFieldFocused)
-                        .accessibilityIdentifier(accessibilityIdentifier ?? "BitwardenTextField")
-                        .styleGuide(.bodyMonospaced, includeLineSpacing: false)
-                        .id(title)
-                        .accessibilityLabel(title ?? "")
-                        .foregroundStyle(
-                            isEnabled && !isTextFieldDisabled
-                                ? SharedAsset.Colors.textPrimary.swiftUIColor
-                                : SharedAsset.Colors.textDisabled.swiftUIColor,
-                        )
-                }
+            } else {
+                TextField("", text: textFieldBinding)
+                    .focused($isTextFieldFocused)
+                    .focused(focus)
+                    .styleGuide(isPassword ? .bodyMonospaced : .body, includeLineSpacing: false)
+                    // After some investigation, we found that .accessibilityIdentifier(..)
+                    // calls should be placed before setting an id
+                    // or hiding the field to avoid breaking accessibilityIds used on our mobile automation test suite
+                    .accessibilityIdentifier(accessibilityIdentifier ?? "BitwardenTextField")
+                    .id(title)
+                    .introspect(.textField, on: .iOS(.v15, .v16, .v17, .v18, .v26)) { textField in
+                        textField.smartDashesType = isPassword ? .no : .default
+                        textField.smartQuotesType = isPassword ? .no : .default
+                        // Set on the native text field so VoiceOver spells out only the value, not the label.
+                        textField.accessibilityAttributedValue = spellOutAccessibilityValue && !localText.isEmpty
+                            ? NSAttributedString(
+                                string: localText,
+                                attributes: [.accessibilitySpeechSpellOut: true],
+                            )
+                            : nil
+                    }
+                    .accessibilityLabel(title ?? "")
+                    .foregroundStyle(
+                        isEnabled && !isTextFieldDisabled
+                            ? SharedAsset.Colors.textPrimary.swiftUIColor
+                            : SharedAsset.Colors.textDisabled.swiftUIColor,
+                    )
+                    .disabled(isTextFieldDisabled)
             }
-            .frame(maxWidth: .infinity, minHeight: 28)
         }
+        .frame(maxWidth: .infinity, minHeight: 28)
         .tint(SharedAsset.Colors.tintPrimary.swiftUIColor)
         .onAppear {
-            isSecureFieldFocused = isPasswordAutoFocused
+            // Only write when requesting focus; writing `false` could resign focus requested via `focus`.
+            if isPasswordAutoFocused {
+                isSecureFieldFocused = true
+            }
         }
     }
 
@@ -243,10 +269,15 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
     ///   - footer: The footer text displayed below the text field.
     ///   - accessibilityIdentifier: The accessibility identifier for the text field.
     ///   - passwordVisibilityAccessibilityId: The accessibility ID for the button to toggle password visibility.
+    ///   - passwordVisibilityFieldName: The name of the field to include in the password visibility
+    ///     toggle's accessibility label, or `nil` to use the generic password wording.
     ///   - canViewPassword: Whether the password can be viewed.
+    ///   - focus: An optional external focus binding applied to the native text field.
     ///   - isPasswordAutoFocused: Whether the password field shows the keyboard initially.
     ///   - isPasswordVisible: Whether the password is visible.
     ///   - isTextFieldDisabled: Whether the text field is disabled.
+    ///   - spellOutAccessibilityValue: Whether VoiceOver should announce the entered text's characters
+    ///     individually rather than using its default heuristics for the text.
     ///   - trailingContent: Optional content view that is displayed on the trailing edge of the field.
     ///
     public init(
@@ -255,13 +286,17 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
         footer: String? = nil,
         accessibilityIdentifier: String? = nil,
         passwordVisibilityAccessibilityId: String? = nil,
+        passwordVisibilityFieldName: String? = nil,
         canViewPassword: Bool = true,
+        focus: BitwardenTextFieldFocus? = nil,
         isPasswordAutoFocused: Bool = false,
         isPasswordVisible: Binding<Bool>? = nil,
         isTextFieldDisabled: Bool = false,
+        spellOutAccessibilityValue: Bool = false,
         @ViewBuilder trailingContent: () -> TrailingContent,
     ) where FooterContent == EmptyView {
         self.accessibilityIdentifier = accessibilityIdentifier
+        self.focus = focus
         self.isPasswordAutoFocused = isPasswordAutoFocused
         self.isPasswordVisible = isPasswordVisible
         self.isTextFieldDisabled = isTextFieldDisabled
@@ -269,6 +304,8 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
         footerContent = nil
         self.canViewPassword = canViewPassword
         self.passwordVisibilityAccessibilityId = passwordVisibilityAccessibilityId
+        self.passwordVisibilityFieldName = passwordVisibilityFieldName
+        self.spellOutAccessibilityValue = spellOutAccessibilityValue
         _text = text
         _localText = State(initialValue: text.wrappedValue)
         self.title = title
@@ -282,10 +319,15 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
     ///   - text: The text entered into the text field.
     ///   - accessibilityIdentifier: The accessibility identifier for the text field.
     ///   - passwordVisibilityAccessibilityId: The accessibility ID for the button to toggle password visibility.
+    ///   - passwordVisibilityFieldName: The name of the field to include in the password visibility
+    ///     toggle's accessibility label, or `nil` to use the generic password wording.
     ///   - canViewPassword: Whether the password can be viewed.
+    ///   - focus: An optional external focus binding applied to the native text field.
     ///   - isPasswordAutoFocused: Whether the password field shows the keyboard initially.
     ///   - isPasswordVisible: Whether the password is visible.
     ///   - isTextFieldDisabled: Whether the text field is disabled.
+    ///   - spellOutAccessibilityValue: Whether VoiceOver should announce the entered text's characters
+    ///     individually rather than using its default heuristics for the text.
     ///   - trailingContent: Optional content view that is displayed on the trailing edge of the field.
     ///   - footerContent: The (optional) footer content to display underneath the field.
     ///
@@ -294,14 +336,18 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
         text: Binding<String>,
         accessibilityIdentifier: String? = nil,
         passwordVisibilityAccessibilityId: String? = nil,
+        passwordVisibilityFieldName: String? = nil,
         canViewPassword: Bool = true,
+        focus: BitwardenTextFieldFocus? = nil,
         isPasswordAutoFocused: Bool = false,
         isPasswordVisible: Binding<Bool>? = nil,
         isTextFieldDisabled: Bool = false,
+        spellOutAccessibilityValue: Bool = false,
         @ViewBuilder trailingContent: () -> TrailingContent,
         @ViewBuilder footerContent: () -> FooterContent,
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
+        self.focus = focus
         self.isPasswordAutoFocused = isPasswordAutoFocused
         self.isPasswordVisible = isPasswordVisible
         self.isTextFieldDisabled = isTextFieldDisabled
@@ -309,10 +355,29 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
         self.footerContent = footerContent()
         self.canViewPassword = canViewPassword
         self.passwordVisibilityAccessibilityId = passwordVisibilityAccessibilityId
+        self.passwordVisibilityFieldName = passwordVisibilityFieldName
+        self.spellOutAccessibilityValue = spellOutAccessibilityValue
         _text = text
         _localText = State(initialValue: text.wrappedValue)
         self.title = title
         self.trailingContent = trailingContent()
+    }
+
+    /// The accessibility label for the password visibility toggle button, announcing the
+    /// specific field name if one was provided, or falling back to generic password wording.
+    ///
+    /// - Parameter isVisible: Whether the password is currently visible.
+    /// - Returns: The accessibility label to use for the toggle button.
+    ///
+    private func passwordVisibilityAccessibilityLabel(isVisible: Bool) -> String {
+        guard let passwordVisibilityFieldName else {
+            return isVisible
+                ? Localizations.passwordIsVisibleTapToHide
+                : Localizations.passwordIsNotVisibleTapToShow
+        }
+        return isVisible
+            ? Localizations.fieldValueIsVisibleTapToHide(passwordVisibilityFieldName)
+            : Localizations.fieldValueIsNotVisibleTapToShow(passwordVisibilityFieldName)
     }
 }
 
@@ -325,10 +390,15 @@ public extension BitwardenTextField where TrailingContent == EmptyView {
     ///   - text: The text entered into the text field.
     ///   - accessibilityIdentifier: The accessibility identifier for the text field.
     ///   - passwordVisibilityAccessibilityId: The accessibility ID for the button to toggle password visibility.
+    ///   - passwordVisibilityFieldName: The name of the field to include in the password visibility
+    ///     toggle's accessibility label, or `nil` to use the generic password wording.
     ///   - canViewPassword: Whether the password can be viewed.
+    ///   - focus: An optional external focus binding applied to the native text field.
     ///   - isPasswordAutoFocused: Whether the password field shows the keyboard initially.
     ///   - isPasswordVisible: Whether the password is visible.
     ///   - isTextFieldDisabled: Whether the text field is disabled.
+    ///   - spellOutAccessibilityValue: Whether VoiceOver should announce the entered text's characters
+    ///     individually rather than using its default heuristics for the text.
     ///   - footerContent: The (optional) footer content to display underneath the field.
     ///
     @_disfavoredOverload
@@ -337,20 +407,26 @@ public extension BitwardenTextField where TrailingContent == EmptyView {
         text: Binding<String>,
         accessibilityIdentifier: String? = nil,
         passwordVisibilityAccessibilityId: String? = nil,
+        passwordVisibilityFieldName: String? = nil,
         canViewPassword: Bool = true,
+        focus: BitwardenTextFieldFocus? = nil,
         isPasswordAutoFocused: Bool = false,
         isPasswordVisible: Binding<Bool>? = nil,
         isTextFieldDisabled: Bool = false,
+        spellOutAccessibilityValue: Bool = false,
         @ViewBuilder footerContent: () -> FooterContent,
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.canViewPassword = canViewPassword
+        self.focus = focus
         footer = nil
         self.footerContent = footerContent()
         self.isPasswordAutoFocused = isPasswordAutoFocused
         self.isPasswordVisible = isPasswordVisible
         self.isTextFieldDisabled = isTextFieldDisabled
         self.passwordVisibilityAccessibilityId = passwordVisibilityAccessibilityId
+        self.passwordVisibilityFieldName = passwordVisibilityFieldName
+        self.spellOutAccessibilityValue = spellOutAccessibilityValue
         _text = text
         _localText = State(initialValue: text.wrappedValue)
         self.title = title
@@ -367,10 +443,15 @@ public extension BitwardenTextField where FooterContent == EmptyView, TrailingCo
     ///   - text: The text entered into the text field.
     ///   - accessibilityIdentifier: The accessibility identifier for the text field.
     ///   - passwordVisibilityAccessibilityId: The accessibility ID for the button to toggle password visibility.
+    ///   - passwordVisibilityFieldName: The name of the field to include in the password visibility
+    ///     toggle's accessibility label, or `nil` to use the generic password wording.
     ///   - canViewPassword: Whether the password can be viewed.
+    ///   - focus: An optional external focus binding applied to the native text field.
     ///   - isPasswordAutoFocused: Whether the password field shows the keyboard initially.
     ///   - isPasswordVisible: Whether the password is visible.
     ///   - isTextFieldDisabled: Whether the text field is disabled.
+    ///   - spellOutAccessibilityValue: Whether VoiceOver should announce the entered text's characters
+    ///     individually rather than using its default heuristics for the text.
     ///
     init(
         title: String? = nil,
@@ -378,23 +459,84 @@ public extension BitwardenTextField where FooterContent == EmptyView, TrailingCo
         footer: String? = nil,
         accessibilityIdentifier: String? = nil,
         passwordVisibilityAccessibilityId: String? = nil,
+        passwordVisibilityFieldName: String? = nil,
         canViewPassword: Bool = true,
+        focus: BitwardenTextFieldFocus? = nil,
         isPasswordAutoFocused: Bool = false,
         isPasswordVisible: Binding<Bool>? = nil,
         isTextFieldDisabled: Bool = false,
+        spellOutAccessibilityValue: Bool = false,
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.canViewPassword = canViewPassword
+        self.focus = focus
         self.footer = footer
         footerContent = nil
         self.isPasswordAutoFocused = isPasswordAutoFocused
         self.isPasswordVisible = isPasswordVisible
         self.isTextFieldDisabled = isTextFieldDisabled
         self.passwordVisibilityAccessibilityId = passwordVisibilityAccessibilityId
+        self.passwordVisibilityFieldName = passwordVisibilityFieldName
+        self.spellOutAccessibilityValue = spellOutAccessibilityValue
         _text = text
         _localText = State(initialValue: text.wrappedValue)
         self.title = title
         trailingContent = nil
+    }
+}
+
+// MARK: - BitwardenTextFieldFocus
+
+/// A type-erased `FocusState` binding that `BitwardenTextField` applies to its native text field,
+/// allowing callers to drive focus from a `FocusState` enum without making the text field generic
+/// over the focus value type.
+///
+/// Example usage:
+/// ```
+/// BitwardenTextField(
+///     title: Localizations.username,
+///     text: ...,
+///     focus: .field($focusedField, equals: .userName),
+/// )
+/// .onSubmit { focusNextField($focusedField) }
+/// ```
+///
+public struct BitwardenTextFieldFocus {
+    // MARK: Properties
+
+    /// A closure that applies the `focused(_:equals:)` modifier to a view. Only apply this to the
+    /// native text field: wrapping larger or state-dependent content in `AnyView` can break view
+    /// identity and animations.
+    fileprivate let apply: (AnyView) -> AnyView
+
+    // MARK: Initialization
+
+    /// Creates a focus binding that focuses the text field when `binding` equals `value`.
+    ///
+    /// - Parameters:
+    ///   - binding: The `FocusState` binding tracking which field is currently focused.
+    ///   - value: The value representing this text field.
+    ///
+    public static func field<Value: Hashable>(
+        _ binding: FocusState<Value?>.Binding,
+        equals value: Value,
+    ) -> BitwardenTextFieldFocus {
+        BitwardenTextFieldFocus(apply: { AnyView($0.focused(binding, equals: value)) })
+    }
+}
+
+private extension View {
+    /// Applies the external focus binding to this view, if one exists.
+    ///
+    /// - Parameter focus: The external focus binding to apply.
+    ///
+    @ViewBuilder
+    func focused(_ focus: BitwardenTextFieldFocus?) -> some View {
+        if let focus {
+            focus.apply(AnyView(self))
+        } else {
+            self
+        }
     }
 }
 

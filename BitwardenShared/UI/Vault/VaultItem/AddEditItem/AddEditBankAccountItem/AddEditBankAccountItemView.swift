@@ -44,8 +44,8 @@ struct AddEditBankAccountItemView: View {
                         send: AddEditBankAccountItemAction.bankNameChanged,
                     ),
                     accessibilityIdentifier: "BankNameEntry",
+                    focus: .field($focusedField, equals: .bankName),
                 )
-                .focused($focusedField, equals: .bankName)
                 .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
@@ -55,14 +55,14 @@ struct AddEditBankAccountItemView: View {
                         send: AddEditBankAccountItemAction.nameOnAccountChanged,
                     ),
                     accessibilityIdentifier: "NameOnAccountEntry",
+                    focus: .field($focusedField, equals: .nameOnAccount),
                 )
-                .focused($focusedField, equals: .nameOnAccount)
                 .onSubmit { focusNextField($focusedField) }
 
                 BitwardenMenuField(
                     title: Localizations.accountType,
                     accessibilityIdentifier: "AccountTypePicker",
-                    options: DefaultableType<BankAccountType>.allCases,
+                    options: BankAccountType.displayOrder.map(DefaultableType.custom),
                     selection: store.binding(
                         get: \.accountType,
                         send: AddEditBankAccountItemAction.accountTypeChanged,
@@ -77,12 +77,14 @@ struct AddEditBankAccountItemView: View {
                     ),
                     accessibilityIdentifier: "AccountNumberEntry",
                     passwordVisibilityAccessibilityId: "ShowAccountNumberButton",
+                    passwordVisibilityFieldName: Localizations.accountNumber,
+                    focus: .field($focusedField, equals: .accountNumber),
                     isPasswordVisible: store.binding(
                         get: \.isAccountNumberVisible,
                         send: AddEditBankAccountItemAction.toggleAccountNumberVisibilityChanged,
                     ),
+                    spellOutAccessibilityValue: true,
                 )
-                .focused($focusedField, equals: .accountNumber)
                 .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
@@ -92,8 +94,9 @@ struct AddEditBankAccountItemView: View {
                         send: AddEditBankAccountItemAction.routingNumberChanged,
                     ),
                     accessibilityIdentifier: "RoutingNumberEntry",
+                    focus: .field($focusedField, equals: .routingNumber),
+                    spellOutAccessibilityValue: true,
                 )
-                .focused($focusedField, equals: .routingNumber)
                 .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
@@ -103,8 +106,9 @@ struct AddEditBankAccountItemView: View {
                         send: AddEditBankAccountItemAction.branchNumberChanged,
                     ),
                     accessibilityIdentifier: "BranchNumberEntry",
+                    focus: .field($focusedField, equals: .branchNumber),
+                    spellOutAccessibilityValue: true,
                 )
-                .focused($focusedField, equals: .branchNumber)
                 .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
@@ -115,12 +119,14 @@ struct AddEditBankAccountItemView: View {
                     ),
                     accessibilityIdentifier: "PinEntry",
                     passwordVisibilityAccessibilityId: "ShowPinButton",
+                    passwordVisibilityFieldName: Localizations.pin,
+                    focus: .field($focusedField, equals: .pin),
                     isPasswordVisible: store.binding(
                         get: \.isPinVisible,
                         send: AddEditBankAccountItemAction.togglePinVisibilityChanged,
                     ),
+                    spellOutAccessibilityValue: true,
                 )
-                .focused($focusedField, equals: .pin)
                 .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
@@ -130,8 +136,9 @@ struct AddEditBankAccountItemView: View {
                         send: AddEditBankAccountItemAction.swiftCodeChanged,
                     ),
                     accessibilityIdentifier: "SwiftCodeEntry",
+                    focus: .field($focusedField, equals: .swiftCode),
+                    spellOutAccessibilityValue: true,
                 )
-                .focused($focusedField, equals: .swiftCode)
                 .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
@@ -142,12 +149,14 @@ struct AddEditBankAccountItemView: View {
                     ),
                     accessibilityIdentifier: "IbanEntry",
                     passwordVisibilityAccessibilityId: "ShowIbanButton",
+                    passwordVisibilityFieldName: Localizations.iban,
+                    focus: .field($focusedField, equals: .iban),
                     isPasswordVisible: store.binding(
                         get: \.isIbanVisible,
                         send: AddEditBankAccountItemAction.toggleIbanVisibilityChanged,
                     ),
+                    spellOutAccessibilityValue: true,
                 )
-                .focused($focusedField, equals: .iban)
                 .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
@@ -157,9 +166,10 @@ struct AddEditBankAccountItemView: View {
                         send: AddEditBankAccountItemAction.bankContactPhoneChanged,
                     ),
                     accessibilityIdentifier: "BankContactPhoneEntry",
+                    focus: .field($focusedField, equals: .bankContactPhone),
+                    spellOutAccessibilityValue: true,
                 )
                 .textFieldConfiguration(.numeric(.telephoneNumber))
-                .focused($focusedField, equals: .bankContactPhone)
             }
         }
     }

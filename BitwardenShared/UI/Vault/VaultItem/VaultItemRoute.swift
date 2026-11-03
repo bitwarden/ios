@@ -88,6 +88,9 @@ enum VaultItemRoute: Equatable, Hashable {
     /// A route to the Premium upgrade screen.
     case premiumUpgrade
 
+    /// A route to the Premium upgrade complete screen.
+    case premiumUpgradeComplete
+
     /// A route to the file saving view.
     ///
     /// - Parameter temporaryUrl: The url where the file is currently stored.
@@ -99,9 +102,11 @@ enum VaultItemRoute: Equatable, Hashable {
 
     /// A route to the view item screen.
     ///
-    /// - Parameter id: The id of the item to display.
+    /// - Parameters:
+    ///   - id: The id of the item to display.
+    ///   - toastTitle: A toast title to show once the view item screen is displayed, if any.
     ///
-    case viewItem(id: String)
+    case viewItem(id: String, toastTitle: String? = nil)
 }
 
 enum VaultItemEvent {

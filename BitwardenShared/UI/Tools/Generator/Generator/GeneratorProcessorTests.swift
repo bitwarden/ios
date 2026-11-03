@@ -485,7 +485,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.receive(.copyGeneratedValue)
         waitFor { !reviewPromptService.userActions.isEmpty }
 
-        XCTAssertEqual(pasteboardService.copiedString, "PASSWORD")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "PASSWORD")
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.password)))
         XCTAssertEqual(reviewPromptService.userActions, [.copiedOrInsertedGeneratedValue])
     }
@@ -500,7 +500,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.receive(.copyGeneratedValue)
         waitFor { !reviewPromptService.userActions.isEmpty }
 
-        XCTAssertEqual(pasteboardService.copiedString, "PASSPHRASE")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "PASSPHRASE")
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.passphrase)))
         XCTAssertEqual(reviewPromptService.userActions, [.copiedOrInsertedGeneratedValue])
     }
@@ -515,7 +515,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.receive(.copyGeneratedValue)
         waitFor { !reviewPromptService.userActions.isEmpty }
 
-        XCTAssertEqual(pasteboardService.copiedString, "USERNAME")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "USERNAME")
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.username)))
         XCTAssertEqual(reviewPromptService.userActions, [.copiedOrInsertedGeneratedValue])
     }
@@ -573,6 +573,17 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         subject.receive(.emailTypeChanged(.random))
         XCTAssertEqual(subject.state.usernameState.plusAddressedEmailType, .random)
+    }
+
+    /// `receive(_:)` with `.fillGeneratedValue` navigates to the `.complete` route.
+    @MainActor
+    func test_receive_fillGeneratedValue() {
+        subject.state.generatorType = .password
+        subject.state.generatedValue = "password"
+        subject.receive(.fillGeneratedValue)
+        XCTAssertEqual(coordinator.routes.last, .complete(type: .password, value: "password"))
+        waitFor(!reviewPromptService.userActions.isEmpty)
+        XCTAssertEqual(reviewPromptService.userActions, [.copiedOrInsertedGeneratedValue])
     }
 
     /// `receive(_:)` with `.generatorTypeChanged` updates the state's generator type value.
@@ -718,17 +729,6 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         XCTAssertEqual(subject.state.generatedValue, "USERNAME")
         XCTAssertFalse(generatorRepository.addPasswordHistoryCalled)
-    }
-
-    /// `receive(_:)` with `.selectButtonPressed` navigates to the `.complete` route.
-    @MainActor
-    func test_receive_selectButtonPressed() {
-        subject.state.generatorType = .password
-        subject.state.generatedValue = "password"
-        subject.receive(.selectButtonPressed)
-        XCTAssertEqual(coordinator.routes.last, .complete(type: .password, value: "password"))
-        waitFor(!reviewPromptService.userActions.isEmpty)
-        XCTAssertEqual(reviewPromptService.userActions, [.copiedOrInsertedGeneratedValue])
     }
 
     /// `receive(_:)` with `.showPasswordHistory` asks the coordinator to show the password history.

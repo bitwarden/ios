@@ -24,9 +24,11 @@ class MockClient: BitwardenSdkClient {
     var cryptoClient = MockCryptoClientProtocol()
     var exporterClient = MockExporterClientProtocol()
     var generatorClient = MockGeneratorClientsProtocol()
+    var kmStateBridgeClient = MockStateBridgeClientProtocol()
     var platformClient = MockPlatformClientService.withMocks()
     var policiesClient = MockPoliciesClientProtocol()
     var sendClient = MockSendClientProtocol()
+    var userCryptoManagementClient = MockUserCryptoManagementClientService.withMocks()
     var vaultClient = MockVaultClientService()
 
     func auth() -> any AuthClientService {
@@ -49,6 +51,10 @@ class MockClient: BitwardenSdkClient {
         generatorClient
     }
 
+    func kmStateBridge() -> any StateBridgeClientProtocol {
+        kmStateBridgeClient
+    }
+
     func platform() -> any PlatformClientService {
         platformClient
     }
@@ -59,6 +65,10 @@ class MockClient: BitwardenSdkClient {
 
     func sends() -> any SendClientProtocol {
         sendClient
+    }
+
+    func userCryptoManagement() -> any UserCryptoManagementClientService {
+        userCryptoManagementClient
     }
 
     func vault() -> any VaultClientService {

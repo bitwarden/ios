@@ -400,6 +400,18 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(module.billingCoordinator.routes, [.premiumUpgrade])
     }
 
+    /// `navigate(to:)` with `.premiumUpgradeComplete` pops the Premium upgrade screen, then
+    /// presents the standalone Premium upgrade complete screen.
+    @MainActor
+    func test_navigateTo_premiumUpgradeComplete() throws {
+        subject.navigate(to: .premiumUpgradeComplete)
+
+        XCTAssertEqual(stackNavigator.actions.count, 2)
+        XCTAssertEqual(stackNavigator.actions[0].type, .popped)
+        XCTAssertEqual(stackNavigator.actions[1].type, .presented)
+        XCTAssertEqual(module.billingCoordinator.routes, [.premiumUpgradeCompleteStandalone])
+    }
+
     /// `navigate(to:)` with `.selectLanguage()` presents the select language view.
     @MainActor
     func test_navigateTo_selectLanguage() throws {

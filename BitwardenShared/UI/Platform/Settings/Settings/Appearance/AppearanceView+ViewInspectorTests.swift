@@ -2,6 +2,7 @@
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
+import ViewInspector
 import XCTest
 
 // MARK: - AppearanceViewTests
@@ -49,5 +50,29 @@ class AppearanceViewTests: BitwardenTestCase {
         let button = try subject.inspect().find(button: Localizations.language)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .languageTapped)
+    }
+
+    /// The show website icons toggle announces its name to VoiceOver.
+    @MainActor
+    func test_showWebsiteIconsToggle_accessibilityLabel() throws {
+        _ = try subject.inspect().find(toggleWithAccessibilityLabel: Localizations.showWebsiteIcons)
+    }
+
+    /// Tapping the show website icons toggle dispatches the `.toggleShowWebsiteIcons(_:)` action.
+    @MainActor
+    func test_showWebsiteIconsToggle_tap() throws {
+        processor.state.isShowWebsiteIconsToggleOn = false
+        let toggle = try subject.inspect().find(toggleWithAccessibilityLabel: Localizations.showWebsiteIcons)
+        try toggle.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .toggleShowWebsiteIcons(true))
+    }
+
+    /// The show website icons info button's image has an accessibility label, which names the
+    /// custom accessibility action exposed on the toggle.
+    @MainActor
+    func test_showWebsiteIconsToggle_learnMoreButton_accessibility() throws {
+        XCTAssertNoThrow(try subject.inspect().find(ViewType.Image.self) { image in
+            try image.accessibilityLabel().string() == Localizations.learnMore
+        })
     }
 }

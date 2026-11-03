@@ -112,8 +112,6 @@ struct CipherDetailsView: View {
     }
 }
 
-struct CipherDetailsView_Previews: PreviewProvider {
-    static var previews: some View {
-        CipherDetailsView(cipher: CipherMock.ciphers[0])
-    }
+#Preview {
+    CipherDetailsView(cipher: CipherMock.ciphers[0])
 }

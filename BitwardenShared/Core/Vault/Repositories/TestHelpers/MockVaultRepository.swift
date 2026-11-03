@@ -11,7 +11,7 @@ class MockVaultRepository: VaultRepository { // swiftlint:disable:this type_body
     // MARK: Properties
 
     var addCipherCiphers = [CipherView]()
-    var addCipherResult: Result<Void, Error> = .success(())
+    var addCipherResult: Result<CipherView, Error> = .success(.fixture())
 
     var archiveCipher = [CipherView]()
     var archiveCipherResult: Result<Void, Error> = .success(())
@@ -76,6 +76,12 @@ class MockVaultRepository: VaultRepository { // swiftlint:disable:this type_body
     var getTOTPKeyIfAllowedToCopyResult: Result<String?, Error> = .success(nil)
 
     var getItemTypesUserCanCreateResult: [BitwardenShared.CipherType] = CipherType.canCreateCases
+
+    /// When `true`, `getItemTypesUserCanCreate()` suspends until manually resumed via
+    /// `getItemTypesUserCanCreateContinuations`, in call order. Used to test scenarios with
+    /// overlapping calls.
+    var getItemTypesUserCanCreateGated = false
+    var getItemTypesUserCanCreateContinuations: [CheckedContinuation<[BitwardenShared.CipherType], Never>] = []
 
     var hasMinimumCipherCountResult: Result<Bool, Error> = .success(false)
 
@@ -142,9 +148,9 @@ class MockVaultRepository: VaultRepository { // swiftlint:disable:this type_body
 
     // MARK: Methods
 
-    func addCipher(_ cipher: BitwardenSdk.CipherView) async throws {
+    func addCipher(_ cipher: BitwardenSdk.CipherView) async throws -> BitwardenSdk.CipherView {
         addCipherCiphers.append(cipher)
-        try addCipherResult.get()
+        return try addCipherResult.get()
     }
 
     func bulkShareCiphers(
@@ -258,7 +264,10 @@ class MockVaultRepository: VaultRepository { // swiftlint:disable:this type_body
     }
 
     func getItemTypesUserCanCreate() async -> [BitwardenShared.CipherType] {
-        getItemTypesUserCanCreateResult
+        guard getItemTypesUserCanCreateGated else { return getItemTypesUserCanCreateResult }
+        return await withCheckedContinuation { continuation in
+            getItemTypesUserCanCreateContinuations.append(continuation)
+        }
     }
 
     func getTOTPKeyIfAllowedToCopy(cipher: CipherView) async throws -> String? {

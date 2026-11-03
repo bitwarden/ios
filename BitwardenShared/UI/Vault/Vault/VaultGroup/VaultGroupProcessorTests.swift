@@ -32,6 +32,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     var searchProcessorMediatorFactory: MockSearchProcessorMediatorFactory!
     var stateService: MockStateService!
     var subject: VaultGroupProcessor!
+    var syncService: MockSyncService!
     var timeProvider: MockTimeProvider!
     var vaultItemMoreOptionsHelper: MockVaultItemMoreOptionsHelper!
     var vaultRepository: MockVaultRepository!
@@ -58,6 +59,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         premiumUpgradeHelper = MockPremiumUpgradeHelper()
         stateService = MockStateService()
+        syncService = MockSyncService()
         timeProvider = MockTimeProvider(.mockTime(fixedDate))
         vaultItemMoreOptionsHelper = MockVaultItemMoreOptionsHelper()
         vaultRepository = MockVaultRepository()
@@ -76,6 +78,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 policyService: policyService,
                 searchProcessorMediatorFactory: searchProcessorMediatorFactory,
                 stateService: stateService,
+                syncService: syncService,
                 timeProvider: timeProvider,
                 vaultRepository: vaultRepository,
             ),
@@ -105,6 +108,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         searchProcessorMediatorFactory = nil
         stateService = nil
         subject = nil
+        syncService = nil
         timeProvider = nil
         vaultItemMoreOptionsHelper = nil
         vaultRepository = nil
@@ -130,6 +134,46 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         subject.itemDeleted()
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemDeleted))
         waitFor(vaultRepository.fetchSyncCalled)
+    }
+
+    /// `didFinishAddingItem(id:type:)` delegate method navigates to the added item's detail view
+    /// with a confirmation toast, skipping the master password reprompt check since the user just
+    /// created the item.
+    @MainActor
+    func test_delegate_didFinishAddingItem() {
+        subject.didFinishAddingItem(id: "1", type: .driversLicense)
+
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .viewItem(
+                id: "1",
+                masterPasswordRepromptCheckCompleted: true,
+                toastTitle: Localizations.licenseSaved,
+            ),
+        )
+        XCTAssertTrue(coordinator.contexts.last is VaultGroupProcessor)
+    }
+
+    /// `itemUpdated(type:)` delegate method shows the toast for the updated item's type, which
+    /// covers saving an edit started from the item's more options menu.
+    @MainActor
+    func test_delegate_itemUpdated() {
+        XCTAssertNil(subject.state.toast)
+
+        let shouldDismiss = subject.itemUpdated(type: .driversLicense)
+        XCTAssertTrue(shouldDismiss)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.licenseSaved))
+        waitFor(vaultRepository.fetchSyncCalled)
+    }
+
+    /// `itemDismissed()` delegate method doesn't show a toast when the editor is dismissed
+    /// without saving.
+    @MainActor
+    func test_delegate_itemDismissed() {
+        let shouldDismiss = subject.itemDismissed()
+
+        XCTAssertTrue(shouldDismiss)
+        XCTAssertNil(subject.state.toast)
     }
 
     /// `itemSoftDeleted()` delegate method shows the expected toast.
@@ -253,6 +297,53 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         task.cancel()
     }
 
+    /// `perform(_:)` with `.streamSyncComplete` reloads the item types the user can create
+    /// whenever a sync completes, so feature-flag or policy changes picked up by the sync are
+    /// reflected without needing the screen to reappear.
+    @MainActor
+    func test_perform_streamSyncComplete_reloadsItemTypesUserCanCreate() {
+        let task = Task {
+            await subject.perform(.streamSyncComplete)
+        }
+        defer { task.cancel() }
+
+        vaultRepository.getItemTypesUserCanCreateResult = [.card]
+        syncService.syncCompleteSubject.send(())
+
+        waitFor(subject.state.itemTypesUserCanCreate == [.card])
+        XCTAssertEqual(subject.state.itemTypesUserCanCreate, [.card])
+    }
+
+    /// Loading the item types the user can create discards a stale result from an older,
+    /// slower-resolving call when a newer, overlapping call has already updated the state.
+    @MainActor
+    func test_loadItemTypesUserCanCreate_discardsStaleResults_fromOverlappingCalls() {
+        vaultRepository.getItemTypesUserCanCreateGated = true
+
+        let firstTask = Task { await subject.perform(.appeared) }
+        defer { firstTask.cancel() }
+        waitFor(vaultRepository.getItemTypesUserCanCreateContinuations.count == 1)
+
+        let secondTask = Task { await subject.perform(.appeared) }
+        defer { secondTask.cancel() }
+        waitFor(vaultRepository.getItemTypesUserCanCreateContinuations.count == 2)
+
+        // The newer, second call resolves first.
+        vaultRepository.getItemTypesUserCanCreateContinuations[1].resume(returning: [.card])
+        waitFor(subject.state.itemTypesUserCanCreate == [.card])
+
+        // The older, first call resolving afterwards must not overwrite the newer result.
+        vaultRepository.getItemTypesUserCanCreateContinuations[0].resume(returning: [.login])
+
+        // Give the stale result a chance to (wrongly) apply, then confirm it didn't.
+        let deadline = Date(timeIntervalSinceNow: 0.25)
+        while Date() < deadline {
+            RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: 0.05))
+        }
+
+        XCTAssertEqual(subject.state.itemTypesUserCanCreate, [.card])
+    }
+
     /// `perform(_:)` with `appeared` determines whether the vault filter can be shown based on
     /// policy settings.
     @MainActor
@@ -290,6 +381,29 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             subject.state.vaultFilterState.vaultFilterOptions,
             [.allVaults, .myVault, .organization(.fixture())],
         )
+    }
+
+    /// `perform(_:)` with `.accessibilityMoreOptionsActionPressed` has the vault item more options
+    /// helper perform the action directly.
+    @MainActor
+    func test_perform_accessibilityMoreOptionsActionPressed() async throws {
+        let item = VaultListItem.fixture()
+        await subject.perform(.accessibilityMoreOptionsActionPressed(item, .copyUsername))
+
+        XCTAssertTrue(vaultItemMoreOptionsHelper.performActionCalled)
+        XCTAssertEqual(vaultItemMoreOptionsHelper.performActionKind, .copyUsername)
+        XCTAssertEqual(vaultItemMoreOptionsHelper.performActionItem, item)
+        XCTAssertIdentical(vaultItemMoreOptionsHelper.performActionDelegate as AnyObject, subject)
+        XCTAssertNotNil(vaultItemMoreOptionsHelper.performActionHandleDisplayToast)
+        XCTAssertNotNil(vaultItemMoreOptionsHelper.performActionHandleOpenURL)
+
+        let toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.username))
+        vaultItemMoreOptionsHelper.performActionHandleDisplayToast?(toast)
+        XCTAssertEqual(subject.state.toast, toast)
+
+        let url = URL.example
+        vaultItemMoreOptionsHelper.performActionHandleOpenURL?(url)
+        XCTAssertEqual(subject.state.url, url)
     }
 
     /// `perform(_:)` with `.morePressed` has the vault item more options helper display the alert.
@@ -428,6 +542,63 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         waitFor(subject.state.showWebIcons == false)
 
         task.cancel()
+    }
+
+    /// `perform(_:)` with `.itemPressed` on a cipher navigates to the `.viewItem` route.
+    @MainActor
+    func test_perform_itemPressed_cipher() async throws {
+        let cipherListView = CipherListView.fixture(id: "id")
+
+        await subject.perform(.itemPressed(.fixture(cipherListView: cipherListView)))
+        try await waitForAsync { !self.coordinator.routes.isEmpty }
+
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: "id", masterPasswordRepromptCheckCompleted: true))
+        XCTAssertTrue(coordinator.contexts.last is VaultGroupProcessor)
+        XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
+    }
+
+    /// `perform(_:)` with `.itemPressed` shows an alert when tapping on a cipher which failed to decrypt.
+    @MainActor
+    func test_perform_itemPressed_cipherDecryptionFailure() async throws {
+        let cipherListView = CipherListView.fixture(name: Localizations.errorCannotDecrypt)
+        let item = VaultListItem.fixture(cipherListView: cipherListView)
+
+        await subject.perform(.itemPressed(item))
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .cipherDecryptionFailure(cipherIds: ["1"]) { _ in })
+
+        try await alert.tapAction(title: Localizations.copyErrorReport)
+        XCTAssertEqual(
+            pasteboardService.copyReceivedString,
+            """
+            \(Localizations.decryptionError)
+            \(Localizations.bitwardenCouldNotDecryptThisVaultItemDescriptionLong)
+
+            1
+            """,
+        )
+    }
+
+    /// `perform(_:)` with `.itemPressed` on a group navigates to the `.group` route.
+    @MainActor
+    func test_perform_itemPressed_group() async {
+        await subject.perform(.itemPressed(VaultListItem(id: "1", itemType: .group(.card, 2))))
+        XCTAssertEqual(coordinator.routes.last, .group(.card, filter: .allVaults))
+    }
+
+    /// `perform(_:)` with `.itemPressed` navigates to the `.viewItem` route.
+    @MainActor
+    func test_perform_itemPressed_totp() async throws {
+        let cipherListView = CipherListView.fixture()
+        let totpItem = VaultListItem.fixtureTOTP(totp: .fixture(cipherListView: cipherListView))
+
+        await subject.perform(.itemPressed(totpItem))
+        try await waitForAsync { !self.coordinator.routes.isEmpty }
+
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: totpItem.id, masterPasswordRepromptCheckCompleted: true))
+        XCTAssertTrue(coordinator.contexts.last is VaultGroupProcessor)
+        XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
     }
 
     /// `onNewSearchResults(data:)` closure from search mediator should update search results in state.
@@ -864,68 +1035,11 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     @MainActor
     func test_receive_copyTOTPCode() {
         subject.receive(.copyTOTPCode("123456"))
-        XCTAssertEqual(pasteboardService.copiedString, "123456")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "123456")
         XCTAssertEqual(
             subject.state.toast,
             Toast(title: Localizations.valueHasBeenCopied(Localizations.verificationCode)),
         )
-    }
-
-    /// `receive(_:)` with `.itemPressed` on a cipher navigates to the `.viewItem` route.
-    @MainActor
-    func test_receive_itemPressed_cipher() async throws {
-        let cipherListView = CipherListView.fixture(id: "id")
-
-        subject.receive(.itemPressed(.fixture(cipherListView: cipherListView)))
-        try await waitForAsync { !self.coordinator.routes.isEmpty }
-
-        XCTAssertEqual(coordinator.routes.last, .viewItem(id: "id", masterPasswordRepromptCheckCompleted: true))
-        XCTAssertTrue(coordinator.contexts.last is VaultGroupProcessor)
-        XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
-    }
-
-    /// `receive(_:)` with `.itemPressed` shows an alert when tapping on a cipher which failed to decrypt.
-    @MainActor
-    func test_receive_itemPressed_cipherDecryptionFailure() async throws {
-        let cipherListView = CipherListView.fixture(name: Localizations.errorCannotDecrypt)
-        let item = VaultListItem.fixture(cipherListView: cipherListView)
-
-        subject.receive(.itemPressed(item))
-
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert, .cipherDecryptionFailure(cipherIds: ["1"]) { _ in })
-
-        try await alert.tapAction(title: Localizations.copyErrorReport)
-        XCTAssertEqual(
-            pasteboardService.copiedString,
-            """
-            \(Localizations.decryptionError)
-            \(Localizations.bitwardenCouldNotDecryptThisVaultItemDescriptionLong)
-
-            1
-            """,
-        )
-    }
-
-    /// `receive(_:)` with `.itemPressed` on a group navigates to the `.group` route.
-    @MainActor
-    func test_receive_itemPressed_group() {
-        subject.receive(.itemPressed(VaultListItem(id: "1", itemType: .group(.card, 2))))
-        XCTAssertEqual(coordinator.routes.last, .group(.card, filter: .allVaults))
-    }
-
-    /// `receive(_:)` with `.itemPressed` navigates to the `.viewItem` route.
-    @MainActor
-    func test_receive_itemPressed_totp() async throws {
-        let cipherListView = CipherListView.fixture()
-        let totpItem = VaultListItem.fixtureTOTP(totp: .fixture(cipherListView: cipherListView))
-
-        subject.receive(.itemPressed(totpItem))
-        try await waitForAsync { !self.coordinator.routes.isEmpty }
-
-        XCTAssertEqual(coordinator.routes.last, .viewItem(id: totpItem.id, masterPasswordRepromptCheckCompleted: true))
-        XCTAssertTrue(coordinator.contexts.last is VaultGroupProcessor)
-        XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
     }
 
     /// `receive(_:)` with `.searchTextChanged` and no value sets the state correctly.

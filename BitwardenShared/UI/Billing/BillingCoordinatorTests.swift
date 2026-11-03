@@ -117,6 +117,32 @@ struct BillingCoordinatorTests {
         #expect(action.view is PremiumUpgradeCompleteView)
     }
 
+    /// `navigate(to:)` with `.premiumUpgradeCompleteStandalone` replaces the stack with the
+    /// Premium upgrade complete view.
+    @Test
+    func navigate_premiumUpgradeCompleteStandalone() throws {
+        subject.navigate(to: .premiumUpgradeCompleteStandalone)
+
+        #expect(stackNavigator.actions.count == 1)
+        let action = try #require(stackNavigator.actions.last)
+        #expect(action.type == .replaced)
+        #expect(action.view is PremiumUpgradeCompleteView)
+    }
+
+    /// `navigate(to:)` with `.dismiss` after `.premiumUpgradeCompleteStandalone` dismisses the modal.
+    @Test
+    func navigate_dismiss_afterPremiumUpgradeCompleteStandalone() throws {
+        subject.navigate(to: .premiumUpgradeCompleteStandalone)
+        stackNavigator.actions.removeAll()
+
+        stackNavigator.isPresenting = false
+        // viewControllersToPop is empty by default, so pop() returns nil.
+        subject.navigate(to: .dismiss)
+
+        let action = try #require(stackNavigator.actions.last)
+        #expect(action.type == .dismissed)
+    }
+
     /// `navigate(to:)` with `.premiumPlan` pushes the Premium plan view.
     @Test
     func navigate_premiumPlan() throws {

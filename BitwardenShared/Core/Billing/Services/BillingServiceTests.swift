@@ -11,11 +11,14 @@ import Testing
 
 // swiftlint:disable file_length
 
+/// Tests for the `BillingService` methods that don't touch cached billing state — checkout,
+/// subscription/plan lookups, self-hosted detection, and the `premiumStatusChanged` push handler.
 @MainActor
 struct BillingServiceTests { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var billingAPIService: MockBillingAPIService!
+    var billingStateService: MockBillingStateService!
     var configService: MockConfigService!
     var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
@@ -28,16 +31,20 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
     init() {
         billingAPIService = MockBillingAPIService()
         billingAPIService.getSubscriptionReturnValue = .fixture()
+        billingStateService = MockBillingStateService()
+        billingStateService.getSubscriptionAttentionCardVisibleReturnValue = false
+        billingStateService.getUpgradedToPremiumActionCardVisibleReturnValue = false
         configService = MockConfigService()
         configService.featureFlagsBool[.premiumUpgradePath] = true
         environmentService = MockEnvironmentService()
         environmentService.region = .unitedStates
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
+        stateService.activeAccount = .fixture()
         syncService = MockSyncService()
         subject = DefaultBillingService(
             billingAPIService: billingAPIService,
-            billingStateService: stateService,
+            billingStateService: billingStateService,
             configService: configService,
             environmentService: environmentService,
             errorReporter: errorReporter,
@@ -285,7 +292,7 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         #expect(result.cancelAt != nil)
     }
 
-    /// `premiumCheckoutCanceled()` publishes `.canceled` and then resets the publisher value to nil.
+    /// `premiumCheckoutCanceled()` publishes `.canceled`.
     @Test
     func premiumCheckoutCanceled() async throws {
         var statuses = [PremiumCheckoutStatus]()
@@ -297,130 +304,106 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
 
         try await waitForAsync { !statuses.isEmpty }
         #expect(statuses == [.canceled])
-
-        // After .canceled + nil are sent, a new subscriber should receive nothing (nil is filtered).
-        var lateStatuses = [PremiumCheckoutStatus]()
-        let lateCancellable = subject.premiumCheckoutStatusPublisher()
-            .sink { lateStatuses.append($0) }
-        defer { lateCancellable.cancel() }
-        try await waitForAsync { lateStatuses.isEmpty }
     }
 
-    /// A subscriber connecting after `.pending` is emitted receives the pending status immediately
-    /// (CurrentValueSubject replays the last value to new subscribers).
+    /// `premiumCheckoutStatusPublisher()` doesn't replay an earlier status to a later subscriber.
     @Test
-    func premiumCheckoutStatusPublisher_lateSubscriberReceivesPendingStatus() async throws {
-        stateService.doesActiveAccountHavePremiumResult = false
-        var earlyStatuses = [PremiumCheckoutStatus]()
-        let earlyCancellable = subject.premiumCheckoutStatusPublisher()
-            .sink { earlyStatuses.append($0) }
-
-        await subject.premiumStatusChanged()
-        try await waitForAsync { !earlyStatuses.isEmpty }
-
-        // Late subscriber connects after .pending was emitted and should receive it.
-        var lateStatuses = [PremiumCheckoutStatus]()
-        let lateCancellable = subject.premiumCheckoutStatusPublisher()
-            .sink { lateStatuses.append($0) }
-        try await waitForAsync { !lateStatuses.isEmpty }
-
-        #expect(lateStatuses == [.pending])
-        _ = earlyCancellable
-        _ = lateCancellable
-    }
-
-    /// `premiumStatusChanged()` returns early without syncing when the user already has Premium.
-    @Test
-    func premiumStatusChanged_alreadyHasPremium() async throws {
-        stateService.doesActiveAccountHavePremiumResult = true
-        var statuses = [PremiumCheckoutStatus]()
-        let cancellable = subject.premiumCheckoutStatusPublisher()
-            .sink { statuses.append($0) }
-        defer { cancellable.cancel() }
-
-        await subject.premiumStatusChanged()
-
-        #expect(statuses.isEmpty)
-        #expect(!syncService.didFetchSync)
-    }
-
-    /// `premiumStatusChanged()` publishes `.confirmed` when the user gains Premium after sync.
-    @Test
-    func premiumStatusChanged_confirmed() async throws {
-        // Start as non-Premium so the guard passes, then switch to Premium after sync.
-        stateService.doesActiveAccountHavePremiumResult = false
-        syncService.fetchSyncHandler = {
-            stateService.doesActiveAccountHavePremiumResult = true
-        }
-        var statuses = [PremiumCheckoutStatus]()
-        let cancellable = subject.premiumCheckoutStatusPublisher()
-            .sink { statuses.append($0) }
-        defer { cancellable.cancel() }
-
-        await subject.premiumStatusChanged()
-
-        // With instant mock sync, .syncing and .confirmed arrive within the 300ms debounce
-        // window, so only .confirmed (the last value) is delivered.
-        try await waitForAsync { !statuses.isEmpty }
-        #expect(statuses == [.confirmed])
-        #expect(syncService.didFetchSync)
-    }
-
-    /// `premiumStatusChanged()` resets the publisher value to nil after emitting `.confirmed`,
-    /// so late subscribers do not receive a stale `.confirmed` on connection.
-    @Test
-    func premiumStatusChanged_confirmed_resetsPublisherValue() async throws {
-        stateService.doesActiveAccountHavePremiumResult = false
-        syncService.fetchSyncHandler = {
-            stateService.doesActiveAccountHavePremiumResult = true
-        }
+    func premiumCheckoutStatusPublisher_doesNotReplayToLateSubscriber() async throws {
         var earlyStatuses = [PremiumCheckoutStatus]()
         let earlyCancellable = subject.premiumCheckoutStatusPublisher()
             .sink { earlyStatuses.append($0) }
         defer { earlyCancellable.cancel() }
+        subject.premiumCheckoutCanceled()
+        try await waitForAsync { earlyStatuses.count == 1 }
 
-        await subject.premiumStatusChanged()
-        try await waitForAsync { !earlyStatuses.isEmpty }
-
-        // A subscriber connecting after .confirmed + nil are emitted should receive nothing.
         var lateStatuses = [PremiumCheckoutStatus]()
         let lateCancellable = subject.premiumCheckoutStatusPublisher()
             .sink { lateStatuses.append($0) }
         defer { lateCancellable.cancel() }
+        try await Task.sleep(nanoseconds: 200_000_000)
+        subject.premiumCheckoutCanceled()
 
-        try await waitForAsync { lateStatuses.isEmpty }
+        try await waitForAsync { earlyStatuses.count == 2 }
+        #expect(lateStatuses.count == 1)
     }
 
-    /// `premiumStatusChanged()` returns early without syncing when the premiumUpgradePath flag is disabled.
+    /// `premiumStatusChanged()` force-syncs an account that already has Premium — the server
+    /// sends this push after every successful Premium payment (e.g. a past-due user paying),
+    /// which a Premium account's attention card needs to pick up.
     @Test
-    func premiumStatusChanged_featureFlagDisabled() async throws {
-        configService.featureFlagsBool[.premiumUpgradePath] = false
-        stateService.doesActiveAccountHavePremiumResult = false
-        var statuses = [PremiumCheckoutStatus]()
-        let cancellable = subject.premiumCheckoutStatusPublisher()
-            .sink { statuses.append($0) }
-        defer { cancellable.cancel() }
+    func premiumStatusChanged_alreadyHasPremium_forceSyncs() async {
+        stateService.doesActiveAccountHavePremiumResult = true
 
         await subject.premiumStatusChanged()
 
-        #expect(statuses.isEmpty)
-        #expect(!syncService.didFetchSync)
-    }
-
-    /// `premiumStatusChanged()` publishes `.pending` when the user does not have Premium after sync.
-    @Test
-    func premiumStatusChanged_pending() async throws {
-        stateService.doesActiveAccountHavePremiumResult = false
-        var statuses = [PremiumCheckoutStatus]()
-        let cancellable = subject.premiumCheckoutStatusPublisher()
-            .sink { statuses.append($0) }
-        defer { cancellable.cancel() }
-
-        await subject.premiumStatusChanged()
-
-        try await waitForAsync { !statuses.isEmpty }
-        #expect(statuses == [.pending])
         #expect(syncService.didFetchSync)
+        #expect(syncService.fetchSyncForceSync == true)
+    }
+
+    /// `premiumStatusChanged()` force-syncs even when the premiumUpgradePath flag is disabled.
+    @Test
+    func premiumStatusChanged_featureFlagDisabled_forceSyncs() async {
+        configService.featureFlagsBool[.premiumUpgradePath] = false
+
+        await subject.premiumStatusChanged()
+
+        #expect(syncService.didFetchSync)
+        #expect(syncService.fetchSyncForceSync == true)
+    }
+
+    /// `premiumStatusChanged()` only syncs: it publishes no checkout status, writes neither action
+    /// card, and leaves the subscription attention refresh to the sync's own completion handling,
+    /// even when the sync lands Premium.
+    @Test
+    func premiumStatusChanged_premiumLanded_onlySyncs() async throws {
+        stateService.doesActiveAccountHavePremiumResult = false
+        syncService.fetchSyncHandler = {
+            stateService.doesActiveAccountHavePremiumResult = true
+        }
+        var statuses = [PremiumCheckoutStatus]()
+        let cancellable = subject.premiumCheckoutStatusPublisher()
+            .sink { statuses.append($0) }
+        defer { cancellable.cancel() }
+
+        await subject.premiumStatusChanged()
+
+        // Wait out the 100ms debounce so a published status would have been delivered.
+        try await Task.sleep(nanoseconds: 200_000_000)
+        #expect(statuses.isEmpty)
+        #expect(syncService.didFetchSync)
+        #expect(syncService.fetchSyncForceSync == true)
+        #expect(!billingAPIService.getSubscriptionCalled)
+        #expect(!billingStateService.setSubscriptionAttentionCardVisibleCalled)
+        #expect(!billingStateService.setUpgradedToPremiumActionCardVisibleCalled)
+    }
+
+    /// `premiumStatusChanged()` force-syncs a self-hosted account — self-hosted license changes
+    /// send this push without bumping the account revision date.
+    @Test
+    func premiumStatusChanged_selfHosted_forceSyncs() async {
+        environmentService.region = .selfHosted
+
+        await subject.premiumStatusChanged()
+
+        #expect(syncService.didFetchSync)
+        #expect(syncService.fetchSyncForceSync == true)
+    }
+
+    /// `premiumStatusChanged()` logs the error and publishes no checkout status when the sync fails.
+    @Test
+    func premiumStatusChanged_syncError_logsError() async throws {
+        syncService.fetchSyncResult = .failure(URLError(.notConnectedToInternet))
+        var statuses = [PremiumCheckoutStatus]()
+        let cancellable = subject.premiumCheckoutStatusPublisher()
+            .sink { statuses.append($0) }
+        defer { cancellable.cancel() }
+
+        await subject.premiumStatusChanged()
+
+        // Wait out the 100ms debounce so a published status would have been delivered.
+        try await Task.sleep(nanoseconds: 200_000_000)
+        #expect(statuses.isEmpty)
+        #expect(errorReporter.errors.first is URLError)
     }
 
     /// `isSelfHosted()` returns `false` when the region is not self-hosted.
@@ -476,196 +459,5 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         let result = await subject.isSelfHosted()
 
         #expect(result == false)
-    }
-
-    /// `premiumStatusChanged()` returns early without syncing when the environment is self-hosted.
-    @Test
-    func premiumStatusChanged_selfHosted() async throws {
-        environmentService.region = .selfHosted
-        stateService.doesActiveAccountHavePremiumResult = false
-        var statuses = [PremiumCheckoutStatus]()
-        let cancellable = subject.premiumCheckoutStatusPublisher()
-            .sink { statuses.append($0) }
-        defer { cancellable.cancel() }
-
-        await subject.premiumStatusChanged()
-
-        #expect(statuses.isEmpty)
-        #expect(!syncService.didFetchSync)
-    }
-
-    /// `premiumStatusChanged()` syncs when self-hosted region is overridden by the debug flag.
-    @Test
-    func premiumStatusChanged_selfHosted_debugFlagEnabled_syncs() async throws {
-        environmentService.region = .selfHosted
-        configService.featureFlagsBool[.debugDisableSelfHostPremiumCheck] = true
-        stateService.doesActiveAccountHavePremiumResult = false
-        var statuses = [PremiumCheckoutStatus]()
-        let cancellable = subject.premiumCheckoutStatusPublisher()
-            .sink { statuses.append($0) }
-        defer { cancellable.cancel() }
-
-        await subject.premiumStatusChanged()
-
-        try await waitForAsync { !statuses.isEmpty }
-        #expect(syncService.didFetchSync)
-    }
-
-    /// `setUpgradedToPremiumActionCardDismissed()` sets the visibility flag to `false` for the active account.
-    @Test
-    func setUpgradedToPremiumActionCardDismissed() async {
-        stateService.upgradedToPremiumActionCardVisibleResult = true
-
-        await subject.setUpgradedToPremiumActionCardDismissed()
-
-        #expect(stateService.upgradedToPremiumActionCardVisibleResult == false)
-    }
-
-    /// `setUpgradedToPremiumActionCardDismissed()` logs an error if the state service throws.
-    @Test
-    func setUpgradedToPremiumActionCardDismissed_error() async {
-        stateService.setUpgradedToPremiumActionCardResult = .failure(StateServiceError.noActiveAccount)
-
-        await subject.setUpgradedToPremiumActionCardDismissed()
-
-        #expect(errorReporter.errors.first as? StateServiceError == .noActiveAccount)
-    }
-
-    /// `shouldShowUpgradedToPremiumActionCard()` returns `true` when the state service reports the card is visible.
-    @Test
-    func shouldShowUpgradedToPremiumActionCard_visible() async {
-        stateService.upgradedToPremiumActionCardVisibleResult = true
-
-        let result = await subject.shouldShowUpgradedToPremiumActionCard()
-
-        #expect(result == true)
-    }
-
-    /// `shouldShowUpgradedToPremiumActionCard()` returns `false` when the state service reports it is not visible.
-    @Test
-    func shouldShowUpgradedToPremiumActionCard_notVisible() async {
-        stateService.upgradedToPremiumActionCardVisibleResult = false
-
-        let result = await subject.shouldShowUpgradedToPremiumActionCard()
-
-        #expect(result == false)
-    }
-
-    /// `premiumStatusChanged()` reports the error and publishes `.pending` when sync fails.
-    @Test
-    func premiumStatusChanged_syncError() async throws {
-        stateService.doesActiveAccountHavePremiumResult = false
-        syncService.fetchSyncResult = .failure(URLError(.notConnectedToInternet))
-        var statuses = [PremiumCheckoutStatus]()
-        let cancellable = subject.premiumCheckoutStatusPublisher()
-            .sink { statuses.append($0) }
-        defer { cancellable.cancel() }
-
-        await subject.premiumStatusChanged()
-
-        try await waitForAsync { !statuses.isEmpty }
-        #expect(statuses == [.pending])
-        #expect(errorReporter.errors.first is URLError)
-    }
-
-    // MARK: refreshSubscriptionAttentionCard
-
-    /// `refreshSubscriptionAttentionCard(subscription:)` sets the cached visibility based on
-    /// whether the subscription status requires payment attention.
-    @Test(arguments: [
-        (SubscriptionStatus.pastDue, true),
-        (SubscriptionStatus.unpaid, true),
-        (SubscriptionStatus.active, false),
-    ])
-    func refreshSubscriptionAttentionCard_statusVisibility(
-        status: SubscriptionStatus,
-        expectedVisible: Bool,
-    ) async {
-        billingAPIService.getSubscriptionReturnValue = .fixture(status: status)
-
-        await subject.refreshSubscriptionAttentionCard(subscription: nil)
-
-        #expect(stateService.subscriptionAttentionCardVisibleResult == expectedVisible)
-    }
-
-    /// `refreshSubscriptionAttentionCard(subscription:)` sets the cached visibility to `false`
-    /// and skips the API call when the user is self-hosted.
-    @Test
-    func refreshSubscriptionAttentionCard_selfHosted() async {
-        environmentService.region = .selfHosted
-
-        await subject.refreshSubscriptionAttentionCard(subscription: nil)
-
-        #expect(stateService.subscriptionAttentionCardVisibleResult == false)
-        #expect(!billingAPIService.getSubscriptionCalled)
-    }
-
-    /// `refreshSubscriptionAttentionCard(subscription:)` sets the cached visibility to `false`
-    /// and skips the API call when the feature flag is disabled.
-    @Test
-    func refreshSubscriptionAttentionCard_featureFlagDisabled() async {
-        configService.featureFlagsBool[.premiumUpgradePath] = false
-
-        await subject.refreshSubscriptionAttentionCard(subscription: nil)
-
-        #expect(stateService.subscriptionAttentionCardVisibleResult == false)
-        #expect(!billingAPIService.getSubscriptionCalled)
-    }
-
-    /// `refreshSubscriptionAttentionCard(subscription:)` sets the cached visibility to `false`
-    /// and does not log an error when the user has no personal subscription (free user).
-    @Test
-    func refreshSubscriptionAttentionCard_noSubscription() async {
-        billingAPIService.getSubscriptionThrowableError = GetSubscriptionRequestError.noSubscription
-
-        await subject.refreshSubscriptionAttentionCard(subscription: nil)
-
-        #expect(stateService.subscriptionAttentionCardVisibleResult == false)
-        #expect(errorReporter.errors.isEmpty)
-    }
-
-    /// `refreshSubscriptionAttentionCard(subscription:)` uses an already-fetched subscription
-    /// instead of making a new API call when one is provided.
-    @Test
-    func refreshSubscriptionAttentionCard_usesProvidedSubscription() async {
-        await subject.refreshSubscriptionAttentionCard(subscription: .fixture(status: .pastDue))
-
-        #expect(stateService.subscriptionAttentionCardVisibleResult == true)
-        #expect(!billingAPIService.getSubscriptionCalled)
-    }
-
-    /// `refreshSubscriptionAttentionCard(subscription:)` sets the cached visibility to `true`
-    /// when a subscription with `.unpaid` status is provided directly (Plan screen path).
-    @Test
-    func refreshSubscriptionAttentionCard_unpaid_providedSubscription() async {
-        await subject.refreshSubscriptionAttentionCard(subscription: .fixture(status: .unpaid))
-
-        #expect(stateService.subscriptionAttentionCardVisibleResult == true)
-        #expect(!billingAPIService.getSubscriptionCalled)
-    }
-
-    /// `refreshSubscriptionAttentionCard(subscription:)` logs the error and does not update
-    /// the cache when the API call fails.
-    @Test
-    func refreshSubscriptionAttentionCard_apiError() async {
-        billingAPIService.getSubscriptionThrowableError = URLError(.notConnectedToInternet)
-
-        await subject.refreshSubscriptionAttentionCard(subscription: nil)
-
-        #expect(stateService.subscriptionAttentionCardVisibleResult == false)
-        #expect(errorReporter.errors.first is URLError)
-    }
-
-    // MARK: shouldShowSubscriptionAttentionCard
-
-    /// `shouldShowSubscriptionAttentionCard()` returns the cached value without making an API call.
-    @Test
-    func shouldShowSubscriptionAttentionCard_returnsFromCache() async {
-        stateService.subscriptionAttentionCardVisibleResult = true
-
-        let result = await subject.shouldShowSubscriptionAttentionCard()
-
-        #expect(result)
-        #expect(!billingAPIService.getSubscriptionCalled)
     }
 }

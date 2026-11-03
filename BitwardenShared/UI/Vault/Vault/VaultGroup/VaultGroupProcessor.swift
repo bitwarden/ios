@@ -25,6 +25,7 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
         & HasPolicyService
         & HasSearchProcessorMediatorFactory
         & HasStateService
+        & HasSyncService
         & HasTimeProvider
         & HasVaultRepository
 
@@ -35,6 +36,10 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
     /// The `Coordinator` for this processor.
     private var coordinator: any Coordinator<VaultRoute, AuthAction>
 
+    /// A monotonically increasing token used to discard stale results from overlapping
+    /// `loadItemTypesUserCanCreate()` calls.
+    private var itemTypesLoadGeneration = 0
+
     /// The helper to handle master password reprompts.
     private let masterPasswordRepromptHelper: MasterPasswordRepromptHelper
 
@@ -43,9 +48,6 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
         services: services,
         coordinator: coordinator,
         setURL: { [weak self] url in self?.state.url = url },
-        onPendingDismiss: { [weak self] in
-            Task { @MainActor in await self?.dismissPremiumUpgradeActionCard() }
-        },
     )
 
     /// The services for this processor.
@@ -122,15 +124,20 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
 
     override func perform(_ effect: VaultGroupEffect) async {
         switch effect {
+        case let .accessibilityMoreOptionsActionPressed(item, kind):
+            await performMoreOptionsAction(kind, for: item)
         case .appeared:
             await loadFeatureFlags()
             await loadHasPremiumAccount()
             await checkPersonalOwnershipPolicy()
             await loadItemTypesUserCanCreate()
             await streamVaultList()
+        case let .itemPressed(item):
+            handleItemTapped(item)
         case let .morePressed(item):
             await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
                 for: item,
+                delegate: self,
                 handleDisplayToast: { [weak self] toast in
                     self?.state.toast = toast
                 },
@@ -151,6 +158,8 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
             for await value in await services.stateService.showWebIconsPublisher().values {
                 state.showWebIcons = value
             }
+        case .streamSyncComplete:
+            await streamSyncComplete()
         }
     }
 
@@ -167,21 +176,6 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
         case let .copyTOTPCode(code):
             services.pasteboardService.copy(code)
             state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.verificationCode))
-        case let .itemPressed(item):
-            switch item.itemType {
-            case let .cipher(cipherListView, _):
-                if cipherListView.isDecryptionFailure, let cipherId = cipherListView.id {
-                    coordinator.showAlert(.cipherDecryptionFailure(cipherIds: [cipherId]) { stringToCopy in
-                        self.services.pasteboardService.copy(stringToCopy)
-                    })
-                } else {
-                    navigateToViewItem(cipherListView: cipherListView, id: item.id)
-                }
-            case let .group(group, _):
-                coordinator.navigate(to: .group(group, filter: state.vaultFilterType))
-            case let .totp(_, model):
-                navigateToViewItem(cipherListView: model.cipherListView, id: model.id)
-            }
         case .restartPremiumSubscription:
             state.url = services.environmentService.upgradeToPremiumURL
         case let .searchStateChanged(isSearching):
@@ -227,17 +221,43 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
 
     /// Checks available item types user can create.
     ///
+    @MainActor
     private func loadItemTypesUserCanCreate() async {
-        state.itemTypesUserCanCreate = await vaultRepository.getItemTypesUserCanCreate()
+        itemTypesLoadGeneration += 1
+        let generation = itemTypesLoadGeneration
+        let itemTypes = await vaultRepository.getItemTypesUserCanCreate()
+        guard generation == itemTypesLoadGeneration else { return } // A newer call superseded this one.
+        state.itemTypesUserCanCreate = itemTypes
     }
 
     /// Dismisses the Premium upgrade action card and persists the banner-dismissed preference.
     ///
     private func dismissPremiumUpgradeActionCard() async {
         do {
-            try await services.stateService.setPremiumUpgradeBannerDismissed(true)
+            try await services.billingService.setPremiumUpgradeBannerDismissed()
         } catch {
             services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Handles the user tapping a vault list item to open it.
+    ///
+    /// - Parameter item: The item that was tapped.
+    ///
+    private func handleItemTapped(_ item: VaultListItem) {
+        switch item.itemType {
+        case let .cipher(cipherListView, _):
+            if cipherListView.isDecryptionFailure, let cipherId = cipherListView.id {
+                coordinator.showAlert(.cipherDecryptionFailure(cipherIds: [cipherId]) { stringToCopy in
+                    self.services.pasteboardService.copy(stringToCopy)
+                })
+            } else {
+                navigateToViewItem(cipherListView: cipherListView, id: item.id)
+            }
+        case let .group(group, _):
+            coordinator.navigate(to: .group(group, filter: state.vaultFilterType))
+        case let .totp(_, model):
+            navigateToViewItem(cipherListView: model.cipherListView, id: model.id)
         }
     }
 
@@ -248,6 +268,30 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
         await premiumUpgradeHelper.navigateToPremiumUpgrade(onConfirmed: { [weak self] in
             await self?.refreshVaultGroup()
         })
+    }
+
+    /// Performs the more-options action identified by `kind` for the given vault item, activated
+    /// via a VoiceOver custom accessibility action.
+    ///
+    /// - Parameters:
+    ///   - kind: The kind of more-options action to perform.
+    ///   - item: The vault list item to perform the action on.
+    ///
+    private func performMoreOptionsAction(_ kind: MoreOptionsActionKind, for item: VaultListItem) async {
+        await vaultItemMoreOptionsHelper.performMoreOptionsAction(
+            kind,
+            for: item,
+            delegate: self,
+            handleDisplayToast: { [weak self] toast in
+                self?.state.toast = toast
+            },
+            handleNavigateToPremiumUpgrade: { [weak self] in
+                await self?.navigateToPremiumUpgrade()
+            },
+            handleOpenURL: { [weak self] url in
+                self?.state.url = url
+            },
+        )
     }
 
     /// Navigates to the view item view for the specified cipher. If the cipher requires master
@@ -356,6 +400,13 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
         }
     }
 
+    /// Streams sync-complete events to keep up-to-date sync-related features here.
+    private func streamSyncComplete() async {
+        for await _ in services.syncService.syncCompletePublisher() {
+            await loadItemTypesUserCanCreate()
+        }
+    }
+
     /// Stream the vault list.
     private func streamVaultList() async {
         do {
@@ -376,6 +427,13 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
 extension VaultGroupProcessor: CipherItemOperationDelegate {
     // MARK: Methods
 
+    func didFinishAddingItem(id: String, type: CipherType) {
+        coordinator.navigate(
+            to: .viewItem(id: id, masterPasswordRepromptCheckCompleted: true, toastTitle: type.savedToastTitle),
+            context: self,
+        )
+    }
+
     func itemArchived() {
         displayToastAndRefresh(toastTitle: Localizations.itemMovedToArchive)
     }
@@ -394,6 +452,11 @@ extension VaultGroupProcessor: CipherItemOperationDelegate {
 
     func itemUnarchived() {
         displayToastAndRefresh(toastTitle: Localizations.itemMovedToVault)
+    }
+
+    func itemUpdated(type: CipherType) -> Bool {
+        displayToastAndRefresh(toastTitle: type.savedToastTitle)
+        return true
     }
 
     // MARK: Private methods

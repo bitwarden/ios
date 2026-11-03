@@ -215,6 +215,18 @@ struct AddEditSendItemState: Equatable, Sendable {
     var shouldShowHideEmailPolicyBanner: Bool {
         isSendHideEmailDisabled && !isSendControlsPolicyEnabled
     }
+
+    /// The footer text to display below the "who can view" menu.
+    var whoCanViewFooter: String? {
+        switch accessType {
+        case .anyoneWithLink:
+            Localizations.anyoneWithThisLinkCanViewThisSend
+        case .specificPeople:
+            Localizations.afterSharingThisSendLinkDescriptionLong
+        case .anyoneWithPassword:
+            Localizations.individualsWillNeedToEnterThisPasswordDescriptionLong
+        }
+    }
 }
 
 extension AddEditSendItemState {
@@ -326,6 +338,8 @@ extension AddEditSendItemState {
             type: sdkType,
             file: type == .file ? newFileView() : nil,
             text: type == .text ? newTextView() : nil,
+            // The app only creates v1 sends, which carry no send item payload.
+            data: nil,
             maxAccessCount: maximumAccessCount == 0 ? nil : UInt32(maximumAccessCount),
             accessCount: 0, // Defaulting to `0`, since the API ignores the values we set here.
             disabled: isDeactivateThisSendOn,

@@ -278,9 +278,9 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         }
         defer { task.cancel() }
 
-        waitFor(pasteboardService.copiedString != nil)
+        waitFor(pasteboardService.copyReceivedString != nil)
 
-        XCTAssertEqual(pasteboardService.copiedString, totpCode)
+        XCTAssertEqual(pasteboardService.copyReceivedString, totpCode)
         XCTAssertEqual(
             subject.state.toast?.title,
             Localizations.valueHasBeenCopied(Localizations.verificationCode),
@@ -321,9 +321,9 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         }
         defer { task.cancel() }
 
-        waitFor(pasteboardService.copiedString != nil)
+        waitFor(pasteboardService.copyReceivedString != nil)
 
-        XCTAssertEqual(pasteboardService.copiedString, totpCode)
+        XCTAssertEqual(pasteboardService.copyReceivedString, totpCode)
         XCTAssertEqual(
             subject.state.toast?.title,
             Localizations.valueHasBeenCopied(Localizations.verificationCode),
@@ -338,7 +338,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             await subject.perform(.copyPressed(.syncError()))
         }
         XCTAssertNil(subject.state.toast)
-        XCTAssertNil(pasteboardService.copiedString)
+        XCTAssertNil(pasteboardService.copyReceivedString)
     }
 
     /// `perform(_:)` with `.dismissFlightRecorderToastBanner` hides the flight recorder toast banner.

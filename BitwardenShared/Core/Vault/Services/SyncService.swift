@@ -471,14 +471,14 @@ extension DefaultSyncService {
         if let masterPasswordUnlock = response.userDecryption?.masterPasswordUnlock {
             await stateService.setAccountMasterPasswordUnlock(masterPasswordUnlock, userId: userId)
         }
+        await stateService.setV2UpgradeToken(response.userDecryption?.v2UpgradeToken, userId: userId)
 
         try await cipherService.replaceCiphers(response.ciphers, userId: userId)
         try await collectionService.replaceCollections(response.collections, userId: userId)
         try await folderService.replaceFolders(response.folders, userId: userId)
         try await sendService.replaceSends(response.sends, userId: userId)
         try await settingsService.replaceEquivalentDomains(response.domains, userId: userId)
-        try await policyService.replacePolicies(response.policies, userId: userId)
-        try await policyService.replacePoliciesNew(response.policiesNew ?? [], userId: userId)
+        try await policyService.replacePolicies(response.effectivePolicies, userId: userId)
         try await stateService.setLastSyncTime(timeProvider.presentTime, userId: userId)
         try await stateService.setLastSyncMonotonicTime(timeProvider.monotonicTime, userId: userId)
         try await checkVaultTimeoutPolicy()

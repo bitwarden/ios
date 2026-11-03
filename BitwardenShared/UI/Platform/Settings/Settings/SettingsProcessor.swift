@@ -165,10 +165,10 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             if subscription.status.isTroubleState {
                 coordinator.navigate(to: .premiumPlan(subscription))
             } else {
-                premiumUpgradeHelper.startInAppPremiumUpgrade(onConfirmed: nil)
+                await premiumUpgradeHelper.startInAppPremiumUpgrade(onConfirmed: nil)
             }
         } catch is GetSubscriptionRequestError {
-            premiumUpgradeHelper.startInAppPremiumUpgrade(onConfirmed: nil)
+            await premiumUpgradeHelper.startInAppPremiumUpgrade(onConfirmed: nil)
         } catch {
             services.errorReporter.log(error: error)
             await coordinator.showErrorAlert(error: error)

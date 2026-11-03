@@ -64,6 +64,8 @@ class BillingCoordinator: NSObject, Coordinator, HasStackNavigator {
             }
         case .premiumUpgradeComplete:
             showPremiumUpgradeComplete()
+        case .premiumUpgradeCompleteStandalone:
+            showPremiumUpgradeCompleteStandalone()
         case let .premiumPlan(subscription):
             showPremiumPlan(subscription: subscription)
         case .premiumUpgrade:
@@ -92,6 +94,17 @@ class BillingCoordinator: NSObject, Coordinator, HasStackNavigator {
         )
         let view = PremiumUpgradeCompleteView(store: Store(processor: processor))
         stackNavigator?.present(view)
+    }
+
+    /// Shows the Premium upgrade complete screen as the sole content of this coordinator's stack.
+    ///
+    private func showPremiumUpgradeCompleteStandalone() {
+        let processor = PremiumUpgradeCompleteProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+        )
+        let view = PremiumUpgradeCompleteView(store: Store(processor: processor))
+        stackNavigator?.replace(view)
     }
 
     /// Shows the Premium plan screen.

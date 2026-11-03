@@ -25,17 +25,4 @@ class OrganizationTests: XCTestCase {
         XCTAssertFalse(Organization.fixture(type: .user).isAdmin)
         XCTAssertFalse(Organization.fixture(type: .custom).isAdmin)
     }
-
-    /// `isExemptFromPolicies` returns whether the user is exempt from policies.
-    func test_isExemptFromPolicies() {
-        XCTAssertTrue(Organization.fixture(type: .admin).isExemptFromPolicies)
-        XCTAssertTrue(Organization.fixture(type: .owner).isExemptFromPolicies)
-        XCTAssertTrue(Organization.fixture(permissions: .fixture(managePolicies: true)).isExemptFromPolicies)
-        XCTAssertTrue(
-            Organization.fixture(permissions: .fixture(managePolicies: true), type: .admin).isExemptFromPolicies,
-        )
-
-        XCTAssertFalse(Organization.fixture(type: .custom).isExemptFromPolicies)
-        XCTAssertFalse(Organization.fixture(type: .user).isExemptFromPolicies)
-    }
 }

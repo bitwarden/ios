@@ -78,7 +78,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         await subject.perform(.copyLinkPressed)
 
         XCTAssertEqual(sendRepository.shareURLSendView, sendView)
-        XCTAssertEqual(pasteboardService.copiedString, "https://example.com")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "https://example.com")
         XCTAssertEqual(
             subject.state.toast,
             Toast(title: Localizations.valueHasBeenCopied(Localizations.sendLink)),
@@ -91,7 +91,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.state.password = "testPassword123"
         await subject.perform(.copyPasswordPressed)
 
-        XCTAssertEqual(pasteboardService.copiedString, "testPassword123")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "testPassword123")
         XCTAssertEqual(
             subject.state.toast,
             Toast(title: Localizations.valueHasBeenCopied(Localizations.password)),
@@ -500,6 +500,21 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         ])
     }
 
+    /// `perform(_:)` with `.savePressed` for a text send with no text shows a validation alert.
+    @MainActor
+    func test_perform_savePressed_add_noTextToShare() async {
+        subject.state.name = "Name"
+        subject.state.type = .text
+        subject.state.text = ""
+        await subject.perform(.savePressed)
+
+        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
+        XCTAssertNil(sendRepository.addTextSendSendView)
+        XCTAssertEqual(coordinator.alertShown, [
+            .validationFieldRequired(fieldName: Localizations.textToShare),
+        ])
+    }
+
     /// `perform(_:)` with `.savePressed` and no Premium shows a Premium required alert with
     /// an upgrade action.
     @MainActor
@@ -534,29 +549,29 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertTrue(premiumUpgradeHelper.navigateToPremiumUpgradeCalled)
     }
 
-    /// `perform(_:)` with `.savePressed` and an unverified email shows a validation alert.
+    /// `perform(_:)` with `.savePressed` and valid file input saves the file Send.
     @MainActor
-    func test_perform_savePressed_add_file_noVerifiedEmail() async {
+    func test_perform_savePressed_add_file_success() async {
         sendRepository.doesActivateAccountHavePremiumResult = true
-        sendRepository.doesActiveAccountHaveVerifiedEmailResult = .success(false)
+        let sendView = SendView.fixture(id: "SEND_ID", name: "Name", type: .file)
+        sendRepository.addFileSendResult = .success(sendView)
+        subject.state.mode = .add
         subject.state.name = "Name"
         subject.state.fileData = Data("example".utf8)
         subject.state.fileName = "filename"
         subject.state.type = .file
         await subject.perform(.savePressed)
 
-        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
-        XCTAssertNil(sendRepository.addTextSendSendView)
-        XCTAssertEqual(coordinator.alertShown, [
-            Alert.defaultAlert(message: Localizations.sendFileEmailVerificationRequired),
-        ])
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+        XCTAssertEqual(sendRepository.addFileSendSendView?.name, "Name")
+        XCTAssertEqual(sendRepository.addFileSendData, Data("example".utf8))
+        XCTAssertEqual(coordinator.routes.last, .complete(sendView))
     }
 
     /// `perform(_:)` with `.savePressed` and no file data shows a validation alert.
     @MainActor
     func test_perform_savePressed_add_file_noFileData() async {
         sendRepository.doesActivateAccountHavePremiumResult = true
-        sendRepository.doesActiveAccountHaveVerifiedEmailResult = .success(true)
         subject.state.name = "Name"
         subject.state.fileData = nil
         subject.state.fileName = "filename"
@@ -578,7 +593,6 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     @MainActor
     func test_perform_savePressed_add_file_noFileName() async {
         sendRepository.doesActivateAccountHavePremiumResult = true
-        sendRepository.doesActiveAccountHaveVerifiedEmailResult = .success(true)
         subject.state.name = "Name"
         subject.state.fileData = Data("example".utf8)
         subject.state.fileName = nil
@@ -600,7 +614,6 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     @MainActor
     func test_perform_savePressed_add_file_fileDataTooLarge() async {
         sendRepository.doesActivateAccountHavePremiumResult = true
-        sendRepository.doesActiveAccountHaveVerifiedEmailResult = .success(true)
         subject.state.name = "Name"
         subject.state.fileData = Data(String(repeating: "a", count: Constants.maxFileSizeBytes + 1).utf8)
         subject.state.fileName = "filename"
@@ -646,6 +659,8 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         let sendView = SendView.fixture(hasPassword: true, type: .text)
         subject.state = AddEditSendItemState(copyingFrom: sendView)
         subject.state.name = "Name"
+        subject.state.type = .text
+        subject.state.text = "Text"
 
         await subject.perform(.savePressed)
 
@@ -685,7 +700,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(sendRepository.shareURLSendView, sendView)
-        XCTAssertEqual(pasteboardService.copiedString, "https://example.com")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "https://example.com")
         XCTAssertEqual(
             subject.state.toast,
             Toast(title: Localizations.valueHasBeenCopied(Localizations.sendLink)),
@@ -770,12 +785,34 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         ])
     }
 
+    /// `perform(_:)` with `.savePressed` while editing a text send with the text cleared shows a
+    /// validation alert.
+    @MainActor
+    func test_perform_savePressed_edit_noTextToShare() async {
+        let sendView = SendView.fixture(
+            id: "SEND_ID",
+            name: "Name",
+            type: .text,
+            text: SendTextView(text: "Text", hidden: false),
+        )
+        subject.state = AddEditSendItemState(sendView: sendView)
+        subject.state.text = ""
+        await subject.perform(.savePressed)
+
+        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
+        XCTAssertNil(sendRepository.updateSendSendView)
+        XCTAssertEqual(coordinator.alertShown, [
+            .validationFieldRequired(fieldName: Localizations.textToShare),
+        ])
+    }
+
     /// `perform(_:)` with `.savePressed` shows a validation alert when password access is enforced
     /// by policy and no password is set.
     @MainActor
     func test_perform_savePressed_passwordEnforced_noPassword() async {
         subject.state.name = "Name"
         subject.state.type = .text
+        subject.state.text = "Text"
         subject.state.accessType = .anyoneWithPassword
         subject.state.sendPolicyOptions.enforcedAccessType = .anyoneWithPassword
         subject.state.password = ""
@@ -792,7 +829,12 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// edited send already has a password, even if the password field is left empty.
     @MainActor
     func test_perform_savePressed_passwordEnforced_editExistingPassword() async {
-        let sendView = SendView.fixture(id: "SEND_ID", name: "Name", hasPassword: true)
+        let sendView = SendView.fixture(
+            id: "SEND_ID",
+            name: "Name",
+            hasPassword: true,
+            text: SendTextView(text: "Text", hidden: false),
+        )
         subject.state = AddEditSendItemState(sendView: sendView)
         subject.state.sendPolicyOptions.enforcedAccessType = .anyoneWithPassword
         subject.state.password = ""
@@ -812,6 +854,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     func test_perform_savePressed_specificPeople_invalidDomain() async {
         subject.state.name = "Name"
         subject.state.type = .text
+        subject.state.text = "Text"
         subject.state.accessType = .specificPeople
         subject.state.recipientEmails = ["user@notallowed.com"]
         subject.state.sendPolicyOptions.allowedDomains = ["Acme.com", "Acme.co"]
@@ -828,6 +871,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     func test_perform_savePressed_specificPeople_validDomain() async {
         subject.state.name = "Name"
         subject.state.type = .text
+        subject.state.text = "Text"
         subject.state.accessType = .specificPeople
         subject.state.recipientEmails = ["User@Acme.com"]
         subject.state.sendPolicyOptions.allowedDomains = ["acme.com"]
@@ -844,6 +888,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     func test_perform_savePressed_specificPeople_noAllowedDomains() async {
         subject.state.name = "Name"
         subject.state.type = .text
+        subject.state.text = "Text"
         subject.state.accessType = .specificPeople
         subject.state.recipientEmails = ["user@anywhere.com"]
         sendRepository.addTextSendResult = .success(.fixture())
@@ -1174,6 +1219,8 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     @MainActor
     func test_perform_savePressed_specificPeople_invalidEmail() async {
         subject.state.name = "Name"
+        subject.state.type = .text
+        subject.state.text = "Text"
         subject.state.accessType = .specificPeople
         subject.state.recipientEmails = ["invalidemail"]
         await subject.perform(.savePressed)
@@ -1188,6 +1235,8 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     @MainActor
     func test_perform_savePressed_specificPeople_noEmails() async {
         subject.state.name = "Name"
+        subject.state.type = .text
+        subject.state.text = "Text"
         subject.state.accessType = .specificPeople
         subject.state.recipientEmails = []
         await subject.perform(.savePressed)
@@ -1204,6 +1253,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     func test_perform_savePressed_specificPeople_normalizesEmails() async {
         subject.state.name = "Name"
         subject.state.type = .text
+        subject.state.text = "Text"
         subject.state.accessType = .specificPeople
         subject.state.recipientEmails = ["  TEST@Example.COM  ", "  Another@TEST.com\n", ""]
         subject.state.deletionDate = .custom(deletionDate)
@@ -1224,6 +1274,8 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     @MainActor
     func test_perform_savePressed_specificPeople_onlyEmptyEmails() async {
         subject.state.name = "Name"
+        subject.state.type = .text
+        subject.state.text = "Text"
         subject.state.accessType = .specificPeople
         subject.state.recipientEmails = ["", ""]
         await subject.perform(.savePressed)
@@ -1238,6 +1290,8 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     @MainActor
     func test_perform_savePressed_specificPeople_onlyWhitespaceEmails() async {
         subject.state.name = "Name"
+        subject.state.type = .text
+        subject.state.text = "Text"
         subject.state.accessType = .specificPeople
         subject.state.recipientEmails = ["   ", "\t\n", "  "]
         await subject.perform(.savePressed)
@@ -1253,6 +1307,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     func test_perform_savePressed_specificPeople_validEmails() async {
         subject.state.name = "Name"
         subject.state.type = .text
+        subject.state.text = "Text"
         subject.state.accessType = .specificPeople
         subject.state.recipientEmails = ["test@example.com", "another@example.com"]
         subject.state.deletionDate = .custom(deletionDate)

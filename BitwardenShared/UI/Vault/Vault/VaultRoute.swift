@@ -77,6 +77,9 @@ public enum VaultRoute: Equatable, Hashable {
     /// A route to the Premium upgrade view.
     case premiumUpgrade
 
+    /// A route to the Premium upgrade complete screen.
+    case premiumUpgradeComplete
+
     /// A route to switch accounts.
     ///
     /// - Parameter userId: The user id of the selected account.
@@ -92,8 +95,9 @@ public enum VaultRoute: Equatable, Hashable {
     ///   - id: The id of the item to display.
     ///   - masterPasswordRepromptCheckCompleted: Whether the master password reprompt check has
     ///     already been completed.
+    ///   - toastTitle: A toast title to show once the view item screen is displayed, if any.
     ///
-    case viewItem(id: String, masterPasswordRepromptCheckCompleted: Bool = false)
+    case viewItem(id: String, masterPasswordRepromptCheckCompleted: Bool = false, toastTitle: String? = nil)
 
     /// A route to display the profile switcher.
     ///

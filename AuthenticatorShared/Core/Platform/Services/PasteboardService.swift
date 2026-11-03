@@ -4,7 +4,7 @@ import UniformTypeIdentifiers
 
 /// A protocol for a service used by the application for sharing data with other apps.
 ///
-protocol PasteboardService: AnyObject {
+protocol PasteboardService: AnyObject { // sourcery: AutoMockable
     /// The time after which the clipboard should clear.
     var clearClipboardValue: ClearClipboardValue { get }
 

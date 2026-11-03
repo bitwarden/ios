@@ -161,6 +161,29 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNil(appSettingsStore.pinProtectedUserKeyEnvelope["1"])
     }
 
+    /// `clearPins(userId:)` clears the specified user's pins without affecting the active user's pins.
+    func test_clearPins_userId() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+        await subject.addAccount(.fixture(profile: .fixture(userId: "2")))
+
+        appSettingsStore.encryptedPinByUserId["1"] = "encryptedPin1"
+        appSettingsStore.pinProtectedUserKey["1"] = "pinProtectedUserKey1"
+        appSettingsStore.pinProtectedUserKeyEnvelope["1"] = "pinProtectedUserKeyEnvelope1"
+        appSettingsStore.encryptedPinByUserId["2"] = "encryptedPin2"
+        appSettingsStore.pinProtectedUserKey["2"] = "pinProtectedUserKey2"
+        appSettingsStore.pinProtectedUserKeyEnvelope["2"] = "pinProtectedUserKeyEnvelope2"
+
+        try await subject.clearPins(userId: "1")
+
+        XCTAssertNil(appSettingsStore.encryptedPinByUserId["1"])
+        XCTAssertNil(appSettingsStore.pinProtectedUserKey["1"])
+        XCTAssertNil(appSettingsStore.pinProtectedUserKeyEnvelope["1"])
+
+        XCTAssertEqual(appSettingsStore.encryptedPinByUserId["2"], "encryptedPin2")
+        XCTAssertEqual(appSettingsStore.pinProtectedUserKey["2"], "pinProtectedUserKey2")
+        XCTAssertEqual(appSettingsStore.pinProtectedUserKeyEnvelope["2"], "pinProtectedUserKeyEnvelope2")
+    }
+
     /// `deleteAccount()` deletes the active user's account, removing it from the state.
     func test_deleteAccount() async throws {
         let newAccount = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
@@ -212,6 +235,93 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await subject.addAccount(.fixture(profile: .fixture(userId: "2")))
         didSwitch = try await subject.didAccountSwitchInExtension()
         XCTAssertTrue(didSwitch)
+    }
+
+    /// `doesAccountHavePremium(userId:)` checks the given account regardless of which account is
+    /// currently active.
+    func test_doesAccountHavePremium_checksExplicitAccountNotActiveAccount() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false, userId: "1")))
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true, userId: "2")))
+        try await subject.setActiveAccount(userId: "1")
+
+        let activeAccountHasPremium = await subject.doesAccountHavePremium(userId: "1")
+        let otherAccountHasPremium = await subject.doesAccountHavePremium(userId: "2")
+
+        XCTAssertFalse(activeAccountHasPremium)
+        XCTAssertTrue(otherAccountHasPremium)
+    }
+
+    /// `doesAccountHavePremium(userId:)` resolves Premium granted by an organization against the
+    /// given account's organizations, not the active account's.
+    func test_doesAccountHavePremium_explicitAccountOrganizationTrue() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false, userId: "1")))
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false, userId: "2")))
+        try await subject.setActiveAccount(userId: "1")
+        try await dataStore.replaceOrganizations([.fixture(enabled: true, usersGetPremium: true)], userId: "2")
+
+        let activeAccountHasPremium = await subject.doesAccountHavePremium(userId: "1")
+        let otherAccountHasPremium = await subject.doesAccountHavePremium(userId: "2")
+
+        XCTAssertFalse(activeAccountHasPremium)
+        XCTAssertTrue(otherAccountHasPremium)
+    }
+
+    /// `doesAccountHavePremium(userId:)` checks the active account when passed `nil`.
+    func test_doesAccountHavePremium_nilUserIdChecksActiveAccount() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false, userId: "1")))
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true, userId: "2")))
+        try await subject.setActiveAccount(userId: "2")
+
+        let hasPremium = await subject.doesAccountHavePremium(userId: nil)
+
+        XCTAssertTrue(hasPremium)
+    }
+
+    /// `doesAccountHavePremium(userId:)` with a user ID that has no account throws an error
+    /// internally which is logged and returns `false` as default.
+    func test_doesAccountHavePremium_unknownUserIdLogsErrorAndReturnsFalse() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true, userId: "1")))
+
+        let hasPremium = await subject.doesAccountHavePremium(userId: "2")
+
+        XCTAssertFalse(hasPremium)
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noAccounts])
+    }
+
+    /// `doesAccountHavePremiumPersonally(userId:)` checks the given account regardless of which
+    /// account is currently active.
+    func test_doesAccountHavePremiumPersonally_checksExplicitAccountNotActiveAccount() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false, userId: "1")))
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true, userId: "2")))
+        try await subject.setActiveAccount(userId: "1")
+
+        let activeAccountHasPremium = await subject.doesAccountHavePremiumPersonally(userId: "1")
+        let otherAccountHasPremium = await subject.doesAccountHavePremiumPersonally(userId: "2")
+
+        XCTAssertFalse(activeAccountHasPremium)
+        XCTAssertTrue(otherAccountHasPremium)
+    }
+
+    /// `doesAccountHavePremiumPersonally(userId:)` checks the active account when passed `nil`.
+    func test_doesAccountHavePremiumPersonally_nilUserIdChecksActiveAccount() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false, userId: "1")))
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true, userId: "2")))
+        try await subject.setActiveAccount(userId: "2")
+
+        let hasPremium = await subject.doesAccountHavePremiumPersonally(userId: nil)
+
+        XCTAssertTrue(hasPremium)
+    }
+
+    /// `doesAccountHavePremiumPersonally(userId:)` with a user ID that has no account throws an
+    /// error internally which is logged and returns `false` as default.
+    func test_doesAccountHavePremiumPersonally_unknownUserIdLogsErrorAndReturnsFalse() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true, userId: "1")))
+
+        let hasPremium = await subject.doesAccountHavePremiumPersonally(userId: "2")
+
+        XCTAssertFalse(hasPremium)
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noAccounts])
     }
 
     /// `doesActiveAccountHavePremium()` with Premium personally and no organizations returns true.
@@ -643,24 +753,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         appSettingsStore.archiveOnboardingShown = true
         hasShownOnboarding = await subject.getArchiveOnboardingShown()
         XCTAssertTrue(hasShownOnboarding)
-    }
-
-    /// `getPremiumUpgradeBannerDismissed(userId:)` returns whether the Premium upgrade banner has been dismissed.
-    func test_getPremiumUpgradeBannerDismissed() async throws {
-        await subject.addAccount(.fixture())
-        var hasDismissedBanner = try await subject.getPremiumUpgradeBannerDismissed(userId: nil)
-        XCTAssertFalse(hasDismissedBanner)
-
-        appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] = true
-        hasDismissedBanner = try await subject.getPremiumUpgradeBannerDismissed(userId: nil)
-        XCTAssertTrue(hasDismissedBanner)
-    }
-
-    /// `getPremiumUpgradeBannerDismissed(userId:)` throws errors if no user exists.
-    func test_getPremiumUpgradeBannerDismissed_error() async throws {
-        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            _ = try await subject.getPremiumUpgradeBannerDismissed(userId: nil)
-        }
     }
 
     /// `getBiometricAuthenticationEnabled(:)` returns biometric unlock preference of the active user.
@@ -1539,6 +1631,12 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try await subject.setDefaultUriMatchType(.never)
         try await subject.setDisableAutoTotpCopy(true)
         try await subject.setPasswordGenerationOptions(PasswordGenerationOptions(length: 30))
+        try await subject.setPreviousPersonalPremium(true, userId: "1")
+        appSettingsStore.setUserKeyId("USER_KEY_ID", userId: "1")
+        appSettingsStore.setV2UpgradeToken(
+            V2UpgradeToken(wrappedUserKey1: "WRAPPED_USER_KEY_1", wrappedUserKey2: "WRAPPED_USER_KEY_2"),
+            userId: "1",
+        )
         try await dataStore.insertPasswordHistory(
             userId: "1",
             passwordHistory: PasswordHistory(password: "PASSWORD", lastUsedDate: Date()),
@@ -1578,6 +1676,9 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.defaultUriMatchTypeByUserId, [:])
         XCTAssertEqual(appSettingsStore.disableAutoTotpCopyByUserId, [:])
         XCTAssertEqual(appSettingsStore.passwordGenerationOptions, [:])
+        XCTAssertEqual(appSettingsStore.previousPersonalPremiumByUserId, [:])
+        XCTAssertEqual(appSettingsStore.userKeyIdByUserId, [:])
+        XCTAssertEqual(appSettingsStore.v2UpgradeTokenByUserId, [:])
         XCTAssertTrue(keychainRepository.clearLocalUserDataKeyStatesCalled)
 
         let context = dataStore.persistentContainer.viewContext
@@ -1661,10 +1762,12 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let account = Account.fixture(profile: .fixture(userId: "1"))
         await subject.addAccount(account)
         try await subject.setAccountCryptographicState(.v1(privateKey: "1:PRIVATE_KEY"))
+        try await subject.setPreviousPersonalPremium(true, userId: "1")
 
         try await subject.logoutAccount(userInitiated: false)
 
         XCTAssertNil(appSettingsStore.accountCryptographicStates["1"])
+        XCTAssertEqual(appSettingsStore.previousPersonalPremiumByUserId, ["1": true])
         XCTAssertEqual(appSettingsStore.state?.accounts, ["1": account])
         XCTAssertEqual(appSettingsStore.state?.activeUserId, "1")
     }
@@ -1943,30 +2046,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(appSettingsStore.archiveOnboardingShown)
     }
 
-    /// `setPremiumUpgradeBannerDismissed(_:)` sets whether the Premium upgrade banner has been dismissed.
-    func test_setPremiumUpgradeBannerDismissed() async throws {
-        await subject.addAccount(.fixture())
-        try await subject.setPremiumUpgradeBannerDismissed(true, userId: nil)
-        XCTAssertTrue(appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] ?? false)
-
-        try await subject.setPremiumUpgradeBannerDismissed(false, userId: nil)
-        XCTAssertFalse(appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] ?? true)
-    }
-
-    /// `setPremiumUpgradeBannerDismissed(_:userId:)` throws errors if no user exists.
-    func test_setPremiumUpgradeBannerDismissed_error() async throws {
-        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            try await subject.setPremiumUpgradeBannerDismissed(true, userId: nil)
-        }
-    }
-
-    /// `setUpgradedToPremiumActionCardVisible(_:)` throws errors if no user exists.
-    func test_setUpgradedToPremiumActionCardVisible_error() async throws {
-        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            try await subject.setUpgradedToPremiumActionCardVisible(true)
-        }
-    }
-
     /// `setBiometricAuthenticationEnabled(isEnabled:)` sets biometric unlock preference for the default user.
     func test_setBiometricAuthenticationEnabled_default() async throws {
         await subject.addAccount(.fixture())
@@ -2234,12 +2313,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// `setAccountMasterPasswordUnlock(_:)` throws an error if there's no active account.
     func test_setAccountMasterPasswordUnlock_noActiveAccount() async throws {
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            try await subject.setAccountMasterPasswordUnlock(
-                MasterPasswordUnlockResponseModel(
-                    account: .fixture(),
-                    masterKeyEncryptedUserKey: "MASTER_KEY_ENCRYPTED_USER_KEY",
-                ),
-            )
+            try await subject.setAccountMasterPasswordUnlock(.fixture())
         }
     }
 

@@ -55,6 +55,10 @@ final class VaultListProcessor: StateProcessor<
     /// ciphers which failed to decrypt.
     private(set) var hasShownCipherDecryptionFailureAlert = false
 
+    /// A monotonically increasing token used to discard stale results from overlapping
+    /// `loadItemTypesUserCanCreate()` calls.
+    private var itemTypesLoadGeneration = 0
+
     /// The helper to handle master password reprompts.
     private let masterPasswordRepromptHelper: MasterPasswordRepromptHelper
 
@@ -64,7 +68,7 @@ final class VaultListProcessor: StateProcessor<
         coordinator: coordinator,
         setURL: { [weak self] url in self?.state.url = url },
         onPendingDismiss: { [weak self] in
-            Task { @MainActor in await self?.dismissPremiumUpgradeActionCard() }
+            self?.hidePremiumUpgradeActionCardForPendingUpgrade()
         },
     )
 
@@ -117,6 +121,8 @@ final class VaultListProcessor: StateProcessor<
         switch effect {
         case .appeared:
             await appeared()
+        case let .accessibilityMoreOptionsActionPressed(item, kind):
+            await performMoreOptionsAction(kind, for: item)
         case .checkAppReviewEligibility:
             await checkAppReviewEligibility()
         case .dismissArchiveOnboardingActionCard:
@@ -132,6 +138,8 @@ final class VaultListProcessor: StateProcessor<
         case .dismissUpgradedToPremiumActionCard:
             state.shouldShowUpgradedToPremiumActionCard = false
             await services.billingService.setUpgradedToPremiumActionCardDismissed()
+        case let .itemPressed(item):
+            handleItemTapped(item)
         case let .morePressed(item):
             await morePressed(item: item)
         case let .profileSwitcher(profileEffect):
@@ -150,10 +158,14 @@ final class VaultListProcessor: StateProcessor<
             await streamOrganizations()
         case .streamShowWebIcons:
             await streamShowWebIcons()
+        case .streamSyncComplete:
+            await streamSyncComplete()
         case .streamVaultList:
             await streamVaultList()
         case .tryAgainTapped:
             await tryAgainTapped()
+        case .upgradeToPremium:
+            await upgradeToPremium()
         }
     }
 
@@ -173,8 +185,6 @@ final class VaultListProcessor: StateProcessor<
             reviewPromptTask?.cancel()
         case .goToArchive:
             coordinator.navigate(to: .group(.archive, filter: state.vaultFilterType))
-        case let .itemPressed(item):
-            handleItemTapped(item)
         case .learnMoreAboutPremium:
             state.url = ExternalLinksConstants.learnMoreAboutPremium
             state.shouldShowUpgradedToPremiumActionCard = false
@@ -198,8 +208,6 @@ final class VaultListProcessor: StateProcessor<
         case .totpCodeExpired:
             // No-op: TOTP codes aren't shown on the list view and can't be copied.
             break
-        case .upgradeToPremium:
-            upgradeToPremium()
         case let .vaultFilterChanged(newValue):
             state.vaultFilterType = newValue
         case .viewPlan:
@@ -244,13 +252,18 @@ extension VaultListProcessor {
     /// Called when the vault list appears on screen.
     private func appeared() async {
         state.isVfo1FoundationFeatureFlagEnabled = await services.configService.getFeatureFlag(.vfo1Foundation)
+
+        // This is being loaded before and after syncing to avoid glitches on which cipher types
+        // are allowed while the vault is being refreshed/synced, as feature flags or policies may change that.
+        await loadItemTypesUserCanCreate()
+
         await refreshVault(syncWithPeriodicCheck: true)
+
         // Read after sync so the cache has been refreshed by onFetchSyncSucceeded if a sync ran.
         await refreshPremiumActionCards()
         await handleNotifications()
         await checkPendingLoginRequests()
         await checkPersonalOwnershipPolicy()
-        await loadItemTypesUserCanCreate()
         await loadOrganizationUserNotificationBannerData()
 
         state.hasPremium = await services.stateService.doesActiveAccountHavePremium()
@@ -322,8 +335,13 @@ extension VaultListProcessor {
 
     /// Checks available item types user can create.
     ///
+    @MainActor
     private func loadItemTypesUserCanCreate() async {
-        state.itemTypesUserCanCreate = await services.vaultRepository.getItemTypesUserCanCreate()
+        itemTypesLoadGeneration += 1
+        let generation = itemTypesLoadGeneration
+        let itemTypes = await services.vaultRepository.getItemTypesUserCanCreate()
+        guard generation == itemTypesLoadGeneration else { return } // A newer call superseded this one.
+        state.itemTypesUserCanCreate = itemTypes
     }
 
     /// Dismisses the archive onboarding action card and persists the preference.
@@ -367,7 +385,7 @@ extension VaultListProcessor {
     /// Dismisses the Premium upgrade action card and persists the banner-dismissed preference.
     private func dismissPremiumUpgradeActionCard() async {
         do {
-            try await services.stateService.setPremiumUpgradeBannerDismissed(true)
+            try await services.billingService.setPremiumUpgradeBannerDismissed()
             state.shouldShowPremiumUpgradeActionCard = false
         } catch {
             services.errorReporter.log(error: error)
@@ -432,13 +450,50 @@ extension VaultListProcessor {
     /// Entry point to handling things around push notifications.
     private func handleNotifications() async {
         switch await services.notificationService.notificationAuthorization() {
-        case .authorized:
-            await registerForNotifications()
         case .notDetermined:
             await requestNotificationPermissions()
         default:
-            break
+            // Silent push notifications (e.g. login requests and sync) are delivered regardless of
+            // notification authorization, so register even if the user has denied notifications.
+            await registerForNotifications()
         }
+    }
+
+    /// Handles a failure to sync the vault, showing the full screen error view when there's no
+    /// cached data and a sync is needed, and a dialog offering a retry otherwise.
+    ///
+    /// - Parameters:
+    ///   - error: The error thrown by the sync.
+    ///
+    private func handleSyncFailure(error: Error) async {
+        services.errorReporter.log(error: error)
+
+        let message = (error as? ServerError)?.message
+            ?? Localizations.weCouldntSyncYourVaultWithTheServerDescriptionLong
+        let needsSync = try? await services.vaultRepository.needsSync()
+        if needsSync == true {
+            // If the vault needs a sync and there are cached items,
+            // display the cached data behind a dialog offering a retry.
+            if let sections = state.loadingState.data, !sections.isEmpty {
+                showSyncUnsuccessfulAlert(message: message)
+            } else {
+                // If the vault needs a sync and there were no cached items,
+                // show the full screen error view.
+                state.loadingState = .error(errorMessage: message)
+            }
+        } else {
+            showSyncUnsuccessfulAlert(message: message)
+        }
+    }
+
+    /// Hides the Premium upgrade action card without persisting a permanent dismissal. Used
+    /// while a Premium upgrade is pending — that's a temporary state, not the user asking to
+    /// stop seeing this card, so unlike `dismissPremiumUpgradeActionCard()` this doesn't touch
+    /// the banner-dismissed preference. `refreshPremiumActionCards()` re-evaluates the card on
+    /// the next appearance or completed sync.
+    ///
+    private func hidePremiumUpgradeActionCardForPendingUpgrade() {
+        state.shouldShowPremiumUpgradeActionCard = false
     }
 
     /// Loads the organization user notification banner data, suppressing it when the user has already dismissed
@@ -491,8 +546,9 @@ extension VaultListProcessor {
         state.shouldShowUpgradedToPremiumActionCard =
             await services.billingService.shouldShowUpgradedToPremiumActionCard()
 
-        let isBannerDismissed = await services.stateService.isPremiumUpgradeBannerDismissed()
-        guard !isBannerDismissed,
+        let isBannerDismissed = await services.billingService.isPremiumUpgradeBannerDismissed()
+        guard await services.billingService.premiumUpgradeLifecycleState() == .notPremium,
+              !isBannerDismissed,
               !state.shouldShowSubscriptionAttentionCard,
               await !services.billingService.isSelfHosted()
         else {
@@ -500,7 +556,7 @@ extension VaultListProcessor {
             return
         }
         state.shouldShowPremiumUpgradeActionCard =
-            await services.billingRepository.isInAppUpgradeAvailable()
+            await services.billingRepository.isPremiumUpgradeBannerAvailable()
     }
 
     /// Refreshes the vault's contents.
@@ -520,10 +576,18 @@ extension VaultListProcessor {
                 dismissSlowLoadingToast()
             }
 
-            try await services.vaultRepository.fetchSync(
-                forceSync: false,
-                isPeriodic: syncWithPeriodicCheck,
-            )
+            do {
+                try await services.vaultRepository.fetchSync(
+                    forceSync: false,
+                    isPeriodic: syncWithPeriodicCheck,
+                )
+            } catch URLError.cancelled {
+                // No-op: don't log or alert for cancellation errors.
+                return
+            } catch {
+                await handleSyncFailure(error: error)
+                return
+            }
 
             if try await services.vaultRepository.isVaultEmpty() {
                 // Normally after syncing the database will publish the contents of the vault which is
@@ -533,27 +597,9 @@ extension VaultListProcessor {
             }
 
             await checkIfForceKdfUpdateRequired()
-        } catch URLError.cancelled {
-            // No-op: don't log or alert for cancellation errors.
         } catch {
             services.errorReporter.log(error: error)
-
-            let needsSync = try? await services.vaultRepository.needsSync()
-            if needsSync == true {
-                // If the vault needs a sync and there are cached items,
-                // display the cached data and show an error alert.
-                if let sections = state.loadingState.data, !sections.isEmpty {
-                    await coordinator.showErrorAlert(error: error)
-                } else {
-                    // If the vault needs a sync and there were no cached items,
-                    // show the full screen error view.
-                    state.loadingState = .error(
-                        errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs,
-                    )
-                }
-            } else {
-                await coordinator.showErrorAlert(error: error)
-            }
+            await coordinator.showErrorAlert(error: error)
         }
     }
 
@@ -577,14 +623,14 @@ extension VaultListProcessor {
         coordinator.showAlert(
             .pushNotificationsInformation { [services] in
                 do {
-                    let authorized = try await services.notificationService
+                    _ = try await services.notificationService
                         .requestAuthorization(options: [.alert, .sound, .badge])
-                    if authorized {
-                        await self.registerForNotifications()
-                    }
                 } catch {
                     self.services.errorReporter.log(error: error)
                 }
+                // Register regardless of the user's choice, since silent push notifications don't
+                // require notification authorization.
+                await self.registerForNotifications()
             },
         )
     }
@@ -679,6 +725,31 @@ extension VaultListProcessor {
     private func morePressed(item: VaultListItem) async {
         await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
             for: item,
+            delegate: self,
+            handleDisplayToast: { [weak self] toast in
+                self?.state.toast = toast
+            },
+            handleNavigateToPremiumUpgrade: { [weak self] in
+                await self?.navigateToPremiumUpgrade()
+            },
+            handleOpenURL: { [weak self] url in
+                self?.state.url = url
+            },
+        )
+    }
+
+    /// Performs the more-options action identified by `kind` for the given vault item, activated
+    /// via a VoiceOver custom accessibility action.
+    ///
+    /// - Parameters:
+    ///   - kind: The kind of more-options action to perform.
+    ///   - item: The vault list item to perform the action on.
+    ///
+    private func performMoreOptionsAction(_ kind: MoreOptionsActionKind, for item: VaultListItem) async {
+        await vaultItemMoreOptionsHelper.performMoreOptionsAction(
+            kind,
+            for: item,
+            delegate: self,
             handleDisplayToast: { [weak self] toast in
                 self?.state.toast = toast
             },
@@ -706,6 +777,17 @@ extension VaultListProcessor {
     private func navigateToPremiumUpgrade() async {
         await premiumUpgradeHelper.navigateToPremiumUpgrade(onConfirmed: { [weak self] in
             await self?.handlePremiumUpgradeConfirmed()
+        })
+    }
+
+    /// Shows the sync unsuccessful alert, with "Try again" wired to a non-periodic vault refresh.
+    ///
+    /// - Parameters:
+    ///   - message: The message to display in the alert.
+    ///
+    private func showSyncUnsuccessfulAlert(message: String) {
+        coordinator.showAlert(.syncUnsuccessful(message: message) { [weak self] in
+            await self?.refreshVault(syncWithPeriodicCheck: false)
         })
     }
 
@@ -772,6 +854,14 @@ extension VaultListProcessor {
         }
     }
 
+    /// Streams sync-complete events to keep up-to-date sync-related features here.
+    private func streamSyncComplete() async {
+        for await _ in services.syncService.syncCompletePublisher() {
+            await loadItemTypesUserCanCreate()
+            await refreshPremiumActionCards()
+        }
+    }
+
     /// Streams the user's vault list.
     private func streamVaultList() async {
         do {
@@ -824,9 +914,10 @@ extension VaultListProcessor {
         await appeared()
     }
 
-    /// Subscribes to Premium checkout status and navigates to the upgrade screen.
-    private func upgradeToPremium() {
-        premiumUpgradeHelper.startInAppPremiumUpgrade(onConfirmed: { [weak self] in
+    /// Subscribes to Premium checkout status, then navigates to the upgrade screen, or shows the
+    /// upgrade pending alert instead if an upgrade is already pending.
+    private func upgradeToPremium() async {
+        await premiumUpgradeHelper.startInAppPremiumUpgrade(onConfirmed: { [weak self] in
             await self?.handlePremiumUpgradeConfirmed()
         })
     }
@@ -851,6 +942,13 @@ extension VaultListProcessor: AddEditFolderDelegate {
 // MARK: - CipherItemOperationDelegate
 
 extension VaultListProcessor: CipherItemOperationDelegate {
+    func didFinishAddingItem(id: String, type: CipherType) {
+        coordinator.navigate(
+            to: .viewItem(id: id, masterPasswordRepromptCheckCompleted: true, toastTitle: type.savedToastTitle),
+            context: self,
+        )
+    }
+
     func itemArchived() {
         state.toast = Toast(title: Localizations.itemMovedToArchive)
     }
@@ -869,6 +967,11 @@ extension VaultListProcessor: CipherItemOperationDelegate {
 
     func itemUnarchived() {
         state.toast = Toast(title: Localizations.itemMovedToVault)
+    }
+
+    func itemUpdated(type: CipherType) -> Bool {
+        state.toast = Toast(title: type.savedToastTitle)
+        return true
     }
 }
 

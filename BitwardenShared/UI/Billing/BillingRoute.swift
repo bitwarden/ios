@@ -14,4 +14,7 @@ enum BillingRoute: Equatable {
 
     /// A route to the Premium upgrade complete screen.
     case premiumUpgradeComplete
+
+    /// A route to the Premium upgrade complete screen as the sole content of the stack.
+    case premiumUpgradeCompleteStandalone
 }

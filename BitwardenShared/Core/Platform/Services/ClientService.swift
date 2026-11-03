@@ -73,6 +73,13 @@ protocol ClientService {
     ///
     func sends(for userId: String?) async throws -> SendClientProtocol
 
+    /// Returns a `UserCryptoManagementClientService` for SDK-managed user crypto state tasks.
+    ///
+    /// - Parameter userId: The user ID mapped to the client instance.
+    /// - Returns: A `UserCryptoManagementClientService` for SDK-managed user crypto state tasks.
+    ///
+    func userCryptoManagement(for userId: String?) async throws -> UserCryptoManagementClientService
+
     /// Returns a `VaultClientService` for vault data tasks.
     ///
     /// - Parameter userId: The user ID mapped to the client instance.
@@ -140,6 +147,12 @@ extension ClientService {
         try await sends(for: nil)
     }
 
+    /// Returns a `UserCryptoManagementClientService` for SDK-managed user crypto state tasks.
+    ///
+    func userCryptoManagement() async throws -> UserCryptoManagementClientService {
+        try await userCryptoManagement(for: nil)
+    }
+
     /// Returns a `VaultClientService` for vault data tasks.
     ///
     func vault() async throws -> VaultClientService {
@@ -167,6 +180,9 @@ actor DefaultClientService: ClientService {
     /// The factory to create SDK repositories.
     private let sdkRepositoryFactory: SdkRepositoryFactory
 
+    /// The service used to manage the account state the SDK state bridge reads from and writes to.
+    private let sdkStateBridgeStateService: SdkStateBridgeStateService
+
     /// The service used by the application to manage account state.
     private let stateService: StateService
 
@@ -182,6 +198,8 @@ actor DefaultClientService: ClientService {
     ///   - configService: The service to get server-specified configuration.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - sdkRepositoryFactory: The factory to create SDK repositories.
+    ///   - sdkStateBridgeStateService: The service used to manage the account state the SDK state
+    ///     bridge reads from and writes to.
     ///   - stateService: The service used by the application to manage account state.
     ///
     init(
@@ -189,12 +207,14 @@ actor DefaultClientService: ClientService {
         configService: ConfigService,
         errorReporter: ErrorReporter,
         sdkRepositoryFactory: SdkRepositoryFactory,
+        sdkStateBridgeStateService: SdkStateBridgeStateService,
         stateService: StateService,
     ) {
         self.clientBuilder = clientBuilder
         self.configService = configService
         self.errorReporter = errorReporter
         self.sdkRepositoryFactory = sdkRepositoryFactory
+        self.sdkStateBridgeStateService = sdkStateBridgeStateService
         self.stateService = stateService
 
         Task {
@@ -243,6 +263,10 @@ actor DefaultClientService: ClientService {
 
     func sends(for userId: String?) async throws -> SendClientProtocol {
         try await client(for: userId).sends()
+    }
+
+    func userCryptoManagement(for userId: String?) async throws -> UserCryptoManagementClientService {
+        try await client(for: userId).userCryptoManagement()
     }
 
     func vault(for userId: String?) async throws -> VaultClientService {
@@ -303,6 +327,11 @@ actor DefaultClientService: ClientService {
     ///   - client: The SDK client to configure.
     ///   - userId: The user ID the SDK client instance belongs to.
     func configureNewClient(_ client: BitwardenSdkClient, for userId: String) async {
+        client.kmStateBridge().registerBridgeImpl(bridgeImpl: SdkStateBridge(
+            errorReporter: errorReporter,
+            stateService: sdkStateBridgeStateService,
+            userId: userId,
+        ))
         client.platform().state().registerClientManagedRepositories(
             repositories: sdkRepositoryFactory.makeRepositories(userId: userId),
         )
@@ -356,6 +385,10 @@ protocol BitwardenSdkClient {
     /// Returns generator operations.
     func generators() -> GeneratorClientsProtocol
 
+    /// Returns the key management state bridge client, used to register the app's
+    /// `StateBridgeForeignImpl` implementation so the SDK can read/write mobile state directly.
+    func kmStateBridge() -> StateBridgeClientProtocol
+
     /// Returns platform operations.
     func platform() -> PlatformClientService
 
@@ -364,6 +397,9 @@ protocol BitwardenSdkClient {
 
     /// Returns sends operations.
     func sends() -> SendClientProtocol
+
+    /// Returns SDK-managed user crypto state operations.
+    func userCryptoManagement() -> UserCryptoManagementClientService
 
     /// Returns vault operations.
     func vault() -> VaultClientService
@@ -388,6 +424,10 @@ extension Client: BitwardenSdkClient {
         generators() as GeneratorClients
     }
 
+    func kmStateBridge() -> StateBridgeClientProtocol {
+        kmStateBridge() as StateBridgeClient
+    }
+
     func platform() -> PlatformClientService {
         platform() as PlatformClient
     }
@@ -398,6 +438,10 @@ extension Client: BitwardenSdkClient {
 
     func sends() -> SendClientProtocol {
         sends() as SendClient
+    }
+
+    func userCryptoManagement() -> UserCryptoManagementClientService {
+        userCryptoManagement() as UserCryptoManagementClient
     }
 
     func vault() -> VaultClientService {

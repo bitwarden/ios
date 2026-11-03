@@ -700,6 +700,10 @@ private extension ViewItemProcessor {
 
                     newState.loadingState = .data(itemState)
                 }
+
+                // Carry over any toast, so that a toast shown in response to saving the item isn't
+                // cleared out from under the user by the cipher update that the save triggers.
+                newState.toast = state.toast
                 state = newState
             }
         } catch {
@@ -763,6 +767,10 @@ private extension ViewItemProcessor {
 // MARK: - CipherItemOperationDelegate
 
 extension ViewItemProcessor: CipherItemOperationDelegate {
+    func didFinishAddingItem(id: String, type: CipherType) {
+        coordinator.navigate(to: .viewItem(id: id, toastTitle: type.savedToastTitle), context: delegate)
+    }
+
     func itemArchived() {
         coordinator.navigate(to: .dismiss(DismissAction(action: { [delegate] in delegate?.itemArchived() })))
     }
@@ -782,13 +790,19 @@ extension ViewItemProcessor: CipherItemOperationDelegate {
     func itemUnarchived() {
         coordinator.navigate(to: .dismiss(DismissAction(action: { [delegate] in delegate?.itemUnarchived() })))
     }
+
+    func itemUpdated(type: CipherType) -> Bool {
+        state.toast = Toast(title: type.savedToastTitle)
+        return true
+    }
 }
 
 // MARK: - EditCollectionsProcessorDelegate
 
 extension ViewItemProcessor: EditCollectionsProcessorDelegate {
     func didUpdateCipher() {
-        state.toast = Toast(title: Localizations.itemUpdated)
+        let title = state.loadingState.data?.type.savedToastTitle ?? Localizations.itemUpdated
+        state.toast = Toast(title: title)
     }
 }
 

@@ -594,10 +594,13 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
     func hashPassword(password: String, purpose: HashPurpose) async throws -> String {
         let account = try await stateService.getActiveAccount()
+        guard let masterPasswordUnlock = account.profile.userDecryptionOptions?.masterPasswordUnlock else {
+            throw AuthError.missingMasterPasswordUnlockData
+        }
         return try await clientService.auth().hashPassword(
-            email: account.profile.email,
+            email: masterPasswordUnlock.salt,
             password: password,
-            kdfParams: account.kdf.sdkKdf,
+            kdfParams: masterPasswordUnlock.kdf.sdkKdf,
             purpose: purpose,
         )
     }
@@ -691,24 +694,35 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         preAuthForcePasswordResetReason = nil
 
         // Complete the pre-login steps.
-        let response = try await accountAPIService.preLogin(email: username)
+        let hashedPassword: String
+        if await configService.getFeatureFlag(.passwordPreloginFromSdk, isPreAuth: true) {
+            let preloginResponse = try await clientService.auth(isPreAuth: true).login()
+                .getPasswordPrelogin(email: username)
 
-        // Get the identity token to log in to Bitwarden.
-        let hashedPassword = try await clientService.auth(isPreAuth: true).hashPassword(
-            email: username,
-            password: masterPassword,
-            kdfParams: response.sdkKdf,
-            purpose: .serverAuthorization,
-        )
+            // Use the SDK-returned Salt in place of the user's email when salting the master
+            // password. This value is not persisted; unlock continues to use the salt from
+            // `MasterPasswordUnlockData` (the Sync/Login response).
+            hashedPassword = try await clientService.auth(isPreAuth: true).hashPassword(
+                email: preloginResponse.salt,
+                password: masterPassword,
+                kdfParams: preloginResponse.kdf,
+                purpose: .serverAuthorization,
+            )
+        } else {
+            let response = try await accountAPIService.preLogin(email: username)
+            hashedPassword = try await clientService.auth(isPreAuth: true).hashPassword(
+                email: username,
+                password: masterPassword,
+                kdfParams: response.sdkKdf,
+                purpose: .serverAuthorization,
+            )
+        }
 
         let token = try await getIdentityTokenResponse(
             authenticationMethod: .password(username: username, password: hashedPassword),
             email: username,
             masterPassword: masterPassword,
         )
-
-        // Save the master password hash.
-        try await saveMasterPasswordHash(password: masterPassword)
 
         try await checkMasterPasswordPolicies(
             isPreAuth: false,
@@ -850,11 +864,6 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             preAuthForcePasswordResetReason = nil
         }
 
-        // Save the master password hash.
-        if case let .password(_, password) = twoFactorRequest.authenticationMethod {
-            try await saveMasterPasswordHash(password: password)
-        }
-
         // Remove the cached request after successfully logging in.
         self.twoFactorRequest = nil
         resendEmailModel = nil
@@ -965,20 +974,19 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         }
     }
 
-    /// Returns the Key Connector URL if it exists in the identity token response and if it can be
-    /// used to fetch the user's Key Connector key.
+    /// Returns the Key Connector URL if it exists in the identity token response's user decryption
+    /// options and if it can be used to fetch the user's Key Connector key.
     ///
     /// - Parameter response: The response received from the identity token request.
-    /// - Returns: The Key Connector URL if it exists in the response and if it can be used to
-    ///     fetch the user's Key Connector key.
+    /// - Returns: The Key Connector URL if it exists in the response's user decryption options and
+    ///     if it can be used to fetch the user's Key Connector key.
     ///
     private func keyConnectorUrlForUnlock(_ response: IdentityTokenResponseModel) -> URL? {
-        guard let keyConnectorUrl = response.keyConnectorUrl ??
-            response.userDecryptionOptions?.keyConnectorOption?.keyConnectorUrl,
-            // If the user has a master password, they haven't been migrated to key connector yet
-            // and the master password should still be used for vault unlock.
-            response.userDecryptionOptions?.hasMasterPassword == false,
-            !keyConnectorUrl.isEmpty
+        guard let keyConnectorUrl = response.userDecryptionOptions?.keyConnectorOption?.keyConnectorUrl,
+              // If the user has a master password, they haven't been migrated to key connector yet
+              // and the master password should still be used for vault unlock.
+              response.userDecryptionOptions?.hasMasterPassword == false,
+              !keyConnectorUrl.isEmpty
         else { return nil }
 
         return URL(string: keyConnectorUrl)
@@ -1086,7 +1094,6 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
                 // Form the resend email request in case the user needs to resend the verification code email.
                 resendEmailModel = .init(
-                    deviceIdentifier: appID,
                     email: email,
                     masterPasswordHash: passwordHash,
                     ssoEmail2FaSessionToken: ssoToken,
@@ -1168,16 +1175,5 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             identityTokenResponse.refreshToken,
             userId: account.profile.userId,
         )
-    }
-
-    /// Saves the user's master password hash.
-    ///
-    /// - Parameter password: The user's master password to hash and save.
-    ///
-    private func saveMasterPasswordHash(password: String) async throws {
-        try await stateService.setMasterPasswordHash(hashPassword(
-            password: password,
-            purpose: .localAuthorization,
-        ))
     }
 } // swiftlint:disable:this file_length

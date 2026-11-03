@@ -33,16 +33,13 @@ class MockPolicyService: PolicyService {
 
     var policyAppliesToUserResult = [BitwardenShared.PolicyType: Bool]()
     var policyAppliesToUserPoliciesType = [BitwardenShared.PolicyType]()
-    var policyAppliesToUserPolicies = [Policy]()
+    var policyAppliesToUserPolicies = [BitwardenShared.Policy]()
+    var policyAppliesToUserUserIds = [String]()
     var getRestrictedItemCipherTypesResult: [BitwardenShared.CipherType] = []
 
     var replacePoliciesPolicies = [PolicyResponseModel]()
     var replacePoliciesUserId: String?
     var replacePoliciesResult: Result<Void, Error> = .success(())
-
-    var replacePoliciesNewPolicies = [PolicyResponseModel]()
-    var replacePoliciesNewUserId: String?
-    var replacePoliciesNewResult: Result<Void, Error> = .success(())
 
     func applyPasswordGenerationPolicy(options: inout PasswordGenerationOptions) async throws -> Bool {
         applyPasswordGenerationOptionsCalled = true
@@ -90,15 +87,15 @@ class MockPolicyService: PolicyService {
         return policyAppliesToUserResult[policyType] ?? false
     }
 
+    func policyAppliesToUser(_ policyType: BitwardenShared.PolicyType, userId: String) async -> Bool {
+        policyAppliesToUserPoliciesType.append(policyType)
+        policyAppliesToUserUserIds.append(userId)
+        return policyAppliesToUserResult[policyType] ?? false
+    }
+
     func replacePolicies(_ policies: [PolicyResponseModel], userId: String) async throws {
         replacePoliciesPolicies = policies
         replacePoliciesUserId = userId
         try replacePoliciesResult.get()
-    }
-
-    func replacePoliciesNew(_ policies: [PolicyResponseModel], userId: String) async throws {
-        replacePoliciesNewPolicies = policies
-        replacePoliciesNewUserId = userId
-        try replacePoliciesNewResult.get()
     }
 }

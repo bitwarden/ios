@@ -1160,6 +1160,24 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                 salt: "user@bitwarden.com",
             ),
         )
+        XCTAssertEqual(
+            stateService.v2UpgradeTokens["1"],
+            V2UpgradeToken(wrappedUserKey1: "WRAPPED_USER_KEY_1", wrappedUserKey2: "WRAPPED_USER_KEY_2"),
+        )
+    }
+
+    /// `fetchSync()` clears the user's V2 upgrade token when the sync response doesn't include one.
+    func test_fetchSync_v2UpgradeToken_absent() async throws {
+        client.result = .httpSuccess(testData: .syncWithProfileOrganizations)
+        stateService.activeAccount = .fixture()
+        stateService.v2UpgradeTokens["1"] = V2UpgradeToken(
+            wrappedUserKey1: "OLD_WRAPPED_USER_KEY_1",
+            wrappedUserKey2: "OLD_WRAPPED_USER_KEY_2",
+        )
+
+        try await subject.fetchSync(forceSync: false)
+
+        XCTAssertNil(stateService.v2UpgradeTokens["1"])
     }
 
     /// `fetchSync()` throws an error if the request fails.
@@ -1397,42 +1415,38 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertTrue(cipherService.hasPersonalCiphersCalled)
     }
 
-    // MARK: - policiesNew independent storage tests
+    // MARK: - policiesNew fallback tests
 
-    /// `fetchSync()` stores `policiesNew` via `replacePoliciesNew` and the (empty) legacy `policies`
-    /// via `replacePolicies` independently when only `policiesNew` is present.
-    func test_fetchSync_policiesNew_newOnlyStoredInNewStore() async throws {
+    /// `fetchSync()` replaces the user's policies with `policiesNew` when only `policiesNew` is present.
+    func test_fetchSync_policiesNew_newOnly() async throws {
         client.result = .httpSuccess(testData: .syncWithPoliciesNewOnly)
         stateService.activeAccount = .fixture()
 
         try await subject.fetchSync(forceSync: true)
 
-        XCTAssertTrue(policyService.replacePoliciesPolicies.isEmpty)
-        XCTAssertEqual(policyService.replacePoliciesNewPolicies.map(\.id), ["policy-new-1"])
+        XCTAssertEqual(policyService.replacePoliciesPolicies.map(\.id), ["policy-new-1"])
     }
 
-    /// `fetchSync()` stores `policiesNew` and `policies` each in their own store when both are present.
-    func test_fetchSync_policiesNew_newAndLegacyStoredIndependently() async throws {
+    /// `fetchSync()` replaces the user's policies with `policiesNew`, ignoring the legacy `policies`,
+    /// when both are present.
+    func test_fetchSync_policiesNew_newOverridesLegacyPolicies() async throws {
         client.result = .httpSuccess(testData: .syncWithNewAndLegacyFields)
         stateService.activeAccount = .fixture()
 
         try await subject.fetchSync(forceSync: true)
 
-        XCTAssertEqual(policyService.replacePoliciesPolicies.map(\.id), ["policy-legacy-1"])
-        XCTAssertEqual(policyService.replacePoliciesNewPolicies.map(\.id), ["policy-new-1"])
+        XCTAssertEqual(policyService.replacePoliciesPolicies.map(\.id), ["policy-new-1"])
     }
 
-    /// `fetchSync()` stores the legacy `policies` via `replacePolicies` and an empty list via
-    /// `replacePoliciesNew` when `policiesNew` is absent.
-    func test_fetchSync_policiesNew_absentStoresEmptyInNewStore() async throws {
+    /// `fetchSync()` replaces the user's policies with the legacy `policies` when `policiesNew` is absent.
+    func test_fetchSync_policiesNew_absentFallsBackToLegacyPolicies() async throws {
         client.result = .httpSuccess(testData: .syncWithPolicies)
         stateService.activeAccount = .fixture()
 
         try await subject.fetchSync(forceSync: true)
 
-        XCTAssertFalse(policyService.replacePoliciesPolicies.isEmpty)
         XCTAssertEqual(policyService.replacePoliciesPolicies.first?.id, "policy-0")
-        XCTAssertTrue(policyService.replacePoliciesNewPolicies.isEmpty)
+        XCTAssertEqual(policyService.replacePoliciesPolicies.count, 4)
     }
 
     // MARK: - organizationsNew fallback tests

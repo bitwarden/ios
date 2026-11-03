@@ -157,7 +157,7 @@ struct ViewItemView: View {
 // MARK: Previews
 
 #if DEBUG
-struct ViewItemView_Previews: PreviewProvider {
+private enum ViewItemPreviewData {
     static var cardState: CipherItemState {
         var state = CipherItemState(
             existing: cipher(forType: .card),
@@ -238,124 +238,6 @@ struct ViewItemView_Previews: PreviewProvider {
         return state
     }
 
-    static var previews: some View {
-        NavigationView {
-            ViewItemView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: ViewItemState(
-                            loadingState: .loading(nil),
-                        ),
-                    ),
-                ),
-                timeProvider: PreviewTimeProvider(
-                    fixedDate: Date(
-                        timeIntervalSinceReferenceDate: .init(
-                            1_695_000_000,
-                        ),
-                    ),
-                ),
-            )
-        }
-        .previewDisplayName("Loading")
-
-        cardPreview
-
-        loginPreview
-
-        secureNotePreview
-
-        sshKeyPreview
-    }
-
-    @ViewBuilder static var cardPreview: some View {
-        NavigationView {
-            ViewItemView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: ViewItemState(
-                            loadingState: .data(cardState),
-                        ),
-                    ),
-                ),
-                timeProvider: PreviewTimeProvider(
-                    fixedDate: Date(
-                        timeIntervalSinceReferenceDate: .init(
-                            1_695_000_000,
-                        ),
-                    ),
-                ),
-            )
-        }
-        .previewDisplayName("Card")
-    }
-
-    @ViewBuilder static var loginPreview: some View {
-        NavigationView {
-            ViewItemView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: ViewItemState(
-                            loadingState: .data(loginState),
-                        ),
-                    ),
-                ),
-                timeProvider: PreviewTimeProvider(
-                    fixedDate: Date(
-                        timeIntervalSinceReferenceDate: .init(
-                            1_695_000_011,
-                        ),
-                    ),
-                ),
-            )
-        }
-        .previewDisplayName("Login")
-    }
-
-    @ViewBuilder static var secureNotePreview: some View {
-        NavigationView {
-            ViewItemView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: ViewItemState(
-                            loadingState: .data(secureNoteState),
-                        ),
-                    ),
-                ),
-                timeProvider: PreviewTimeProvider(
-                    fixedDate: Date(
-                        timeIntervalSinceReferenceDate: .init(
-                            1_695_000_011,
-                        ),
-                    ),
-                ),
-            )
-        }
-        .previewDisplayName("SecureNote")
-    }
-
-    @ViewBuilder static var sshKeyPreview: some View {
-        NavigationView {
-            ViewItemView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: ViewItemState(
-                            loadingState: .data(sshKeyState),
-                        ),
-                    ),
-                ),
-                timeProvider: PreviewTimeProvider(
-                    fixedDate: Date(
-                        timeIntervalSinceReferenceDate: .init(
-                            1_695_000_011,
-                        ),
-                    ),
-                ),
-            )
-        }
-        .previewDisplayName("SSH Key")
-    }
-
     static func cipher(forType: BitwardenSdk.CipherType = .login) -> CipherView {
         CipherView.fixture(
             attachments: [
@@ -374,6 +256,111 @@ struct ViewItemView_Previews: PreviewProvider {
             login: .fixture(),
             type: forType,
             viewPassword: false,
+        )
+    }
+}
+
+#Preview("Loading") {
+    NavigationView {
+        ViewItemView(
+            store: Store(
+                processor: StateProcessor(
+                    state: ViewItemState(
+                        loadingState: .loading(nil),
+                    ),
+                ),
+            ),
+            timeProvider: PreviewTimeProvider(
+                fixedDate: Date(
+                    timeIntervalSinceReferenceDate: .init(
+                        1_695_000_000,
+                    ),
+                ),
+            ),
+        )
+    }
+}
+
+#Preview("Card") {
+    NavigationView {
+        ViewItemView(
+            store: Store(
+                processor: StateProcessor(
+                    state: ViewItemState(
+                        loadingState: .data(ViewItemPreviewData.cardState),
+                    ),
+                ),
+            ),
+            timeProvider: PreviewTimeProvider(
+                fixedDate: Date(
+                    timeIntervalSinceReferenceDate: .init(
+                        1_695_000_000,
+                    ),
+                ),
+            ),
+        )
+    }
+}
+
+#Preview("Login") {
+    NavigationView {
+        ViewItemView(
+            store: Store(
+                processor: StateProcessor(
+                    state: ViewItemState(
+                        loadingState: .data(ViewItemPreviewData.loginState),
+                    ),
+                ),
+            ),
+            timeProvider: PreviewTimeProvider(
+                fixedDate: Date(
+                    timeIntervalSinceReferenceDate: .init(
+                        1_695_000_011,
+                    ),
+                ),
+            ),
+        )
+    }
+}
+
+#Preview("SecureNote") {
+    NavigationView {
+        ViewItemView(
+            store: Store(
+                processor: StateProcessor(
+                    state: ViewItemState(
+                        loadingState: .data(ViewItemPreviewData.secureNoteState),
+                    ),
+                ),
+            ),
+            timeProvider: PreviewTimeProvider(
+                fixedDate: Date(
+                    timeIntervalSinceReferenceDate: .init(
+                        1_695_000_011,
+                    ),
+                ),
+            ),
+        )
+    }
+}
+
+#Preview("SSH Key") {
+    NavigationView {
+        ViewItemView(
+            store: Store(
+                processor: StateProcessor(
+                    state: ViewItemState(
+                        loadingState: .data(ViewItemPreviewData.sshKeyState),
+                    ),
+                ),
+            ),
+            timeProvider: PreviewTimeProvider(
+                fixedDate: Date(
+                    timeIntervalSinceReferenceDate: .init(
+                        1_695_000_011,
+                    ),
+                ),
+            ),
         )
     }
 }
