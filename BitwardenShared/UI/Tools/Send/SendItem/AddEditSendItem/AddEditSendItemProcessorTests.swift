@@ -971,6 +971,18 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(coordinator.routes.last, .generator)
     }
 
+    /// `receive(_:)` with `.generatePasswordPressed` does nothing when editing a Send that already
+    /// has a password.
+    @MainActor
+    func test_receive_generatePasswordPressed_passwordFieldDisabled() {
+        subject.state.mode = .edit
+        subject.state.originalSendView = .fixture(hasPassword: true)
+        subject.receive(.generatePasswordPressed)
+
+        XCTAssertTrue(coordinator.routes.isEmpty)
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
     /// `didCancelGenerator()` dismisses the generator.
     @MainActor
     func test_didCancelGenerator() {
@@ -1073,6 +1085,17 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.receive(.passwordChanged("password"))
 
         XCTAssertEqual(subject.state.password, "password")
+    }
+
+    /// `receive(_:)` with `.passwordChanged` doesn't update the password when editing a Send that
+    /// already has a password.
+    @MainActor
+    func test_receive_passwordChanged_passwordFieldDisabled() {
+        subject.state.mode = .edit
+        subject.state.originalSendView = .fixture(hasPassword: true)
+        subject.receive(.passwordChanged("password"))
+
+        XCTAssertEqual(subject.state.password, "")
     }
 
     /// `receive(_:)` with `.passwordVisibleChanged` updates the password visibility.

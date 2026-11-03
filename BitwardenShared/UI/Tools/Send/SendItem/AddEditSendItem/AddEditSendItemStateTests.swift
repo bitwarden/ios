@@ -262,6 +262,21 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertNil(sendView.newPassword)
     }
 
+    /// `isPasswordFieldDisabled` is `true` only when editing a Send that already has a password.
+    func test_isPasswordFieldDisabled() {
+        var subject = AddEditSendItemState()
+        XCTAssertFalse(subject.isPasswordFieldDisabled)
+
+        subject.originalSendView = .fixture(hasPassword: true)
+        XCTAssertFalse(subject.isPasswordFieldDisabled)
+
+        subject.mode = .edit
+        XCTAssertTrue(subject.isPasswordFieldDisabled)
+
+        subject.originalSendView = .fixture(hasPassword: false)
+        XCTAssertFalse(subject.isPasswordFieldDisabled)
+    }
+
     /// `newSendView()` sets the expiration date to the deletion date if the expiration date isn't
     /// `nil` to allow editing an expired send.
     func test_newSendView_text_expired() throws {
