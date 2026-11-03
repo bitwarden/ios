@@ -1,4 +1,5 @@
 import BitwardenKitMocks
+import BitwardenResources
 import TestHelpers
 import XCTest
 
@@ -68,24 +69,20 @@ class ExportItemsProcessorTests: BitwardenTestCase {
 
     /// `.receive()` with  `.exportItemsTapped` logs an error on export failure.
     @MainActor
-    func test_receive_exportItemsTapped_unencrypted_error() throws {
+    func test_receive_exportItemsTapped_unencrypted_error() async throws {
         exportService.exportFileContentResult = .failure(BitwardenTestError.example)
         subject.state.fileFormat = .csv
         subject.receive(.exportItemsTapped)
 
         // Select the alert action to export.
-        let exportAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
-        let task = Task {
-            await exportAction.handler?(exportAction, [])
-        }
-        waitFor(!errorReporter.errors.isEmpty)
-        task.cancel()
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapAction(title: Localizations.export)
         XCTAssertEqual(errorReporter.errors.first as? BitwardenTestError, .example)
     }
 
     /// `.receive()` with  `.exportItemsTapped` passes a file url to the coordinator on success.
     @MainActor
-    func test_receive_exportItemsTapped_unencrypted_success() throws {
+    func test_receive_exportItemsTapped_unencrypted_success() async throws {
         let testURL = URL(string: "www.bitwarden.com")!
         exportService.exportFileContentResult = .success("")
         exportService.writeToFileResult = .success(testURL)
@@ -93,12 +90,8 @@ class ExportItemsProcessorTests: BitwardenTestCase {
         subject.receive(.exportItemsTapped)
 
         // Select the alert action to export.
-        let exportAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
-        let task = Task {
-            await exportAction.handler?(exportAction, [])
-        }
-        waitFor(!coordinator.routes.isEmpty)
-        task.cancel()
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapAction(title: Localizations.export)
         XCTAssertEqual(coordinator.routes.last, .shareExportedItems(testURL))
     }
 

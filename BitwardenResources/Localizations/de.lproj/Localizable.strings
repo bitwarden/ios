@@ -25,7 +25,7 @@
 "EnterPIN" = "PIN-Code eingeben.";
 "Favorites" = "Favoriten";
 "Folder" = "Ordner";
-"FolderCreated" = "Neuer Ordner erstellt.";
+"FolderCreated" = "Neuer Ordner erstellt";
 "FolderDeleted" = "Ordner wurde gelöscht.";
 "FolderNone" = "Kein Ordner";
 "Folders" = "Ordner";
@@ -451,9 +451,10 @@
 "HideEmail" = "Meine E-Mail-Adresse vor den Empfängern verstecken";
 "SendOptionsPolicyInEffect" = "Eine oder mehrere Organisationsrichtlinien beeinflussen deine Send Einstellungen.";
 "SendFilePremiumRequired" = "Kostenlose Konten sind auf das Teilen von Texten beschränkt. Eine Premium-Mitgliedschaft ist erforderlich, um Dateien mit Send zu verwenden.";
-"SendFileEmailVerificationRequired" = "Du musst deine E-Mail-Adresse verifizieren, um Dateien mit Send zu verwenden. Du kannst deine E-Mail-Adresse im Web-Tresor verifizieren.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Aufgrund einer Unternehmensrichtlinie kannst du nur %1$@-Sends erstellen.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Aufgrund einer Unternehmensrichtlinie kannst du nur Datei-Sends erstellen.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Aufgrund einer Unternehmensrichtlinie kannst du nur Text-Sends erstellen.";
 "OrganizationPolicyRestriction" = "Einschränkung aufgrund von Organisationsrichtlinien";
 "TextSendsAreNotAllowedDescriptionLong" = "Text-Sends sind für deine Organisation nicht erlaubt und dieses Senden läuft automatisch zum festgelegten Löschdatum ab.";
 "ThisSendIsNotCompliantDescriptionLong" = "Dieses Send entspricht nicht den Send-Richtlinien deiner Organisation und läuft automatisch zum festgelegten Löschdatum ab.";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "Standard-Speicheroption";
 "DownloadTheBitwardenApp" = "Bitwarden-App herunterladen";
 "EnsureItsValidJsonAndTryAgain" = "Stelle sicher, dass es sich um ein gültiges JSON handelt und versuche es erneut.";
-"ExportItemsConfirmationTitle" = "Export der Einträge bestätigen";
-"ExportItemsWarning" = "Dieser Export enthält deine Eintrags-Daten in einem unverschlüsselten Format. Du solltest die exportierte Datei daher nicht über unsichere Kanäle (z. B. E-Mail) speichern oder versenden. Lösche die Datei sofort nach Ihrer Verwendung.";
 "FileCouldNotBeProcessed" = "Datei konnte nicht verarbeitet werden";
 "GetVerificationCodesForAllYourAccounts" = "Erhalte Verifizierungscodes für alle deine Konten, die eine 2-Faktor-Authentifizierung verwenden.";
 "Help" = "Hilfe";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "Synchronisation fehlgeschlagen";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Wir konnten deinen Tresor nicht mit dem Server synchronisieren. Möglicherweise sind deine letzten Änderungen noch nicht im Tresor enthalten. Du kannst es jetzt erneut versuchen oder die Synchronisierung erfolgt später automatisch.";
 "TextToShareRequired" = "Text zum Teilen (erforderlich)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "In diesem Bericht enthalten";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Es werden nur lokal auf diesem Gerät gespeicherte Codes exportiert. Synchronisierte Codes sind nicht enthalten.";
+"ConfirmExport" = "Export bestätigen";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "Dieser Export enthält deine Tresordaten in einem unverschlüsseltem Format. Du solltest sie nicht speichern oder über unsichere Kanäle (z. B. E-Mail) senden. Lösche sie sofort nach ihrer Verwendung.";

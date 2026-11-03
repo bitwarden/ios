@@ -161,6 +161,29 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNil(appSettingsStore.pinProtectedUserKeyEnvelope["1"])
     }
 
+    /// `clearPins(userId:)` clears the specified user's pins without affecting the active user's pins.
+    func test_clearPins_userId() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+        await subject.addAccount(.fixture(profile: .fixture(userId: "2")))
+
+        appSettingsStore.encryptedPinByUserId["1"] = "encryptedPin1"
+        appSettingsStore.pinProtectedUserKey["1"] = "pinProtectedUserKey1"
+        appSettingsStore.pinProtectedUserKeyEnvelope["1"] = "pinProtectedUserKeyEnvelope1"
+        appSettingsStore.encryptedPinByUserId["2"] = "encryptedPin2"
+        appSettingsStore.pinProtectedUserKey["2"] = "pinProtectedUserKey2"
+        appSettingsStore.pinProtectedUserKeyEnvelope["2"] = "pinProtectedUserKeyEnvelope2"
+
+        try await subject.clearPins(userId: "1")
+
+        XCTAssertNil(appSettingsStore.encryptedPinByUserId["1"])
+        XCTAssertNil(appSettingsStore.pinProtectedUserKey["1"])
+        XCTAssertNil(appSettingsStore.pinProtectedUserKeyEnvelope["1"])
+
+        XCTAssertEqual(appSettingsStore.encryptedPinByUserId["2"], "encryptedPin2")
+        XCTAssertEqual(appSettingsStore.pinProtectedUserKey["2"], "pinProtectedUserKey2")
+        XCTAssertEqual(appSettingsStore.pinProtectedUserKeyEnvelope["2"], "pinProtectedUserKeyEnvelope2")
+    }
+
     /// `deleteAccount()` deletes the active user's account, removing it from the state.
     func test_deleteAccount() async throws {
         let newAccount = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
@@ -1608,6 +1631,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try await subject.setDefaultUriMatchType(.never)
         try await subject.setDisableAutoTotpCopy(true)
         try await subject.setPasswordGenerationOptions(PasswordGenerationOptions(length: 30))
+        try await subject.setPreviousPersonalPremium(true, userId: "1")
         appSettingsStore.setUserKeyId("USER_KEY_ID", userId: "1")
         appSettingsStore.setV2UpgradeToken(
             V2UpgradeToken(wrappedUserKey1: "WRAPPED_USER_KEY_1", wrappedUserKey2: "WRAPPED_USER_KEY_2"),
@@ -1652,6 +1676,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.defaultUriMatchTypeByUserId, [:])
         XCTAssertEqual(appSettingsStore.disableAutoTotpCopyByUserId, [:])
         XCTAssertEqual(appSettingsStore.passwordGenerationOptions, [:])
+        XCTAssertEqual(appSettingsStore.previousPersonalPremiumByUserId, [:])
         XCTAssertEqual(appSettingsStore.userKeyIdByUserId, [:])
         XCTAssertEqual(appSettingsStore.v2UpgradeTokenByUserId, [:])
         XCTAssertTrue(keychainRepository.clearLocalUserDataKeyStatesCalled)
@@ -1737,10 +1762,12 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let account = Account.fixture(profile: .fixture(userId: "1"))
         await subject.addAccount(account)
         try await subject.setAccountCryptographicState(.v1(privateKey: "1:PRIVATE_KEY"))
+        try await subject.setPreviousPersonalPremium(true, userId: "1")
 
         try await subject.logoutAccount(userInitiated: false)
 
         XCTAssertNil(appSettingsStore.accountCryptographicStates["1"])
+        XCTAssertEqual(appSettingsStore.previousPersonalPremiumByUserId, ["1": true])
         XCTAssertEqual(appSettingsStore.state?.accounts, ["1": account])
         XCTAssertEqual(appSettingsStore.state?.activeUserId, "1")
     }

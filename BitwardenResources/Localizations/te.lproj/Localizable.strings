@@ -451,9 +451,10 @@
 "HideEmail" = "స్వీకర్తల నుండి నా ఇమెయిల్ చిరునామాను దాచు";
 "SendOptionsPolicyInEffect" = "ఒకటి లేదా అంతకంటే ఎక్కువ సంస్థ విధానాలు మీ Send ఎంపికలను ప్రభావితం చేస్తున్నాయి.";
 "SendFilePremiumRequired" = "ఉచిత ఖాతాలు టెక్స్ట్‌ను మాత్రమే భాగస్వామ్యం చేయడానికి పరిమితం చేయబడ్డాయి. Sendతో ఫైల్‌లను ఉపయోగించడానికి ప్రీమియం సభ్యత్వం అవసరం.";
-"SendFileEmailVerificationRequired" = "Sendతో ఫైల్‌లను ఉపయోగించడానికి మీరు మీ ఇమెయిల్‌ను ధృవీకరించాలి. మీరు వెబ్ ఖజానాలో మీ ఇమెయిల్‌ను ధృవీకరించవచ్చు.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "డిఫాల్ట్ భద్రపరిచే ఎంపిక";
 "DownloadTheBitwardenApp" = "Bitwarden యాప్ డౌన్‌లోడ్ చేయి";
 "EnsureItsValidJsonAndTryAgain" = "ఇది చెల్లుబాటు అయ్యే JSON అని నిర్ధారించుకుని మళ్లీ ప్రయత్నించండి.";
-"ExportItemsConfirmationTitle" = "అంశాల ఎగుమతిని నిర్ధారించు";
-"ExportItemsWarning" = "ఈ ఎగుమతి మీ అంశాల డేటాను ఎన్క్రిప్ట్ చేయని ఆకృతిలో కలిగి ఉంటుంది. మీరు ఎగుమతి చేసిన ఫైల్‌ను అసురక్షిత ఛానెల్‌ల (ఇమెయిల్ వంటివి) ద్వారా నిల్వ చేయకూడదు లేదా పంపకూడదు. దీన్ని ఉపయోగించిన వెంటనే తొలగించండి.";
 "FileCouldNotBeProcessed" = "ఫైల్ ప్రాసెస్ చేయలేకపోయింది";
 "GetVerificationCodesForAllYourAccounts" = "2-దశల ధృవీకరణను ఉపయోగించి మీ అన్ని ఖాతాల కోసం ధృవీకరణ కోడ్‌లను పొందండి.";
 "Help" = "సహాయం";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "సింక్ విజయవంతం కాలేదు";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "మేము మీ ఖజానాను సర్వర్‌తో సింక్ చేయలేకపోయాము. మీ ఖజానా మీ తాజా మార్పులను ప్రతిబింబించకపోవచ్చు. మీరు ఇప్పుడు మళ్లీ ప్రయత్నించవచ్చు లేదా అది తర్వాత ఆటోమేటిక్‌గా సింక్ అవుతుంది.";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "ఎగుమతిని నిర్ధారించు";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "మీ భద్రత కోసం, ఈ ఫైల్‌ను అసురక్షిత ఛానెల్‌ల (ఇమెయిల్ వంటివి) ద్వారా భాగస్వామ్యం చేయవద్దు లేదా పంపవద్దు మరియు మీరు పూర్తి చేసిన తర్వాత దాన్ని తొలగించండి.";

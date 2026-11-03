@@ -451,9 +451,10 @@
 "HideEmail" = "လက်ခံသူများထံမှ ကျွန်ုပ်၏ အီးမေးလ်လိပ်စာကို ဝှက်ပါ";
 "SendOptionsPolicyInEffect" = "တစ်ခု သို့မဟုတ် တစ်ခုထက်ပိုသော အဖွဲ့အစည်းမူဝါဒများသည် သင့် Send ရွေးချယ်မှုများကို သက်ရောက်နေသည်။";
 "SendFilePremiumRequired" = "အခမဲ့အကောင့်များသည် စာသားမျှဝေခြင်းကိုသာ ကန့်သတ်ထားသည်။ Send ဖြင့် ဖိုင်များသုံးရန် အဆင့်မြင့် အသင်းဝင်မှု လိုအပ်သည်။";
-"SendFileEmailVerificationRequired" = "Send ဖြင့် ဖိုင်များသုံးရန် သင်သည် သင့်အီးမေးလ်ကို အတည်ပြုရပါမည်။ သင့်အီးမေးလ်ကို ဝဘ်ဗော်လ်တ်တွင် အတည်ပြုနိုင်သည်။";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "မူရင်း သိမ်းဆည်းရန် ရွေးချယ်မှု";
 "DownloadTheBitwardenApp" = "Bitwarden အက်ပ်ကို ဒေါင်းလုဒ်လုပ်ပါ";
 "EnsureItsValidJsonAndTryAgain" = "၎င်းသည် မှန်ကန်သော JSON ဖြစ်ကြောင်း သေချာပြီး ထပ်စမ်းကြည့်ပါ။";
-"ExportItemsConfirmationTitle" = "ပစ္စည်းများ တင်ပို့မှုကို အတည်ပြုပါ";
-"ExportItemsWarning" = "ဤတင်ပို့မှုတွင် သင့်ပစ္စည်းဒေတာကို စာဝှက်မထားသော ပုံစံဖြင့် ပါရှိသည်။ တင်ပို့ထားသော ဖိုင်ကို လုံခြုံမှုမရှိသော လမ်းကြောင်းများ (ဥပမာ အီးမေးလ်) မှတစ်ဆင့် သိမ်းဆည်းခြင်း သို့မဟုတ် ပေးပို့ခြင်း မပြုသင့်ပါ။ ၎င်းကို အသုံးပြုပြီးသည်နှင့် ချက်ချင်းဖျက်ပါ။";
 "FileCouldNotBeProcessed" = "ဖိုင်ကို ဆောင်ရွက်၍ မရပါ";
 "GetVerificationCodesForAllYourAccounts" = "အဆင့်နှစ်ဆင့် အတည်ပြုခြင်းကို သုံး၍ သင့်အကောင့်အားလုံးအတွက် အတည်ပြုကုဒ်များ ရယူပါ။";
 "Help" = "အကူအညီ";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "ထပ်တူပြုခြင်း မအောင်မြင်ပါ";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "သင့်ဗော်လ်တ်ကို ဆာဗာနှင့် ထပ်တူပြု၍ မရပါ။ သင့်ဗော်လ်တ်သည် သင့်နောက်ဆုံးပြောင်းလဲမှုများကို ထင်ဟပ်မည် မဟုတ်ပါ။ ယခုထပ်စမ်းကြည့်နိုင်သည် သို့မဟုတ် ၎င်းသည် နောက်မှ အလိုအလျောက် ထပ်တူပြုမည်။";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "တင်ပို့မှုကို အတည်ပြုပါ";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "သင့်လုံခြုံရေးအတွက်၊ ဤဖိုင်ကို လုံခြုံမှုမရှိသော လမ်းကြောင်းများ (ဥပမာ အီးမေးလ်) မှတစ်ဆင့် မျှဝေခြင်း သို့မဟုတ် ပေးပို့ခြင်း မပြုပါနှင့်၊ ပြီးသောအခါ ဖျက်ပါ။";

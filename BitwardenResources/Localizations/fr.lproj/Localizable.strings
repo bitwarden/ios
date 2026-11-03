@@ -451,9 +451,10 @@
 "HideEmail" = "Masquer mon adresse électronique aux destinataires";
 "SendOptionsPolicyInEffect" = "Une ou plusieurs politiques de sécurité de l'organisation affectent vos options Send.";
 "SendFilePremiumRequired" = "Les comptes gratuits sont limités au partage de texte uniquement. Une adhésion Premium est requise pour utiliser les fichiers avec Send.";
-"SendFileEmailVerificationRequired" = "Vous devez vérifier votre courriel pour utiliser des fichiers avec Send. Vous pouvez vérifier votre courriel dans le coffre web.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Conformément à la politique de l'entreprise, vous ne pouvez créer que des %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Contrainte de stratégie d'organisation";
 "TextSendsAreNotAllowedDescriptionLong" = "Les textes Send ne sont pas autorisés pour votre organisation et ce Send expirera automatiquement à la date de suppression définie.";
 "ThisSendIsNotCompliantDescriptionLong" = "Ce Send n'est pas conforme à la politique Send de votre organisation et expirera automatiquement à la date de suppression définie.";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "Option de sauvegarde par défaut";
 "DownloadTheBitwardenApp" = "Télécharger l'app Bitwarden";
 "EnsureItsValidJsonAndTryAgain" = "Assurez-vous que le JSON soit valide et réessayez.";
-"ExportItemsConfirmationTitle" = "Confirmer l'export des éléments";
-"ExportItemsWarning" = "Cet export contient vos données des éléments dans un format non chiffré. Vous ne devriez pas stocker ou envoyer le fichier exporté par des canaux non sécurisés (comme le courriel). Supprimez-le immédiatement dès que vous avez fini de l'utiliser.";
 "FileCouldNotBeProcessed" = "Le fichier n'a pas pu être traité";
 "GetVerificationCodesForAllYourAccounts" = "Obtenez les codes de vérification pour tous vos comptes grâce à la vérification en 2-étapes.";
 "Help" = "Aide";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "Échec de la synchronisation";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Nous n'avons pas pu synchroniser votre coffre avec le serveur. Votre coffre pourrait ne pas refléter vos dernières modifications. Vous pouvez réessayer maintenant ou il se synchronisera automatiquement plus tard.";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "Confirmer l'exportation";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "Cet export contient vos données de coffre dans un format non chiffré. Vous ne devriez pas stocker ou envoyer le fichier exporté par des canaux non sécurisés (comme le courriel). Supprimez-le immédiatement dès que vous avez fini de l'utiliser.";

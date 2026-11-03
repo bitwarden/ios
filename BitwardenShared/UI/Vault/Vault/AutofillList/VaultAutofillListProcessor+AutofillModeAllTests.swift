@@ -11,7 +11,7 @@ import XCTest
 @testable import BitwardenSharedMocks
 
 @available(iOS 18.0, *)
-class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase {
+class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var appExtensionDelegate: MockCredentialProviderExtensionDelegate!
@@ -107,6 +107,7 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase {
     func test_init() {
         XCTAssertTrue(subject.state.isAutofillingTextToInsertList)
         XCTAssertEqual(subject.state.emptyViewMessage, Localizations.noItemsToList)
+        XCTAssertEqual(subject.state.releasesFocusOnItemTap, TextToInsertKeyboardSession.releasesFocusOnItemTap)
     }
 
     /// `perform(_:)` with `.search()` performs a cipher search and indicates the search processor
@@ -244,6 +245,33 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase {
         XCTAssertEqual(textAutofillHelper.handleCipherForAutofillCalledWithCipher?.id, "1")
     }
 
+    /// `vaultItemTapped(_:)` releases the keyboard anchor and requests that focus is cleared when
+    /// `releasesFocusOnItemTap` is `true` (iOS 27+).
+    @MainActor
+    func test_perform_vaultItemTapped_releasesFocus() async {
+        subject.state.releasesFocusOnItemTap = true
+        let vaultListItem = VaultListItem(cipherListView: CipherListView.fixture(id: "1", login: .fixture()))!
+
+        await subject.perform(.vaultItemTapped(vaultListItem))
+
+        XCTAssertTrue(appExtensionDelegate.releaseKeyboardAnchorCalled)
+        XCTAssertTrue(subject.state.shouldClearFocus)
+        XCTAssertEqual(textAutofillHelper.handleCipherForAutofillCalledWithCipher?.id, "1")
+    }
+
+    /// `vaultItemTapped(_:)` keeps the keyboard anchor and focus when `releasesFocusOnItemTap` is
+    /// `false` (before iOS 27).
+    @MainActor
+    func test_perform_vaultItemTapped_keepsFocus_whenNotReleasingFocusOnItemTap() async {
+        subject.state.releasesFocusOnItemTap = false
+        let vaultListItem = VaultListItem(cipherListView: CipherListView.fixture(id: "1", login: .fixture()))!
+
+        await subject.perform(.vaultItemTapped(vaultListItem))
+
+        XCTAssertFalse(appExtensionDelegate.releaseKeyboardAnchorCalled)
+        XCTAssertFalse(subject.state.shouldClearFocus)
+    }
+
     /// `vaultItemTapped(_:)` has the text autofill helper handle text to insert autofill for the cipher but it throws.
     @MainActor
     func test_perform_vaultItemTappedThrows() async throws {
@@ -264,5 +292,49 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase {
         let alert = try XCTUnwrap(coordinator.alertShown.first)
         XCTAssertEqual(alert.title, Localizations.anErrorHasOccurred)
         XCTAssertEqual(alert.message, Localizations.failedToAutofillItem("Test"))
+    }
+
+    /// `receive(_:)` with `.searchStateChanged(isSearching: false)` resets the request to clear
+    /// focus, so a later item tap clears it again.
+    @MainActor
+    func test_receive_searchStateChanged_notSearching_resetsShouldClearFocus() {
+        subject.state.shouldClearFocus = true
+
+        subject.receive(.searchStateChanged(isSearching: false))
+
+        XCTAssertFalse(subject.state.shouldClearFocus)
+    }
+
+    /// `receive(_:)` with `.searchStateChanged(isSearching: true)` keeps an existing search query
+    /// in text-to-insert mode and refreshes its results.
+    @MainActor
+    func test_receive_searchStateChanged_searching_keepsExistingSearchText() {
+        subject.state.searchText = "Bit"
+
+        subject.receive(.searchStateChanged(isSearching: true))
+
+        XCTAssertEqual(subject.state.searchText, "Bit")
+        XCTAssertNotNil(searchProcessorMediator.startSearchingReceivedArguments)
+        XCTAssertEqual(
+            searchProcessorMediator.updateFilterReceivedFilter,
+            VaultListFilter(
+                filterType: .allVaults,
+                group: nil,
+                mode: .all,
+                rpID: nil,
+                searchText: "Bit",
+            ),
+        )
+    }
+
+    /// `receive(_:)` with `.searchStateChanged(isSearching: true)` resets the request to clear
+    /// focus, so a later item tap clears it again.
+    @MainActor
+    func test_receive_searchStateChanged_searching_resetsShouldClearFocus() {
+        subject.state.shouldClearFocus = true
+
+        subject.receive(.searchStateChanged(isSearching: true))
+
+        XCTAssertFalse(subject.state.shouldClearFocus)
     }
 }

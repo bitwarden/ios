@@ -6,6 +6,7 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class ViewSendItemProcessorTests: BitwardenTestCase {
     // MARK: Properties
@@ -173,7 +174,7 @@ class ViewSendItemProcessorTests: BitwardenTestCase {
 
         subject.receive(.copyNotes)
 
-        XCTAssertEqual(pasteboardService.copiedString, notes)
+        XCTAssertEqual(pasteboardService.copyReceivedString, notes)
         XCTAssertEqual(
             subject.state.toast,
             Toast(title: Localizations.valueHasBeenCopied(Localizations.privateNote)),
@@ -187,7 +188,7 @@ class ViewSendItemProcessorTests: BitwardenTestCase {
 
         subject.receive(.copyShareURL)
 
-        XCTAssertEqual(pasteboardService.copiedString, URL.example.absoluteString)
+        XCTAssertEqual(pasteboardService.copyReceivedString, URL.example.absoluteString)
         XCTAssertEqual(
             subject.state.toast,
             Toast(title: Localizations.valueHasBeenCopied(Localizations.sendLink)),

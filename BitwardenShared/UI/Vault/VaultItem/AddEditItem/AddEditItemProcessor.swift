@@ -10,6 +10,17 @@ import UIKit
 ///
 @MainActor
 protocol CipherItemOperationDelegate: AnyObject {
+    /// Called after a new cipher item has been added and the add view has finished dismissing
+    /// (i.e. after `itemAdded(type:)` returns `true` and the resulting dismissal completes).
+    /// Separate from `itemAdded(type:)` because the added item's id isn't useful until the add
+    /// view is out of the way, e.g. to navigate to the item's details.
+    ///
+    /// - Parameters:
+    ///   - id: The ID of the cipher that was added.
+    ///   - type: The type of the cipher item that was added.
+    ///
+    func didFinishAddingItem(id: String, type: CipherType)
+
     /// Called when a new cipher item has been successfully added.
     ///
     /// - Parameter type: The type of the cipher item that was added.
@@ -50,6 +61,8 @@ protocol CipherItemOperationDelegate: AnyObject {
 }
 
 extension CipherItemOperationDelegate {
+    func didFinishAddingItem(id _: String, type _: CipherType) {}
+
     func itemAdded(type _: CipherType) -> Bool { true }
 
     func itemArchived() {}
@@ -361,10 +374,12 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
 
     /// Handles dismissing the processor.
     ///
-    /// - Parameter didAddItem: `true` if a new cipher was added or `false` if the user is
-    ///     dismissing the view without saving.
+    /// - Parameters:
+    ///   - addedItemId: The ID of the cipher that was added, when `didAddItem` is `true`.
+    ///   - didAddItem: `true` if a new cipher was added or `false` if the user is dismissing the
+    ///     view without saving.
     ///
-    private func handleDismiss(didAddItem: Bool = false) {
+    private func handleDismiss(addedItemId: String? = nil, didAddItem: Bool = false) {
         if let appExtensionDelegate, appExtensionDelegate.isInAppExtensionSaveLoginFlow {
             if didAddItem, let username = state.cipher.login?.username, let password = state.cipher.login?.password {
                 appExtensionDelegate.completeAutofillRequest(username: username, password: password, fields: nil)
@@ -384,12 +399,19 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             return
         }
 
+        let addedItemType = state.type
         let shouldDismiss = if didAddItem {
-            delegate?.itemAdded(type: state.type) ?? true
+            delegate?.itemAdded(type: addedItemType) ?? true
         } else {
             delegate?.itemDismissed() ?? true
         }
-        if shouldDismiss {
+        guard shouldDismiss else { return }
+
+        if didAddItem, let addedItemId {
+            coordinator.navigate(to: .dismiss(DismissAction(action: { [delegate] in
+                delegate?.didFinishAddingItem(id: addedItemId, type: addedItemType)
+            })))
+        } else {
             coordinator.navigate(to: .dismiss())
         }
     }
@@ -929,10 +951,10 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             return
         }
 
-        try await services.vaultRepository.addCipher(state.cipher)
+        let addedCipher = try await services.vaultRepository.addCipher(state.cipher)
         coordinator.hideLoadingOverlay()
 
-        handleDismiss(didAddItem: true)
+        handleDismiss(addedItemId: addedCipher.id, didAddItem: true)
         await services.reviewPromptService.trackUserAction(.addedNewItem)
     }
 

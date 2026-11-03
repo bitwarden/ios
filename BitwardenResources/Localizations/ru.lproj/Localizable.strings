@@ -1,7 +1,7 @@
 "About" = "О Bitwarden";
 "Add" = "Добавить";
 "AddFolder" = "Добавить папку";
-"AnErrorHasOccurred" = "Произошла ошибка.";
+"AnErrorHasOccurred" = "Произошла ошибка";
 "Back" = "Назад";
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Отмена";
@@ -451,9 +451,10 @@
 "HideEmail" = "Скрыть мой адрес email от получателей";
 "SendOptionsPolicyInEffect" = "На параметры Send влияют одна или несколько политик организации.";
 "SendFilePremiumRequired" = "Используя бесплатную учетную запись, можно делиться только текстом. Чтобы использовать файлы с помощью Send, требуется Премиум.";
-"SendFileEmailVerificationRequired" = "Для использования файлов с помощью Send необходимо подтвердить свой email.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "В соответствии с корпоративной политикой вы можете создавать только %1$@ Send.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "В соответствии с корпоративной политикой вы можете создавать только файловую Send.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "В соответствии с корпоративной политикой вы можете создавать только текстовую Send.";
 "OrganizationPolicyRestriction" = "Ограничение политики организации";
 "TextSendsAreNotAllowedDescriptionLong" = "Текстовые Send не разрешены в вашей организации и эта Send будет автоматически удалена в установленную дату.";
 "ThisSendIsNotCompliantDescriptionLong" = "Эта Send не совместима с политикой Send вашей организации и будет автоматически удалена в установленную дату.";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "Опция сохранения по умолчанию";
 "DownloadTheBitwardenApp" = "Скачать приложение Bitwarden";
 "EnsureItsValidJsonAndTryAgain" = "Убедитесь, что это корректный JSON, и повторите попытку.";
-"ExportItemsConfirmationTitle" = "Подтвердить экспорт элементов";
-"ExportItemsWarning" = "Экспортируемый файл содержит данные ваших элементов в незашифрованном формате. Его не следует хранить или отправлять по небезопасным каналам (например по электронной почте). Удалите его сразу после использования.";
 "FileCouldNotBeProcessed" = "Файл не может быть обработан";
 "GetVerificationCodesForAllYourAccounts" = "Получайте коды подтверждения для всех ваших аккаунтов, используя двухэтапную аутентификацию.";
 "Help" = "Справка";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "Синхронизация не удалась";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Нам не удалось синхронизировать ваше хранилище с сервером. Возможно, в хранилище не отражены ваши последние изменения. Вы можете повторить попытку сейчас или дождаться автоматической синхронизации позже.";
 "TextToShareRequired" = "Текст для обмена (обязательно)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Включено в этот отчет";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Будут экспортированы только коды, сохраненные локально на этом устройстве. Синхронизированные коды не включены.";
+"ConfirmExport" = "Подтвердить экспорт";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "В целях безопасности не передавайте и не отправляйте этот файл по незащищенным каналам (например, по электронной почте) и удалите его после использования.";

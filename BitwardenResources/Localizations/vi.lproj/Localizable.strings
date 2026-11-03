@@ -451,9 +451,10 @@
 "HideEmail" = "Ẩn địa chỉ email của tôi với người nhận";
 "SendOptionsPolicyInEffect" = "Các chính sách của tổ chức đang ảnh hưởng đến tùy chọn Send của bạn.";
 "SendFilePremiumRequired" = "Tài khoản miễn phí chỉ được gửi văn bản. Nâng cấp lên gói Cao Cấp để gửi các tập tin với Send.";
-"SendFileEmailVerificationRequired" = "Bạn phải xác minh email của mình để sử dụng tệp trong Send. Bạn có thể xác minh email của mình trong kho lưu trữ web.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Hạn chế do chính sách của tổ chức";
 "TextSendsAreNotAllowedDescriptionLong" = "Tổ chức của bạn không cho phép các Send văn bản và Send này sẽ tự động hết hạn vào ngày xóa được thiết lập.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "Tùy chọn lưu mặc định";
 "DownloadTheBitwardenApp" = "Tải xuống ứng dụng Bitwarden";
 "EnsureItsValidJsonAndTryAgain" = "Đảm bảo rằng đó là JSON hợp lệ và thử lại.";
-"ExportItemsConfirmationTitle" = "Xác nhận xuất mục";
-"ExportItemsWarning" = "Tập tin xuất này chứa dữ liệu mã xác minh của bạn dưới một định dạng không được mã hóa. Bạn không nên lưu trữ hay gửi tập tin này thông qua phương thức không an toàn (như email). Xóa nó ngay lập tức khi bạn đã dùng xong.";
 "FileCouldNotBeProcessed" = "Tệp không thể được xử lý";
 "GetVerificationCodesForAllYourAccounts" = "Nhận mã xác minh cho tất cả các tài khoản của bạn sử dụng xác minh 2 bước.";
 "Help" = "Trợ giúp";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "Đồng bộ hóa không thành công";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Chúng tôi không thể đồng bộ hóa kho lưu trữ của bạn với máy chủ. Kho lưu trữ của bạn có thể không phản ánh các thay đổi mới nhất. Bạn có thể thử lại ngay bây giờ hoặc nó sẽ tự động đồng bộ hóa sau.";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "Xác nhận xuất";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "Vì lý do bảo mật, bạn không nên chia sẻ hay gửi tệp này qua các kênh không an toàn (như email), và hãy xóa nó ngay sau khi bạn dùng xong.";

@@ -451,9 +451,10 @@
 "HideEmail" = "ซ่อนที่อยู่อีเมลของฉันจากผู้รับ";
 "SendOptionsPolicyInEffect" = "นโยบายองค์กรอย่างน้อยหนึ่งรายการมีผลต่อตัวเลือก Send ของคุณ";
 "SendFilePremiumRequired" = "บัญชีฟรีถูกจำกัดให้แชร์ได้เฉพาะข้อความ ต้องเป็นสมาชิกพรีเมียมเพื่อใช้ไฟล์กับ Send";
-"SendFileEmailVerificationRequired" = "คุณต้องยืนยันอีเมลเพื่อใช้ไฟล์กับ Send คุณสามารถยืนยันอีเมลได้ในตู้นิรภัยเว็บ";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "ตัวเลือกการบันทึกเริ่มต้น";
 "DownloadTheBitwardenApp" = "ดาวน์โหลดแอป Bitwarden";
 "EnsureItsValidJsonAndTryAgain" = "ตรวจสอบให้แน่ใจว่าเป็น JSON ที่ถูกต้องแล้วลองอีกครั้ง";
-"ExportItemsConfirmationTitle" = "ยืนยันการส่งออกรายการ";
-"ExportItemsWarning" = "การส่งออกนี้มีข้อมูลรายการของคุณในรูปแบบที่ไม่ได้เข้ารหัส คุณไม่ควรจัดเก็บหรือส่งไฟล์ที่ส่งออกผ่านช่องทางที่ไม่ปลอดภัย (เช่น อีเมล) ลบไฟล์ทันทีหลังจากใช้งานเสร็จ";
 "FileCouldNotBeProcessed" = "ไม่สามารถประมวลผลไฟล์ได้";
 "GetVerificationCodesForAllYourAccounts" = "รับรหัสยืนยันสำหรับทุกบัญชีของคุณโดยใช้การยืนยันตัวตน 2 ขั้นตอน";
 "Help" = "ช่วยเหลือ";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "ซิงค์ไม่สำเร็จ";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "เราไม่สามารถซิงค์คลังข้อมูลของคุณกับเซิร์ฟเวอร์ได้ คลังข้อมูลของคุณอาจไม่สะท้อนการเปลี่ยนแปลงล่าสุดของคุณ คุณสามารถลองอีกครั้งตอนนี้หรือจะซิงค์อัตโนมัติในภายหลัง";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "ยืนยันการส่งออก";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "เพื่อความปลอดภัย อย่าแชร์หรือส่งไฟล์นี้ผ่านช่องทางที่ไม่ปลอดภัย (เช่น อีเมล) และลบไฟล์เมื่อใช้งานเสร็จแล้ว";

@@ -452,9 +452,10 @@
 "HideEmail" = "ಸ್ವೀಕರಿಸುವವರಿಂದ ನನ್ನ ಇಮೇಲ್ ವಿಳಾಸವನ್ನು ಮರೆಮಾಡಿ.";
 "SendOptionsPolicyInEffect" = "ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ಸಂಸ್ಥೆಯ ನೀತಿಗಳು ನಿಮ್ಮ ಕಳುಹಿಸುವ ಆಯ್ಕೆಗಳ ಮೇಲೆ ಪರಿಣಾಮ ಬೀರುತ್ತವೆ.";
 "SendFilePremiumRequired" = "Free accounts are restricted to sharing text only. A premium membership is required to use files with Send.";
-"SendFileEmailVerificationRequired" = "ಕಳುಹಿಸುವಿಕೆಯೊಂದಿಗೆ ಫೈಲ್‌ಗಳನ್ನು ಬಳಸಲು ನಿಮ್ಮ ಇಮೇಲ್ ಅನ್ನು ನೀವು ಪರಿಶೀಲಿಸಬೇಕು. ವೆಬ್ ವಾಲ್ಟ್ನಲ್ಲಿ ನಿಮ್ಮ ಇಮೇಲ್ ಅನ್ನು ನೀವು ಪರಿಶೀಲಿಸಬಹುದು.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -982,8 +983,6 @@
 "DefaultSaveOption" = "ಡೀಫಾಲ್ಟ್ ಉಳಿಸುವ ಆಯ್ಕೆ";
 "DownloadTheBitwardenApp" = "Bitwarden ಅಪ್ಲಿಕೇಶನ್ ಡೌನ್ಲೋಡ್ ಮಾಡಿ";
 "EnsureItsValidJsonAndTryAgain" = "ಇದು ಮಾನ್ಯ JSON ಆಗಿದೆಯೆಂದು ಖಚಿತಪಡಿಸಿಕೊಳ್ಳಿ ಮತ್ತು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.";
-"ExportItemsConfirmationTitle" = "ಐಟಂಗಳ ರಫ್ತನ್ನು ದೃಢೀಕರಿಸಿ";
-"ExportItemsWarning" = "ಈ ರಫ್ತು ನಿಮ್ಮ ಐಟಂ ಡೇಟಾವನ್ನು ಎನ್ಕ್ರಿಪ್ಟ್ ಮಾಡದ ಸ್ವರೂಪದಲ್ಲಿ ಹೊಂದಿದೆ. ನೀವು ರಫ್ತು ಮಾಡಿದ ಫೈಲ್ ಅನ್ನು ಅಸುರಕ್ಷಿತ ಚಾನಲ್ಗಳ ಮೂಲಕ (ಇಮೇಲ್ನಂತಹ) ಸಂಗ್ರಹಿಸಬಾರದು ಅಥವಾ ಕಳುಹಿಸಬಾರದು. ಅದನ್ನು ಬಳಸಿದ ನಂತರ ತಕ್ಷಣ ಅಳಿಸಿ.";
 "FileCouldNotBeProcessed" = "ಫೈಲ್ ಅನ್ನು ಪ್ರಕ್ರಿಯೆಗೊಳಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ";
 "GetVerificationCodesForAllYourAccounts" = "2-ಹಂತದ ಪರಿಶೀಲನೆಯನ್ನು ಬಳಸಿಕೊಂಡು ನಿಮ್ಮ ಎಲ್ಲಾ ಖಾತೆಗಳಿಗೆ ಪರಿಶೀಲನಾ ಕೋಡ್ಗಳನ್ನು ಪಡೆಯಿರಿ.";
 "Help" = "ಸಹಾಯ";
@@ -1303,3 +1302,8 @@
 "SyncUnsuccessful" = "ಸಿಂಕ್ ಯಶಸ್ವಿಯಾಗಿಲ್ಲ";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "ನಮಗೆ ನಿಮ್ಮ ವಾಲ್ಟ್ ಅನ್ನು ಸರ್ವರ್ನೊಂದಿಗೆ ಸಿಂಕ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ನಿಮ್ಮ ವಾಲ್ಟ್ ನಿಮ್ಮ ಇತ್ತೀಚಿನ ಬದಲಾವಣೆಗಳನ್ನು ಪ್ರತಿಬಿಂಬಿಸದಿರಬಹುದು. ನೀವು ಈಗ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಬಹುದು ಅಥವಾ ಅದು ನಂತರ ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಸಿಂಕ್ ಆಗುತ್ತದೆ.";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "ರಫ್ತು ದೃಢೀಕರಿಸಿ";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "ಈ ರಫ್ತು ನಿಮ್ಮ ವಾಲ್ಟ್ ಡೇಟಾವನ್ನು ಎನ್‌ಕ್ರಿಪ್ಟ್ ಮಾಡದ ಸ್ವರೂಪದಲ್ಲಿ ಒಳಗೊಂಡಿದೆ. ನೀವು ರಫ್ತು ಮಾಡಿದ ಫೈಲ್ ಅನ್ನು ಅಸುರಕ್ಷಿತ ಚಾನಲ್‌ಗಳಲ್ಲಿ (ಇಮೇಲ್ ನಂತಹ) ಸಂಗ್ರಹಿಸಬಾರದು ಅಥವಾ ಕಳುಹಿಸಬಾರದು. ನೀವು ಅದನ್ನು ಬಳಸಿದ ನಂತರ ಅದನ್ನು ಅಳಿಸಿ.";

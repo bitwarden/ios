@@ -136,7 +136,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
 
         try await alert.tapAction(title: Localizations.copyErrorReport)
         XCTAssertEqual(
-            pasteboardService.copiedString,
+            pasteboardService.copyReceivedString,
             """
             \(Localizations.decryptionError)
             \(Localizations.bitwardenCouldNotDecryptThisVaultItemDescriptionLong)

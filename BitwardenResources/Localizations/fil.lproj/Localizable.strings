@@ -451,9 +451,10 @@
 "HideEmail" = "Itago ang email address ko sa mga tatanggap";
 "SendOptionsPolicyInEffect" = "Naaapektuhan ng isa o higit pang mga patakaran sa organisasyon mo ang mga opsyon mo sa Send.";
 "SendFilePremiumRequired" = "Teksto lamang ang maibabahagi ng mga libreng account. Kailangan ng premium membership para makapagbahagi ng mga file gamit ang Send.";
-"SendFileEmailVerificationRequired" = "Kailangan mong beripikahin ang email mo para makapagbahagi ng mga file gamit ang Send. Mabeberipika mo ang email mo sa web vault.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "Default na opsyon sa pag-save";
 "DownloadTheBitwardenApp" = "I-download ang Bitwarden app";
 "EnsureItsValidJsonAndTryAgain" = "Tiyaking ito ay wastong JSON at subukan muli.";
-"ExportItemsConfirmationTitle" = "Kumpirmahin ang pag-export ng mga item";
-"ExportItemsWarning" = "Ang export na ito ay naglalaman ng iyong data ng item sa isang hindi naka-encrypt na format. Hindi mo dapat iimbak o ipadala ang na-export na file sa mga hindi secure na channel (tulad ng email). Tanggalin ito kaagad pagkatapos mong gamitin ito.";
 "FileCouldNotBeProcessed" = "Hindi ma-process ang file";
 "GetVerificationCodesForAllYourAccounts" = "Kumuha ng mga verification code para sa lahat ng iyong account gamit ang 2-step verification.";
 "Help" = "Tulong";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "Hindi matagumpay ang pag-sync";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Hindi namin ma-sync ang iyong baul sa server. Maaaring hindi ipakita ng iyong baul ang iyong mga pinakabagong pagbabago. Maaari mong subukan muli ngayon o awtomatiko itong magsi-sync mamaya.";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "Kumpirmahin ang pag-export";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "Naglalaman ng unencrypted vault data mo ang export na ito. Hindi mo dapat ilagay o ipadala ang file gamit ang hindi ligtas na mga paraan (tulad ng email). Burahin ito kaagad pagkagamit.";
