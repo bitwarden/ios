@@ -1515,7 +1515,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         subject.receive(.attachmentPressed(attachment))
 
-        waitFor(attachmentPreviewHelper.showPreviewCalled)
+        waitFor(attachmentPreviewHelper.showPreviewReceivedArguments != nil)
         XCTAssertEqual(attachmentPreviewHelper.showPreviewReceivedArguments?.attachment, attachment)
         XCTAssertEqual(attachmentPreviewHelper.showPreviewReceivedArguments?.cipher, cipher)
     }
