@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - PrimaryActionToolbarButtonStyle
@@ -11,6 +12,7 @@ public struct PrimaryActionToolbarButtonStyle: PrimitiveButtonStyle {
         if #available(iOS 26, *) {
             Button(configuration)
                 .buttonStyle(.borderedProminent)
+                .tint(SharedAsset.Colors.buttonFilledBackground.swiftUIColor)
         } else {
             Button(configuration)
                 .buttonStyle(.toolbar)

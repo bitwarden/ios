@@ -102,6 +102,7 @@ public extension View {
                     await action()
                 }
             }
+            .tint(SharedAsset.Colors.buttonFilledBackground.swiftUIColor)
             .accessibilityIdentifier(accessibilityIdentifier)
             .accessibilityLabel(label)
         }
