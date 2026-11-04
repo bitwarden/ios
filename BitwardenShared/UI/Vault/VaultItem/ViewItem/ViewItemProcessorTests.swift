@@ -1591,6 +1591,10 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         // Download the attachment, which saves the first file.
         vaultRepository.downloadAttachmentResult = .success(firstUrl)
         subject.receive(.downloadAttachment(attachment))
+        try await waitForAsync { [weak self] in
+            guard let self else { return true }
+            return coordinator.alertShown.count == 1
+        }
         var confirmAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
         await confirmAction.handler?(confirmAction, [])
         XCTAssertTrue(vaultRepository.removeTemporaryDownloadUrls.isEmpty)
@@ -1598,6 +1602,10 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         // Download the attachment again, which replaces the first file.
         vaultRepository.downloadAttachmentResult = .success(secondUrl)
         subject.receive(.downloadAttachment(attachment))
+        try await waitForAsync { [weak self] in
+            guard let self else { return true }
+            return coordinator.alertShown.count == 2
+        }
         confirmAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
         await confirmAction.handler?(confirmAction, [])
 
