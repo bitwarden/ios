@@ -131,6 +131,30 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         vaultRepository = nil
     }
 
+    // MARK: Private
+
+    /// Recreates the subject in the add login configuration, set to navigate to the new item's
+    /// view screen in the same navigation stack when saved.
+    @MainActor
+    private func setUpSubjectNavigatingToViewItemOnSave() {
+        subject = AddEditItemProcessor(
+            appExtensionDelegate: appExtensionDelegate,
+            coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
+            services: ServiceContainer.withMocks(
+                errorReporter: errorReporter,
+                eventService: eventService,
+                policyService: policyService,
+                reviewPromptService: reviewPromptService,
+                stateService: stateService,
+                vaultRepository: vaultRepository,
+            ),
+            state: CipherItemState(addItem: .login, hasPremium: true),
+            vaultItemActionHelper: vaultItemActionHelper,
+            navigatesToViewItemOnSave: true,
+        )
+    }
+
     // MARK: Tests
 
     /// `receive(_:)` with `.customField(.booleanFieldChanged)` changes
@@ -1610,6 +1634,41 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(delegate.didFinishAddingItemId, "1")
         XCTAssertEqual(delegate.didFinishAddingItemType, .login)
         XCTAssertEqual(reviewPromptService.userActions, [.addedNewItem])
+    }
+
+    /// `perform(_:)` with `.savePressed` when navigating to the view item screen on save replaces
+    /// the add item screen with the new item's view screen instead of dismissing.
+    @MainActor
+    func test_perform_savePressed_navigatesToViewItemOnSave() async {
+        setUpSubjectNavigatingToViewItemOnSave()
+        vaultRepository.addCipherResult = .success(.fixture(id: "1"))
+        subject.state.name = "vault item"
+        subject.state.loginState.password = "password"
+
+        await subject.perform(.savePressed)
+
+        XCTAssertEqual(vaultRepository.addCipherCiphers.first?.login?.password, "password")
+        XCTAssertEqual(coordinator.routes, [.viewItem(id: "1", toastTitle: Localizations.loginSaved)])
+        XCTAssertFalse(delegate.itemAddedCalled)
+        XCTAssertNil(delegate.didFinishAddingItemId)
+        XCTAssertEqual(reviewPromptService.userActions, [.addedNewItem])
+    }
+
+    /// `perform(_:)` with `.savePressed` when navigating to the view item screen on save still
+    /// completes the autofill request in the app extension save login flow.
+    @MainActor
+    func test_perform_savePressed_navigatesToViewItemOnSave_appExtension() async {
+        setUpSubjectNavigatingToViewItemOnSave()
+        appExtensionDelegate.isInAppExtensionSaveLoginFlow = true
+        subject.state.loginState.password = "PASSWORD"
+        subject.state.loginState.username = "user@bitwarden.com"
+        subject.state.name = "Login from App Extension"
+
+        await subject.perform(.savePressed)
+
+        XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestPassword, "PASSWORD")
+        XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestUsername, "user@bitwarden.com")
+        XCTAssertTrue(coordinator.routes.isEmpty)
     }
 
     /// `perform(_:)` with `.savePressed` saves the item for `.sshKey`.

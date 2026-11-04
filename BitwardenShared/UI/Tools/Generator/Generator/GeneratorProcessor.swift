@@ -93,6 +93,8 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             await checkLearnGeneratorActionCardEligibility()
             state.shouldShowUpgradedToPremiumActionCard = await services.billingService
                 .shouldShowUpgradedToPremiumActionCard()
+        case .createLoginPressed:
+            await createLogin()
         case .dismissLearnGeneratorActionCard:
             await services.stateService.setLearnGeneratorActionCardStatus(.complete)
             state.isLearnGeneratorActionCardEligible = false
@@ -215,6 +217,21 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     private func checkLearnGeneratorActionCardEligibility() async {
         state.isLearnGeneratorActionCardEligible = await services.stateService
             .getLearnGeneratorActionCardStatus() == .incomplete
+    }
+
+    /// Navigates to the add login screen, prefilled with the generated value.
+    ///
+    private func createLogin() async {
+        guard state.hasGeneratedValue else { return }
+
+        let newCipherOptions = switch state.generatorType {
+        case .passphrase, .password:
+            NewCipherOptions(password: state.generatedValue)
+        case .username:
+            NewCipherOptions(username: state.generatedValue)
+        }
+        let hasPremium = await services.stateService.doesActiveAccountHavePremium()
+        coordinator.navigate(to: .addLogin(hasPremium: hasPremium, newCipherOptions: newCipherOptions))
     }
 
     /// Generate a new passphrase.

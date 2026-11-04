@@ -4,6 +4,9 @@ enum GeneratorEffect {
     /// The generator view appeared on screen.
     case appeared
 
+    /// The create login button was pressed.
+    case createLoginPressed
+
     /// The user tapped the dismiss button on the learn generator action card.
     case dismissLearnGeneratorActionCard
 

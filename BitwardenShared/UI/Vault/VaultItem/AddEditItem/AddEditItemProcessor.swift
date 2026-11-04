@@ -128,6 +128,10 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// The delegate that is notified when delete cipher item have occurred.
     private weak var delegate: CipherItemOperationDelegate?
 
+    /// Whether saving a new item should replace this view with the new item's view screen in the
+    /// same navigation stack, rather than dismissing.
+    private let navigatesToViewItemOnSave: Bool
+
     /// The helper used to navigate to the Premium upgrade flow.
     lazy var premiumUpgradeHelper: PremiumUpgradeHelper = DefaultPremiumUpgradeHelper(
         services: services,
@@ -152,6 +156,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     ///   - services: The services required by this processor.
     ///   - state: The initial state for the processor.
     ///   - vaultItemActionHelper: The helper to execute vault item actions.
+    ///   - navigatesToViewItemOnSave: Whether saving a new item should replace this view with the
+    ///     new item's view screen in the same navigation stack, rather than dismissing.
     ///
     init(
         appExtensionDelegate: AppExtensionDelegate?,
@@ -160,10 +166,12 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         services: Services,
         state: AddEditItemState,
         vaultItemActionHelper: VaultItemActionHelper,
+        navigatesToViewItemOnSave: Bool = false,
     ) {
         self.appExtensionDelegate = appExtensionDelegate
         self.coordinator = coordinator
         self.delegate = delegate
+        self.navigatesToViewItemOnSave = navigatesToViewItemOnSave
         self.services = services
         self.vaultItemActionHelper = vaultItemActionHelper
 
@@ -400,6 +408,14 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         }
 
         let addedItemType = state.type
+        if didAddItem, navigatesToViewItemOnSave, let addedItemId {
+            coordinator.navigate(
+                to: .viewItem(id: addedItemId, toastTitle: addedItemType.savedToastTitle),
+                context: delegate,
+            )
+            return
+        }
+
         let shouldDismiss = if didAddItem {
             delegate?.itemAdded(type: addedItemType) ?? true
         } else {

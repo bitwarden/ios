@@ -88,19 +88,11 @@ struct GeneratorState: Equatable {
         /// The generator is being presented in place for a specific generation task.
         case inPlace
 
-        /// A flag indicating if the full-width primary copy button is visible.
-        var isCopyButtonVisible: Bool {
+        /// A flag indicating if the full-width primary create login button is visible.
+        var isCreateLoginButtonVisible: Bool {
             switch self {
             case .tab: true
             case .inPlace: false
-            }
-        }
-
-        /// A flag indicating if the copy icon button next to the regenerate button is visible.
-        var isCopyIconButtonVisible: Bool {
-            switch self {
-            case .tab: false
-            case .inPlace: true
             }
         }
 
@@ -232,6 +224,12 @@ struct GeneratorState: Equatable {
                 title: Localizations.options,
             ),
         ]
+    }
+
+    /// Whether there's a usable generated value, excluding the placeholder that's shown while a
+    /// username is generating or when a username can't be generated.
+    var hasGeneratedValue: Bool {
+        !generatedValue.isEmpty && generatedValue != Constants.defaultGeneratedUsername
     }
 
     // MARK: Methods
