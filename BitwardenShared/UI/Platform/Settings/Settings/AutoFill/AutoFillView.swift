@@ -94,19 +94,9 @@ struct AutoFillView: View {
                     ),
                     accessibilityIdentifier: "FillAssistSwitch",
                     accessibilityLabel: Localizations.turnOnFillAssist,
+                    helpURL: ExternalLinksConstants.fillAssistHelp,
                     title: {
                         Text(Localizations.turnOnFillAssist)
-                    },
-                    accessory: {
-                        Button {
-                            openURL(ExternalLinksConstants.fillAssistHelp)
-                        } label: {
-                            SharedAsset.Icons.questionCircle16.swiftUIImage
-                                .scaledFrame(width: 16, height: 16)
-                        }
-                        .buttonStyle(.fieldLabelIcon)
-                        .accessibilityLabel(Localizations.learnMore)
-                        .accessibilityHint(Localizations.externalLink)
                     },
                 )
                 .contentBlock()

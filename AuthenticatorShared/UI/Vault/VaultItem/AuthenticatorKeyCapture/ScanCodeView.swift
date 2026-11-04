@@ -23,7 +23,7 @@ struct ScanCodeView: View {
 
     var body: some View {
         content
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
             .navigationTitle(Localizations.scanQrTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -55,7 +55,6 @@ struct ScanCodeView: View {
                 .styleGuide(.body)
                 .multilineTextAlignment(.center)
                 .dynamicTypeSize(...maxDynamicTypeSize)
-                .foregroundColor(.white)
             if store.state.showManualEntry {
                 Spacer()
                 Button(
@@ -63,9 +62,8 @@ struct ScanCodeView: View {
                     label: {
                         Group {
                             Text(Localizations.cannotScanQRCode + " ")
-                                .foregroundColor(.white)
                                 + Text(Localizations.enterKeyManually)
-                                .foregroundColor(Asset.Colors.primaryBitwardenDark.swiftUIColor)
+                                .foregroundColor(SharedAsset.Colors.textInteraction.swiftUIColor)
                         }
                         .styleGuide(.body)
                         .multilineTextAlignment(.center)
@@ -75,6 +73,8 @@ struct ScanCodeView: View {
                 .buttonStyle(InlineButtonStyle())
             }
         }
+        .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
+        .environment(\.colorScheme, .dark)
     }
 
     @ViewBuilder var overlayContent: some View {
@@ -135,7 +135,7 @@ struct ScanCodeView: View {
     private func qrCornerGuides(length: CGFloat) -> some View {
         CornerBorderShape(cornerLength: length * 0.1, lineWidth: 3)
             .stroke(lineWidth: 3)
-            .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
+            .foregroundColor(SharedAsset.Colors.iconSecondary.swiftUIColor)
             .frame(
                 width: length * 0.65,
                 height: length * 0.65,

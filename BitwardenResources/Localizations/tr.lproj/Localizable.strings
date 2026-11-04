@@ -451,9 +451,10 @@
 "HideEmail" = "E-posta adresimi alıcılardan gizle";
 "SendOptionsPolicyInEffect" = "Bir veya daha fazla kuruluş ilkesi Send seçeneklerinizi etkiliyor.";
 "SendFilePremiumRequired" = "Ücretsiz hesaplar yalnızca metin paylaşabilir. Send ile dosya paylaşmak için premium üyelik gerekir.";
-"SendFileEmailVerificationRequired" = "Send ile dosya paylaşmak için e-postanızı doğrulamalısınız. E-postanızı web kasası üzerinden doğrulayabilirsiniz.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "Varsayılan kaydetme seçeneği";
 "DownloadTheBitwardenApp" = "Bitwarden uygulamasını indir";
 "EnsureItsValidJsonAndTryAgain" = "JSON'ın geçerli olduğunu kontrol edip yeniden deneyin.";
-"ExportItemsConfirmationTitle" = "Öğeleri dışa aktarmayı onaylayın";
-"ExportItemsWarning" = "Bu dışa aktarım, verilerinizi şifrelenmemiş bir biçimde barındırır. Dışa aktarılan dosyayı güvenli olmayan kanallar üzerinde (örn. e-posta) saklamamalı veya göndermemelisiniz. İşiniz biter bitmez dosyayı silmelisiniz.";
 "FileCouldNotBeProcessed" = "Dosya işlenemedi";
 "GetVerificationCodesForAllYourAccounts" = "İki aşamalı doğrulama kullanan tüm hesaplarınız için doğrulama kodları oluşturun.";
 "Help" = "Yardım";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "Eşitleme başarısız oldu";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Kasanı sunucu ile eşleştiremiyoruz. Kasanız son değişikliklerinizi almamış olablir. Şimdi yeniden deneyebilirsiniz ya da sonra otomatik olarak kendini eşleyecektir.";
 "TextToShareRequired" = "Paylaşılacak metin (gerekli)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "Dışa aktarmayı onayla";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "Dışa aktarılan dosyadaki verileriniz şifrelenmemiş olacak. Bu dosyayı güvensiz yöntemlerle (örn. e-posta) göndermemeli ve saklamamalısınız. İşiniz bittikten sonra dosyayı hemen silin.";

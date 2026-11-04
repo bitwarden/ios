@@ -451,9 +451,10 @@
 "HideEmail" = "Skryť moju e-mailovú adresu pred príjemcami";
 "SendOptionsPolicyInEffect" = "Jedno alebo viac pravidiel organizácie ovplyvňujú vaše možnosti funkcie Send.";
 "SendFilePremiumRequired" = "Bezplatné účty sú obmedzené len na zdieľanie textu. Na odosielanie súborov cez Send sa vyžaduje prémiové členstvo.";
-"SendFileEmailVerificationRequired" = "Na odosielanie súborov cez Send musíte overiť svoj e-mail.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Vzhľadom na pravidlá spoločnosti môžete vytvoriť len %1$@ Send.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Vzhľadom na pravidlá spoločnosti môžete vytvoriť len súborový Send.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Vzhľadom na pravidlá spoločnosti môžete vytvoriť len textový Send.";
 "OrganizationPolicyRestriction" = "Obmedzenie politiky organizácie";
 "TextSendsAreNotAllowedDescriptionLong" = "Vaša organizácia nepovoľuje textové Sendy a tento Send automaticky vyprší v nastavený deň odstránenia.";
 "ThisSendIsNotCompliantDescriptionLong" = "Tento Send nie je v súlade s politikou Sendu vašej organizácie a jeho platnosť automaticky vyprší v stanovený deň odstránenia.";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "Predvolená možnosť uloženia";
 "DownloadTheBitwardenApp" = "Stiahnuť apku Bitwarden";
 "EnsureItsValidJsonAndTryAgain" = "Uistite sa, že ide o platný JSON, a skúste to znova.";
-"ExportItemsConfirmationTitle" = "Potvrdiť export položiek";
-"ExportItemsWarning" = "Tento export obsahuje vaše dáta položky v nešifrovanom formáte. Nemali by ste ich ukladať, ani posielať cez nezabezpečené kanály (napr. e-mail). Okamžite ho odstráňte, keď ho prestanete používať.";
 "FileCouldNotBeProcessed" = "Súbor sa nepodarilo spracovať";
 "GetVerificationCodesForAllYourAccounts" = "Získajte overovacie kódy pre všetky svoje účty, ktoré používajú dvojstupňové overenie.";
 "Help" = "Pomoc";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "Synchronizácia zlyhala";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Nepodarilo sa nám synchronizovať váš trezor so serverom. Je možné, že váš trezor nezahŕňa vaše najnovšie zmeny. Môžete to skúsiť znova teraz, alebo sa synchronizácia vykoná automaticky neskôr.";
 "TextToShareRequired" = "Text na zdieľanie (povinné)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Zahrnuté v tomto reporte";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Exportovať sa budú len miestne kódy v tomto zariadení. Synchronizované kódy nie sú zahrnuté.";
+"ConfirmExport" = "Potvrdiť export";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "V záujme bezpečnosti nezdieľajte ani neposielajte tento súbor nezabezpečenými kanálmi (napríklad e-mailom) a po skončení ho odstráňte.";

@@ -556,7 +556,7 @@ extension VaultListProcessor {
             return
         }
         state.shouldShowPremiumUpgradeActionCard =
-            await services.billingRepository.isInAppUpgradeAvailable()
+            await services.billingRepository.isPremiumUpgradeBannerAvailable()
     }
 
     /// Refreshes the vault's contents.
@@ -942,9 +942,11 @@ extension VaultListProcessor: AddEditFolderDelegate {
 // MARK: - CipherItemOperationDelegate
 
 extension VaultListProcessor: CipherItemOperationDelegate {
-    func itemAdded(type: CipherType) -> Bool {
-        state.toast = Toast(title: type.savedToastTitle)
-        return true
+    func didFinishAddingItem(id: String, type: CipherType) {
+        coordinator.navigate(
+            to: .viewItem(id: id, masterPasswordRepromptCheckCompleted: true, toastTitle: type.savedToastTitle),
+            context: self,
+        )
     }
 
     func itemArchived() {

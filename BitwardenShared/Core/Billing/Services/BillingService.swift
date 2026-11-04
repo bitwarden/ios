@@ -30,6 +30,16 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func createCheckoutSession() async throws -> URL
 
+    /// Reveals the "Upgraded to Premium" action card when the account's personal Premium has
+    /// changed from `false` to `true` since the last sync, and records the current value for the
+    /// next comparison. Does nothing but record when no value has been recorded yet, so this can
+    /// safely run after every sync.
+    ///
+    /// - Parameters:
+    ///   - userId: The account that synced.
+    ///
+    func detectOutOfBandUpgrade(userId: String) async
+
     /// Creates a customer portal session for managing the Premium subscription.
     ///
     /// - Returns: A validated HTTPS URL for the customer portal.
@@ -254,6 +264,23 @@ class DefaultBillingService: BillingService {
             throw BillingError.invalidCheckoutUrl
         }
         return url
+    }
+
+    func detectOutOfBandUpgrade(userId: String) async {
+        do {
+            let previous = try await billingStateService.getPreviousPersonalPremium(userId: userId)
+            let current = await stateService.doesAccountHavePremiumPersonally(userId: userId)
+            if previous != current {
+                try await billingStateService.setPreviousPersonalPremium(current, userId: userId)
+            }
+
+            guard previous == false, current, await isEligibleForPremiumUpgradePath() else {
+                return
+            }
+            try await billingStateService.setUpgradedToPremiumActionCardVisible(true, userId: userId)
+        } catch {
+            errorReporter.log(error: error)
+        }
     }
 
     func getPortalUrl() async throws -> URL {

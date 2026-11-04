@@ -451,9 +451,10 @@
 "HideEmail" = "ჩემი ელ. ფოსტის მისამართის დამალვა მიმღებებისგან";
 "SendOptionsPolicyInEffect" = "ერთი ან მეტი ორგანიზაციის პოლიტიკა გავლენას ახდენს თქვენს Send ვარიანტებზე.";
 "SendFilePremiumRequired" = "უფასო ანგარიშები შემოიფარგლება მხოლოდ ტექსტის გაზიარებით. Send-თან ფაილების გამოსაყენებლად საჭიროა Premium წევრობა.";
-"SendFileEmailVerificationRequired" = "Send-თან ფაილების გამოსაყენებლად, უნდა დაადასტუროთ თქვენი ელ. ფოსტა. თქვენი ელ. ფოსტის დადასტურება შეგიძლიათ ვებ-სეიფში.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "ნაგულისხმევი შენახვის ვარიანტი";
 "DownloadTheBitwardenApp" = "Bitwarden-ის აპლიკაციის ჩამოტვირთვა";
 "EnsureItsValidJsonAndTryAgain" = "დარწმუნდით, რომ ის მოქმედი JSON-ია და სცადეთ ხელახლა.";
-"ExportItemsConfirmationTitle" = "ჩანაწერების ექსპორტის დადასტურება";
-"ExportItemsWarning" = "ეს ექსპორტი შეიცავს თქვენს ჩანაწერების მონაცემებს დაშიფრვის გარეშე. არ უნდა შეინახოთ ან გაგზავნოთ ექსპორტირებული ფაილი არაუსაფრთხო არხებით (მაგ. ელ. ფოსტა). წაშალეთ იგი გამოყენების შემდეგ დაუყოვნებლივ.";
 "FileCouldNotBeProcessed" = "ფაილის დამუშავება ვერ მოხერხდა";
 "GetVerificationCodesForAllYourAccounts" = "მიიღეთ დადასტურების კოდები ყველა თქვენი ანგარიშისთვის, რომლებიც იყენებენ 2-საფეხურიან ვერიფიკაციას.";
 "Help" = "დახმარება";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "სინქრონიზაცია წარუმატებელია";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "ჩვენ ვერ დავასინქრონეთ თქვენი სეიფი სერვერთან. თქვენს სეიფში შესაძლოა არ აისახოს უახლესი ცვლილებები. შეგიძლიათ ახლავე სცადოთ ხელახლა ან ის ავტომატურად სინქრონიზდება მოგვიანებით.";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "ექსპორტის დადასტურება";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "თქვენი უსაფრთხოებისთვის, არ გააზიაროთ ან გაგზავნოთ ეს ფაილი არაუსაფრთხო არხებით (მაგ. ელ. ფოსტა) და წაშალეთ იგი გამოყენების შემდეგ.";

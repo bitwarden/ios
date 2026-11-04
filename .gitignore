@@ -99,3 +99,6 @@ BitwardenKit/Core/Platform/Utilities/SDKVersionInfo.swift
 __pycache__/
 *.py[codz]
 *$py.class
+
+# MobileBuildMCP
+.mobilebuildmcp/*.local.yaml

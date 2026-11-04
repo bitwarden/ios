@@ -451,9 +451,10 @@
 "HideEmail" = "نشانی ایمیلم را از گیرندگان مخفی کن";
 "SendOptionsPolicyInEffect" = "یک یا چند سیاست سازمان بر گزینه‌های ارسال شما تأثیر می‌گذارد.";
 "SendFilePremiumRequired" = "حساب‌های کاربری رایگان فقط می‌توانند متن را به اشتراک بگذارند. برای استفاده از قابلیت ارسال پرونده‌ها، به عضویت ویژه نیاز دارید.";
-"SendFileEmailVerificationRequired" = "برای استفاده از پرونده‌ها با \"ارسال\" باید ایمیل خود را تأیید کنید.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -982,8 +983,6 @@
 "DefaultSaveOption" = "گزینه پیش‌فرض ذخیره";
 "DownloadTheBitwardenApp" = "برنامه Bitwarden را دانلود کنید";
 "EnsureItsValidJsonAndTryAgain" = "مطمئن شوید که JSON معتبر است و دوباره امتحان کنید.";
-"ExportItemsConfirmationTitle" = "تأیید برون ریزی موارد";
-"ExportItemsWarning" = "این برون ریزی شامل داده‌های موارد در یک قالب رمزنگاری نشده است. شما نباید آن را از طریق یک راه ارتباطی نا امن (مثل ایمیل) ذخیره یا ارسال کنید. به محض اینکه کارتان با آن تمام شد، آن را حذف کنید.";
 "FileCouldNotBeProcessed" = "پرونده قابل پردازش نیست";
 "GetVerificationCodesForAllYourAccounts" = "با استفاده از تأیید هویت دو مرحله‌ای، کدهای تأیید را برای همه حساب‌های خود دریافت کنید.";
 "Help" = "راهنما";
@@ -1303,3 +1302,8 @@
 "SyncUnsuccessful" = "همگام‌سازی ناموفق بود";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "ما نتوانستیم گاوصندوق شما را با سرور همگام‌سازی کنیم. ممکن است گاوصندوق شما آخرین تغییراتتان را نشان ندهد. می‌توانید اکنون دوباره امتحان کنید یا بعداً به‌طور خودکار همگام‌سازی خواهد شد.";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "تأیید برون ریزی";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "برای امنیت خود، این پرونده را از طریق کانال‌های ناامن (مانند ایمیل) به اشتراک نگذارید یا ارسال نکنید و پس از اتمام کار، آن را حذف کنید.";

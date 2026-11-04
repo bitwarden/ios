@@ -451,9 +451,10 @@
 "HideEmail" = "Ocultar o meu endereço de e-mail dos destinatários";
 "SendOptionsPolicyInEffect" = "Uma ou mais políticas da organização estão a afetar as suas opções do Send.";
 "SendFilePremiumRequired" = "As contas gratuitas estão limitadas apenas à partilha de texto. É necessária uma subscrição Premium para utilizar ficheiros com o Send.";
-"SendFileEmailVerificationRequired" = "Tem de verificar o seu e-mail para utilizar ficheiros com o Send. Pode verificar o seu e-mail no cofre web.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Devido a uma política empresarial, só pode criar Sends de %1$@.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Devido a uma política empresarial, só pode criar Sends de ficheiros.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Devido a uma política empresarial, só pode criar Sends de texto.";
 "OrganizationPolicyRestriction" = "Restrição da política da organização";
 "TextSendsAreNotAllowedDescriptionLong" = "Os Sends de texto não são permitidos na sua organização e este Send expirará automaticamente na data de eliminação definida.";
 "ThisSendIsNotCompliantDescriptionLong" = "Este Send não está em conformidade com a política de Sends da sua organização e expirará automaticamente na data de eliminação definida.";
@@ -526,7 +527,7 @@
 "IpAddress" = "Endereço IP";
 "Time" = "Hora";
 "ConfirmLogIn" = "Confirmar início de sessão";
-"DenyLogIn" = "Recusar início de sessão";
+"DenyLogIn" = "Negar início de sessão";
 "LogInDenied" = "Início de sessão recusado";
 "ApproveLoginRequests" = "Aprovar pedidos de início de sessão";
 "ConfirmLogInAttemptForX" = "Confirmar tentativa de início de sessão de %1$@";
@@ -981,8 +982,6 @@
 "DefaultSaveOption" = "Opção de guardar predefinida";
 "DownloadTheBitwardenApp" = "Transferir a app Bitwarden";
 "EnsureItsValidJsonAndTryAgain" = "Certifique-se de que se trata de um JSON válido e tente novamente.";
-"ExportItemsConfirmationTitle" = "Confirmar a exportação de itens";
-"ExportItemsWarning" = "Esta exportação contém os dados do seu item num formato não encriptado. Não deve armazenar ou enviar o ficheiro exportado através de canais não seguros (como o e-mail). Elimine-o imediatamente após terminar a sua utilização.";
 "FileCouldNotBeProcessed" = "O ficheiro não pôde ser processado";
 "GetVerificationCodesForAllYourAccounts" = "Obtenha códigos de verificação para todas as suas contas utilizando a verificação de dois passos.";
 "Help" = "Ajuda";
@@ -1302,3 +1301,8 @@
 "SyncUnsuccessful" = "Falha na sincronização";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Não foi possível sincronizar o seu cofre com o servidor. O seu cofre poderá não refletir as alterações mais recentes. Pode tentar novamente agora ou a sincronização será efetuada automaticamente mais tarde.";
 "TextToShareRequired" = "Texto a partilhar (obrigatório)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Incluído neste relatório";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Só serão exportados os códigos guardados localmente neste dispositivo. Os códigos sincronizados não serão incluídos.";
+"ConfirmExport" = "Confirmar a exportação";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "Para sua segurança, não partilhe nem envie este ficheiro por canais não seguros (como e-mail) e elimine-o quando terminar.";

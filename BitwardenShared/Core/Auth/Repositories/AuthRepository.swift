@@ -737,12 +737,7 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func clearPins() async throws {
-        guard await configService.getFeatureFlag(.sdkManagedPinUnlock) else {
-            try await stateService.clearPins()
-            return
-        }
-
-        try await clientService.userCryptoManagement().pinSettings().unsetPin()
+        try await clearPins(userId: nil)
     }
 
     func deleteAccount(otp: String?, passwordText: String?) async throws {
@@ -880,8 +875,8 @@ extension DefaultAuthRepository: AuthRepository {
         try await clientCertificateService.removeCertificate(userId: userId)
         try await fillAssistRepository.clearRules(userId: userId)
 
-        if await policyService.policyAppliesToUser(.removeUnlockWithPin) {
-            try await clearPins()
+        if await policyService.policyAppliesToUser(.removeUnlockWithPin, userId: userId) {
+            try await clearPins(userId: userId)
         }
 
         // Remove the user's SDK client after anything that may use it, so it isn't recreated.
@@ -1226,6 +1221,20 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     // MARK: Private
+
+    /// Clears the pins stored on device and in memory for a user.
+    ///
+    /// - Parameter userId: The user ID of the user whose pins should be cleared. Defaults to the
+    ///     active user if `nil`.
+    ///
+    private func clearPins(userId: String?) async throws {
+        guard await configService.getFeatureFlag(.sdkManagedPinUnlock) else {
+            try await stateService.clearPins(userId: userId)
+            return
+        }
+
+        try await clientService.userCryptoManagement(for: userId).pinSettings().unsetPin()
+    }
 
     /// A helper function to convert state service `Account`s to `ProfileSwitcherItem`s.
     ///
