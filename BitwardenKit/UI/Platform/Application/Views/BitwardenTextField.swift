@@ -229,7 +229,7 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
                     // or hiding the field to avoid breaking accessibilityIds used on our mobile automation test suite
                     .accessibilityIdentifier(accessibilityIdentifier ?? "BitwardenTextField")
                     .id(title)
-                    .introspect(.textField, on: .iOS(.v15, .v16, .v17, .v18, .v26)) { textField in
+                    .introspect(.textField, on: .iOS(.v15, .v16, .v17, .v18, .v26, .v27)) { textField in
                         textField.smartDashesType = isPassword ? .no : .default
                         textField.smartQuotesType = isPassword ? .no : .default
                         // Set on the native text field so VoiceOver spells out only the value, not the label.
