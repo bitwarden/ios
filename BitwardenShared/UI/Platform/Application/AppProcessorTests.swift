@@ -1454,7 +1454,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_onFetchSyncSucceeded_refreshesSubscriptionAttentionCard() async {
         await subject.onFetchSyncSucceeded(userId: "1")
 
-        XCTAssertTrue(billingService.refreshSubscriptionAttentionCardCalled)
+        XCTAssertTrue(billingService.refreshSubscriptionStatusCalled)
     }
 
     /// `onFetchSyncSucceeded(userId:)` completes a pending Premium upgrade for the account that

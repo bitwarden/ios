@@ -51,6 +51,30 @@ struct BillingServiceActionCardTests {
         )
     }
 
+    // MARK: hasPersonalSubscription
+
+    /// `hasPersonalSubscription()` logs the error and returns `nil` when the state service throws.
+    @Test
+    func hasPersonalSubscription_error() async {
+        billingStateService.getHasPersonalSubscriptionThrowableError = StateServiceError.noActiveAccount
+
+        let result = await subject.hasPersonalSubscription()
+
+        #expect(result == nil)
+        #expect(errorReporter.errors as? [StateServiceError] == [.noActiveAccount])
+    }
+
+    /// `hasPersonalSubscription()` returns the stored value: `nil` when the server hasn't yet
+    /// answered, `false` when it reported no Stripe subscription, and `true` when it reported one.
+    @Test(arguments: [nil, false, true] as [Bool?])
+    func hasPersonalSubscription_storedValue(storedValue: Bool?) async {
+        billingStateService.getHasPersonalSubscriptionReturnValue = storedValue
+
+        let result = await subject.hasPersonalSubscription()
+
+        #expect(result == storedValue)
+    }
+
     // MARK: isPremiumUpgradeBannerDismissed
 
     /// `isPremiumUpgradeBannerDismissed()` logs the error and returns `false` when the state
@@ -85,89 +109,115 @@ struct BillingServiceActionCardTests {
         #expect(result == true)
     }
 
-    // MARK: refreshSubscriptionAttentionCard
+    // MARK: refreshSubscriptionStatus
 
-    /// `refreshSubscriptionAttentionCard(subscription:)` logs the error and does not update
-    /// the cache when the API call fails.
+    /// `refreshSubscriptionStatus(subscription:)` logs the error and does not update
+    /// the cache, or the stored Stripe subscription state, when the API call fails.
     @Test
-    func refreshSubscriptionAttentionCard_apiError() async {
+    func refreshSubscriptionStatus_apiError() async {
         billingAPIService.getSubscriptionThrowableError = URLError(.notConnectedToInternet)
 
-        await subject.refreshSubscriptionAttentionCard(subscription: nil)
+        await subject.refreshSubscriptionStatus(subscription: nil)
 
         #expect(!billingStateService.setSubscriptionAttentionCardVisibleCalled)
+        #expect(!billingStateService.setHasPersonalSubscriptionCalled)
         #expect(errorReporter.errors.first is URLError)
     }
 
-    /// `refreshSubscriptionAttentionCard(subscription:)` sets the cached visibility to `false`
-    /// and skips the API call when the feature flag is disabled.
+    /// `refreshSubscriptionStatus(subscription:)` sets the cached visibility to `false`
+    /// and skips the API call and the stored Stripe subscription update when the feature flag is
+    /// disabled.
     @Test
-    func refreshSubscriptionAttentionCard_featureFlagDisabled() async {
+    func refreshSubscriptionStatus_featureFlagDisabled() async {
         configService.featureFlagsBool[.premiumUpgradePath] = false
 
-        await subject.refreshSubscriptionAttentionCard(subscription: nil)
+        await subject.refreshSubscriptionStatus(subscription: nil)
 
         #expect(billingStateService.setSubscriptionAttentionCardVisibleReceivedVisible == false)
         #expect(!billingAPIService.getSubscriptionCalled)
+        #expect(!billingStateService.setHasPersonalSubscriptionCalled)
     }
 
-    /// `refreshSubscriptionAttentionCard(subscription:)` sets the cached visibility to `false`
-    /// and does not log an error when the user has no personal subscription (free user).
+    /// `refreshSubscriptionStatus(subscription:)` sets the cached visibility to `false`,
+    /// stores that the user has no Stripe subscription, and does not log an error when the
+    /// server reports no subscription.
     @Test
-    func refreshSubscriptionAttentionCard_noSubscription() async {
+    func refreshSubscriptionStatus_noSubscription() async {
         billingAPIService.getSubscriptionThrowableError = GetSubscriptionRequestError.noSubscription
 
-        await subject.refreshSubscriptionAttentionCard(subscription: nil)
+        await subject.refreshSubscriptionStatus(subscription: nil)
 
         #expect(billingStateService.setSubscriptionAttentionCardVisibleReceivedVisible == false)
+        #expect(billingStateService.setHasPersonalSubscriptionReceivedArguments?.hasPersonalSubscription == false)
         #expect(errorReporter.errors.isEmpty)
     }
 
-    /// `refreshSubscriptionAttentionCard(subscription:)` sets the cached visibility to `false`
-    /// and skips the API call when the user is self-hosted.
+    /// `refreshSubscriptionStatus(subscription:)` stores that the user has a Stripe subscription
+    /// when a subscription is provided directly (Plan screen path).
     @Test
-    func refreshSubscriptionAttentionCard_selfHosted() async {
-        environmentService.region = .selfHosted
+    func refreshSubscriptionStatus_providedSubscription_storesHasSubscription() async {
+        await subject.refreshSubscriptionStatus(subscription: .fixture())
 
-        await subject.refreshSubscriptionAttentionCard(subscription: nil)
-
-        #expect(billingStateService.setSubscriptionAttentionCardVisibleReceivedVisible == false)
+        #expect(billingStateService.setHasPersonalSubscriptionReceivedArguments?.hasPersonalSubscription == true)
         #expect(!billingAPIService.getSubscriptionCalled)
     }
 
-    /// `refreshSubscriptionAttentionCard(subscription:)` sets the cached visibility based on
+    /// `refreshSubscriptionStatus(subscription:)` sets the cached visibility to `false`
+    /// and skips the API call and the stored Stripe subscription update when the user is
+    /// self-hosted.
+    @Test
+    func refreshSubscriptionStatus_selfHosted() async {
+        environmentService.region = .selfHosted
+
+        await subject.refreshSubscriptionStatus(subscription: nil)
+
+        #expect(billingStateService.setSubscriptionAttentionCardVisibleReceivedVisible == false)
+        #expect(!billingAPIService.getSubscriptionCalled)
+        #expect(!billingStateService.setHasPersonalSubscriptionCalled)
+    }
+
+    /// `refreshSubscriptionStatus(subscription:)` sets the cached visibility based on
     /// whether the subscription status requires payment attention.
     @Test(arguments: [
         (SubscriptionStatus.pastDue, true),
         (SubscriptionStatus.unpaid, true),
         (SubscriptionStatus.active, false),
     ])
-    func refreshSubscriptionAttentionCard_statusVisibility(
+    func refreshSubscriptionStatus_statusVisibility(
         status: SubscriptionStatus,
         expectedVisible: Bool,
     ) async {
         billingAPIService.getSubscriptionReturnValue = .fixture(status: status)
 
-        await subject.refreshSubscriptionAttentionCard(subscription: nil)
+        await subject.refreshSubscriptionStatus(subscription: nil)
 
         #expect(billingStateService.setSubscriptionAttentionCardVisibleReceivedVisible == expectedVisible)
     }
 
-    /// `refreshSubscriptionAttentionCard(subscription:)` sets the cached visibility to `true`
+    /// `refreshSubscriptionStatus(subscription:)` stores that the user has a Stripe subscription
+    /// when the server returns one.
+    @Test
+    func refreshSubscriptionStatus_subscriptionFetched_storesHasSubscription() async {
+        await subject.refreshSubscriptionStatus(subscription: nil)
+
+        #expect(billingStateService.setHasPersonalSubscriptionReceivedArguments?.hasPersonalSubscription == true)
+    }
+
+    /// `refreshSubscriptionStatus(subscription:)` sets the cached visibility to `true`
     /// when a subscription with `.unpaid` status is provided directly (Plan screen path).
     @Test
-    func refreshSubscriptionAttentionCard_unpaid_providedSubscription() async {
-        await subject.refreshSubscriptionAttentionCard(subscription: .fixture(status: .unpaid))
+    func refreshSubscriptionStatus_unpaid_providedSubscription() async {
+        await subject.refreshSubscriptionStatus(subscription: .fixture(status: .unpaid))
 
         #expect(billingStateService.setSubscriptionAttentionCardVisibleReceivedVisible == true)
         #expect(!billingAPIService.getSubscriptionCalled)
     }
 
-    /// `refreshSubscriptionAttentionCard(subscription:)` uses an already-fetched subscription
+    /// `refreshSubscriptionStatus(subscription:)` uses an already-fetched subscription
     /// instead of making a new API call when one is provided.
     @Test
-    func refreshSubscriptionAttentionCard_usesProvidedSubscription() async {
-        await subject.refreshSubscriptionAttentionCard(subscription: .fixture(status: .pastDue))
+    func refreshSubscriptionStatus_usesProvidedSubscription() async {
+        await subject.refreshSubscriptionStatus(subscription: .fixture(status: .pastDue))
 
         #expect(billingStateService.setSubscriptionAttentionCardVisibleReceivedVisible == true)
         #expect(!billingAPIService.getSubscriptionCalled)

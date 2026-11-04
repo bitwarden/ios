@@ -201,7 +201,7 @@ struct PremiumPlanProcessorTests {
         #expect(coordinator.alertShown.first?.alertActions.last?.title == Localizations.continue)
     }
 
-    /// `perform(_:)` with `.appeared` calls `refreshSubscriptionAttentionCard(subscription:)` after
+    /// `perform(_:)` with `.appeared` calls `refreshSubscriptionStatus(subscription:)` after
     /// loading the subscription, passing the fetched subscription to avoid a redundant API call.
     @Test
     func perform_appeared_refreshesSubscriptionAttentionCard() async throws {
@@ -217,7 +217,7 @@ struct PremiumPlanProcessorTests {
 
         await subject.perform(.appeared)
 
-        let received = billingService.refreshSubscriptionAttentionCardReceivedSubscription
+        let received = billingService.refreshSubscriptionStatusReceivedSubscription
         #expect(received?.status == subscription.status)
     }
 
