@@ -236,6 +236,28 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .passwordChanged("password123"))
     }
 
+    /// The password textfield is disabled and shows a masked placeholder when editing a Send that
+    /// already has a password.
+    @MainActor
+    func test_passwordTextField_disabled_existingPassword() throws {
+        processor.state.accessType = .anyoneWithPassword
+        var textField = try subject.inspect().find(bitwardenTextField: Localizations.password)
+        XCTAssertFalse(textField.isDisabled())
+        XCTAssertNoThrow(try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.generatePassword))
+
+        processor.state.mode = .edit
+        processor.state.originalSendView = .fixture(hasPassword: true)
+        textField = try subject.inspect().find(bitwardenTextField: Localizations.password)
+        XCTAssertTrue(textField.isDisabled())
+        XCTAssertEqual(
+            try textField.inputBinding().wrappedValue,
+            String(repeating: "•", count: Constants.hiddenPasswordLength),
+        )
+        XCTAssertThrowsError(
+            try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.generatePassword),
+        )
+    }
+
     /// Tapping the generate password button sends the `.generatePasswordPressed` action.
     @MainActor
     func test_generatePasswordButton_tap() throws {

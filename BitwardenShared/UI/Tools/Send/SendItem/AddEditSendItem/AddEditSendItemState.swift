@@ -145,6 +145,13 @@ struct AddEditSendItemState: Equatable, Sendable {
         sendPolicyOptions.enforcedDeletionDateHours != nil
     }
 
+    /// Whether the password field is disabled. The password of an existing Send that already has
+    /// one can't be changed in a single edit; the user must first save the Send without a password
+    /// before a new password can be set.
+    var isPasswordFieldDisabled: Bool {
+        mode == .edit && originalSendView?.hasPassword == true
+    }
+
     /// Whether sends are disabled via a policy.
     var isSendDisabled: Bool {
         sendPolicyOptions.isSendDisabled

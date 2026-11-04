@@ -122,6 +122,7 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
             guard state.focusedRecipientEmailIndex != newValue else { return }
             state.focusedRecipientEmailIndex = newValue
         case .generatePasswordPressed:
+            guard !state.isPasswordFieldDisabled else { return }
             if state.password.isEmpty {
                 coordinator.navigate(to: .generator, context: self)
             } else {
@@ -134,6 +135,7 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
         case .optionsPressed:
             state.isOptionsExpanded.toggle()
         case let .passwordChanged(newValue):
+            guard !state.isPasswordFieldDisabled else { return }
             state.password = newValue
         case let .passwordVisibleChanged(newValue):
             state.isPasswordVisible = newValue

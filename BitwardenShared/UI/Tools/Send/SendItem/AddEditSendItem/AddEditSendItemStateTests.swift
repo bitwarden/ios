@@ -37,6 +37,23 @@ class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertFalse(subject.isDeletionDateEnforcedByPolicy)
     }
 
+    // MARK: isPasswordFieldDisabled
+
+    /// `isPasswordFieldDisabled` is `true` only when editing a Send that already has a password.
+    func test_isPasswordFieldDisabled() {
+        var subject = AddEditSendItemState()
+        XCTAssertFalse(subject.isPasswordFieldDisabled)
+
+        subject.originalSendView = .fixture(hasPassword: true)
+        XCTAssertFalse(subject.isPasswordFieldDisabled)
+
+        subject.mode = .edit
+        XCTAssertTrue(subject.isPasswordFieldDisabled)
+
+        subject.originalSendView = .fixture(hasPassword: false)
+        XCTAssertFalse(subject.isPasswordFieldDisabled)
+    }
+
     // MARK: normalizedRecipientEmails
 
     /// `normalizedRecipientEmails` applies all transformations: trim, lowercase, and filter.
