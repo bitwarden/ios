@@ -67,7 +67,12 @@ public struct ExpandableHeaderView<Content: View>: View {
             }
         } label: {
             HStack(spacing: 8) {
-                SectionHeaderView("\(title) (\(count))")
+                SectionHeaderView(title)
+
+                Spacer()
+
+                Text("\(count)")
+                    .styleGuide(.footnote)
 
                 SharedAsset.Icons.chevronDown16.swiftUIImage
                     .imageStyle(.accessoryIcon16(scaleWithFont: true))
@@ -75,10 +80,12 @@ public struct ExpandableHeaderView<Content: View>: View {
             }
             .multilineTextAlignment(.leading)
             .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("\(title), \(Localizations.xItems(count))")
         }
         .accessibilityAddTraits(.isHeader)
         .accessibilityIdentifier(buttonAccessibilityIdentifier)
-        .padding(.leading, 12)
+        .padding(.horizontal, 12)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
