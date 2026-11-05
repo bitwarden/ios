@@ -532,7 +532,11 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     private func handleMenuAction(_ action: VaultItemManagementMenuAction) {
         switch action {
         case .attachments:
-            coordinator.navigate(to: .attachments(state.cipher))
+            Task {
+                await vaultItemActionHelper.showAttachments(cipher: state.cipher) { [weak self] in
+                    await self?.navigateToPremiumUpgrade()
+                }
+            }
         case .clone:
             // we don't show clone option in edit item state
             break

@@ -54,11 +54,12 @@ extension Alert {
         return alert
     }
 
-    /// Returns an alert for when previewing or downloading an existing attachment is unavailable.
+    /// Returns an alert for when opening the attachments screen, or previewing or downloading an
+    /// existing attachment, is unavailable.
     ///
     /// - Parameters:
     ///   - action: A closure to execute on upgrading to Premium.
-    /// - Returns: The alert when attachment preview/download is unavailable.
+    /// - Returns: The alert when attachment access is unavailable.
     static func attachmentPreviewUnavailable(
         action: @escaping () async -> Void,
     ) -> Alert {

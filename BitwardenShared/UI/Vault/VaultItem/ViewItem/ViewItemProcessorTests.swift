@@ -1740,7 +1740,8 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(coordinator.routes, [.editItem(cipherView, true)])
     }
 
-    /// `receive(_:)` with `.morePressed(.attachments)` navigates the user to attachments view.
+    /// `receive(_:)` with `.morePressed(.attachments)` delegates showing the attachments view to
+    /// the vault item action helper.
     @MainActor
     func test_receive_morePressed_attachments() throws {
         let cipher = CipherView.fixture(id: "1")
@@ -1748,7 +1749,27 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         subject.receive(.morePressed(.attachments))
 
-        XCTAssertEqual(coordinator.routes.last, .attachments(cipher))
+        waitFor(vaultItemActionHelper.showAttachmentsCalled)
+
+        XCTAssertEqual(vaultItemActionHelper.showAttachmentsReceivedArguments?.cipher, cipher)
+    }
+
+    /// `receive(_:)` with `.morePressed(.attachments)` delegates to the Premium upgrade helper
+    /// when the upgrade is chosen.
+    @MainActor
+    func test_receive_morePressed_attachments_navigateToPremiumUpgrade() async throws {
+        let cipher = CipherView.fixture(id: "1")
+        subject.state.loadingState = try .data(XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false)))
+
+        subject.receive(.morePressed(.attachments))
+
+        try await waitForAsync { [weak self] in
+            guard let self else { return true }
+            return vaultItemActionHelper.showAttachmentsCalled
+        }
+
+        await vaultItemActionHelper.showAttachmentsReceivedArguments?.handleNavigateToPremiumUpgrade()
+        XCTAssertTrue(premiumUpgradeHelper.navigateToPremiumUpgradeCalled)
     }
 
     /// `receive(_:)` with `.morePressed(.clone)` navigates the user to the move to
