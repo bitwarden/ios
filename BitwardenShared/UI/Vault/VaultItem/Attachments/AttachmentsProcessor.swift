@@ -62,8 +62,6 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
 
     override func perform(_ effect: AttachmentsEffect) async {
         switch effect {
-        case .loadPremiumStatus:
-            await loadPremiumStatus()
         case .save:
             await save()
         }
