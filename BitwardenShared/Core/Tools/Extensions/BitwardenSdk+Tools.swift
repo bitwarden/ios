@@ -9,8 +9,9 @@ import Foundation
 extension SendDataModel {
     init(sendItem: SendItem) throws {
         // The SDK already hands back the sealed cipher blob the API stores verbatim.
-        // TODO: PM-41094 - Share: `SendItemMetadata.itemId` has no counterpart on `SendDataModel`,
-        // so it isn't carried over to the API model.
+        // TODO: PM-41094 - Share: `SendItemMetadata` (the item ID, folder name, collection names,
+        // organization name, creation date and revision date) has no counterpart on
+        // `SendDataModel`, so it isn't carried over to the API model.
         self.init(
             data: sendItem.data,
             encryptionVersion: Int(sendItem.encryptionVersion.rawValue),
@@ -146,12 +147,20 @@ extension BitwardenSdk.SendItem {
         }
 
         // The API model stores the sealed cipher blob verbatim, so it's passed straight through.
-        // TODO: PM-41094 - Share: `SendDataModel` carries no item ID, so the metadata can't be
+        // TODO: PM-41094 - Share: `SendDataModel` carries no item ID, folder name, collection
+        // names, organization name, creation date or revision date, so none of the metadata can be
         // round-tripped from the API response yet.
         self.init(
             encryptionVersion: encryptionVersion,
             data: data,
-            metadata: SendItemMetadata(itemId: ""),
+            metadata: SendItemMetadata(
+                itemId: "",
+                folderName: nil,
+                collectionNames: nil,
+                organizationName: nil,
+                creationDate: nil,
+                revisionDate: nil,
+            ),
         )
     }
 }

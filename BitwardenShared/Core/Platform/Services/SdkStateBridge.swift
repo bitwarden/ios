@@ -134,6 +134,23 @@ actor SdkStateBridge: StateBridgeForeignImpl {
         await stateService.setPersistentPinEnvelope(value, userId: userId)
     }
 
+    // MARK: Pin Length
+
+    func clearPinLength() async {
+        // The app doesn't store the PIN length, so this is a no-op.
+    }
+
+    func getPinLength() async -> UInt32? {
+        // The app doesn't store the PIN length, so this always returns nil. The SDK treats nil as
+        // "no PIN set, or a PIN set before its length was stored", which keeps the existing unlock
+        // flow unchanged.
+        nil
+    }
+
+    func setPinLength(value: UInt32) async {
+        // The app doesn't store the PIN length, so this is a no-op.
+    }
+
     // MARK: User Key
 
     func clearUserKey() {
