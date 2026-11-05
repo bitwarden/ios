@@ -100,7 +100,7 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
 
     /// Notifies that a `premiumStatusChanged` push notification arrived, and force-syncs the
     /// active account. The sync's own completion handling reconciles a pending upgrade and
-    /// refreshes the subscription attention card; this publishes no checkout status.
+    /// refreshes the cached subscription status; this publishes no checkout status.
     ///
     /// This always syncs, whichever account the push names and whether or not the account already
     /// has Premium or is eligible for the Premium upgrade path. The server sends this push for
@@ -124,7 +124,8 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     /// Fetches the current subscription status, updates the visibility of the subscription
     /// attention action card, and stores whether the account has a Stripe subscription.
     ///
-    /// This runs for all non-self-hosted accounts regardless of their current premium status.
+    /// This runs for all accounts eligible for the Premium upgrade path regardless of their
+    /// current premium status.
     /// A user whose subscription has lapsed (e.g. unpaid after repeated payment failures) still
     /// needs their payment-problem state surfaced even though the server reports them as
     /// non-premium. Accounts with no personal subscription (free users) receive a
@@ -422,7 +423,7 @@ class DefaultBillingService: BillingService {
             try await billingStateService.setSubscriptionAttentionCardVisible(sub.status.isPaymentProblemState)
             try await billingStateService.setHasPersonalSubscription(true)
         } catch GetSubscriptionRequestError.noSubscription {
-            // No personal subscription — free user or subscription fully gone. Card not shown.
+            // No personal subscription — free user or subscription fully gone.
             do {
                 try await billingStateService.setSubscriptionAttentionCardVisible(false)
                 try await billingStateService.setHasPersonalSubscription(false)

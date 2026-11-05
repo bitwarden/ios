@@ -174,6 +174,7 @@ struct SettingsProcessorBillingTests {
 
         await subject.perform(.appeared)
 
+        #expect(subject.state.hasPremium == testCase.hasPremium)
         #expect(subject.state.showPlanRow == testCase.expectedShowPlanRow)
     }
 }
