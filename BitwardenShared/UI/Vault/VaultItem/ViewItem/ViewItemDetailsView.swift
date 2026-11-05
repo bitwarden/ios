@@ -510,6 +510,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                 .styleGuide(.body)
                 .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                 .lineLimit(1)
+                .truncationMode(.middle)
 
             Spacer()
 
