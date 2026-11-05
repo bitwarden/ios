@@ -558,7 +558,11 @@ private extension ViewItemProcessor {
 
         switch action {
         case .attachments:
-            coordinator.navigate(to: .attachments(cipher))
+            Task {
+                await vaultItemActionHelper.showAttachments(cipher: cipher) { [weak self] in
+                    await self?.navigateToPremiumUpgrade()
+                }
+            }
         case .clone:
             Task {
                 await cloneItem(cipher)
