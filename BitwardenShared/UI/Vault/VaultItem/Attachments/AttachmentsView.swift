@@ -10,6 +10,9 @@ import SwiftUI
 struct AttachmentsView: View {
     // MARK: Properties
 
+    /// Whether the file name text field is focused.
+    @FocusState private var isFileNameFocused: Bool
+
     /// An environment variable used to open URLs.
     @Environment(\.openURL) private var openURL
 
@@ -83,27 +86,20 @@ struct AttachmentsView: View {
         if store.state.fileName != nil {
             BitwardenField(title: Localizations.fileName) {
                 HStack(spacing: 0) {
-                    // The text field sizes itself to its text so the extension sits flush after it.
-                    TextField(
-                        "",
-                        text: store.binding(
-                            get: \.fileNameStem,
-                            send: AttachmentsAction.fileNameChanged,
-                        ),
-                    )
-                    .fixedSize(horizontal: true, vertical: false)
-                    .styleGuide(.body)
-                    .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
-                    .accessibilityIdentifier("AttachmentFileNameEntry")
-                    .accessibilityLabel(Localizations.fileName)
+                    fileNameStemField
 
                     Text(store.state.fileNameExtension)
                         .styleGuide(.body)
                         .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
-
-                    Spacer(minLength: 0)
+                        .lineLimit(1)
+                        .fixedSize()
                 }
-                .frame(minHeight: 28)
+                .frame(maxWidth: .infinity, minHeight: 28, alignment: .leading)
+                // Make the whole row, including the extension and the empty space after it, focus the field.
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    isFileNameFocused = true
+                }
             }
             .contentBlock()
         }
@@ -122,6 +118,35 @@ struct AttachmentsView: View {
                 }
             }
         }
+    }
+
+    /// The text field for editing the file name without its extension.
+    ///
+    /// The field is sized to its text so that the extension sits flush after it. This is done with an
+    /// invisible `Text` that the field is overlaid on, rather than `fixedSize` on the field, because the
+    /// single-line `Text` shrinks when there isn't enough room. That keeps long names from pushing the
+    /// extension off screen, and the field scrolls its text instead.
+    private var fileNameStemField: some View {
+        Text(store.state.fileNameStem)
+            .styleGuide(.body)
+            .lineLimit(1)
+            .hidden()
+            // Leave room for the insertion point after the last character.
+            .padding(.trailing, 2)
+            .overlay(alignment: .leading) {
+                TextField(
+                    "",
+                    text: store.binding(
+                        get: \.fileNameStem,
+                        send: AttachmentsAction.fileNameChanged,
+                    ),
+                )
+                .styleGuide(.body)
+                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
+                .focused($isFileNameFocused)
+                .accessibilityIdentifier("AttachmentFileNameEntry")
+                .accessibilityLabel(Localizations.fileName)
+            }
     }
 
     /// The empty state for the currentAttachments view.
@@ -181,6 +206,7 @@ struct AttachmentsView: View {
                 .styleGuide(.body)
                 .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                 .lineLimit(1)
+                .truncationMode(.middle)
 
             Spacer()
 
@@ -209,6 +235,17 @@ struct AttachmentsView: View {
             state: AttachmentsState(
                 fileName: "photo.jpg",
                 fileNameExtension: ".jpg",
+            ),
+        )))
+    }
+}
+
+#Preview("Attachment Selected, Long Name") {
+    NavigationView {
+        AttachmentsView(store: Store(processor: StateProcessor(
+            state: AttachmentsState(
+                fileName: "IMG_20261012_123456_a_very_long_camera_file_name_that_keeps_going_and_going.jpeg",
+                fileNameExtension: ".jpeg",
             ),
         )))
     }
