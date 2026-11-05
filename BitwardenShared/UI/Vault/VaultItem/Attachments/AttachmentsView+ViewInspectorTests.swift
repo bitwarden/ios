@@ -3,6 +3,9 @@ import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import BitwardenSdk
+import SwiftUI
+import ViewInspector
+import ViewInspectorTestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -66,6 +69,33 @@ class AttachmentsViewTests: BitwardenTestCase {
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.delete)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .deletePressed(.fixture()))
+    }
+
+    /// The extension of the chosen file is displayed after the editable name.
+    @MainActor
+    func test_fileNameExtension_displayed() throws {
+        processor.state.fileName = "photo.jpg"
+        processor.state.fileNameExtension = ".jpg"
+        XCTAssertNoThrow(try subject.inspect().find(text: ".jpg"))
+    }
+
+    /// The file name text field isn't displayed until a file has been chosen.
+    @MainActor
+    func test_fileNameTextField_hiddenWithoutChosenFile() throws {
+        XCTAssertThrowsError(try subject.inspect().find(viewWithAccessibilityIdentifier: "AttachmentFileNameEntry"))
+    }
+
+    /// Updating the file name text field sends the `.fileNameChanged` action with only the edited name.
+    @MainActor
+    func test_fileNameTextField_updated() throws {
+        processor.state.fileName = "photo.jpg"
+        processor.state.fileNameExtension = ".jpg"
+        let textField = try subject.inspect()
+            .find(viewWithAccessibilityIdentifier: "AttachmentFileNameEntry")
+            .find(ViewType.TextField.self)
+        XCTAssertEqual(try textField.input(), "photo")
+        try textField.setInput("vacation")
+        XCTAssertEqual(processor.dispatchedActions.last, .fileNameChanged("vacation"))
     }
 
     /// Tapping the save button performs the `.savePressed` effect.
