@@ -197,11 +197,11 @@ class DefaultCipherService: CipherService {
     /// The data store for managing the persisted ciphers for the user.
     private let cipherDataStore: CipherDataStore
 
+    /// The service used by the application to report non-fatal errors.
+    private let errorReporter: ErrorReporter
+
     /// The service used to make file related API requests.
     private let fileAPIService: FileAPIService
-
-    /// The service used by the application for recording temporary debug logs.
-    private let flightRecorder: FlightRecorder
 
     /// The service used by the application to manage account state.
     private let stateService: StateService
@@ -213,21 +213,21 @@ class DefaultCipherService: CipherService {
     /// - Parameters:
     ///   - cipherAPIService: The service used to make cipher related API requests.
     ///   - cipherDataStore: The data store for managing the persisted ciphers for the user.
+    ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - fileAPIService: The service used to make file related API requests.
-    ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - stateService: The service used by the application to manage account state.
     ///
     init(
         cipherAPIService: CipherAPIService,
         cipherDataStore: CipherDataStore,
+        errorReporter: ErrorReporter,
         fileAPIService: FileAPIService,
-        flightRecorder: FlightRecorder,
         stateService: StateService,
     ) {
         self.cipherAPIService = cipherAPIService
         self.cipherDataStore = cipherDataStore
+        self.errorReporter = errorReporter
         self.fileAPIService = fileAPIService
-        self.flightRecorder = flightRecorder
         self.stateService = stateService
     }
 }
@@ -378,14 +378,14 @@ extension DefaultCipherService {
         let response = try await cipherAPIService.getCipher(withId: id)
         // Like a full sync, a cipher with an unrecognized type is skipped rather than failing the
         // sync, since the SDK can't represent it.
-        guard let cipher = try await knownCipher(from: response) else { return }
+        guard let cipher = try knownCipher(from: response) else { return }
         try await cipherDataStore.upsertCipher(cipher, userId: userId)
     }
 
     func replaceCiphers(_ ciphers: [CipherDetailsResponseModel], userId: String) async throws {
         var knownCiphers = [Cipher]()
         for responseModel in ciphers {
-            guard let cipher = try await knownCipher(from: responseModel) else { continue }
+            guard let cipher = try knownCipher(from: responseModel) else { continue }
             knownCiphers.append(cipher)
         }
         try await cipherDataStore.replaceCiphers(knownCiphers, userId: userId)
@@ -519,19 +519,17 @@ extension DefaultCipherService {
 
     // MARK: Private
 
-    /// Converts a cipher response model to a `Cipher`, logging and returning `nil` if the cipher's
-    /// type isn't recognized by this version of the app.
+    /// Converts a cipher response model to a `Cipher`, reporting an error and returning `nil` if
+    /// the cipher's type isn't recognized by this version of the app.
     ///
     /// - Parameter responseModel: The cipher response model to convert.
     /// - Returns: The converted `Cipher`, or `nil` if the cipher's type isn't recognized.
     ///
-    private func knownCipher(from responseModel: CipherDetailsResponseModel) async throws -> Cipher? {
+    private func knownCipher(from responseModel: CipherDetailsResponseModel) throws -> Cipher? {
         do {
             return try Cipher(responseModel: responseModel)
-        } catch let DataMappingError.unknownCipherType(rawValue) {
-            await flightRecorder.log(
-                "[CipherService] Ignoring cipher \(responseModel.id) with unrecognized type \(rawValue)",
-            )
+        } catch let error as UnknownEnumValueError {
+            errorReporter.log(error: error)
             return nil
         }
     }

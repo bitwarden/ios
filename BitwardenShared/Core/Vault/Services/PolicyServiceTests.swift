@@ -1068,8 +1068,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     /// `replacePolicies(_:userId:)` drops policies with an unrecognized or missing type from the
-    /// cached list of policies, logs them to the flight recorder, and persists them to the data
-    /// store unchanged.
+    /// cached list of policies, reports an error for each unrecognized type, logs missing types
+    /// to the flight recorder, and persists them to the data store unchanged.
     func test_replacePolicies_unknownType() async throws {
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture(id: "org-1")])
@@ -1085,11 +1085,12 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
         XCTAssertEqual(policyDataStore.replacePoliciesPolicies, policies)
         XCTAssertEqual(
+            errorReporter.errors as? [UnknownEnumValueError],
+            [UnknownEnumValueError(enumName: "PolicyType", rawValue: "99", itemId: "2")],
+        )
+        XCTAssertEqual(
             flightRecorder.logMessages,
-            [
-                "[PolicyService] Ignoring policy 2 with unrecognized type 99",
-                "[PolicyService] Ignoring policy 3 with missing type",
-            ],
+            ["[PolicyService] Ignoring policy 3 with missing type"],
         )
 
         var evaluatedPolicyIds = [String]()

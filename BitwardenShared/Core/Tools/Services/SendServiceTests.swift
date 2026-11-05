@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenSdk
 import TestHelpers
@@ -377,6 +378,59 @@ class SendServiceTests: BitwardenTestCase {
         }
     }
 
+    /// `replaceSends(_:userId:)` drops any sends whose type isn't recognized by this version of
+    /// the app, reporting an `UnknownEnumValueError` for each one rather than the aggregated error.
+    func test_replaceSends_unrecognizedType() async throws {
+        var unknownSend = SendResponseModel.fixture(id: "2", name: "Unknown Send")
+        unknownSend.$type = .unknown(99)
+        var anotherUnknownSend = SendResponseModel.fixture(id: "3", name: "Another Unknown Send")
+        anotherUnknownSend.$type = .unknown(100)
+        let sends: [SendResponseModel] = [
+            SendResponseModel.fixture(id: "1", name: "Send 1"),
+            unknownSend,
+            anotherUnknownSend,
+        ]
+
+        try await subject.replaceSends(sends, userId: "1")
+
+        XCTAssertEqual(sendDataStore.replaceSendsValue, try [Send(sendResponseModel: sends[0])])
+        XCTAssertEqual(sendDataStore.replaceSendsUserId, "1")
+        XCTAssertEqual(
+            errorReporter.errors as? [UnknownEnumValueError],
+            [
+                UnknownEnumValueError(enumName: "SendType", rawValue: "99", itemId: "2"),
+                UnknownEnumValueError(enumName: "SendType", rawValue: "100", itemId: "3"),
+            ],
+        )
+    }
+
+    /// `replaceSends(_:userId:)` reports an `UnknownEnumValueError` for each send with an
+    /// unrecognized type, and a separate aggregated error for sends dropped for other reasons.
+    func test_replaceSends_unrecognizedTypeAndInvalidData() async throws {
+        var unknownSend = SendResponseModel.fixture(id: "2", name: "Unknown Send")
+        unknownSend.$type = .unknown(99)
+        let sends: [SendResponseModel] = [
+            SendResponseModel.fixture(id: "1", name: "Send 1"),
+            unknownSend,
+            SendResponseModel.fixture(id: "3", name: "Invalid Send", type: .unknown),
+        ]
+
+        try await subject.replaceSends(sends, userId: "1")
+
+        XCTAssertEqual(sendDataStore.replaceSendsValue, try [Send(sendResponseModel: sends[0])])
+        XCTAssertEqual(errorReporter.errors.count, 2)
+        XCTAssertEqual(
+            errorReporter.errors.first as? UnknownEnumValueError,
+            UnknownEnumValueError(enumName: "SendType", rawValue: "99", itemId: "2"),
+        )
+        let generalError = try XCTUnwrap(errorReporter.errors.last as? NSError)
+        XCTAssertEqual(generalError.domain, "General Error: SendService: Dropped Sends During Sync")
+        XCTAssertEqual(
+            generalError.userInfo["ErrorMessage"] as? String,
+            "1 send(s) couldn't be converted and were excluded from the synced list.",
+        )
+    }
+
     /// `sendPublisher()` throws an error if one occurs.
     func test_sendPublisher_error() async {
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
@@ -416,6 +470,31 @@ class SendServiceTests: BitwardenTestCase {
 
         XCTAssertEqual(sendDataStore.upsertSendValue?.id, "fc483c22-443c-11ee-be56-0242ac120002")
         XCTAssertEqual(sendDataStore.upsertSendUserId, "1")
+    }
+
+    /// `syncSendWithServer()` throws `UnknownEnumValueError` and doesn't update the data store if
+    /// the send's type isn't recognized. The error is reported by the caller, so it isn't reported
+    /// here.
+    func test_syncSendWithServer_unrecognizedType() async throws {
+        stateService.activeAccount = .fixture()
+        var json = try XCTUnwrap(
+            JSONSerialization.jsonObject(with: APITestData.sendResponse.data) as? [String: Any],
+        )
+        json["type"] = 99
+        client.result = try .httpSuccess(testData: APITestData(data: JSONSerialization.data(withJSONObject: json)))
+
+        await assertAsyncThrows(
+            error: UnknownEnumValueError(
+                enumName: "SendType",
+                rawValue: "99",
+                itemId: "fc483c22-443c-11ee-be56-0242ac120002",
+            ),
+        ) {
+            try await subject.syncSendWithServer(id: "fc483c22-443c-11ee-be56-0242ac120002")
+        }
+
+        XCTAssertNil(sendDataStore.upsertSendValue)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
     }
 
     /// `updateSend()` with a successful response uses the api service to send an update send

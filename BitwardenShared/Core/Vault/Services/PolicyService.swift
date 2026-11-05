@@ -495,8 +495,11 @@ extension DefaultPolicyService {
         var knownPolicies = [Policy]()
         for responseModel in policies {
             guard let policy = Policy(responseModel: responseModel) else {
-                let reason = responseModel.$type.map { "unrecognized type \($0.rawValue)" } ?? "missing type"
-                await flightRecorder.log("[PolicyService] Ignoring policy \(responseModel.id) with \(reason)")
+                if let error = UnknownEnumValueError(responseModel.$type, itemId: responseModel.id) {
+                    errorReporter.log(error: error)
+                } else {
+                    await flightRecorder.log("[PolicyService] Ignoring policy \(responseModel.id) with missing type")
+                }
                 continue
             }
             knownPolicies.append(policy)

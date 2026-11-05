@@ -222,6 +222,11 @@ extension DefaultSendService {
         let mappedSends = sends.compactMap { model -> Send? in
             do {
                 return try Send(sendResponseModel: model)
+            } catch let error as UnknownEnumValueError {
+                // A send type that this version of the app doesn't recognize is reported for each
+                // send, rather than in the aggregated error below.
+                errorReporter.log(error: error)
+                return nil
             } catch {
                 droppedCount += 1
                 lastDroppedError = error

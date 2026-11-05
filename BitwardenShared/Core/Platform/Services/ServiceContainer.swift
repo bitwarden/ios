@@ -629,8 +629,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let cipherService = DefaultCipherService(
             cipherAPIService: apiService,
             cipherDataStore: dataStore,
+            errorReporter: errorReporter,
             fileAPIService: apiService,
-            flightRecorder: flightRecorder,
             stateService: stateService,
         )
 

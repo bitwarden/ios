@@ -89,7 +89,16 @@ extension BitwardenSdk.Send {
         try self.init(sendResponseModel: model)
     }
 
+    /// Initialize a `Send` from a `SendResponseModel`.
+    ///
+    /// - Parameter model: The response model for the send.
+    /// - Throws: `UnknownEnumValueError` if the send's type isn't recognized by this version of the
+    ///   app, or `DataMappingError.invalidData` if the send's type or data is otherwise invalid.
+    ///
     init(sendResponseModel model: SendResponseModel) throws {
+        if let error = UnknownEnumValueError(model.$type, itemId: model.id) {
+            throw error
+        }
         guard let type = BitwardenSdk.SendType(type: model.type) else {
             throw DataMappingError.invalidData
         }

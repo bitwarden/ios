@@ -22,6 +22,9 @@ public enum BitwardenError {
 
         /// A general-purpose error.
         case generalError = 4000
+
+        /// An API response contained an enum raw value that the app doesn't recognize.
+        case unknownEnumValue = 5000
     }
 
     // MARK: Errors

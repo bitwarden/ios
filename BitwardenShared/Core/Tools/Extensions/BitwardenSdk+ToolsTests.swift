@@ -38,6 +38,29 @@ struct BitwardenSdkToolsTests {
         }
     }
 
+    /// `Send(sendResponseModel:)` throws `UnknownEnumValueError` if the send's type isn't
+    /// recognized.
+    @Test
+    func send_init_sendResponseModel_unrecognizedType() {
+        var model = SendResponseModel.fixture(id: "1")
+        model.$type = .unknown(99)
+
+        #expect(throws: UnknownEnumValueError(enumName: "SendType", rawValue: "99", itemId: "1")) {
+            try Send(sendResponseModel: model)
+        }
+    }
+
+    /// `Send(sendResponseModel:)` throws `DataMappingError.invalidData` if the send's type is
+    /// missing or the `unknown` fallback.
+    @Test
+    func send_init_sendResponseModel_unknownFallbackType() {
+        let model = SendResponseModel.fixture(id: "1", type: .unknown)
+
+        #expect(throws: DataMappingError.invalidData) {
+            try Send(sendResponseModel: model)
+        }
+    }
+
     /// `Send(sendResponseModel:)` maps a missing item data to `nil`.
     @Test
     func send_init_sendResponseModel_noData() throws {

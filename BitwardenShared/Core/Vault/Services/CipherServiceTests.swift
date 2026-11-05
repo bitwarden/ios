@@ -14,8 +14,8 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     var cipherAPIService: CipherAPIService!
     var cipherDataStore: MockCipherDataStore!
     var client: MockHTTPClient!
+    var errorReporter: MockErrorReporter!
     var fileAPIService: FileAPIService!
-    var flightRecorder: MockFlightRecorder!
     var stateService: MockStateService!
     var subject: CipherService!
 
@@ -27,15 +27,15 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         client = MockHTTPClient()
         cipherAPIService = APIService(client: client)
         cipherDataStore = MockCipherDataStore()
+        errorReporter = MockErrorReporter()
         fileAPIService = APIService(client: client)
-        flightRecorder = MockFlightRecorder()
         stateService = MockStateService()
 
         subject = DefaultCipherService(
             cipherAPIService: cipherAPIService,
             cipherDataStore: cipherDataStore,
+            errorReporter: errorReporter,
             fileAPIService: fileAPIService,
-            flightRecorder: flightRecorder,
             stateService: stateService,
         )
     }
@@ -45,8 +45,8 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
         cipherDataStore = nil
         client = nil
+        errorReporter = nil
         fileAPIService = nil
-        flightRecorder = nil
         stateService = nil
         subject = nil
     }
@@ -82,19 +82,26 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(addedCipher.id, "3792af7a-4441-11ee-be56-0242ac120002")
     }
 
-    /// `addCipherWithServer(_:)` throws `DataMappingError.unknownCipherType` and doesn't update
-    /// local storage if the server responds with a cipher type that isn't recognized.
+    /// `addCipherWithServer(_:)` throws `UnknownEnumValueError` and doesn't update local storage
+    /// if the server responds with a cipher type that isn't recognized. The error is reported by
+    /// the caller, so it isn't reported here.
     func test_addCipherWithServer_unknownType() async throws {
         stateService.activeAccount = .fixtureAccountLogin()
         client.result = try .httpSuccess(testData: cipherResponse(withType: 99))
 
-        await assertAsyncThrows(error: DataMappingError.unknownCipherType(99)) {
+        await assertAsyncThrows(
+            error: UnknownEnumValueError(
+                enumName: "CipherType",
+                rawValue: "99",
+                itemId: "3792af7a-4441-11ee-be56-0242ac120002",
+            ),
+        ) {
             try await subject.addCipherWithServer(.fixture(), encryptedByKeyId: nil, encryptedFor: "1")
         }
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertNil(cipherDataStore.upsertCipherValue)
-        XCTAssertEqual(flightRecorder.logMessages, [])
+        XCTAssertTrue(errorReporter.errors.isEmpty)
     }
 
     /// `archiveCipherWithServer(id:_:)` archives the cipher in the backend and local storage.
@@ -136,9 +143,9 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(cipherDataStore.upsertCipherUserId, "1")
     }
 
-    /// `bulkShareCiphersWithServer(_:collectionIds:)` throws `DataMappingError.unknownCipherType`
-    /// if the server responds with a cipher type that isn't recognized. Ciphers earlier in the
-    /// response have already been updated in local storage.
+    /// `bulkShareCiphersWithServer(_:collectionIds:)` throws `UnknownEnumValueError` if the server
+    /// responds with a cipher type that isn't recognized. Ciphers earlier in the response have
+    /// already been updated in local storage.
     func test_bulkShareCiphersWithServer_unknownType() async throws {
         let responseJSON = try XCTUnwrap(
             JSONSerialization.jsonObject(with: APITestData.bulkShareCiphersResponse.data) as? [String: Any],
@@ -156,7 +163,10 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             EncryptionContext(encryptedFor: "1", cipher: .fixture(id: "1")),
             EncryptionContext(encryptedFor: "1", cipher: .fixture(id: "2")),
         ]
-        await assertAsyncThrows(error: DataMappingError.unknownCipherType(99)) {
+        let unknownCipherId = try XCTUnwrap(ciphersJSON[1]["id"] as? String)
+        await assertAsyncThrows(
+            error: UnknownEnumValueError(enumName: "CipherType", rawValue: "99", itemId: unknownCipherId),
+        ) {
             try await subject.bulkShareCiphersWithServer(encryptionContexts, collectionIds: ["col-1"])
         }
 
@@ -310,18 +320,21 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
         XCTAssertEqual(cipherDataStore.replaceCiphersValue, try ciphers.map(Cipher.init))
         XCTAssertEqual(cipherDataStore.replaceCiphersUserId, "1")
-        XCTAssertEqual(flightRecorder.logMessages, [])
+        XCTAssertTrue(errorReporter.errors.isEmpty)
     }
 
-    /// `replaceCiphers(_:userId:)` drops ciphers with an unrecognized type, logs them to the flight
-    /// recorder, and persists the remaining ciphers.
+    /// `replaceCiphers(_:userId:)` drops ciphers with an unrecognized type, reports an error for
+    /// each one, and persists the remaining ciphers.
     func test_replaceCiphers_unknownType() async throws {
         var unknownCipher = CipherDetailsResponseModel.fixture(id: "2", name: "Cipher 2")
         unknownCipher.$type = .unknown(99)
+        var anotherUnknownCipher = CipherDetailsResponseModel.fixture(id: "4", name: "Cipher 4")
+        anotherUnknownCipher.$type = .unknown(100)
         let ciphers: [CipherDetailsResponseModel] = [
             .fixture(id: "1", name: "Cipher 1"),
             unknownCipher,
             .fixture(id: "3", name: "Cipher 3", type: .card),
+            anotherUnknownCipher,
         ]
 
         try await subject.replaceCiphers(ciphers, userId: "1")
@@ -329,8 +342,11 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(cipherDataStore.replaceCiphersValue?.map(\.id), ["1", "3"])
         XCTAssertEqual(cipherDataStore.replaceCiphersUserId, "1")
         XCTAssertEqual(
-            flightRecorder.logMessages,
-            ["[CipherService] Ignoring cipher 2 with unrecognized type 99"],
+            errorReporter.errors as? [UnknownEnumValueError],
+            [
+                UnknownEnumValueError(enumName: "CipherType", rawValue: "99", itemId: "2"),
+                UnknownEnumValueError(enumName: "CipherType", rawValue: "100", itemId: "4"),
+            ],
         )
     }
 
@@ -347,7 +363,7 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         }
 
         XCTAssertNil(cipherDataStore.replaceCiphersValue)
-        XCTAssertEqual(flightRecorder.logMessages, [])
+        XCTAssertTrue(errorReporter.errors.isEmpty)
     }
 
     /// `restoreCipherWithServer(id:_:)` restores the cipher in the backend and local storage.
@@ -452,8 +468,8 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(cipherDataStore.upsertCipherUserId, "1")
     }
 
-    /// `syncCipherWithServer()` skips a cipher with an unrecognized type, logging it to the flight
-    /// recorder rather than throwing or updating the data store.
+    /// `syncCipherWithServer()` skips a cipher with an unrecognized type, reporting an error
+    /// rather than throwing or updating the data store.
     func test_syncCipherWithServer_unknownType() async throws {
         stateService.activeAccount = .fixture()
         client.result = try .httpSuccess(testData: cipherResponse(withType: 99))
@@ -462,8 +478,14 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
         XCTAssertNil(cipherDataStore.upsertCipherValue)
         XCTAssertEqual(
-            flightRecorder.logMessages,
-            ["[CipherService] Ignoring cipher 3792af7a-4441-11ee-be56-0242ac120002 with unrecognized type 99"],
+            errorReporter.errors as? [UnknownEnumValueError],
+            [
+                UnknownEnumValueError(
+                    enumName: "CipherType",
+                    rawValue: "99",
+                    itemId: "3792af7a-4441-11ee-be56-0242ac120002",
+                ),
+            ],
         )
     }
 
@@ -478,7 +500,7 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         }
 
         XCTAssertNil(cipherDataStore.upsertCipherValue)
-        XCTAssertEqual(flightRecorder.logMessages, [])
+        XCTAssertTrue(errorReporter.errors.isEmpty)
     }
 
     /// `unarchiveCipherWithServer(id:_:)` unarchives the cipher in the backend and local storage.

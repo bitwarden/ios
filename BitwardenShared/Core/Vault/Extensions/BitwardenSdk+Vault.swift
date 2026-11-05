@@ -9,7 +9,7 @@ import BitwardenSdk
 
 /// Errors thrown from converting between SDK and app types.
 ///
-enum DataMappingError: Error, Equatable {
+enum DataMappingError: Error {
     /// Thrown if an object was unable to be constructed because the data was invalid.
     case invalidData
 
@@ -18,10 +18,6 @@ enum DataMappingError: Error, Equatable {
 
     /// Thrown if a required object identifier is nil.
     case missingId
-
-    /// Thrown if a cipher's type isn't recognized by this version of the app, so it can't be
-    /// converted to the SDK's closed `CipherType`.
-    case unknownCipherType(Int)
 }
 
 // MARK: - Ciphers
@@ -463,13 +459,13 @@ extension BitwardenSdk.Cipher {
     /// Initialize a `Cipher` from a `CipherDetailsResponseModel`.
     ///
     /// - Parameter model: The response model for the cipher.
-    /// - Throws: `DataMappingError.unknownCipherType` if the cipher's type isn't recognized by
-    ///   this version of the app, or `DataMappingError.missingCipherType` if it's missing.
+    /// - Throws: `UnknownEnumValueError` if the cipher's type isn't recognized by this version of
+    ///   the app, or `DataMappingError.missingCipherType` if it's missing.
     ///
     init(responseModel model: CipherDetailsResponseModel) throws {
         guard let type = model.type else {
-            throw model.$type.map { DataMappingError.unknownCipherType($0.rawValue) }
-                ?? DataMappingError.missingCipherType
+            if let error = UnknownEnumValueError(model.$type, itemId: model.id) { throw error }
+            throw DataMappingError.missingCipherType
         }
         self.init(
             id: model.id,
@@ -515,8 +511,8 @@ extension BitwardenSdk.Cipher {
     ///   - collectionIds: The collection IDs to associate with the cipher.
     ///   - originalCipher: The original cipher to preserve fields from (folderId, favorite, edit,
     ///     permissions, viewPassword, localData).
-    /// - Throws: `DataMappingError.unknownCipherType` if the cipher's type isn't recognized by
-    ///   this version of the app, or `DataMappingError.missingCipherType` if it's missing.
+    /// - Throws: `UnknownEnumValueError` if the cipher's type isn't recognized by this version of
+    ///   the app, or `DataMappingError.missingCipherType` if it's missing.
     ///
     init(
         cipherMiniResponseModel model: CipherMiniResponseModel,
@@ -524,8 +520,8 @@ extension BitwardenSdk.Cipher {
         originalCipher: Cipher?,
     ) throws {
         guard let type = model.type else {
-            throw model.$type.map { DataMappingError.unknownCipherType($0.rawValue) }
-                ?? DataMappingError.missingCipherType
+            if let error = UnknownEnumValueError(model.$type, itemId: model.id) { throw error }
+            throw DataMappingError.missingCipherType
         }
         self.init(
             id: model.id,

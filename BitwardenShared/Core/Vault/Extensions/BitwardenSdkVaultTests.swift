@@ -47,13 +47,16 @@ class BitwardenSdkVaultCipherTests: BitwardenTestCase {
         XCTAssertEqual(cipher.sshKey?.fingerprint, responseModel.sshKey?.keyFingerprint)
     }
 
-    /// `init(responseModel:)` throws `DataMappingError.unknownCipherType` if the response model's
-    /// cipher type isn't recognized.
+    /// `init(responseModel:)` throws `UnknownEnumValueError` if the response model's cipher type
+    /// isn't recognized.
     func test_init_fromCipherDetailsResponseModelUnknownType() {
         var responseModel = CipherDetailsResponseModel.fixture(id: "1")
         responseModel.$type = .unknown(99)
         XCTAssertThrowsError(try Cipher(responseModel: responseModel)) { error in
-            XCTAssertEqual(error as? DataMappingError, .unknownCipherType(99))
+            XCTAssertEqual(
+                error as? UnknownEnumValueError,
+                UnknownEnumValueError(enumName: "CipherType", rawValue: "99", itemId: "1"),
+            )
         }
     }
 
@@ -93,7 +96,7 @@ class BitwardenSdkVaultCipherTests: BitwardenTestCase {
     }
 
     /// `init(cipherMiniResponseModel:collectionIds:originalCipher:)` throws
-    /// `DataMappingError.unknownCipherType` if the response model's cipher type isn't recognized.
+    /// `UnknownEnumValueError` if the response model's cipher type isn't recognized.
     func test_init_fromCipherMiniResponseModelUnknownType() throws {
         let json = #"""
         {
@@ -115,7 +118,10 @@ class BitwardenSdkVaultCipherTests: BitwardenTestCase {
         XCTAssertThrowsError(
             try Cipher(cipherMiniResponseModel: model, collectionIds: [], originalCipher: nil),
         ) { error in
-            XCTAssertEqual(error as? DataMappingError, .unknownCipherType(99))
+            XCTAssertEqual(
+                error as? UnknownEnumValueError,
+                UnknownEnumValueError(enumName: "CipherType", rawValue: "99", itemId: "1"),
+            )
         }
     }
 }
