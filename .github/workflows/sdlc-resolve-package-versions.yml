@@ -1,0 +1,91 @@
+name: SDLC / Resolve Package Versions
+run-name: "Resolve Package Versions - PR #${{ github.event.pull_request.number }}"
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - "project*.yml"
+      - "Bitwarden.xcworkspace/xcshareddata/swiftpm/Package.resolved"
+
+env:
+  _BOT_NAME: "bw-ghapp[bot]"
+  _BOT_EMAIL: "178206702+bw-ghapp[bot]@users.noreply.github.com"
+  _PACKAGE_RESOLVED_PATH: "Bitwarden.xcworkspace/xcshareddata/swiftpm/Package.resolved"
+
+jobs:
+  resolve-packages:
+    name: Resolve Package Versions
+    if: ${{ github.event.pull_request.user.login == 'renovate[bot]' && github.actor != 'bw-ghapp[bot]' }}
+    runs-on: macos-26
+    timeout-minutes: 20
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-org-bitwarden
+          secrets: "BW-GHAPP-ID,BW-GHAPP-KEY"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
+      - name: Generate GH App token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        id: app-token
+        with:
+          client-id: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-ID }}
+          private-key: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-KEY }}
+          permission-contents: write
+
+      - name: Check out repo
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          ref: ${{ github.event.pull_request.head.ref }}
+          persist-credentials: true
+
+      - name: Read Xcode version from file
+        run: echo "_XCODE_VERSION=$(cat .xcode-version | tr -d '\n')" >> "$GITHUB_ENV"
+
+      - name: Set Xcode version
+        uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
+        with:
+          xcode-version: ${{ env._XCODE_VERSION }}
+
+      - name: Install Homebrew Dependencies and run bootstrap.sh
+        run: |
+          brew update
+          brew bundle
+          ./Scripts/bootstrap.sh
+
+      - name: Resolve package versions
+        run: |
+          xcrun xcodebuild -resolvePackageDependencies \
+            -workspace Bitwarden.xcworkspace \
+            -scheme Bitwarden \
+            -clonedSourcePackagesDirPath build/DerivedData/SourcePackages
+
+      - name: Commit and push if Package.resolved changed
+        run: |
+          if git diff --quiet -- "$_PACKAGE_RESOLVED_PATH"; then
+            echo "✅ Package.resolved already matches the resolved package versions."
+            exit 0
+          fi
+
+          echo "📝 Package.resolved is out of date - committing the resolved versions."
+          git config user.name "$_BOT_NAME"
+          git config user.email "$_BOT_EMAIL"
+          git add "$_PACKAGE_RESOLVED_PATH"
+          git commit -m "Resolve package versions"
+          git push origin "HEAD:${{ github.event.pull_request.head.ref }}"
