@@ -25,7 +25,7 @@ struct FloatingActionButton: View {
         AsyncButton(action: action) {
             image.imageStyle(.floatingActionButton)
         }
-        .buttonStyle(CircleButtonStyle(diameter: 50))
+        .buttonStyle(.floatingActionButton)
         .accessibilitySortPriority(1)
     }
 }
