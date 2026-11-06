@@ -51,6 +51,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var fillAssistEnabledByUserId = [String: Bool]()
     var fillAssistLastFetchTimestampByUserId = [String: Date]()
     var hasPerformedSyncAfterLogin = [String: Bool]()
+    var hasPersonalSubscriptionByUserId = [String: Bool]()
     var lastActiveTime = [String: Date]()
     var lastRequestToTurnOnCredentialProviderDate: Date? // swiftlint:disable:this identifier_name
     var lastSyncMonotonicTimeByUserId = [String: TimeInterval?]()
@@ -169,6 +170,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func hasPerformedSyncAfterLogin(userId: String) -> Bool {
         hasPerformedSyncAfterLogin[userId] ?? false
+    }
+
+    func hasPersonalSubscription(userId: String) -> Bool? {
+        hasPersonalSubscriptionByUserId[userId]
     }
 
     func lastActiveTime(userId: String) -> Date? {
@@ -340,6 +345,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
             return
         }
         hasPerformedSyncAfterLogin[userId] = hasBeenPerformed
+    }
+
+    func setHasPersonalSubscription(_ hasPersonalSubscription: Bool?, userId: String) {
+        hasPersonalSubscriptionByUserId[userId] = hasPersonalSubscription
     }
 
     func setLastActiveTime(_ date: Date?, userId: String) {
