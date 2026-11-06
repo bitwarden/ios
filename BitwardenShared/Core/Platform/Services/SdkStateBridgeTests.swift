@@ -256,6 +256,34 @@ struct SdkStateBridgeTests {
         #expect(stateService.setPersistentPinEnvelopeReceivedArguments?.userId == "1")
     }
 
+    // MARK: Tests - Pin Length
+
+    /// `clearPinLength()` is a no-op since the app has no concept of a stored PIN length.
+    @Test
+    func clearPinLength() async {
+        await subject.clearPinLength()
+
+        let result = await subject.getPinLength()
+        #expect(result == nil)
+    }
+
+    /// `getPinLength()` always returns `nil` since the app has no concept of a stored PIN length.
+    @Test
+    func getPinLength() async {
+        let result = await subject.getPinLength()
+
+        #expect(result == nil)
+    }
+
+    /// `setPinLength(value:)` is a no-op since the app has no concept of a stored PIN length.
+    @Test
+    func setPinLength() async {
+        await subject.setPinLength(value: 4)
+
+        let result = await subject.getPinLength()
+        #expect(result == nil)
+    }
+
     // MARK: Tests - User Key
 
     /// `getUserKey()`/`setUserKey(value:)`/`clearUserKey()` hold the user key in memory only.
