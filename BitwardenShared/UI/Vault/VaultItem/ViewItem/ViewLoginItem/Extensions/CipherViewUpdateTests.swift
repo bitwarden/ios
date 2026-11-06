@@ -531,6 +531,19 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertEqual(comparison.revisionDate, subject.revisionDate)
     }
 
+    /// Tests that editing a login preserves `httpAuthenticationEnabled`, since the value isn't
+    /// represented in `LoginItemState`.
+    func test_update_login_edits_preservesHttpAuthenticationEnabled() throws {
+        subject = CipherView.loginFixture(login: .fixture(httpAuthenticationEnabled: true))
+        var editState = try XCTUnwrap(CipherItemState(existing: subject, hasPremium: true))
+        editState.loginState.username = "PASTA"
+
+        let comparison = subject.updatedView(with: editState)
+
+        XCTAssertEqual(comparison.login?.username, "PASTA")
+        XCTAssertEqual(comparison.login?.httpAuthenticationEnabled, true)
+    }
+
     /// Tests that the update succeeds with a new password updating the password history.
     func test_update_login_passwordHistory_succeeds() {
         subject = CipherView.loginFixture(login: .fixture(password: "Old password"))

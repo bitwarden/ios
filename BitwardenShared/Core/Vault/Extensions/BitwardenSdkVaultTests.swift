@@ -319,6 +319,29 @@ class BitwardenSdkVaultCipherLoginModelTests: BitwardenTestCase {
 
         XCTAssertEqual(login.httpAuthenticationEnabled, false)
     }
+
+    /// `CipherLoginModel` decodes `httpAuthenticationEnabled` from the API's JSON key.
+    func test_decode_httpAuthenticationEnabled() throws {
+        let json = #"{"httpAuthenticationEnabled": true}"#
+
+        let model = try JSONDecoder.defaultDecoder.decode(CipherLoginModel.self, from: Data(json.utf8))
+
+        XCTAssertEqual(model.httpAuthenticationEnabled, true)
+    }
+
+    /// Converting an SDK login to the API model, encoding and decoding it as JSON, and converting it
+    /// back to an SDK login preserves `httpAuthenticationEnabled`.
+    func test_roundTrip_preservesHttpAuthenticationEnabled() throws {
+        for value in [true, false] {
+            let model = CipherLoginModel(login: .fixture(httpAuthenticationEnabled: value))
+
+            let data = try JSONEncoder.defaultEncoder.encode(model)
+            let decodedModel = try JSONDecoder.defaultDecoder.decode(CipherLoginModel.self, from: data)
+            let login = BitwardenSdk.Login(cipherLoginModel: decodedModel)
+
+            XCTAssertEqual(login.httpAuthenticationEnabled, value)
+        }
+    }
 }
 
 // MARK: - CipherPassportModel
