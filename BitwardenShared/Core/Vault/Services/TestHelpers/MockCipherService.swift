@@ -33,6 +33,7 @@ class MockCipherService: CipherService {
     var deleteCipherWithLocalStorageId: String?
     var deleteCipherWithLocalStorageResult: Result<Void, Error> = .success(())
 
+    var downloadAttachmentAction: (() -> Void)?
     var downloadAttachmentId: String?
     var downloadAttachmentResult: Result<URL?, Error> = .success(nil)
 
@@ -134,6 +135,7 @@ class MockCipherService: CipherService {
 
     func downloadAttachment(withId id: String, cipherId _: String) async throws -> URL? {
         downloadAttachmentId = id
+        downloadAttachmentAction?()
         return try downloadAttachmentResult.get()
     }
 
