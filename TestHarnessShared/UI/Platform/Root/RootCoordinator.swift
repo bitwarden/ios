@@ -44,14 +44,16 @@ class RootCoordinator: Coordinator, HasStackNavigator {
             showDateFieldPickerShowcase()
         case .fileShare:
             showFileShare()
-        case .scenarioPicker:
-            showScenarioPicker()
         case .registerPasskey:
             showRegisterPasskey()
+        case .scenarioPicker:
+            showScenarioPicker()
         case .simpleLoginForm:
             showSimpleLoginForm()
         case .totpAutofillForm:
             showTOTPAutofillForm()
+        case .usePasskey:
+            showUsePasskey()
         }
     }
 
@@ -99,14 +101,6 @@ class RootCoordinator: Coordinator, HasStackNavigator {
         stackNavigator?.push(viewController)
     }
 
-    /// Shows the scenario picker screen.
-    ///
-    private func showScenarioPicker() {
-        let processor = ScenarioPickerProcessor(coordinator: asAnyCoordinator())
-        let view = ScenarioPickerView(store: Store(processor: processor))
-        stackNavigator?.replace(view)
-    }
-
     /// Shows the register passkey test screen.
     ///
     private func showRegisterPasskey() {
@@ -117,6 +111,14 @@ class RootCoordinator: Coordinator, HasStackNavigator {
         let view = RegisterPasskeyView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         stackNavigator?.push(viewController)
+    }
+
+    /// Shows the scenario picker screen.
+    ///
+    private func showScenarioPicker() {
+        let processor = ScenarioPickerProcessor(coordinator: asAnyCoordinator())
+        let view = ScenarioPickerView(store: Store(processor: processor))
+        stackNavigator?.replace(view)
     }
 
     /// Shows the simple login form test screen.
@@ -133,6 +135,18 @@ class RootCoordinator: Coordinator, HasStackNavigator {
     private func showTOTPAutofillForm() {
         let processor = TOTPAutofillFormProcessor(coordinator: asAnyCoordinator())
         let view = TOTPAutofillFormView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        stackNavigator?.push(viewController)
+    }
+
+    /// Shows the use passkey test screen.
+    ///
+    private func showUsePasskey() {
+        let processor = UsePasskeyProcessor(
+            coordinator: asAnyCoordinator(),
+            passkeyService: services.passkeyService,
+        )
+        let view = UsePasskeyView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         stackNavigator?.push(viewController)
     }
