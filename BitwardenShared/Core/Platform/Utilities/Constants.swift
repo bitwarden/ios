@@ -48,6 +48,9 @@ extension Constants {
     /// extension before the app should warn the user that the extension may hit its memory limit.
     static let maxArgon2IdMemoryBeforeExtensionCrashing = 64
 
+    /// The maximum number of entries stored in a cipher's password history.
+    static let maxCipherPasswordHistoryCount = 5
+
     /// The value representing 100 MB of data.
     static let maxFileSize = 104_857_600
 
