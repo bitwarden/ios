@@ -17,7 +17,7 @@ packages:
     revision: 20b1e2cf2abe814cca6cc81e3eeede0281e6415a # 4.0.0-9443-a13b4c4
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
-    exactVersion: 12.14.0
+    exactVersion: 13.1.1
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing
     exactVersion: 1.19.4
