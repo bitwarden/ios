@@ -53,9 +53,9 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
                     .fixture(id: "3", organizationId: "1", name: "collection3"),
                     .fixture(id: "4", organizationId: "1", name: "zcollection9", type: .defaultUserCollection),
                 ],
-                collectionsCount: [
-                    "1": 20,
-                    "2": 5,
+                collectionCipherIds: [
+                    "1": .cipherIds(20, prefix: "collection1"),
+                    "2": .cipherIds(5, prefix: "collection2"),
                 ],
             ),
         )
@@ -89,9 +89,9 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
                     .fixture(id: nil, organizationId: "1", name: "collection1"),
                     .fixture(id: "2", organizationId: "1", name: "acollection2"),
                 ],
-                collectionsCount: [
-                    "1": 20,
-                    "2": 5,
+                collectionCipherIds: [
+                    "1": .cipherIds(20, prefix: "collection1"),
+                    "2": .cipherIds(5, prefix: "collection2"),
                 ],
             ),
         )
@@ -123,9 +123,9 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
                     .fixture(id: nil, organizationId: "1", name: "collection1"),
                     .fixture(id: nil, organizationId: "1", name: "acollection2"),
                 ],
-                collectionsCount: [
-                    "1": 20,
-                    "2": 5,
+                collectionCipherIds: [
+                    "1": .cipherIds(20, prefix: "collection1"),
+                    "2": .cipherIds(5, prefix: "collection2"),
                 ],
             ),
         )
@@ -173,7 +173,8 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
     }
 
     /// `addCollectionsSection(nestedCollectionId:)` adds the collection section to the list of sections
-    /// with the count of ciphers per collection under the nested collection ID.
+    /// with the count of ciphers per collection under the nested collection ID, including the unique
+    /// ciphers of each collection's descendant collections.
     func test_addCollectionsSection_withNestedCollectionId() async throws {
         setUpSubject(
             withData: VaultListPreparedData(
@@ -184,9 +185,10 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
                     .fixture(id: "4", organizationId: "1", name: "col2/sub2"),
                     .fixture(id: "5", organizationId: "1", name: "col2/sub2/sub1"),
                 ],
-                collectionsCount: [
-                    "3": 15,
-                    "4": 6,
+                collectionCipherIds: [
+                    "3": .cipherIds(15, prefix: "collection3"),
+                    "4": .cipherIds(6, prefix: "collection4"),
+                    "5": ["collection4-cipher-0", "collection5-cipher-0"],
                 ],
             ),
         )
@@ -204,7 +206,43 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
             """
             Section[Collections]: Collections
               - Group[3]: sub1 (15)
-              - Group[4]: sub2 (6)
+              - Group[4]: sub2 (7)
+            """
+        }
+    }
+
+    /// `addCollectionsSection(nestedCollectionId:)` includes the unique ciphers of all descendant
+    /// collections at any depth in a collection's count.
+    func test_addCollectionsSection_countIncludesDescendantCollections() async throws {
+        setUpSubject(
+            withData: VaultListPreparedData(
+                collections: [
+                    .fixture(id: "1", organizationId: "1", name: "C1"),
+                    .fixture(id: "2", organizationId: "1", name: "C1/Child1"),
+                    .fixture(id: "3", organizationId: "1", name: "C1/Child1/Grandchild"),
+                    .fixture(id: "4", organizationId: "1", name: "C1/Child2"),
+                ],
+                collectionCipherIds: [
+                    "1": ["a", "b", "c", "d"],
+                    "2": ["e", "f"],
+                    "3": ["g", "h"],
+                    "4": ["d", "i"],
+                ],
+            ),
+        )
+        collectionHelper.orderReturnValue = [
+            .fixture(id: "1", name: "C1", organizationId: "1"),
+            .fixture(id: "2", name: "C1/Child1", organizationId: "1"),
+            .fixture(id: "3", name: "C1/Child1/Grandchild", organizationId: "1"),
+            .fixture(id: "4", name: "C1/Child2", organizationId: "1"),
+        ]
+
+        let vaultListData = try await subject.addCollectionsSection().build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[Collections]: Collections
+              - Group[1]: C1 (9)
             """
         }
     }

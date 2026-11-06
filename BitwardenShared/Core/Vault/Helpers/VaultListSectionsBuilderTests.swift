@@ -891,7 +891,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
             withData: VaultListPreparedData(
                 ciphersDeletedCount: 10,
                 collections: [.fixture(id: "1", name: "Collection 1")],
-                collectionsCount: ["1": 5],
+                collectionCipherIds: ["1": .cipherIds(5, prefix: "collection1")],
                 countPerCipherType: [
                     .card: 10,
                     .identity: 1,
@@ -900,7 +900,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
                 ],
                 favorites: [.fixture(cipherListView: .fixture(name: "Favorite 1"))],
                 folders: [.fixture(id: "1", name: "Folder 1")],
-                foldersCount: ["1": 60],
+                folderCipherIds: ["1": .cipherIds(60, prefix: "folder1")],
                 groupItems: [.fixture(cipherListView: .fixture(name: "Group cipher 1"))],
                 noFolderItems: [.fixture(cipherListView: .fixture(name: "No folder 1"))],
                 totpItemsCount: 20,
