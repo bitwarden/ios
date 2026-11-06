@@ -99,11 +99,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
         case let .profileSwitcher(profileEffect):
             await handleProfileSwitcherEffect(profileEffect)
         case .regionPressed:
-            var excludedRegions: [RegionType] = [.gov]
-            if await currentPreAuthServerConfig() != nil,
-               await services.configService.getFeatureFlag(.fedrampGovRegion, isPreAuth: true) {
-                excludedRegions = []
-            }
+            let excludedRegions: [RegionType] = await currentPreAuthServerConfig() != nil ? [] : [.gov]
             await regionHelper.presentRegionSelectorAlert(
                 title: Localizations.loggingInOn,
                 currentRegion: state.region,
