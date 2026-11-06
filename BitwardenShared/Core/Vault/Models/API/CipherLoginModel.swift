@@ -11,6 +11,9 @@ struct CipherLoginModel: Codable, Equatable {
     /// A list of FIDO2 credentials for the login.
     let fido2Credentials: [CipherLoginFido2Credential]?
 
+    /// Whether the login's credentials may answer HTTP authentication challenges.
+    let httpAuthenticationEnabled: Bool?
+
     /// The login's password.
     let password: String?
 

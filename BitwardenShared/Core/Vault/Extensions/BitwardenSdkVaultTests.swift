@@ -253,6 +253,74 @@ class BitwardenSdkVaultCipherDriversLicenseModelTests: BitwardenTestCase {
     }
 }
 
+// MARK: - CipherLoginModel
+
+class BitwardenSdkVaultCipherLoginModelTests: BitwardenTestCase {
+    // MARK: Tests
+
+    /// `init(login:)` inits the cipher login model from the SDK one.
+    func test_init_fromSdkLogin() {
+        let model = CipherLoginModel(
+            login: .fixture(
+                autofillOnPageLoad: true,
+                httpAuthenticationEnabled: true,
+                password: "password",
+                passwordRevisionDate: Date(year: 2024, month: 6, day: 15),
+                uris: [.fixture(uri: "https://example.com")],
+                username: "username",
+                totp: "totp",
+            ),
+        )
+
+        XCTAssertEqual(model.autofillOnPageLoad, true)
+        XCTAssertEqual(model.httpAuthenticationEnabled, true)
+        XCTAssertEqual(model.password, "password")
+        XCTAssertEqual(model.passwordRevisionDate, Date(year: 2024, month: 6, day: 15))
+        XCTAssertEqual(model.totp, "totp")
+        XCTAssertEqual(model.uris?.map(\.uri), ["https://example.com"])
+        XCTAssertEqual(model.username, "username")
+    }
+
+    /// `init(login:)` inits the cipher login model from the SDK one, preserving a disabled HTTP
+    /// authentication setting.
+    func test_init_fromSdkLoginHttpAuthenticationDisabled() {
+        let model = CipherLoginModel(login: .fixture(httpAuthenticationEnabled: false))
+
+        XCTAssertEqual(model.httpAuthenticationEnabled, false)
+    }
+
+    /// `init(cipherLoginModel:)` inits the SDK login from the cipher login model.
+    func test_init_fromCipherLoginModel() {
+        let login = BitwardenSdk.Login(
+            cipherLoginModel: .fixture(
+                autofillOnPageLoad: true,
+                httpAuthenticationEnabled: true,
+                password: "password",
+                passwordRevisionDate: Date(year: 2024, month: 6, day: 15),
+                totp: "totp",
+                uris: [CipherLoginUriModel(match: nil, uri: "https://example.com", uriChecksum: nil)],
+                username: "username",
+            ),
+        )
+
+        XCTAssertEqual(login.autofillOnPageLoad, true)
+        XCTAssertEqual(login.httpAuthenticationEnabled, true)
+        XCTAssertEqual(login.password, "password")
+        XCTAssertEqual(login.passwordRevisionDate, Date(year: 2024, month: 6, day: 15))
+        XCTAssertEqual(login.totp, "totp")
+        XCTAssertEqual(login.uris?.map(\.uri), ["https://example.com"])
+        XCTAssertEqual(login.username, "username")
+    }
+
+    /// `init(cipherLoginModel:)` inits the SDK login from the cipher login model, preserving a
+    /// disabled HTTP authentication setting.
+    func test_init_fromCipherLoginModelHttpAuthenticationDisabled() {
+        let login = BitwardenSdk.Login(cipherLoginModel: .fixture(httpAuthenticationEnabled: false))
+
+        XCTAssertEqual(login.httpAuthenticationEnabled, false)
+    }
+}
+
 // MARK: - CipherPassportModel
 
 class BitwardenSdkVaultCipherPassportModelTests: BitwardenTestCase {

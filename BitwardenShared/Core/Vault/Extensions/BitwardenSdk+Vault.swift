@@ -211,6 +211,7 @@ extension CipherLoginModel {
         self.init(
             autofillOnPageLoad: login.autofillOnPageLoad,
             fido2Credentials: login.fido2Credentials?.map(CipherLoginFido2Credential.init),
+            httpAuthenticationEnabled: login.httpAuthenticationEnabled,
             password: login.password,
             passwordRevisionDate: login.passwordRevisionDate,
             totp: login.totp,
@@ -764,6 +765,7 @@ extension BitwardenSdk.Login {
             uris: model.uris?.map(LoginUri.init),
             totp: model.totp,
             autofillOnPageLoad: model.autofillOnPageLoad,
+            httpAuthenticationEnabled: model.httpAuthenticationEnabled,
             fido2Credentials: model.fido2Credentials?.map(Fido2Credential.init),
         )
     }

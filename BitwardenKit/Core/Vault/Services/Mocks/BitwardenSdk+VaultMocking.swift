@@ -377,6 +377,7 @@ public extension Login {
             uris: loginView.uris?.map(LoginUri.init),
             totp: loginView.totp,
             autofillOnPageLoad: loginView.autofillOnPageLoad,
+            httpAuthenticationEnabled: loginView.httpAuthenticationEnabled,
             fido2Credentials: loginView.fido2Credentials?.map(Fido2Credential.init),
         )
     }
@@ -391,6 +392,7 @@ public extension LoginView {
             uris: login.uris?.map(LoginUriView.init),
             totp: login.totp,
             autofillOnPageLoad: login.autofillOnPageLoad,
+            httpAuthenticationEnabled: login.httpAuthenticationEnabled,
             fido2Credentials: login.fido2Credentials?.map(Fido2CredentialView.init),
         )
     }

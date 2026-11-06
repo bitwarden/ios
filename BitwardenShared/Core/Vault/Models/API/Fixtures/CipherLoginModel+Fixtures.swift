@@ -6,6 +6,7 @@ extension CipherLoginModel {
     static func fixture(
         autofillOnPageLoad: Bool? = nil,
         fido2Credentials: [CipherLoginFido2Credential]? = nil,
+        httpAuthenticationEnabled: Bool? = nil,
         password: String? = nil,
         passwordRevisionDate: Date? = nil,
         totp: String? = nil,
@@ -15,6 +16,7 @@ extension CipherLoginModel {
         self.init(
             autofillOnPageLoad: autofillOnPageLoad,
             fido2Credentials: fido2Credentials,
+            httpAuthenticationEnabled: httpAuthenticationEnabled,
             password: password,
             passwordRevisionDate: passwordRevisionDate,
             totp: totp,
