@@ -3,7 +3,7 @@ import Foundation
 
 // MARK: - StoredCipher
 
-/// A `Codable` mirror of the handful of `Cipher`/`Fido2Credential` fields the SDK-backed passkey
+/// A `Codable` mirror of the handful of `Cipher`/`Fido2Credential` fields the passkey
 /// scenarios actually populate, since `BitwardenSdk.Cipher` doesn't itself conform to `Codable`.
 /// Every cipher these scenarios create is a login-type cipher with exactly one Fido2 credential,
 /// so the remaining `Cipher` fields are reconstructed with the same fixed defaults used when the

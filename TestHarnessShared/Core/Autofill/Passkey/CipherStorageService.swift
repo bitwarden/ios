@@ -4,7 +4,7 @@ import Foundation
 // MARK: - CipherStorageService
 
 // sourcery: AutoMockable
-/// A service that locally persists the SDK-encrypted `Cipher`s created by the SDK-backed passkey
+/// A service that locally persists the SDK-encrypted `Cipher`s created by the passkey
 /// scenarios, so they survive app relaunches.
 ///
 protocol CipherStorageService: AnyObject {
