@@ -6,6 +6,7 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class AboutProcessorTests: BitwardenTestCase {
     // MARK: Properties
@@ -90,7 +91,7 @@ class AboutProcessorTests: BitwardenTestCase {
     func test_perform_copyVersionInfo() async {
         await subject.perform(.copyVersionInfo)
         XCTAssertEqual(
-            pasteboardService.copiedString,
+            pasteboardService.copyReceivedString,
             """
             © Bitwarden Inc. 2015\(String.enDash)\(Calendar.current.component(.year, from: Date.now))
 

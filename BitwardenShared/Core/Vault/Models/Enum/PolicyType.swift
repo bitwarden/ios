@@ -43,6 +43,14 @@ enum PolicyType: Int, Codable {
     /// If enabled, restricts the types of items that can be shown in the vault.
     case restrictItemTypes = 15
 
+    /// Displays a banner notification to organization users.
+    case organizationUserNotification = 20
+
+    /// Restricts Send creation, access, and default settings for members of an organization;
+    /// supersedes `disableSend` and `sendOptions` when the `pm-31885-send-controls` feature flag
+    /// is active on the server.
+    case sendControls = 21
+
     /// An unknown policy type.
     case unknown = -1
 

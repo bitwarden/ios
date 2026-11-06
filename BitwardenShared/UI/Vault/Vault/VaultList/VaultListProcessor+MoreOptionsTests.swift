@@ -29,12 +29,9 @@ class VaultListProcessorMoreOptionsTests: BitwardenTestCase {
         )
         let alert = Alert.moreOptions(
             context: MoreOptionsAlertContext(
-                canArchive: false,
-                canCopyTotp: false,
-                canUnarchive: false,
+                actionKinds: [.view, .edit, .copyUsername, .copyPassword],
                 cipherView: cipher,
                 id: cipher.id!,
-                showEdit: true,
             ),
             action: action,
         )
@@ -117,12 +114,9 @@ class VaultListProcessorMoreOptionsTests: BitwardenTestCase {
         )
         let alert = Alert.moreOptions(
             context: MoreOptionsAlertContext(
-                canArchive: false,
-                canCopyTotp: false,
-                canUnarchive: false,
+                actionKinds: [.view, .edit],
                 cipherView: cipher,
                 id: cipher.id!,
-                showEdit: true,
             ),
             action: action,
         )

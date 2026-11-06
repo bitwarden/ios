@@ -4,6 +4,7 @@ import BitwardenSdk
 
 class MockPolicyService: PolicyService {
     var applyPasswordGenerationOptionsCalled = false
+    var applyPasswordGenerationOptionsError: Error?
     var applyPasswordGenerationOptionsResult = false
     var applyPasswordGenerationOptionsTransform = { (_: inout PasswordGenerationOptions) in }
 
@@ -19,35 +20,42 @@ class MockPolicyService: PolicyService {
         ),
     )
 
-    var isSendHideEmailDisabledByPolicy = false
+    var getSendPolicyOptionsResult = SendPolicyOptions()
 
     var fetchTimeoutPolicyValuesResult: Result<SessionTimeoutPolicy?, Error> = .success(nil)
 
     var getEarliestOrganizationApplyingPolicyResult: [BitwardenShared.PolicyType: String?] = [:] // swiftlint:disable:this identifier_name line_length
 
+    // swiftlint:disable:next identifier_name
+    var getOrganizationUserNotificationBannerDataResult: OrganizationUserNotificationBannerData?
+
     var organizationsApplyingPolicyToUserResult: [BitwardenShared.PolicyType: [String]] = [:]
 
     var policyAppliesToUserResult = [BitwardenShared.PolicyType: Bool]()
     var policyAppliesToUserPoliciesType = [BitwardenShared.PolicyType]()
-    var policyAppliesToUserPolicies = [Policy]()
+    var policyAppliesToUserPolicies = [BitwardenShared.Policy]()
+    var policyAppliesToUserUserIds = [String]()
     var getRestrictedItemCipherTypesResult: [BitwardenShared.CipherType] = []
 
     var replacePoliciesPolicies = [PolicyResponseModel]()
     var replacePoliciesUserId: String?
     var replacePoliciesResult: Result<Void, Error> = .success(())
 
-    var replacePoliciesNewPolicies = [PolicyResponseModel]()
-    var replacePoliciesNewUserId: String?
-    var replacePoliciesNewResult: Result<Void, Error> = .success(())
-
     func applyPasswordGenerationPolicy(options: inout PasswordGenerationOptions) async throws -> Bool {
         applyPasswordGenerationOptionsCalled = true
+        if let applyPasswordGenerationOptionsError {
+            throw applyPasswordGenerationOptionsError
+        }
         applyPasswordGenerationOptionsTransform(&options)
         return applyPasswordGenerationOptionsResult
     }
 
     func getOrganizationIdsForRestricItemTypesPolicy() async -> [String] {
         policyAppliesToUserPolicies.map(\.organizationId)
+    }
+
+    func getOrganizationUserNotificationBannerData() async -> OrganizationUserNotificationBannerData? {
+        getOrganizationUserNotificationBannerDataResult
     }
 
     func getRestrictedItemCipherTypes() async -> [BitwardenShared.CipherType] {
@@ -58,8 +66,8 @@ class MockPolicyService: PolicyService {
         try getMasterPasswordPolicyOptionsResult.get()
     }
 
-    func isSendHideEmailDisabledByPolicy() async -> Bool {
-        isSendHideEmailDisabledByPolicy
+    func getSendPolicyOptions() async -> SendPolicyOptions {
+        getSendPolicyOptionsResult
     }
 
     func fetchTimeoutPolicyValues() async throws -> SessionTimeoutPolicy? {
@@ -79,15 +87,15 @@ class MockPolicyService: PolicyService {
         return policyAppliesToUserResult[policyType] ?? false
     }
 
+    func policyAppliesToUser(_ policyType: BitwardenShared.PolicyType, userId: String) async -> Bool {
+        policyAppliesToUserPoliciesType.append(policyType)
+        policyAppliesToUserUserIds.append(userId)
+        return policyAppliesToUserResult[policyType] ?? false
+    }
+
     func replacePolicies(_ policies: [PolicyResponseModel], userId: String) async throws {
         replacePoliciesPolicies = policies
         replacePoliciesUserId = userId
         try replacePoliciesResult.get()
-    }
-
-    func replacePoliciesNew(_ policies: [PolicyResponseModel], userId: String) async throws {
-        replacePoliciesNewPolicies = policies
-        replacePoliciesNewUserId = userId
-        try replacePoliciesNewResult.get()
     }
 }

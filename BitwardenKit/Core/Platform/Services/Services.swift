@@ -7,6 +7,13 @@ public protocol HasConfigService {
     var configService: ConfigService { get }
 }
 
+/// Protocol for an object that provides a `DebugStateService`.
+///
+public protocol HasDebugStateService {
+    /// The service used for account state manipulation to support testing scenarios.
+    var debugStateService: any DebugStateService { get }
+}
+
 /// Protocol for an object that provides an `ErrorReportBuilder`.
 ///
 public protocol HasErrorReportBuilder {

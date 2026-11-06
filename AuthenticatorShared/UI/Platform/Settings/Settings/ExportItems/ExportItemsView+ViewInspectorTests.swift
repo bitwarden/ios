@@ -41,10 +41,10 @@ class ExportItemsViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
     }
 
-    /// Tapping the export items button sends the `.exportItemsTapped` action.
+    /// Tapping the export button sends the `.exportItemsTapped` action.
     @MainActor
     func test_exportItemsButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.exportItems)
+        let button = try subject.inspect().find(button: Localizations.export)
         try button.tap()
 
         XCTAssertEqual(processor.dispatchedActions.last, .exportItemsTapped)
@@ -57,5 +57,16 @@ class ExportItemsViewTests: BitwardenTestCase {
         let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.fileFormat)
         try menuField.select(newValue: ExportFormatType.csv)
         XCTAssertEqual(processor.dispatchedActions.last, .fileFormatTypeChanged(.csv))
+    }
+
+    /// The header displays the title and the description of which codes are exported.
+    @MainActor
+    func test_header_displaysTitleAndDescription() throws {
+        XCTAssertNoThrow(try subject.inspect().find(text: Localizations.includedInThisReport))
+        XCTAssertNoThrow(
+            try subject.inspect().find(
+                text: Localizations.onlyCodesStoredLocallyOnThisDeviceDescriptionLong,
+            ),
+        )
     }
 }

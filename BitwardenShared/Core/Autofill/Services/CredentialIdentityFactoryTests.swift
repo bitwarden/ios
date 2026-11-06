@@ -216,7 +216,7 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
     }
 
     /// `createCredentialIdentities(from:accountHasPremium:)` returns only password identity when
-    /// the account is not premium and the organization does not use TOTP.
+    /// the account is not Premium and the organization does not use TOTP.
     func test_createCredentialIdentities_totpNotAuthorized() async throws {
         guard #available(iOS 17.0, *) else {
             throw XCTSkip("iOS 17.0 is required to run this test.")
@@ -239,7 +239,7 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
     }
 
     /// `createCredentialIdentities(from:accountHasPremium:)` includes OTC identity when
-    /// the account is not premium but the organization uses TOTP.
+    /// the account is not Premium but the organization uses TOTP.
     func test_createCredentialIdentities_totpAuthorizedViaOrg() async throws {
         guard #available(iOS 18.0, *) else {
             throw XCTSkip("iOS 18.0 is required to run this test.")
@@ -263,7 +263,7 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
     }
 
     /// `createCredentialIdentities(from:accountHasPremium:)` includes OTC identity when
-    /// the account has premium even if the organization does not use TOTP.
+    /// the account has Premium even if the organization does not use TOTP.
     func test_createCredentialIdentities_totpAuthorizedViaPremium() async throws {
         guard #available(iOS 18.0, *) else {
             throw XCTSkip("iOS 18.0 is required to run this test.")

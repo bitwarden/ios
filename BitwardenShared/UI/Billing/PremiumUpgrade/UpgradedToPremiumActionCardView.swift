@@ -4,7 +4,7 @@ import SwiftUI
 
 // MARK: - UpgradedToPremiumActionCardView
 
-/// An action card shown after a user completes the premium upgrade flow.
+/// An action card shown after a user completes the Premium upgrade flow.
 ///
 struct UpgradedToPremiumActionCardView: View {
     // MARK: Properties

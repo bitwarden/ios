@@ -1,10 +1,10 @@
 "ThereAreNoItemsToList" = "Walang maililistang item";
-"ToViewVerificationCodesUpgradeToPremium" = "To view verification codes, upgrade to premium";
-"Add2FactorAutenticationToAnItemToViewVerificationCodes" = "Add 2 factor authentication to an item to view the verification codes";
-"LogInToBitwardenOnYourIPhoneToViewVerificationCodes" = "Log in to Bitwarden on your iPhone to view verification codes";
-"SyncingItemsContainingVerificationCodes" = "Syncing items containing verification codes";
-"UnlockBitwardenOnYourIPhoneToViewVerificationCodes" = "Unlock Bitwarden on your iPhone to view verification codes";
-"SetUpBitwardenToViewItemsContainingVerificationCodes" = "Set up Bitwarden to view items containing verification codes";
+"ToViewVerificationCodesUpgradeToPremium" = "Upang tingnan ang mga verification code, mag-upgrade sa premium";
+"Add2FactorAutenticationToAnItemToViewVerificationCodes" = "Magdagdag ng 2-factor authentication sa isang item upang tingnan ang mga verification code";
+"LogInToBitwardenOnYourIPhoneToViewVerificationCodes" = "Mag-log in sa Bitwarden sa iyong iPhone upang tingnan ang mga verification code";
+"SyncingItemsContainingVerificationCodes" = "Nag-si-sync ng mga item na naglalaman ng mga verification code";
+"UnlockBitwardenOnYourIPhoneToViewVerificationCodes" = "I-unlock ang Bitwarden sa iyong iPhone upang tingnan ang mga verification code";
+"SetUpBitwardenToViewItemsContainingVerificationCodes" = "I-set up ang Bitwarden upang tingnan ang mga item na naglalaman ng mga verification code";
 "Search" = "Maghanap";
 "NoItemsFound" = "Walang nahanap na mga item";
-"SetUpAppleWatchPasscodeInOrderToUseBitwarden" = "Set up Apple Watch passcode in order to use Bitwarden";
+"SetUpAppleWatchPasscodeInOrderToUseBitwarden" = "Mag-set up ng Apple Watch passcode upang magamit ang Bitwarden";

@@ -3,6 +3,7 @@ import AuthenticatorBridgeKit
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
+import Combine
 import Foundation
 import TestHelpers
 import XCTest
@@ -15,6 +16,7 @@ import XCTest
 class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var acquireCookiesSubject: CurrentValueSubject<String?, Never>!
     var appIntentMediator: MockAppIntentMediator!
     var appModule: MockAppModule!
     var authRepository: MockAuthRepository!
@@ -28,6 +30,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     var errorReporter: MockErrorReporter!
     var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
     var eventService: MockEventService!
+    var generatorRepository: MockGeneratorRepository!
     var migrationService: MockMigrationService!
     var notificationCenterService: MockNotificationCenterService!
     var notificationService: MockNotificationService!
@@ -45,12 +48,16 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     var didEnterBackgroundCalled = 0
     var willEnterForegroundCalled = 0
 
+    /// The suite name of the `UserDefaults` that isolates the debug launch arguments from the host.
+    let debugUserDefaultsSuiteName = "AppProcessorTests"
+
     // MARK: Setup & Teardown
 
     override func setUp() { // swiftlint:disable:this function_body_length
         super.setUp()
 
         router = MockRouter(routeForEvent: { _ in .landing })
+        acquireCookiesSubject = CurrentValueSubject<String?, Never>(nil)
         appIntentMediator = MockAppIntentMediator()
         appModule = MockAppModule()
         authRepository = MockAuthRepository()
@@ -66,6 +73,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         errorReporter = MockErrorReporter()
         fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
         eventService = MockEventService()
+        generatorRepository = MockGeneratorRepository()
         migrationService = MockMigrationService()
         notificationCenterService = MockNotificationCenterService()
         notificationService = MockNotificationService()
@@ -77,6 +85,9 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         timeProvider = MockTimeProvider(.currentTime)
         vaultRepository = MockVaultRepository()
         vaultTimeoutService = MockVaultTimeoutService()
+
+        serverCommunicationConfigAPIService.acquireCookiesPublisherReturnValue =
+            acquireCookiesSubject.eraseToAnyPublisher()
 
         subject = AppProcessor(
             appIntentMediator: appIntentMediator,
@@ -94,6 +105,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 errorReporter: errorReporter,
                 eventService: eventService,
                 fido2UserInterfaceHelper: fido2UserInterfaceHelper,
+                generatorRepository: generatorRepository,
                 migrationService: migrationService,
                 notificationService: notificationService,
                 pendingAppIntentActionMediator: pendingAppIntentActionMediator,
@@ -107,11 +119,23 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
             ),
         )
         subject.coordinator = coordinator.asAnyCoordinator()
+
+        #if DEBUG
+        // Isolate the debug environment override from the developer's machine, so tests don't read
+        // `~/.bitwarden/debug-environment.json` or launch arguments from the host.
+        subject.debugHostHomeDirectory = nil
+        if let userDefaults = UserDefaults(suiteName: debugUserDefaultsSuiteName) {
+            subject.debugUserDefaults = userDefaults
+        }
+        #endif
     }
 
     override func tearDown() {
         super.tearDown()
 
+        UserDefaults.standard.removePersistentDomain(forName: debugUserDefaultsSuiteName)
+
+        acquireCookiesSubject = nil
         appModule = nil
         authRepository = nil
         autofillCredentialService = nil
@@ -123,6 +147,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         errorReporter = nil
         fido2UserInterfaceHelper = nil
         eventService = nil
+        generatorRepository = nil
         migrationService = nil
         notificationCenterService = nil
         notificationService = nil
@@ -987,6 +1012,28 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(vaultRepository.addCipherCiphers.isEmpty)
     }
 
+    /// `generatePasswordCredential(request:)` generates and returns a password.
+    @available(iOS 26.2, *)
+    func test_generatePasswordCredential() async throws {
+        generatorRepository.passwordResult = .success("generated-password")
+
+        let result = try await subject.generatePasswordCredential(request: MockGeneratePasswordRequestProxy())
+
+        XCTAssertFalse(authRepository.unlockVaultWithNeverlockKeyCalled)
+        XCTAssertNotNil(generatorRepository.passwordGeneratorRequest)
+        XCTAssertEqual(result, "generated-password")
+    }
+
+    /// `generatePasswordCredential(request:)` throws when the generator fails.
+    @available(iOS 26.2, *)
+    func test_generatePasswordCredential_generatorError() async throws {
+        generatorRepository.passwordResult = .failure(BitwardenTestError.example)
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.generatePasswordCredential(request: MockGeneratePasswordRequestProxy())
+        }
+    }
+
     /// `repromptForCredentialIfNecessary(for:)` reprompts the user for their master password if
     /// reprompt is enabled for the cipher.
     @MainActor
@@ -1241,7 +1288,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let rootNavigator = MockRootNavigator()
         await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
 
-        serverCommunicationConfigAPIService.acquireCookiesSubject.send("https://example.com")
+        acquireCookiesSubject.send("https://example.com")
 
         try await waitForAsync { [weak self] in
             self?.coordinator.routes.contains(.syncWithBrowser(vaultUrl: "https://example.com")) == true
@@ -1257,7 +1304,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let rootNavigator = MockRootNavigator()
         await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
 
-        serverCommunicationConfigAPIService.acquireCookiesSubject.send(nil)
+        acquireCookiesSubject.send(nil)
 
         XCTAssertFalse(coordinator.routes.contains(.syncWithBrowser(vaultUrl: "https://example.com")))
     }
@@ -1335,34 +1382,24 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// for the first time and `.removeUnlockWithPin` policy is enabled.
     func test_onFetchSyncSucceeded_clearPins() async throws {
         await stateService.addAccount(.fixture())
-        stateService.pinProtectedUserKeyValue["1"] = "pin"
-        stateService.encryptedPinByUserId["1"] = "encPin"
-        stateService.accountVolatileData["1"] = AccountVolatileData(pinProtectedUserKey: "pin")
         stateService.hasPerformedSyncAfterLogin["1"] = false
         policyService.policyAppliesToUserResult[.removeUnlockWithPin] = true
 
         await subject.onFetchSyncSucceeded(userId: "1")
 
-        XCTAssertNil(stateService.pinProtectedUserKeyValue["1"])
-        XCTAssertNil(stateService.encryptedPinByUserId["1"])
-        XCTAssertNil(stateService.accountVolatileData["1"])
+        XCTAssertTrue(authRepository.clearPinsCalled)
     }
 
     /// `onFetchSyncSucceeded(userId:)` doesn't clear the unlock user pins when it has performed sync after login
     /// for the first time and `.removeUnlockWithPin` policy is disabled.
     func test_onFetchSyncSucceeded_doesNotClearPinsWhenRemoveUnlockWithPinPolicyDisabled() async throws {
         await stateService.addAccount(.fixture())
-        stateService.pinProtectedUserKeyValue["1"] = "pin"
-        stateService.encryptedPinByUserId["1"] = "encPin"
-        stateService.accountVolatileData["1"] = AccountVolatileData(pinProtectedUserKey: "pin")
         stateService.hasPerformedSyncAfterLogin["1"] = false
         policyService.policyAppliesToUserResult[.removeUnlockWithPin] = false
 
         await subject.onFetchSyncSucceeded(userId: "1")
 
-        XCTAssertNotNil(stateService.pinProtectedUserKeyValue["1"])
-        XCTAssertNotNil(stateService.encryptedPinByUserId["1"])
-        XCTAssertNotNil(stateService.accountVolatileData["1"])
+        XCTAssertFalse(authRepository.clearPinsCalled)
         XCTAssertTrue(stateService.hasPerformedSyncAfterLogin["1"] == true)
     }
 
@@ -1370,68 +1407,86 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// performed sync after login.
     func test_onFetchSyncSucceeded_doesNotClearPinsWhenNotFirstTimeSyncAfterLogin() async throws {
         await stateService.addAccount(.fixture())
-        stateService.pinProtectedUserKeyValue["1"] = "pin"
-        stateService.encryptedPinByUserId["1"] = "encPin"
-        stateService.accountVolatileData["1"] = AccountVolatileData(pinProtectedUserKey: "pin")
         stateService.hasPerformedSyncAfterLogin["1"] = true
 
         await subject.onFetchSyncSucceeded(userId: "1")
 
         XCTAssertTrue(policyService.policyAppliesToUserPolicies.isEmpty)
-        XCTAssertNotNil(stateService.pinProtectedUserKeyValue["1"])
-        XCTAssertNotNil(stateService.encryptedPinByUserId["1"])
-        XCTAssertNotNil(stateService.accountVolatileData["1"])
+        XCTAssertFalse(authRepository.clearPinsCalled)
     }
 
     /// `onFetchSyncSucceeded(userId:)` doesn't do anything when `getHasPerformedSyncAfterLogin(userId:)` throws.
     func test_onFetchSyncSucceeded_getHasPerformedSyncAfterLoginThrows() async throws {
-        stateService.pinProtectedUserKeyValue["1"] = "pin"
-        stateService.encryptedPinByUserId["1"] = "encPin"
-        stateService.accountVolatileData["1"] = AccountVolatileData(pinProtectedUserKey: "pin")
         stateService.getHasPerformedSyncAfterLoginError = BitwardenTestError.example
 
         await subject.onFetchSyncSucceeded(userId: "1")
 
         XCTAssertTrue(policyService.policyAppliesToUserPolicies.isEmpty)
-        XCTAssertNotNil(stateService.pinProtectedUserKeyValue["1"])
-        XCTAssertNotNil(stateService.encryptedPinByUserId["1"])
-        XCTAssertNotNil(stateService.accountVolatileData["1"])
+        XCTAssertFalse(authRepository.clearPinsCalled)
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
     /// `onFetchSyncSucceeded(userId:)` doesn't do anything when
     /// `setHasPerformedSyncAfterLogin(hasBeenPerformed:, userId:)` throws.
     func test_onFetchSyncSucceeded_setHasPerformedSyncAfterLoginThrows() async throws {
-        stateService.pinProtectedUserKeyValue["1"] = "pin"
-        stateService.encryptedPinByUserId["1"] = "encPin"
-        stateService.accountVolatileData["1"] = AccountVolatileData(pinProtectedUserKey: "pin")
         stateService.setHasPerformedSyncAfterLoginError = BitwardenTestError.example
 
         await subject.onFetchSyncSucceeded(userId: "1")
 
         XCTAssertTrue(policyService.policyAppliesToUserPolicies.isEmpty)
-        XCTAssertNotNil(stateService.pinProtectedUserKeyValue["1"])
-        XCTAssertNotNil(stateService.encryptedPinByUserId["1"])
-        XCTAssertNotNil(stateService.accountVolatileData["1"])
+        XCTAssertFalse(authRepository.clearPinsCalled)
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
-    /// `onFetchSyncSucceeded(userId:)` doesn't clear pins when
-    /// `clearPins(userId:)` throws.
+    /// `onFetchSyncSucceeded(userId:)` logs the error when `clearPins()` throws.
     func test_onFetchSyncSucceeded_clearPinsThrows() async throws {
-        stateService.pinProtectedUserKeyValue["1"] = "pin"
-        stateService.encryptedPinByUserId["1"] = "encPin"
-        stateService.accountVolatileData["1"] = AccountVolatileData(pinProtectedUserKey: "pin")
         stateService.hasPerformedSyncAfterLogin["1"] = false
         policyService.policyAppliesToUserResult[.removeUnlockWithPin] = true
-        stateService.activeAccount = nil
+        authRepository.clearPinsResult = .failure(BitwardenTestError.example)
 
         await subject.onFetchSyncSucceeded(userId: "1")
 
-        XCTAssertNotNil(stateService.pinProtectedUserKeyValue["1"])
-        XCTAssertNotNil(stateService.encryptedPinByUserId["1"])
-        XCTAssertNotNil(stateService.accountVolatileData["1"])
-        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+        XCTAssertTrue(authRepository.clearPinsCalled)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `onFetchSyncSucceeded(userId:)` triggers a subscription attention card refresh on every sync.
+    func test_onFetchSyncSucceeded_refreshesSubscriptionAttentionCard() async {
+        await subject.onFetchSyncSucceeded(userId: "1")
+
+        XCTAssertTrue(billingService.refreshSubscriptionAttentionCardCalled)
+    }
+
+    /// `onFetchSyncSucceeded(userId:)` completes a pending Premium upgrade for the account that
+    /// synced, on every sync — so an upgrade the checkout's own sync didn't confirm still clears
+    /// once a later sync reports it.
+    func test_onFetchSyncSucceeded_completesPendingPremiumUpgrade() async {
+        await subject.onFetchSyncSucceeded(userId: "1")
+
+        XCTAssertTrue(billingService.completeUpgradeIfPendingCalled)
+        XCTAssertEqual(billingService.completeUpgradeIfPendingReceivedUserId, "1")
+    }
+
+    /// `onFetchSyncSucceeded(userId:)` completes a pending Premium upgrade even on a repeat sync,
+    /// after the once-per-login work below it has been skipped.
+    func test_onFetchSyncSucceeded_completesPendingPremiumUpgradeOnRepeatSync() async {
+        stateService.hasPerformedSyncAfterLogin["1"] = true
+
+        await subject.onFetchSyncSucceeded(userId: "1")
+
+        XCTAssertTrue(billingService.completeUpgradeIfPendingCalled)
+        XCTAssertEqual(billingService.completeUpgradeIfPendingReceivedUserId, "1")
+    }
+
+    /// `onFetchSyncSucceeded(userId:)` runs out-of-band upgrade detection for the account that synced, even on
+    /// a repeat sync.
+    func test_onFetchSyncSucceeded_detectsOutOfBandUpgradeOnRepeatSync() async {
+        stateService.hasPerformedSyncAfterLogin["1"] = true
+
+        await subject.onFetchSyncSucceeded(userId: "1")
+
+        XCTAssertTrue(billingService.detectOutOfBandUpgradeCalled)
+        XCTAssertEqual(billingService.detectOutOfBandUpgradeReceivedUserId, "1")
     }
 
     /// `removeMasterPassword(organizationName:)` notifies the coordinator to show the remove
@@ -1585,6 +1640,164 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(environmentService.didLoadURLsForActiveAccount)
         XCTAssertTrue(configService.configMocker.called)
     }
+
+    #if DEBUG
+    /// `prepareEnvironmentConfig()` applies the debug environment override using the injected debug
+    /// inputs instead of the host's.
+    @MainActor
+    func test_prepareEnvironmentConfig_debugEnvironmentOverride() async {
+        subject.debugUserDefaults.set(
+            "https://vault.example.com",
+            forKey: Constants.DebugLaunchArguments.preAuthEnvironmentBaseURL,
+        )
+
+        await subject.prepareEnvironmentConfig()
+
+        XCTAssertEqual(
+            environmentService.setPreAuthEnvironmentURLsData,
+            EnvironmentURLData(base: URL(string: "https://vault.example.com")),
+        )
+    }
+
+    /// `applyDebugEnvironmentOverride(userDefaults:hostHomeDirectory:)` sets the pre-auth URLs from the
+    /// launch argument.
+    @MainActor
+    func test_applyDebugEnvironmentOverride() async throws {
+        let userDefaults = try XCTUnwrap(UserDefaults(suiteName: #function))
+        defer { userDefaults.removePersistentDomain(forName: #function) }
+        userDefaults.set("https://vault.example.com", forKey: Constants.DebugLaunchArguments.preAuthEnvironmentBaseURL)
+
+        await subject.applyDebugEnvironmentOverride(userDefaults: userDefaults, hostHomeDirectory: nil)
+
+        XCTAssertEqual(
+            environmentService.setPreAuthEnvironmentURLsData,
+            EnvironmentURLData(base: URL(string: "https://vault.example.com")),
+        )
+    }
+
+    /// `applyDebugEnvironmentOverride(userDefaults:hostHomeDirectory:)` sets all the pre-auth URLs
+    /// from the JSON file, taking precedence over the base URL launch argument.
+    @MainActor
+    func test_applyDebugEnvironmentOverride_file() async throws {
+        let userDefaults = try XCTUnwrap(UserDefaults(suiteName: #function))
+        defer { userDefaults.removePersistentDomain(forName: #function) }
+        userDefaults.set(
+            "https://ignored.example.com",
+            forKey: Constants.DebugLaunchArguments.preAuthEnvironmentBaseURL,
+        )
+
+        let homeDirectory = try writeDebugEnvironmentFile(
+            """
+            {
+              "base": "https://vault.example.com",
+              "api": "https://api.example.com",
+              "identity": "https://identity.example.com",
+              "icons": "https://icons.example.com",
+              "notifications": "https://notifications.example.com",
+              "events": "https://events.example.com",
+              "webVault": "https://web.example.com"
+            }
+            """,
+        )
+        defer { try? FileManager.default.removeItem(at: homeDirectory) }
+
+        await subject.applyDebugEnvironmentOverride(userDefaults: userDefaults, hostHomeDirectory: homeDirectory)
+
+        XCTAssertEqual(
+            environmentService.setPreAuthEnvironmentURLsData,
+            EnvironmentURLData(
+                api: URL(string: "https://api.example.com"),
+                base: URL(string: "https://vault.example.com"),
+                events: URL(string: "https://events.example.com"),
+                icons: URL(string: "https://icons.example.com"),
+                identity: URL(string: "https://identity.example.com"),
+                notifications: URL(string: "https://notifications.example.com"),
+                webVault: URL(string: "https://web.example.com"),
+            ),
+        )
+    }
+
+    /// `applyDebugEnvironmentOverride(userDefaults:hostHomeDirectory:)` falls back to the base URL
+    /// launch argument if the JSON file is invalid.
+    @MainActor
+    func test_applyDebugEnvironmentOverride_invalidFile() async throws {
+        let userDefaults = try XCTUnwrap(UserDefaults(suiteName: #function))
+        defer { userDefaults.removePersistentDomain(forName: #function) }
+        userDefaults.set("https://vault.example.com", forKey: Constants.DebugLaunchArguments.preAuthEnvironmentBaseURL)
+
+        let homeDirectory = try writeDebugEnvironmentFile("not json")
+        defer { try? FileManager.default.removeItem(at: homeDirectory) }
+
+        await subject.applyDebugEnvironmentOverride(userDefaults: userDefaults, hostHomeDirectory: homeDirectory)
+
+        XCTAssertEqual(
+            environmentService.setPreAuthEnvironmentURLsData,
+            EnvironmentURLData(base: URL(string: "https://vault.example.com")),
+        )
+        XCTAssertEqual(errorReporter.errors.count, 1)
+    }
+
+    /// `applyDebugEnvironmentOverride(userDefaults:hostHomeDirectory:)` falls back to the base URL
+    /// launch argument if the JSON file doesn't exist.
+    @MainActor
+    func test_applyDebugEnvironmentOverride_missingFile() async throws {
+        let userDefaults = try XCTUnwrap(UserDefaults(suiteName: #function))
+        defer { userDefaults.removePersistentDomain(forName: #function) }
+        userDefaults.set("https://vault.example.com", forKey: Constants.DebugLaunchArguments.preAuthEnvironmentBaseURL)
+
+        let homeDirectory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+
+        await subject.applyDebugEnvironmentOverride(userDefaults: userDefaults, hostHomeDirectory: homeDirectory)
+
+        XCTAssertEqual(
+            environmentService.setPreAuthEnvironmentURLsData,
+            EnvironmentURLData(base: URL(string: "https://vault.example.com")),
+        )
+    }
+
+    /// `applyDebugEnvironmentOverride(userDefaults:hostHomeDirectory:)` does nothing if the launch argument
+    /// isn't present.
+    @MainActor
+    func test_applyDebugEnvironmentOverride_noArgument() async throws {
+        let userDefaults = try XCTUnwrap(UserDefaults(suiteName: #function))
+        defer { userDefaults.removePersistentDomain(forName: #function) }
+
+        await subject.applyDebugEnvironmentOverride(userDefaults: userDefaults, hostHomeDirectory: nil)
+
+        XCTAssertNil(environmentService.setPreAuthEnvironmentURLsData)
+    }
+
+    /// `applyDebugEnvironmentOverride(userDefaults:hostHomeDirectory:)` ignores a value that isn't a valid
+    /// URL.
+    @MainActor
+    func test_applyDebugEnvironmentOverride_invalidURL() async throws {
+        let userDefaults = try XCTUnwrap(UserDefaults(suiteName: #function))
+        defer { userDefaults.removePersistentDomain(forName: #function) }
+        userDefaults.set("not a url", forKey: Constants.DebugLaunchArguments.preAuthEnvironmentBaseURL)
+
+        await subject.applyDebugEnvironmentOverride(userDefaults: userDefaults, hostHomeDirectory: nil)
+
+        XCTAssertNil(environmentService.setPreAuthEnvironmentURLsData)
+    }
+
+    /// Writes the contents to the debug environment file inside a new temporary home directory.
+    ///
+    /// - Parameter contents: The contents of the file.
+    /// - Returns: The temporary home directory, which the caller is responsible for removing.
+    ///
+    private func writeDebugEnvironmentFile(_ contents: String) throws -> URL {
+        let homeDirectory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let fileURL = homeDirectory.appendingPathComponent(
+            Constants.DebugLaunchArguments.preAuthEnvironmentFileRelativePath,
+        )
+        try FileManager.default.createDirectory(
+            at: fileURL.deletingLastPathComponent(),
+            withIntermediateDirectories: true,
+        )
+        try Data(contents.utf8).write(to: fileURL)
+        return homeDirectory
+    }
+    #endif
 
     // MARK: - MigrateVaultToMyItems Tests
 

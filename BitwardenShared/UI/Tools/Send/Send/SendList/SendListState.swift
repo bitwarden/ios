@@ -25,6 +25,11 @@ struct SendListState: Sendable {
     /// The navigation title for this screen.
     var navigationTitle: String { type?.localizedName ?? Localizations.send }
 
+    /// The single Send type the user is restricted to by policy, or `nil` if both types are
+    /// allowed. When set, the add-Send entry points open this type directly (bypassing the
+    /// text/file chooser) and the "Types" filter section is hidden.
+    var restrictedSendType: SendType?
+
     /// The text that the user is currently searching for.
     var searchText: String = ""
 
@@ -41,6 +46,6 @@ struct SendListState: Sendable {
     /// information should be displayed.
     var type: SendType?
 
-    /// The URL to open externally (e.g. learn more about premium).
+    /// The URL to open externally (e.g. learn more about Premium).
     var url: URL?
 }

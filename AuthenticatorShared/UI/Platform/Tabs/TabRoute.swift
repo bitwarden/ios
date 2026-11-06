@@ -26,8 +26,8 @@ public enum TabRoute: Equatable, Hashable {
 extension TabRoute: TabRepresentable {
     public var image: UIImage? {
         switch self {
-        case .itemList: SharedAsset.Icons.recoveryCodes.image
-        case .settings: SharedAsset.Icons.gearFilled24.image
+        case .itemList: SharedAsset.Icons.TabBar.codesIdle.image
+        case .settings: SharedAsset.Icons.TabBar.settingsIdle.image
         }
     }
 
@@ -40,8 +40,8 @@ extension TabRoute: TabRepresentable {
 
     public var selectedImage: UIImage? {
         switch self {
-        case .itemList: SharedAsset.Icons.recoveryCodes.image
-        case .settings: SharedAsset.Icons.gearFilled24.image
+        case .itemList: SharedAsset.Icons.TabBar.codesActive.image
+        case .settings: SharedAsset.Icons.TabBar.settingsActive.image
         }
     }
 

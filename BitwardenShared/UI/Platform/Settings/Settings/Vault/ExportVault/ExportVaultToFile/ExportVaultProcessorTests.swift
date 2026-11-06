@@ -125,7 +125,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.receive(.dismiss)
 
         XCTAssertTrue(exportService.didClearFiles)
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 
     /// `.receive()` with  `.exportVaultTapped` shows the confirm alert for encrypted formats and

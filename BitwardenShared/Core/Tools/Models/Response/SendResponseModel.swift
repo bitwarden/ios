@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 import Networking
 
@@ -14,6 +15,9 @@ struct SendResponseModel: Codable, Equatable, JSONResponse {
 
     /// The authentication type for this send.
     let authType: SendAuthType?
+
+    /// The item included in the send.
+    let data: SendDataModel?
 
     /// The deletion date of the send.
     let deletionDate: Date
@@ -59,5 +63,5 @@ struct SendResponseModel: Codable, Equatable, JSONResponse {
     let text: SendTextModel?
 
     /// The type of data in the send.
-    let type: SendType
+    @DefaultValue var type: SendType
 }

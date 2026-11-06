@@ -1,3 +1,6 @@
 packages:
   BitwardenSdk:
     path: ../sdk-internal/crates/bitwarden-uniffi/swift
+
+settings:
+  BITWARDEN_SDK_PATH: $(SRCROOT)/../sdk-internal/crates/bitwarden-uniffi/swift

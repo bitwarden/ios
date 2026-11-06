@@ -105,9 +105,24 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         )
     }
 
-    /// `didUpdateCipher()` displays a toast after the cipher is updated.
+    /// `didUpdateCipher()` displays the toast for the item's type after the cipher is updated.
     @MainActor
-    func test_didUpdateCipher() {
+    func test_didUpdateCipher() throws {
+        let cipherState = try XCTUnwrap(
+            CipherItemState(existing: .fixture(type: .identity), hasPremium: true),
+        )
+        subject.state.loadingState = .data(cipherState)
+
+        subject.didUpdateCipher()
+
+        waitFor { subject.state.toast != nil }
+
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.identitySaved))
+    }
+
+    /// `didUpdateCipher()` falls back to the generic toast if the item hasn't loaded yet.
+    @MainActor
+    func test_didUpdateCipher_notLoaded() {
         subject.didUpdateCipher()
 
         waitFor { subject.state.toast != nil }
@@ -173,6 +188,39 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertTrue(delegate.itemDeletedCalled)
     }
 
+    /// `didFinishAddingItem(id:type:)` replaces the current view with the added item's detail
+    /// view and a confirmation toast, e.g. after cloning the item being viewed, passing along the
+    /// same upstream delegate.
+    @MainActor
+    func test_didFinishAddingItem() {
+        subject.didFinishAddingItem(id: "1", type: .driversLicense)
+
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .viewItem(id: "1", toastTitle: Localizations.licenseSaved),
+        )
+        XCTAssertIdentical(coordinator.contexts.last as? MockCipherItemOperationDelegate, delegate)
+    }
+
+    /// `itemDismissed()` doesn't show a toast when the editor is dismissed without saving.
+    @MainActor
+    func test_itemDismissed() {
+        let shouldDismiss = subject.itemDismissed()
+
+        XCTAssertTrue(shouldDismiss)
+        XCTAssertNil(subject.state.toast)
+    }
+
+    /// `itemUpdated(type:)` shows the toast for the updated item's type and dismisses the view.
+    @MainActor
+    func test_itemUpdated() {
+        XCTAssertNil(subject.state.toast)
+
+        let shouldDismiss = subject.itemUpdated(type: .driversLicense)
+        XCTAssertTrue(shouldDismiss)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.licenseSaved))
+    }
+
     /// `itemSoftDeleted()` presents the dismiss action and calls the delegate.
     @MainActor
     func test_itemSoftDeleted() async throws {
@@ -201,6 +249,23 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertTrue(delegate.itemUnarchivedCalled)
     }
 
+    /// `perform(_:)` with `.appeared` keeps a toast that was already displayed, so that saving the
+    /// item doesn't clear its own confirmation toast when the cipher update streams in.
+    @MainActor
+    func test_perform_appeared_keepsToast() {
+        vaultRepository.doesActiveAccountHavePremiumResult = true
+        subject.state.toast = Toast(title: Localizations.licenseSaved)
+        vaultRepository.cipherDetailsSubject.send(.fixture(id: "id", type: .identity))
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        waitFor(subject.state.loadingState != .loading(nil))
+        task.cancel()
+
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.licenseSaved))
+    }
+
     /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.
     @MainActor
     func test_perform_appeared() { // swiftlint:disable:this function_body_length
@@ -214,7 +279,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         ]
         vaultRepository.fetchCollectionsResult = .success(collections)
         let cipherOwnershipOptions: [CipherOwner] = [
-            .personal(email: "user@bitwarden.com"),
+            .personal(displayName: "user@bitwarden.com"),
             .organization(id: "1", name: "Test Organization"),
         ]
         vaultRepository.fetchCipherOwnershipOptions = cipherOwnershipOptions
@@ -280,6 +345,23 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
+    /// `perform(_:)` with `.appeared` loads the vfo1-foundation feature flag.
+    @MainActor
+    func test_perform_appeared_featureFlags_vfo1Foundation() {
+        configService.featureFlagsBool[.vfo1Foundation] = true
+        let cipherItem = CipherView.fixture(id: "id")
+        vaultRepository.cipherDetailsSubject.send(cipherItem)
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+
+        waitFor(subject.state.loadingState != .loading(nil))
+        task.cancel()
+
+        XCTAssertEqual(subject.state.loadingState.data?.isVfo1FoundationFeatureFlagEnabled, true)
+    }
+
     /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.
     @MainActor
     func test_perform_appeared_invalidFixture() {
@@ -299,7 +381,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
 
-    /// `perform(_:)` with `.appeared` observe the premium status of a user.
+    /// `perform(_:)` with `.appeared` observe the Premium status of a user.
     @MainActor
     func test_perform_appeared_nonPremium() {
         let account = Account.fixture()
@@ -638,6 +720,202 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(subject.state.loadingState, .data(cipherState))
     }
 
+    /// `receive` with `.driversLicenseItemAction` toggles the license number visibility.
+    @MainActor
+    func test_receive_driversLicenseItemAction_toggleLicenseNumberVisibility() throws {
+        let cipherView = CipherView.driversLicenseFixture()
+        var cipherState = CipherItemState(
+            existing: cipherView,
+            hasPremium: true,
+        )!
+        subject.state.loadingState = .data(cipherState)
+        subject.receive(.driversLicenseItemAction(.toggleLicenseNumberVisibilityChanged))
+
+        cipherState.driversLicenseItemState.isLicenseNumberVisible = true
+        XCTAssertEqual(subject.state.loadingState, .data(cipherState))
+    }
+
+    /// `receive` with `.driversLicenseItemAction` while loading logs an error.
+    @MainActor
+    func test_receive_driversLicenseItemAction_impossible_loading() throws {
+        subject.state.loadingState = .loading(nil)
+        subject.receive(.driversLicenseItemAction(.toggleLicenseNumberVisibilityChanged))
+        XCTAssertEqual(
+            errorReporter.errors.first as? ViewItemProcessor.ActionError,
+            ViewItemProcessor.ActionError.dataNotLoaded("Cannot handle driver's license action without loaded data"),
+        )
+    }
+
+    /// `receive` with `.driversLicenseItemAction` throws if the cipher is not of driver's license type.
+    @MainActor
+    func test_receive_driversLicenseItemAction_impossible_nonDriversLicense() throws {
+        let cipherView = CipherView.fixture(
+            id: "123",
+            login: nil,
+            name: "name",
+            revisionDate: Date(),
+            type: .login,
+        )
+        let cipherState = CipherItemState(
+            existing: cipherView,
+            hasPremium: true,
+        )!
+        subject.state.loadingState = .data(cipherState)
+        subject.receive(.driversLicenseItemAction(.toggleLicenseNumberVisibilityChanged))
+        XCTAssertEqual(
+            errorReporter.errors.first as? ViewItemProcessor.ActionError,
+            ViewItemProcessor.ActionError.nonDriversLicenseTypeToggle(
+                "Cannot handle driver's license action on non-driver's license type",
+            ),
+        )
+    }
+
+    /// `receive` with `.passportItemAction` toggles the passport number visibility.
+    @MainActor
+    func test_receive_passportItemAction_togglePassportNumberVisibility() throws {
+        let cipherView = CipherView.passportFixture()
+        var cipherState = CipherItemState(
+            existing: cipherView,
+            hasPremium: true,
+        )!
+        subject.state.loadingState = .data(cipherState)
+        subject.receive(.passportItemAction(.togglePassportNumberVisibilityChanged(true)))
+
+        cipherState.passportItemState.isPassportNumberVisible = true
+        XCTAssertEqual(subject.state.loadingState, .data(cipherState))
+    }
+
+    /// `receive` with `.passportItemAction` toggles the national identification number visibility.
+    @MainActor
+    func test_receive_passportItemAction_toggleNationalIdentificationNumberVisibility() throws {
+        let cipherView = CipherView.passportFixture()
+        var cipherState = CipherItemState(
+            existing: cipherView,
+            hasPremium: true,
+        )!
+        subject.state.loadingState = .data(cipherState)
+        subject.receive(.passportItemAction(.toggleNationalIdentificationNumberVisibilityChanged(true)))
+
+        cipherState.passportItemState.isNationalIdentificationNumberVisible = true
+        XCTAssertEqual(subject.state.loadingState, .data(cipherState))
+    }
+
+    /// `receive` with `.passportItemAction` while loading logs an error.
+    @MainActor
+    func test_receive_passportItemAction_impossible_loading() throws {
+        subject.state.loadingState = .loading(nil)
+        subject.receive(.passportItemAction(.togglePassportNumberVisibilityChanged(true)))
+        XCTAssertEqual(
+            errorReporter.errors.first as? ViewItemProcessor.ActionError,
+            ViewItemProcessor.ActionError.dataNotLoaded("Cannot handle passport action without loaded data"),
+        )
+    }
+
+    /// `receive` with `.passportItemAction` throws if the cipher is not of passport type.
+    @MainActor
+    func test_receive_passportItemAction_impossible_nonPassport() throws {
+        let cipherView = CipherView.fixture(
+            id: "123",
+            login: nil,
+            name: "name",
+            revisionDate: Date(),
+            type: .login,
+        )
+        let cipherState = CipherItemState(
+            existing: cipherView,
+            hasPremium: true,
+        )!
+        subject.state.loadingState = .data(cipherState)
+        subject.receive(.passportItemAction(.togglePassportNumberVisibilityChanged(true)))
+        XCTAssertEqual(
+            errorReporter.errors.first as? ViewItemProcessor.ActionError,
+            ViewItemProcessor.ActionError.nonPassportTypeToggle(
+                "Cannot handle passport action on non-passport type",
+            ),
+        )
+    }
+
+    /// `receive` with `.bankAccountItemAction` while loading logs an error.
+    @MainActor
+    func test_receive_bankAccountItemAction_impossible_loading() throws {
+        subject.state.loadingState = .loading(nil)
+        subject.receive(.bankAccountItemAction(.toggleAccountNumberVisibilityChanged(true)))
+        XCTAssertEqual(
+            errorReporter.errors.first as? ViewItemProcessor.ActionError,
+            ViewItemProcessor.ActionError.dataNotLoaded("Cannot handle bank account action without loaded data"),
+        )
+    }
+
+    /// `receive` with `.bankAccountItemAction` logs an error if the cipher is not of bank account type.
+    @MainActor
+    func test_receive_bankAccountItemAction_impossible_nonBankAccount() throws {
+        let cipherView = CipherView.fixture(
+            id: "123",
+            login: nil,
+            name: "name",
+            revisionDate: Date(),
+            type: .login,
+        )
+        let cipherState = CipherItemState(
+            existing: cipherView,
+            hasPremium: true,
+        )!
+        subject.state.loadingState = .data(cipherState)
+        subject.receive(.bankAccountItemAction(.toggleAccountNumberVisibilityChanged(true)))
+        XCTAssertEqual(
+            errorReporter.errors.first as? ViewItemProcessor.ActionError,
+            ViewItemProcessor.ActionError.nonBankAccountTypeToggle(
+                "Cannot handle bank account action on non-bank account type",
+            ),
+        )
+    }
+
+    /// `receive` with `.bankAccountItemAction(.toggleAccountNumberVisibilityChanged)` toggles the account number
+    /// visibility.
+    @MainActor
+    func test_receive_bankAccountItemAction_accountNumber() throws {
+        let cipherView = CipherView.bankAccountFixture()
+        var cipherState = CipherItemState(
+            existing: cipherView,
+            hasPremium: true,
+        )!
+        subject.state.loadingState = .data(cipherState)
+        subject.receive(.bankAccountItemAction(.toggleAccountNumberVisibilityChanged(true)))
+
+        cipherState.bankAccountItemState.isAccountNumberVisible = true
+        XCTAssertEqual(subject.state.loadingState, .data(cipherState))
+    }
+
+    /// `receive` with `.bankAccountItemAction(.togglePinVisibilityChanged)` toggles the PIN visibility.
+    @MainActor
+    func test_receive_bankAccountItemAction_pin() throws {
+        let cipherView = CipherView.bankAccountFixture()
+        var cipherState = CipherItemState(
+            existing: cipherView,
+            hasPremium: true,
+        )!
+        subject.state.loadingState = .data(cipherState)
+        subject.receive(.bankAccountItemAction(.togglePinVisibilityChanged(true)))
+
+        cipherState.bankAccountItemState.isPinVisible = true
+        XCTAssertEqual(subject.state.loadingState, .data(cipherState))
+    }
+
+    /// `receive` with `.bankAccountItemAction(.toggleIbanVisibilityChanged)` toggles the IBAN visibility.
+    @MainActor
+    func test_receive_bankAccountItemAction_iban() throws {
+        let cipherView = CipherView.bankAccountFixture()
+        var cipherState = CipherItemState(
+            existing: cipherView,
+            hasPremium: true,
+        )!
+        subject.state.loadingState = .data(cipherState)
+        subject.receive(.bankAccountItemAction(.toggleIbanVisibilityChanged(true)))
+
+        cipherState.bankAccountItemState.isIbanVisible = true
+        XCTAssertEqual(subject.state.loadingState, .data(cipherState))
+    }
+
     /// `receive` with `.copyPressed` copies the value with the pasteboard service and shows a toast.
     @MainActor
     func test_receive_copyPressed() {
@@ -649,37 +927,37 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.state.loadingState = .data(cipherState)
 
         subject.receive(.copyPressed(value: "card number", field: .cardNumber))
-        XCTAssertEqual(pasteboardService.copiedString, "card number")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "card number")
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.number)))
 
         subject.receive(.copyPressed(value: "hidden field value", field: .customHiddenField))
-        XCTAssertEqual(pasteboardService.copiedString, "hidden field value")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "hidden field value")
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.value)))
         waitFor(eventService.collectEventType == .cipherClientCopiedHiddenField)
         XCTAssertEqual(eventService.collectCipherId, "123")
 
         subject.receive(.copyPressed(value: "text field value", field: .customTextField))
-        XCTAssertEqual(pasteboardService.copiedString, "text field value")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "text field value")
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.value)))
 
         subject.receive(.copyPressed(value: "password", field: .password))
-        XCTAssertEqual(pasteboardService.copiedString, "password")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "password")
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.password)))
         waitFor(eventService.collectEventType == .cipherClientCopiedPassword)
         XCTAssertEqual(eventService.collectCipherId, "123")
 
         subject.receive(.copyPressed(value: "security code", field: .securityCode))
-        XCTAssertEqual(pasteboardService.copiedString, "security code")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "security code")
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.securityCode)))
         waitFor(eventService.collectEventType == .cipherClientCopiedCardCode)
         XCTAssertEqual(eventService.collectCipherId, "123")
 
         subject.receive(.copyPressed(value: "totp", field: .totp))
-        XCTAssertEqual(pasteboardService.copiedString, "totp")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "totp")
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.totp)))
 
         subject.receive(.copyPressed(value: "username", field: .username))
-        XCTAssertEqual(pasteboardService.copiedString, "username")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "username")
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.username)))
     }
 
@@ -687,7 +965,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     @MainActor
     func test_receive_copyPressed_notLoaded() {
         subject.receive(.copyPressed(value: "card number", field: .cardNumber))
-        XCTAssertNil(pasteboardService.copiedString)
+        XCTAssertNil(pasteboardService.copyReceivedString)
         XCTAssertNil(subject.state.toast)
     }
 
@@ -806,7 +1084,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(vaultItemActionHelper.archiveReceivedArguments?.cipher.id, "123")
     }
 
-    /// `perform(_:)` with `.archivedPressed` delegates to the premium upgrade helper.
+    /// `perform(_:)` with `.archivedPressed` delegates to the Premium upgrade helper.
     @MainActor
     func test_perform_archivedPressed_navigateToPremiumUpgrade() async {
         let cipherState = CipherItemState(
@@ -1551,6 +1829,34 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertTrue(coordinator.routes.isEmpty)
     }
 
+    /// `receive` with `.premiumSubscriptionRequiredTapped` shows the TOTP premium required alert.
+    @MainActor
+    func test_receive_premiumSubscriptionRequiredTapped_showsAlert() {
+        subject.receive(.premiumSubscriptionRequiredTapped)
+        XCTAssertEqual(coordinator.alertShown.last?.title, Localizations.premiumSubscriptionRequired)
+        XCTAssertEqual(coordinator.alertShown.last?.message, Localizations.premiumRequiredTOTPDescriptionLong)
+    }
+
+    /// `receive` with `.premiumSubscriptionRequiredTapped` navigates to Premium upgrade when
+    /// "Upgrade to Premium" is tapped in the alert.
+    @MainActor
+    func test_receive_premiumSubscriptionRequiredTapped_upgradeToPremium() async throws {
+        subject.receive(.premiumSubscriptionRequiredTapped)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapAction(title: Localizations.upgradeToPremium)
+        XCTAssertTrue(premiumUpgradeHelper.navigateToPremiumUpgradeCalled)
+    }
+
+    /// `receive` with `.premiumSubscriptionRequiredTapped` does not navigate to Premium upgrade
+    /// when Cancel is tapped.
+    @MainActor
+    func test_receive_premiumSubscriptionRequiredTapped_cancel() async throws {
+        subject.receive(.premiumSubscriptionRequiredTapped)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapCancel()
+        XCTAssertFalse(premiumUpgradeHelper.navigateToPremiumUpgradeCalled)
+    }
+
     /// `receive` with `.passwordVisibilityPressed` while loading logs an error.
     @MainActor
     func test_receive_passwordVisibilityPressed_impossible_loading() throws {
@@ -1663,15 +1969,15 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         initializeSshKeyState(reprompt: .none)
 
         subject.receive(.sshKeyItemAction(.copyPressed(value: "privateKey", field: .sshPrivateKey)))
-        XCTAssertEqual(pasteboardService.copiedString, "privateKey")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "privateKey")
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.privateKey)))
 
         subject.receive(.sshKeyItemAction(.copyPressed(value: "publicKey", field: .sshPublicKey)))
-        XCTAssertEqual(pasteboardService.copiedString, "publicKey")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "publicKey")
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.publicKey)))
 
         subject.receive(.sshKeyItemAction(.copyPressed(value: "fingerprint", field: .sshKeyFingerprint)))
-        XCTAssertEqual(pasteboardService.copiedString, "fingerprint")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "fingerprint")
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.fingerprint)))
     }
 

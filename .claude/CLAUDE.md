@@ -144,6 +144,16 @@ someFunction(argumentOne: valueOne,
 
 See `build-test-verify` skill for project generation, build commands, test execution, lint, format, code generation, common failures, and debug tips.
 
+### Dependency errors troubleshooting
+
+If you hit package resolution conflicts, "file modified since module was built" errors, or unexplained compile failures, **clear the build folder before investigating further**:
+
+```bash
+xcodebuild clean -workspace Bitwarden.xcworkspace -scheme Bitwarden
+```
+
+Or in Xcode: **Product → Clean Build Folder** (⇧⌘K). Stale build outputs from a previous SDK or package revision are a common cause of these errors and clearing the folder resolves them without needing to touch `Package.resolved` or regenerate projects.
+
 ## Delivery Workflow
 
 **You MUST use the following skills for code delivery tasks** — invoke via the Skill tool:
@@ -161,6 +171,10 @@ See `build-test-verify` skill for project generation, build commands, test execu
 
 **Do not duplicate information from these files — reference them instead.**
 
+## MCPs
+
+- ✅ If using MobileBuildMCP, use the `mobilebuildmcp` skill before calling MobileBuildMCP tools.
+
 ## Skills & Commands
 
 | Skill | Triggers |
@@ -169,9 +183,13 @@ See `build-test-verify` skill for project generation, build commands, test execu
 | `planning-ios-implementation` | "plan implementation", "design approach", "architecture plan" |
 | `implementing-ios-code` | "implement", "write code", "add screen", "create feature" |
 | `testing-ios-code` | "write tests", "add test coverage", "unit test" |
+| `fixing-flaky-tests` | "flaky test", "test fails intermittently", "test randomly fails" |
 | `converting-xctest-to-swift-testing` | "convert to Swift Testing", "migrate XCTest", "xctest to swift testing" |
 | `converting-mocks-to-automockable` | "convert mock", "migrate mock to AutoMockable", "replace bespoke mock" |
 | `build-test-verify` | "build", "run tests", "lint", "format", "verify build" |
+| `mobilebuildmcp` | "run on simulator", "screenshot the app", "UI automation", before any MobileBuildMCP tool |
+| `audit-build-warnings` | "audit build warnings", "fix warnings", "clean up warnings", "build warnings" |
+| `evaluating-sdk-internal-updates` | "SDK bump PR", "BitwardenSdk revision change", "sdk-internal breaking changes" |
 | `bitwarden-delivery-tools:perform-preflight` | "preflight", "self review", "ready to commit" |
 | `bitwarden-delivery-tools:committing-changes` | "commit", "stage changes", "create commit" |
 | `bitwarden-delivery-tools:creating-pull-request` | "create PR", "open pull request", "submit PR" |

@@ -1,6 +1,6 @@
 "ThereAreNoItemsToList" = "Немає записів для показу";
 "ToViewVerificationCodesUpgradeToPremium" = "Щоб отримати доступ до кодів підтвердження, передплатіть Premium";
-"Add2FactorAutenticationToAnItemToViewVerificationCodes" = "Щоб переглядати коди підтвердження, додайте двоетапну перевірку до запису";
+"Add2FactorAutenticationToAnItemToViewVerificationCodes" = "Щоб переглядати коди підтвердження, додайте до запису двофакторну автентифікацію";
 "LogInToBitwardenOnYourIPhoneToViewVerificationCodes" = "Увійдіть у Bitwarden на своєму iPhone, щоб отримати доступ до кодів підтвердження";
 "SyncingItemsContainingVerificationCodes" = "Триває синхронізація записів з кодами підтвердження";
 "UnlockBitwardenOnYourIPhoneToViewVerificationCodes" = "Розблокуйте Bitwarden на своєму iPhone, щоб отримати доступ до кодів підтвердження";

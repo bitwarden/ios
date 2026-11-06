@@ -94,7 +94,9 @@ extension CipherType: Menuable {
 
 extension CipherType {
     /// These are the cases of `CipherType` that the user can use to create a cipher.
-    static let canCreateCases: [CipherType] = [.login, .card, .identity, .secureNote, .driversLicense]
+    static let canCreateCases: [CipherType] = [
+        .login, .card, .bankAccount, .identity, .driversLicense, .passport, .secureNote,
+    ]
 
     /// The cases of `CipherType` that are gated behind the `.newItemTypes` feature flag.
     /// While the flag is disabled these types are hidden from vault list/search assembly.
@@ -107,6 +109,20 @@ extension CipherType {
             [.text, .hidden, .boolean, .linked]
         case .bankAccount, .driversLicense, .passport, .secureNote, .sshKey:
             [.text, .hidden, .boolean]
+        }
+    }
+
+    /// The title of the toast shown after an item of this type is saved.
+    var savedToastTitle: String {
+        switch self {
+        case .bankAccount: Localizations.bankAccountSaved
+        case .card: Localizations.cardSaved
+        case .driversLicense: Localizations.licenseSaved
+        case .identity: Localizations.identitySaved
+        case .login: Localizations.loginSaved
+        case .passport: Localizations.passportSaved
+        case .secureNote: Localizations.secureNoteSaved
+        case .sshKey: Localizations.sshKeySaved
         }
     }
 }

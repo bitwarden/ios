@@ -12,6 +12,9 @@ struct SendRequestModel: JSONRequestBody {
     /// The authentication type for this send.
     var authType: SendAuthType?
 
+    /// The item data for an Item type Send.
+    var data: SendDataModel?
+
     /// The date this Send will be deleted.
     var deletionDate: Date
 

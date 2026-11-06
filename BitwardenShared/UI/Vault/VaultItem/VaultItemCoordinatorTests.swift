@@ -446,7 +446,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(module.passwordHistoryCoordinator.routes.last, .passwordHistoryList(.item([.fixture()])))
     }
 
-    /// `navigate(to:)` with `.premiumUpgrade` presents the billing coordinator at the premium upgrade route.
+    /// `navigate(to:)` with `.premiumUpgrade` presents the billing coordinator at the Premium upgrade route.
     @MainActor
     func test_navigateTo_premiumUpgrade() throws {
         subject.navigate(to: .premiumUpgrade)
@@ -454,6 +454,17 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
         XCTAssertEqual(module.billingCoordinator.routes, [.premiumUpgrade])
+    }
+
+    /// `navigate(to:)` with `.premiumUpgradeComplete` presents a standalone Premium upgrade
+    /// complete screen via the billing coordinator.
+    @MainActor
+    func test_navigateTo_premiumUpgradeComplete() throws {
+        subject.navigate(to: .premiumUpgradeComplete)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertEqual(module.billingCoordinator.routes, [.premiumUpgradeCompleteStandalone])
     }
 
     /// `navigate(to:)` with `.setupTotpCamera` with context without conformance fails to present.

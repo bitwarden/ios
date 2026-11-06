@@ -7,6 +7,11 @@ import SwiftUI
 /// A view that shows the information of the login request to allow the user to confirm or deny the request.
 ///
 struct LoginRequestView: View {
+    // MARK: Static Properties
+
+    /// The formatter used to display the relative time of the login request.
+    private static let relativeDateTimeFormatter = RelativeDateTimeFormatter()
+
     // MARK: Properties
 
     /// The `Store` for this view.
@@ -16,17 +21,43 @@ struct LoginRequestView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
-            titleText
+            VStack(alignment: .center, spacing: 12) {
+                titleText
 
-            explanationText
+                explanationText
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
+            .multilineTextAlignment(.center)
 
-            fingerprintView
+            ContentBlock(dividerLeadingPadding: 16) {
+                detailRow(
+                    title: Localizations.fingerprintPhrase,
+                    titleAccessibilityIdentifier: "FingerprintValueLabel",
+                    value: store.state.request.fingerprintPhrase ?? "",
+                    valueAccessibilityIdentifier: "FingerprintPhraseValue",
+                    valueColor: SharedAsset.Colors.textCodePink.swiftUIColor,
+                    valueStyle: .sensitiveInfoSmall,
+                )
 
-            deviceTypeView
+                detailRow(
+                    title: Localizations.deviceType,
+                    value: store.state.request.requestDeviceType,
+                    valueAccessibilityIdentifier: "DeviceTypeValueLabel",
+                )
 
-            ipAddressView
+                detailRow(
+                    title: Localizations.ipAddress,
+                    value: store.state.request.requestIpAddress,
+                )
 
-            timeView
+                detailRow(
+                    title: Localizations.time,
+                    value: Self.relativeDateTimeFormatter.localizedString(
+                        for: store.state.request.creationDate,
+                        relativeTo: Date(),
+                    ),
+                )
+            }
 
             VStack(spacing: 12) {
                 confirmButton
@@ -69,21 +100,6 @@ struct LoginRequestView: View {
         .accessibilityIdentifier("DenyLoginButton")
     }
 
-    /// The device type title and details.
-    private var deviceTypeView: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Text(Localizations.deviceType)
-                .styleGuide(.body, weight: .semibold)
-                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
-
-            Text(store.state.request.requestDeviceType)
-                .styleGuide(.body)
-                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
-                .multilineTextAlignment(.leading)
-                .accessibilityIdentifier("DeviceTypeValueLabel")
-        }
-    }
-
     /// The explanation text.
     private var explanationText: some View {
         Text(
@@ -94,60 +110,50 @@ struct LoginRequestView: View {
         )
         .styleGuide(.body)
         .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
-        .multilineTextAlignment(.leading)
         .accessibilityIdentifier("LogInAttemptByLabel")
-    }
-
-    /// The fingerprint phrase title and display.
-    private var fingerprintView: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(Localizations.fingerprintPhrase)
-                .styleGuide(.body, weight: .semibold)
-                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
-                .accessibilityIdentifier("FingerprintValueLabel")
-
-            Text(store.state.request.fingerprintPhrase ?? "")
-                .styleGuide(.bodyMonospaced)
-                .foregroundStyle(SharedAsset.Colors.textCodePink.swiftUIColor)
-                .multilineTextAlignment(.leading)
-                .accessibilityIdentifier("FingerprintPhraseValue")
-        }
-    }
-
-    /// The IP address title and details.
-    private var ipAddressView: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Text(Localizations.ipAddress)
-                .styleGuide(.body, weight: .semibold)
-                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
-
-            Text(store.state.request.requestIpAddress)
-                .styleGuide(.body)
-                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
-                .multilineTextAlignment(.leading)
-        }
-    }
-
-    /// The time title and details.
-    private var timeView: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Text(Localizations.time)
-                .styleGuide(.body, weight: .semibold)
-                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
-
-            Text(RelativeDateTimeFormatter().localizedString(for: store.state.request.creationDate, relativeTo: Date()))
-                .styleGuide(.body)
-                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
-                .multilineTextAlignment(.leading)
-        }
     }
 
     /// The title text.
     private var titleText: some View {
         Text(Localizations.areYouTryingToLogIn)
-            .styleGuide(.title, weight: .bold)
+            .styleGuide(.title2, weight: .semibold)
             .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
-            .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    // MARK: Private Methods
+
+    /// Builds a titled row of details for display within the details `ContentBlock`.
+    ///
+    /// - Parameters:
+    ///   - title: The title displayed above the value.
+    ///   - titleAccessibilityIdentifier: The accessibility identifier applied to the title, if any.
+    ///   - value: The value displayed below the title.
+    ///   - valueAccessibilityIdentifier: The accessibility identifier applied to the value, if any.
+    ///   - valueColor: The foreground color applied to the value.
+    ///   - valueStyle: The style guide font applied to the value.
+    ///
+    private func detailRow(
+        title: String,
+        titleAccessibilityIdentifier: String? = nil,
+        value: String,
+        valueAccessibilityIdentifier: String? = nil,
+        valueColor: Color = SharedAsset.Colors.textSecondary.swiftUIColor,
+        valueStyle: StyleGuideFont = .body,
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text(title)
+                .styleGuide(.headline, weight: .semibold, includeLinePadding: false, includeLineSpacing: false)
+                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
+                .accessibilityIdentifier(titleAccessibilityIdentifier ?? "")
+
+            Text(value)
+                .styleGuide(valueStyle)
+                .foregroundStyle(valueColor)
+                .multilineTextAlignment(.leading)
+                .accessibilityIdentifier(valueAccessibilityIdentifier ?? "")
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
     }
 }
 

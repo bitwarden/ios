@@ -46,9 +46,13 @@ class CipherTypeTests: BitwardenTestCase {
         XCTAssertNil(CipherType(group: .trash))
     }
 
-    /// `canCreateCases` return the correct cipher types that the user can use to create ciphers.
+    /// `canCreateCases` return the correct cipher types that the user can use to create ciphers,
+    /// in the order they should appear in the add item menu.
     func test_canCreateCases() {
-        XCTAssertEqual(CipherType.canCreateCases, [.login, .card, .identity, .secureNote, .driversLicense])
+        XCTAssertEqual(
+            CipherType.canCreateCases,
+            [.login, .card, .bankAccount, .identity, .driversLicense, .passport, .secureNote],
+        )
     }
 
     /// `newItemTypesGatedCases` returns the cipher types gated behind the `.newItemTypes` feature flag.
@@ -60,5 +64,17 @@ class CipherTypeTests: BitwardenTestCase {
     func test_passport() {
         XCTAssertEqual(CipherType.passport.rawValue, 8)
         XCTAssertTrue(CipherType.allCases.contains(.passport))
+    }
+
+    /// `savedToastTitle` returns the correct values.
+    func test_savedToastTitle() {
+        XCTAssertEqual(CipherType.bankAccount.savedToastTitle, Localizations.bankAccountSaved)
+        XCTAssertEqual(CipherType.card.savedToastTitle, Localizations.cardSaved)
+        XCTAssertEqual(CipherType.driversLicense.savedToastTitle, Localizations.licenseSaved)
+        XCTAssertEqual(CipherType.identity.savedToastTitle, Localizations.identitySaved)
+        XCTAssertEqual(CipherType.login.savedToastTitle, Localizations.loginSaved)
+        XCTAssertEqual(CipherType.passport.savedToastTitle, Localizations.passportSaved)
+        XCTAssertEqual(CipherType.secureNote.savedToastTitle, Localizations.secureNoteSaved)
+        XCTAssertEqual(CipherType.sshKey.savedToastTitle, Localizations.sshKeySaved)
     }
 }

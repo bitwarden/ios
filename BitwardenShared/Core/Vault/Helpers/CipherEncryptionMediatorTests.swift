@@ -48,12 +48,13 @@ class CipherEncryptionMediatorTests: BitwardenTestCase {
         let cipherView = CipherView.fixture(key: nil)
         let encryptedCipher = Cipher.fixture(key: "encryptedKey")
         clientService.mockVault.clientCiphers.encryptClosure = { _ in
-            EncryptionContext(encryptedFor: "userId", cipher: encryptedCipher)
+            EncryptionContext(encryptedFor: "userId", encryptedByKeyId: "key-1", cipher: encryptedCipher)
         }
 
         let result = try await subject.encryptAndUpdateCipher(cipherView)
 
         XCTAssertEqual(cipherService.updateCipherWithServerCiphers, [encryptedCipher])
+        XCTAssertEqual(cipherService.updateCipherWithServerEncryptedByKeyId, "key-1")
         XCTAssertEqual(cipherService.updateCipherWithServerEncryptedFor, "userId")
         XCTAssertEqual(result, encryptedCipher)
     }
@@ -155,7 +156,7 @@ class CipherEncryptionMediatorTests: BitwardenTestCase {
         let encryptedCipher = Cipher.fixture(key: "encryptedKey")
         let updatedCipherView = CipherView.fixture(id: "1", key: "decryptedKey")
         clientService.mockVault.clientCiphers.encryptClosure = { _ in
-            EncryptionContext(encryptedFor: "userId", cipher: encryptedCipher)
+            EncryptionContext(encryptedFor: "userId", encryptedByKeyId: "key-1", cipher: encryptedCipher)
         }
         delegate.fetchCipherReturnValue = updatedCipherView
         subject.setDelegate(delegate)
@@ -163,6 +164,7 @@ class CipherEncryptionMediatorTests: BitwardenTestCase {
         let result = try await subject.updateCipherKeyIfNeeded(cipherView)
 
         XCTAssertEqual(cipherService.updateCipherWithServerCiphers, [encryptedCipher])
+        XCTAssertEqual(cipherService.updateCipherWithServerEncryptedByKeyId, "key-1")
         XCTAssertEqual(cipherService.updateCipherWithServerEncryptedFor, "userId")
         XCTAssertEqual(delegate.fetchCipherReceivedId, "1")
         XCTAssertEqual(result, updatedCipherView)

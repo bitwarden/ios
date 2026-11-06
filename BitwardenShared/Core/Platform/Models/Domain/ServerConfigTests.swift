@@ -114,4 +114,120 @@ final class ServerConfigTests: BitwardenTestCase {
             ServerCommunicationSettings(bootstrap: bootstrapB),
         )
     }
+
+    /// `init(date:responseModel:)` maps `fillAssistRules` from the environment response model.
+    func test_init_environmentServerConfig_fillAssistRules() {
+        let model = ConfigResponseModel(
+            communication: nil,
+            environment: EnvironmentServerConfigResponseModel(
+                api: nil,
+                cloudRegion: nil,
+                fillAssistRules: "https://custom.example.com/fill-assist",
+                identity: nil,
+                notifications: nil,
+                sso: nil,
+                vault: nil,
+            ),
+            featureStates: [:],
+            gitHash: nil,
+            server: nil,
+            version: "2025.1.0",
+        )
+
+        let subject = ServerConfig(date: Date(), responseModel: model)
+
+        XCTAssertEqual(subject.environment?.fillAssistRules, "https://custom.example.com/fill-assist")
+    }
+
+    /// `isCurrentConfig(for:)` returns `true` when the config vault host matches the environment vault host.
+    func test_isCurrentConfig_matchingVaultHost_returnsTrue() {
+        let model = ConfigResponseModel(
+            communication: nil,
+            environment: EnvironmentServerConfigResponseModel(
+                api: nil,
+                cloudRegion: nil,
+                fillAssistRules: nil,
+                identity: nil,
+                notifications: nil,
+                sso: nil,
+                vault: "https://vault.bitwarden.com",
+            ),
+            featureStates: [:],
+            gitHash: nil,
+            server: nil,
+            version: "2025.1.0",
+        )
+        let subject = ServerConfig(date: Date(), responseModel: model)
+
+        XCTAssertTrue(subject.isCurrentConfig(for: .defaultUS))
+    }
+
+    /// `isCurrentConfig(for:)` returns `false` when the config vault host does not match.
+    func test_isCurrentConfig_mismatchedVaultHost_returnsFalse() {
+        let model = ConfigResponseModel(
+            communication: nil,
+            environment: EnvironmentServerConfigResponseModel(
+                api: nil,
+                cloudRegion: nil,
+                fillAssistRules: nil,
+                identity: nil,
+                notifications: nil,
+                sso: nil,
+                vault: "https://vault.bitwarden.eu",
+            ),
+            featureStates: [:],
+            gitHash: nil,
+            server: nil,
+            version: "2025.1.0",
+        )
+        let subject = ServerConfig(date: Date(), responseModel: model)
+
+        XCTAssertFalse(subject.isCurrentConfig(for: .defaultUS))
+    }
+
+    /// `isCurrentConfig(for:)` returns `false` when the provided environment URLs are `nil`.
+    func test_isCurrentConfig_nilEnvironmentURLs_returnsFalse() {
+        let model = ConfigResponseModel(
+            communication: nil,
+            environment: EnvironmentServerConfigResponseModel(
+                api: nil,
+                cloudRegion: nil,
+                fillAssistRules: nil,
+                identity: nil,
+                notifications: nil,
+                sso: nil,
+                vault: "https://vault.bitwarden.com",
+            ),
+            featureStates: [:],
+            gitHash: nil,
+            server: nil,
+            version: "2025.1.0",
+        )
+        let subject = ServerConfig(date: Date(), responseModel: model)
+
+        XCTAssertFalse(subject.isCurrentConfig(for: nil))
+    }
+
+    /// `isCurrentConfig(for:)` returns `false` when the config has no environment vault URL.
+    func test_isCurrentConfig_nilEnvironmentVault_returnsFalse() {
+        let model = ConfigResponseModel(
+            communication: nil,
+            environment: EnvironmentServerConfigResponseModel(
+                api: nil,
+                cloudRegion: nil,
+                fillAssistRules: nil,
+                identity: nil,
+                notifications: nil,
+                sso: nil,
+                vault: nil,
+            ),
+            featureStates: [:],
+            gitHash: nil,
+            server: nil,
+            version: "2025.1.0",
+        )
+        let subject = ServerConfig(date: Date(), responseModel: model)
+
+        XCTAssertFalse(subject.isCurrentConfig(for: .defaultUS))
+    }
 }

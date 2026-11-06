@@ -33,11 +33,16 @@ struct UpdateCipherRequest: Request {
     ///
     /// - Parameters:
     ///   - cipher: The `Cipher` to update in the user's vault.
+    ///   - encryptedByKeyId: The hex-encoded ID of the key used to encrypt the `cipher`.
     ///   - encryptedFor: The user ID who encrypted the `cipher`.
-    init(cipher: Cipher, encryptedFor: String?) throws {
+    init(cipher: Cipher, encryptedByKeyId: String? = nil, encryptedFor: String?) throws {
         guard let id = cipher.id,
               !id.isEmpty else { throw CipherAPIServiceError.updateMissingId }
         self.id = id
-        requestModel = CipherRequestModel(cipher: cipher, encryptedFor: encryptedFor)
+        requestModel = CipherRequestModel(
+            cipher: cipher,
+            encryptedByKeyId: encryptedByKeyId,
+            encryptedFor: encryptedFor,
+        )
     }
 }

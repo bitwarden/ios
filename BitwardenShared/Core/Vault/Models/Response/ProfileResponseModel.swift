@@ -30,9 +30,6 @@ struct ProfileResponseModel: Codable, Equatable, AccountKeysResponseModelProtoco
     /// The profile's identifier.
     let id: String
 
-    /// The user's key.
-    let key: String?
-
     /// The user's master password hint.
     let masterPasswordHint: String?
 
@@ -46,10 +43,10 @@ struct ProfileResponseModel: Codable, Equatable, AccountKeysResponseModelProtoco
     /// Falls back to `organizations` when absent.
     let organizationsNew: [ProfileOrganizationResponseModel]?
 
-    /// Whether the user has a premium account.
+    /// Whether the user has a Premium account.
     let premium: Bool
 
-    /// Whether the user has a premium account from their organization.
+    /// Whether the user has a Premium account from their organization.
     @DefaultFalse var premiumFromOrganization: Bool
 
     /// The user's private key.

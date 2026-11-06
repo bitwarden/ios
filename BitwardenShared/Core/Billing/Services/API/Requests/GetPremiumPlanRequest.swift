@@ -2,7 +2,7 @@ import Networking
 
 // MARK: - GetPremiumPlanRequest
 
-/// A networking request to get the premium subscription plan.
+/// A networking request to get the Premium subscription plan.
 ///
 struct GetPremiumPlanRequest: Request {
     typealias Response = PremiumPlanResponseModel

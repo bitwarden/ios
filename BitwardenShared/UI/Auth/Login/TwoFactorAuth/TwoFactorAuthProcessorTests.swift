@@ -423,7 +423,6 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     func test_perform_continueTapped_loginWithDevice_success() async {
         subject.state.unlockMethod = .loginWithDevice(
             key: "KEY",
-            masterPasswordHash: "MASTER_PASSWORD_HASH",
             privateKey: "PRIVATE_KEY",
         )
         subject.state.verificationCode = "Test"
@@ -433,7 +432,6 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertEqual(coordinator.events, [.didCompleteAuth])
         XCTAssertEqual(authRepository.unlockVaultFromLoginWithDeviceKey, "KEY")
         XCTAssertEqual(authRepository.unlockVaultFromLoginWithDevicePrivateKey, "PRIVATE_KEY")
-        XCTAssertEqual(authRepository.unlockVaultFromLoginWithDeviceMasterPasswordHash, "MASTER_PASSWORD_HASH")
     }
 
     /// `perform(_:)` with `.continueTapped` logs in and unlocks the vault successfully when using
@@ -454,6 +452,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     @MainActor
     func test_perform_continueTapped_loginWithKeyConnectorKey_success() async {
         authService.loginWithTwoFactorCodeResult = .success(.keyConnector(
+            keyConnectorKeyWrappedUserKey: "KEY",
             keyConnectorURL: URL(string: "https://example.com")!,
         ))
         subject.state.verificationCode = "Test"
@@ -462,24 +461,25 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         await subject.perform(.continueTapped)
 
         XCTAssertTrue(authRepository.unlockVaultWithKeyConnectorKeyCalled)
+        XCTAssertEqual(authRepository.unlockVaultWithKeyConnectorKeyWrappedUserKey, "KEY")
         XCTAssertEqual(coordinator.events.last, .didCompleteAuth)
     }
 
-    /// `perform(_:)` with `.continueTapped` throws an error if the organization identifier is
-    /// missing for log in with Key Connector.
+    /// `perform(_:)` with `.continueTapped` throws `missingKeyConnectorKey` when the key connector
+    /// wrapped user key is missing (e.g. new user not yet migrated to key connector).
     @MainActor
-    func test_perform_continueTapped_loginWithKeyConnectorKey_missingOrgIdentifier() async {
+    func test_perform_continueTapped_loginWithKeyConnectorKey_noEncryptedUserKey() async {
         authService.loginWithTwoFactorCodeResult = .success(.keyConnector(
+            keyConnectorKeyWrappedUserKey: nil,
             keyConnectorURL: URL(string: "https://example.com")!,
         ))
+        subject.state.orgIdentifier = "org-id"
         subject.state.verificationCode = "Test"
 
         await subject.perform(.continueTapped)
 
         XCTAssertFalse(authRepository.unlockVaultWithKeyConnectorKeyCalled)
-        XCTAssertEqual(coordinator.errorAlertsShown.last as? TwoFactorAuthError, .missingOrgIdentifier)
-        XCTAssertEqual(coordinator.routes, [])
-        XCTAssertEqual(errorReporter.errors as? [TwoFactorAuthError], [.missingOrgIdentifier])
+        XCTAssertEqual(coordinator.errorAlertsShown.last as? TwoFactorAuthError, .missingKeyConnectorKey)
     }
 
     /// `perform(_:)` with `.continueTapped` handles a two-factor error correctly.

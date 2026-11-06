@@ -25,7 +25,7 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
     /// The `Coordinator` that handles navigation.
     private let coordinator: AnyCoordinator<SendRoute, Void>
 
-    /// The helper used to navigate to the premium upgrade flow.
+    /// The helper used to navigate to the Premium upgrade flow.
     lazy var premiumUpgradeHelper: PremiumUpgradeHelper = DefaultPremiumUpgradeHelper(
         services: services,
         coordinator: coordinator,
@@ -61,7 +61,8 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
         case let .addItemPressed(sendType):
             await addNewSend(sendType: sendType)
         case .appeared:
-            state.shouldShowUpgradedToPremiumActionCard = await services.billingService.shouldShowUpgradedToPremiumActionCard()
+            state.shouldShowUpgradedToPremiumActionCard = await services.billingService
+                .shouldShowUpgradedToPremiumActionCard()
         case .dismissUpgradedToPremiumActionCard:
             state.shouldShowUpgradedToPremiumActionCard = false
             await services.billingService.setUpgradedToPremiumActionCardDismissed()
@@ -141,7 +142,7 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
     // MARK: Private Methods
 
     /// Navigates to the add new send view. If the user is trying to add a new send type which
-    /// requires premium and they don't have premium this will instead show an error alert to the
+    /// requires Premium and they don't have Premium this will instead show an error alert to the
     /// user.
     ///
     /// - Parameter sendType: The type of send the user is trying to add.
@@ -194,7 +195,9 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
     /// Load any initial data for the view.
     ///
     private func loadData() async {
-        state.isSendDisabled = await services.policyService.policyAppliesToUser(.disableSend)
+        let policyOptions = await services.policyService.getSendPolicyOptions()
+        state.isSendDisabled = policyOptions.isSendDisabled
+        state.restrictedSendType = policyOptions.enforcedSendType
     }
 
     /// Removes the password from the provided send.
@@ -234,7 +237,9 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
                     }
                 }
             } else {
-                for try await sections in try await services.sendRepository.sendListPublisher() {
+                for try await sections in try await services.sendRepository.sendListPublisher(
+                    includeTypesSection: state.restrictedSendType == nil,
+                ) {
                     let needsSync = try await services.vaultRepository.needsSync()
 
                     if needsSync, sections.isEmpty {

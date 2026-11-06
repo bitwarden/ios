@@ -29,7 +29,7 @@ public final class DefaultHeadersRequestHandler: RequestHandler {
     public func handle(_ request: inout HTTPRequest) async throws -> HTTPRequest {
         request.headers["Bitwarden-Client-Name"] = Constants.clientType
         request.headers["Bitwarden-Client-Version"] = appVersion
-        request.headers["Device-Type"] = String(Constants.deviceType)
+        request.headers["Device-Type"] = String(Constants.deviceType.rawValue)
         request.headers["User-Agent"] = userAgentBuilder.value
 
         return request

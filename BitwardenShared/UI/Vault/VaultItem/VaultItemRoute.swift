@@ -12,7 +12,9 @@ enum VaultItemRoute: Equatable, Hashable {
     ///
     /// - Parameters:
     ///   - group: An optional `VaultListGroup` that the user wants to add an item for.
-    ///   - hasPremium: Whether the user has premium.
+    ///   - hasPremium: Whether the user has Premium.
+    ///   - navigatesToViewItemOnSave: Whether saving the new item should replace the add item screen
+    ///     with the new item's view screen in the same navigation stack, rather than dismissing.
     ///   - newCipherOptions: Optional options for creating a new cipher.
     ///   - organizationId: The organization id in case an organization was selected in the vault filter.
     ///   - type: The type of item to add.
@@ -20,6 +22,7 @@ enum VaultItemRoute: Equatable, Hashable {
     case addItem(
         group: VaultListGroup? = nil,
         hasPremium: Bool = false,
+        navigatesToViewItemOnSave: Bool = false,
         newCipherOptions: NewCipherOptions? = nil,
         organizationId: String? = nil,
         type: CipherType,
@@ -35,7 +38,7 @@ enum VaultItemRoute: Equatable, Hashable {
     ///
     /// - Parameters:
     ///   - cipher: A `CipherView` to be cloned.
-    ///   - hasPremium: Whether the user has premium.
+    ///   - hasPremium: Whether the user has Premium.
     ///
     case cloneItem(cipher: CipherView, hasPremium: Bool)
 
@@ -52,7 +55,7 @@ enum VaultItemRoute: Equatable, Hashable {
     ///
     /// - Parameters:
     ///  - cipher: The `CipherView` to edit.
-    ///  - hasPremium: Whether the user has premium.
+    ///  - hasPremium: Whether the user has Premium.
     ///
     case editItem(_ cipher: CipherView, _ hasPremium: Bool)
 
@@ -85,8 +88,11 @@ enum VaultItemRoute: Equatable, Hashable {
     ///
     case passwordHistory(_ passwordHistory: [PasswordHistoryView])
 
-    /// A route to the premium upgrade screen.
+    /// A route to the Premium upgrade screen.
     case premiumUpgrade
+
+    /// A route to the Premium upgrade complete screen.
+    case premiumUpgradeComplete
 
     /// A route to the file saving view.
     ///
@@ -99,9 +105,11 @@ enum VaultItemRoute: Equatable, Hashable {
 
     /// A route to the view item screen.
     ///
-    /// - Parameter id: The id of the item to display.
+    /// - Parameters:
+    ///   - id: The id of the item to display.
+    ///   - toastTitle: A toast title to show once the view item screen is displayed, if any.
     ///
-    case viewItem(id: String)
+    case viewItem(id: String, toastTitle: String? = nil)
 }
 
 enum VaultItemEvent {

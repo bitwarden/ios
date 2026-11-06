@@ -30,6 +30,7 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
 
     typealias Module = NavigatorBuilderModule
         & PasswordHistoryModule
+        & VaultItemModule
 
     typealias Services = HasBillingService
         & HasConfigService
@@ -83,14 +84,21 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
 
     func navigate(to route: GeneratorRoute, context _: AnyObject?) {
         switch route {
+        case let .addLogin(hasPremium, newCipherOptions):
+            showAddLogin(hasPremium: hasPremium, newCipherOptions: newCipherOptions)
         case .cancel:
             delegate?.didCancelGenerator()
         case let .complete(type, value):
             delegate?.didCompleteGenerator(for: type, with: value)
         case .dismiss:
             stackNavigator?.dismiss()
-        case let .generator(type, emailWebsite):
-            showGenerator(for: type, emailWebsite: emailWebsite)
+        case let .generator(type, emailWebsite, passwordRules, savePasswordHistory):
+            showGenerator(
+                for: type,
+                emailWebsite: emailWebsite,
+                passwordRules: passwordRules,
+                savePasswordHistory: savePasswordHistory,
+            )
         case .generatorHistory:
             showGeneratorHistory()
         }
@@ -102,16 +110,46 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: Private Methods
 
+    /// Shows the add login screen, prefilled with a generated value. After the login is saved, the
+    /// add login screen is replaced with the new item's view screen.
+    ///
+    /// - Parameters:
+    ///   - hasPremium: Whether the user has Premium.
+    ///   - newCipherOptions: The options used to prefill the new login.
+    ///
+    private func showAddLogin(hasPremium: Bool, newCipherOptions: NewCipherOptions) {
+        let navigationController = module.makeNavigationController()
+        let coordinator = module.makeVaultItemCoordinator(stackNavigator: navigationController)
+        coordinator.start()
+        coordinator.navigate(
+            to: .addItem(
+                hasPremium: hasPremium,
+                navigatesToViewItemOnSave: true,
+                newCipherOptions: newCipherOptions,
+                type: .login,
+            ),
+        )
+
+        stackNavigator?.present(navigationController)
+    }
+
     /// Shows the generator screen.
     ///
     /// - Parameter type: The type to initialize this generator screen with. If a value is provided,
     ///   then the type field in the generator screen will be hidden, to eliminate the ability to
     ///   switch between the various types.
     ///
-    private func showGenerator(for type: GeneratorType?, emailWebsite: String?) {
+    private func showGenerator(
+        for type: GeneratorType?,
+        emailWebsite: String?,
+        passwordRules: String?,
+        savePasswordHistory: Bool = true,
+    ) {
         let state = GeneratorState(
             generatorType: type ?? .password,
+            forcedPasswordRules: passwordRules,
             presentationMode: type == nil ? .tab : .inPlace,
+            savePasswordHistory: savePasswordHistory,
             usernameState: GeneratorState.UsernameState(emailWebsite: emailWebsite),
         )
         let processor = GeneratorProcessor(

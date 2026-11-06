@@ -1,0 +1,329 @@
+// swiftlint:disable:this file_name
+import BitwardenKit
+import BitwardenKitMocks
+import BitwardenResources
+import Combine
+import TestHelpers
+import Testing
+
+@testable import BitwardenShared
+@testable import BitwardenSharedMocks
+
+// MARK: - VaultListProcessorBillingTests
+
+@MainActor
+struct VaultListProcessorBillingTests {
+    // MARK: Properties
+
+    let billingRepository: MockBillingRepository
+    let billingService: MockBillingService
+    let coordinator: MockCoordinator<VaultRoute, AuthAction>
+    let premiumUpgradeHelper: MockPremiumUpgradeHelper
+    let searchProcessorMediator: MockSearchProcessorMediator
+    let searchProcessorMediatorFactory: MockSearchProcessorMediatorFactory
+    let services: ServiceContainer
+    let stateService: MockStateService
+    let subject: VaultListProcessor
+    let vaultRepository: MockVaultRepository
+
+    // MARK: Initialization
+
+    init() {
+        billingRepository = MockBillingRepository()
+        billingRepository.isInAppUpgradeAvailableReturnValue = false
+        billingRepository.isPremiumUpgradeBannerAvailableReturnValue = false
+        billingService = MockBillingService()
+        billingService.isSelfHostedReturnValue = false
+        billingService.shouldShowSubscriptionAttentionCardReturnValue = false
+        billingService.isPremiumUpgradeBannerDismissedReturnValue = false
+        billingService.premiumUpgradeLifecycleStateReturnValue = .notPremium
+        billingService.shouldShowUpgradedToPremiumActionCardReturnValue = false
+        coordinator = MockCoordinator()
+        premiumUpgradeHelper = MockPremiumUpgradeHelper()
+        searchProcessorMediator = MockSearchProcessorMediator()
+        searchProcessorMediatorFactory = MockSearchProcessorMediatorFactory()
+        searchProcessorMediatorFactory.makeReturnValue = searchProcessorMediator
+        stateService = MockStateService()
+        vaultRepository = MockVaultRepository()
+        services = ServiceContainer.withMocks(
+            billingRepository: billingRepository,
+            billingService: billingService,
+            searchProcessorMediatorFactory: searchProcessorMediatorFactory,
+            stateService: stateService,
+            vaultRepository: vaultRepository,
+        )
+        subject = Self.makeSubject(coordinator: coordinator, services: services)
+        subject.premiumUpgradeHelper = premiumUpgradeHelper
+    }
+
+    // MARK: Helpers
+
+    /// Creates a `VaultListProcessor` with its default `PremiumUpgradeHelper`.
+    ///
+    /// - Parameters:
+    ///   - coordinator: The mock coordinator the processor navigates with.
+    ///   - services: The services the processor uses.
+    ///   - state: The processor's initial state.
+    /// - Returns: A `VaultListProcessor` configured with the given dependencies.
+    ///
+    private static func makeSubject(
+        coordinator: MockCoordinator<VaultRoute, AuthAction>,
+        services: ServiceContainer,
+        state: VaultListState = VaultListState(),
+    ) -> VaultListProcessor {
+        VaultListProcessor(
+            coordinator: coordinator.asAnyCoordinator(),
+            masterPasswordRepromptHelper: MockMasterPasswordRepromptHelper(),
+            services: services,
+            state: state,
+            vaultItemMoreOptionsHelper: MockVaultItemMoreOptionsHelper(),
+        )
+    }
+
+    // MARK: Tests - perform(.appeared) — action cards
+
+    /// `perform(_:)` with `.appeared` sets `shouldShowSubscriptionAttentionCard` and
+    /// `shouldShowPremiumUpgradeActionCard` correctly across all combinations of attention card
+    /// visibility, banner dismissal, and upgrade availability. The attention card takes priority —
+    /// when it is visible the upgrade card is always hidden regardless of other inputs.
+    @Test(arguments: [
+        PremiumActionCardTestCase(
+            attentionCardVisible: false,
+            bannerDismissed: false,
+            upgradeAvailable: false,
+            expectedAttentionCard: false,
+            expectedUpgradeCard: false,
+        ),
+        PremiumActionCardTestCase(
+            attentionCardVisible: false,
+            bannerDismissed: false,
+            upgradeAvailable: true,
+            expectedAttentionCard: false,
+            expectedUpgradeCard: true,
+        ),
+        PremiumActionCardTestCase(
+            attentionCardVisible: false,
+            bannerDismissed: true,
+            upgradeAvailable: false,
+            expectedAttentionCard: false,
+            expectedUpgradeCard: false,
+        ),
+        PremiumActionCardTestCase(
+            attentionCardVisible: false,
+            bannerDismissed: true,
+            upgradeAvailable: true,
+            expectedAttentionCard: false,
+            expectedUpgradeCard: false,
+        ),
+        PremiumActionCardTestCase(
+            attentionCardVisible: true,
+            bannerDismissed: false,
+            upgradeAvailable: false,
+            expectedAttentionCard: true,
+            expectedUpgradeCard: false,
+        ),
+        PremiumActionCardTestCase(
+            attentionCardVisible: true,
+            bannerDismissed: false,
+            upgradeAvailable: true,
+            expectedAttentionCard: true,
+            expectedUpgradeCard: false,
+        ),
+        PremiumActionCardTestCase(
+            attentionCardVisible: true,
+            bannerDismissed: true,
+            upgradeAvailable: false,
+            expectedAttentionCard: true,
+            expectedUpgradeCard: false,
+        ),
+        PremiumActionCardTestCase(
+            attentionCardVisible: true,
+            bannerDismissed: true,
+            upgradeAvailable: true,
+            expectedAttentionCard: true,
+            expectedUpgradeCard: false,
+        ),
+    ])
+    func perform_appeared_premiumActionCards(_ testCase: PremiumActionCardTestCase) async {
+        billingService.shouldShowSubscriptionAttentionCardReturnValue = testCase.attentionCardVisible
+        billingRepository.isPremiumUpgradeBannerAvailableReturnValue = testCase.upgradeAvailable
+        billingService.isPremiumUpgradeBannerDismissedReturnValue = testCase.bannerDismissed
+
+        await subject.perform(.appeared)
+
+        #expect(subject.state.shouldShowSubscriptionAttentionCard == testCase.expectedAttentionCard)
+        #expect(subject.state.shouldShowPremiumUpgradeActionCard == testCase.expectedUpgradeCard)
+    }
+
+    /// `perform(_:)` with `.appeared` hides the Premium upgrade action card for self-hosted
+    /// accounts, even when the promo would otherwise be available.
+    @Test
+    func perform_appeared_premiumUpgradeActionCard_hidden_selfHosted() async {
+        billingService.isSelfHostedReturnValue = true
+        billingRepository.isPremiumUpgradeBannerAvailableReturnValue = true
+        billingService.isPremiumUpgradeBannerDismissedReturnValue = false
+
+        await subject.perform(.appeared)
+
+        #expect(!subject.state.shouldShowPremiumUpgradeActionCard)
+    }
+
+    /// `perform(_:)` with `.appeared` shows the Premium upgrade action card only when the account
+    /// doesn't have Premium and nothing else hides the card.
+    @Test(arguments: [
+        (PremiumUpgradeLifecycleState.notPremium, true),
+        (.pending, false),
+        (.premium, false),
+    ])
+    func perform_appeared_premiumUpgradeActionCard_lifecycleState(
+        lifecycleState: PremiumUpgradeLifecycleState,
+        expectedVisible: Bool,
+    ) async {
+        billingRepository.isPremiumUpgradeBannerAvailableReturnValue = true
+        billingService.premiumUpgradeLifecycleStateReturnValue = lifecycleState
+
+        await subject.perform(.appeared)
+
+        #expect(subject.state.shouldShowPremiumUpgradeActionCard == expectedVisible)
+    }
+
+    /// `perform(_:)` with `.appeared` still shows the upgraded-to-Premium card even when the
+    /// upgrade banner was previously dismissed.
+    @Test
+    func perform_appeared_loadPremiumUpgradeBanner_bannerDismissed_stillShowsUpgradedCard() async {
+        billingService.isPremiumUpgradeBannerDismissedReturnValue = true
+        billingService.shouldShowUpgradedToPremiumActionCardReturnValue = true
+
+        await subject.perform(.appeared)
+
+        #expect(!subject.state.shouldShowPremiumUpgradeActionCard)
+        #expect(subject.state.shouldShowUpgradedToPremiumActionCard)
+    }
+
+    /// `perform(_:)` with `.appeared` hides the subscription needs attention card when the
+    /// cached state indicates it should not be shown.
+    @Test
+    func perform_appeared_subscriptionNeedsAttentionCard_hidden() async {
+        billingService.shouldShowSubscriptionAttentionCardReturnValue = false
+
+        await subject.perform(.appeared)
+
+        #expect(!subject.state.shouldShowSubscriptionAttentionCard)
+        #expect(!billingService.getSubscriptionCalled)
+    }
+
+    /// `perform(_:)` with `.appeared` shows the subscription needs attention card when the
+    /// cached state indicates it should be shown.
+    @Test
+    func perform_appeared_subscriptionNeedsAttentionCard_shown() async {
+        billingService.shouldShowSubscriptionAttentionCardReturnValue = true
+
+        await subject.perform(.appeared)
+
+        #expect(subject.state.shouldShowSubscriptionAttentionCard)
+        #expect(!billingService.getSubscriptionCalled)
+    }
+
+    // MARK: Tests - perform(.dismiss*)
+
+    /// `perform(_:)` with `.dismissPremiumUpgradeActionCard` dismisses the Premium upgrade card
+    /// and persists the dismissal.
+    @Test
+    func perform_dismissPremiumUpgradeActionCard() async {
+        stateService.activeAccount = .fixture()
+        subject.state.shouldShowPremiumUpgradeActionCard = true
+
+        await subject.perform(.dismissPremiumUpgradeActionCard)
+
+        #expect(!subject.state.shouldShowPremiumUpgradeActionCard)
+        #expect(billingService.setPremiumUpgradeBannerDismissedCalled)
+    }
+
+    /// `perform(_:)` with `.dismissUpgradedToPremiumActionCard` hides the upgraded-to-Premium
+    /// card and persists the dismissal.
+    @Test
+    func perform_dismissUpgradedToPremiumActionCard() async {
+        subject.state.shouldShowUpgradedToPremiumActionCard = true
+
+        await subject.perform(.dismissUpgradedToPremiumActionCard)
+
+        #expect(!subject.state.shouldShowUpgradedToPremiumActionCard)
+        #expect(billingService.setUpgradedToPremiumActionCardDismissedCallsCount == 1)
+    }
+
+    // MARK: Tests - perform(.upgradeToPremium)
+
+    /// `perform(_:)` with `.upgradeToPremium` delegates to the Premium upgrade helper.
+    @Test
+    func perform_upgradeToPremium() async {
+        await subject.perform(.upgradeToPremium)
+
+        #expect(premiumUpgradeHelper.startInAppPremiumUpgradeCalled)
+    }
+
+    /// `perform(_:)` with `.upgradeToPremium` hides the Premium upgrade action card without
+    /// persisting the dismissal when the upgrade is pending.
+    @Test
+    func perform_upgradeToPremium_pendingUpgrade_hidesActionCardWithoutPersistingDismissal() async throws {
+        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
+        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
+        var state = VaultListState()
+        state.shouldShowPremiumUpgradeActionCard = true
+        let subjectWithDefaultHelper = Self.makeSubject(
+            coordinator: coordinator,
+            services: services,
+            state: state,
+        )
+        await subjectWithDefaultHelper.perform(.upgradeToPremium)
+
+        statusSubject.send(.pending)
+        try await waitForAsync {
+            guard case let .dismiss(action) = coordinator.routes.last else { return false }
+            return action != nil
+        }
+        guard case let .dismiss(action) = coordinator.routes.last else {
+            Issue.record("Expected .dismiss route")
+            return
+        }
+        action?.action()
+
+        #expect(coordinator.alertShown.last?.title == Localizations.upgradePending)
+        #expect(!subjectWithDefaultHelper.state.shouldShowPremiumUpgradeActionCard)
+        #expect(!billingService.setPremiumUpgradeBannerDismissedCalled)
+    }
+
+    // MARK: Tests - receive(*)
+
+    /// `receive(_:)` with `.learnMoreAboutPremium` opens the learn more about Premium URL,
+    /// hides the card, and persists the dismissal.
+    @Test
+    func receive_learnMoreAboutPremium() async throws {
+        subject.state.shouldShowUpgradedToPremiumActionCard = true
+
+        subject.receive(.learnMoreAboutPremium)
+
+        #expect(subject.state.url == ExternalLinksConstants.learnMoreAboutPremium)
+        #expect(!subject.state.shouldShowUpgradedToPremiumActionCard)
+        try await waitForAsync { billingService.setUpgradedToPremiumActionCardDismissedCallsCount == 1 }
+        #expect(billingService.setUpgradedToPremiumActionCardDismissedCallsCount == 1)
+    }
+
+    /// `receive(_:)` with `.viewPlan` navigates to the Premium plan screen.
+    @Test
+    func receive_viewPlan() {
+        subject.receive(.viewPlan)
+
+        #expect(coordinator.routes.last == .premiumPlan)
+    }
+}
+
+// MARK: - PremiumActionCardTestCase
+
+/// Input/output data for the `perform_appeared_premiumActionCards` parameterized test.
+struct PremiumActionCardTestCase: Sendable {
+    let attentionCardVisible: Bool
+    let bannerDismissed: Bool
+    let upgradeAvailable: Bool
+    let expectedAttentionCard: Bool
+    let expectedUpgradeCard: Bool
+}

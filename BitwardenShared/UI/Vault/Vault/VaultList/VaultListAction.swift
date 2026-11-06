@@ -27,10 +27,7 @@ enum VaultListAction: Equatable {
     /// The user tapped the button to go to archive.
     case goToArchive
 
-    /// An item in the vault was pressed.
-    case itemPressed(item: VaultListItem)
-
-    /// The "Learn more" button on the upgraded to premium action card was tapped.
+    /// The "Learn more" button on the upgraded to Premium action card was tapped.
     case learnMoreAboutPremium
 
     /// The user tapped the go to settings button in the flight recorder banner.
@@ -48,6 +45,14 @@ enum VaultListAction: Equatable {
     /// The selected vault filter for search changed.
     case searchVaultFilterChanged(VaultFilterType)
 
+    /// A vault list section header was tapped to expand or collapse the section.
+    ///
+    /// - Parameters:
+    ///   - sectionId: The ID of the section that was expanded or collapsed.
+    ///   - isExpanded: Whether the section is now expanded.
+    ///
+    case sectionExpandToggled(sectionId: String, isExpanded: Bool)
+
     /// The user tapped the get started button on the import logins action card.
     case showImportLogins
 
@@ -60,9 +65,9 @@ enum VaultListAction: Equatable {
     ///
     case totpCodeExpired(_ item: VaultListItem)
 
-    /// The upgrade to premium button was tapped.
-    case upgradeToPremium
-
     /// The selected vault filter changed.
     case vaultFilterChanged(VaultFilterType)
+
+    /// The "View plan" button on the subscription needs attention action card was tapped.
+    case viewPlan
 }

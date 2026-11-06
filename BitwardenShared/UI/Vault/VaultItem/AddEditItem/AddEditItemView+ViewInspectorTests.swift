@@ -28,7 +28,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 hasPremium: true,
             ),
         )
-        processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+        processor.state.ownershipOptions = [.personal(displayName: "user@bitwarden.com")]
         let store = Store(processor: processor)
         subject = AddEditItemView(store: store)
     }
@@ -156,6 +156,17 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(processor.dispatchedActions.last, .folderChanged(.custom(folder)))
     }
 
+    /// Updating the folder text field dispatches the `.folderChanged()` action when the
+    /// `vfo1-foundation` feature flag is enabled.
+    @MainActor
+    func test_folderTextField_updateValue_vfo1FoundationEnabled() throws {
+        processor.state.isVfo1FoundationFeatureFlagEnabled = true
+        let folder = FolderView.fixture(name: "Folder")
+        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.myFolder)
+        try menuField.select(newValue: DefaultableType<FolderView>.custom(folder))
+        XCTAssertEqual(processor.dispatchedActions.last, .folderChanged(.custom(folder)))
+    }
+
     /// Tapping the generate password button dispatches the `.generatePasswordPressed` action.
     @MainActor
     func test_generatePasswordButton_tap() throws {
@@ -182,10 +193,21 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
             throw XCTSkip("Unable to run test in iOS 16, keep an eye on ViewInspector to see if it gets updated.")
         }
+        processor.state.isAdditionalOptionsExpanded = true
         processor.state.isMasterPasswordRePromptOn = false
-        let toggle = try subject.inspect().find(ViewType.Toggle.self, containing: Localizations.passwordPrompt)
+        let toggle = try subject.inspect().find(toggleWithAccessibilityLabel: Localizations.passwordPrompt)
         try toggle.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .masterPasswordRePromptChanged(true))
+    }
+
+    /// The master password re-prompt info button's image has an accessibility label, which names
+    /// the custom accessibility action exposed on the toggle.
+    @MainActor
+    func test_masterPasswordRePromptToggle_infoButton_accessibility() throws {
+        processor.state.isAdditionalOptionsExpanded = true
+        XCTAssertNoThrow(try subject.inspect().find(ViewType.Image.self) { image in
+            try image.accessibilityLabel().string() == Localizations.masterPasswordRePromptHelp
+        })
     }
 
     /// Updating the name text field dispatches the `.nameChanged()` action.
@@ -230,10 +252,10 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_ownerTextField_updateValue() throws {
         let organizationOwner = CipherOwner.organization(id: "1", name: "Bitwarden Organization")
         processor.state.ownershipOptions = [
-            CipherOwner.personal(email: "user@bitwarden.com"),
+            CipherOwner.personal(displayName: "user@bitwarden.com"),
             organizationOwner,
         ]
-        let menu = try subject.inspect().find(bitwardenMenuField: Localizations.owner)
+        let menu = try subject.inspect().find(bitwardenMenuField: processor.state.ownerFieldTitle)
         try menu.select(newValue: organizationOwner)
         XCTAssertEqual(processor.dispatchedActions.last, .ownerChanged(organizationOwner))
     }
@@ -625,7 +647,9 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.driversLicenseItemState.isLicenseNumberVisible = false
         let button = try subject.inspect()
             .find(bitwardenTextField: Localizations.licenseNumber)
-            .find(buttonWithAccessibilityLabel: Localizations.passwordIsNotVisibleTapToShow)
+            .find(buttonWithAccessibilityLabel: Localizations.fieldValueIsNotVisibleTapToShow(
+                Localizations.licenseNumber,
+            ))
         try button.tap()
         XCTAssertEqual(
             processor.dispatchedActions.last,
@@ -641,7 +665,9 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.driversLicenseItemState.isLicenseNumberVisible = true
         let button = try subject.inspect()
             .find(bitwardenTextField: Localizations.licenseNumber)
-            .find(buttonWithAccessibilityLabel: Localizations.passwordIsVisibleTapToHide)
+            .find(buttonWithAccessibilityLabel: Localizations.fieldValueIsVisibleTapToHide(
+                Localizations.licenseNumber,
+            ))
         try button.tap()
         XCTAssertEqual(
             processor.dispatchedActions.last,
@@ -649,40 +675,285 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
     }
 
-    /// The date of birth field is read-only and renders the long-date display string.
+    /// The date of birth field shows the currently selected date.
     @MainActor
-    func test_driversLicense_dateOfBirthField_isDisabledAndShowsDisplayString() throws {
+    func test_driversLicense_dateOfBirthField_showsSelectedDate() throws {
         processor.state.type = .driversLicense
-        processor.state.driversLicenseItemState.dateOfBirth = "1989-08-01"
-        let expected = processor.state.driversLicenseItemState.dateOfBirthDisplay
+        processor.state.driversLicenseItemState.dateOfBirth = Date(year: 1989, month: 8, day: 1)
 
-        let textField = try subject.inspect().find(bitwardenTextField: Localizations.dateOfBirth)
-        XCTAssertEqual(try textField.inputBinding().wrappedValue, expected)
-        XCTAssertTrue(expected.contains("1989"))
+        let picker = try subject.inspect().find(dateFieldPicker: Localizations.dateOfBirth)
+        XCTAssertEqual(try picker.inputBinding().wrappedValue, Date(year: 1989, month: 8, day: 1))
     }
 
-    /// The issue date field is read-only and renders the long-date display string.
+    /// Selecting a date of birth dispatches the `.driversLicenseFieldChanged(.dateOfBirthChanged())` action.
     @MainActor
-    func test_driversLicense_issueDateField_isDisabledAndShowsDisplayString() throws {
+    func test_driversLicense_dateOfBirthField_updateValue() throws {
         processor.state.type = .driversLicense
-        processor.state.driversLicenseItemState.issueDate = "2019-08-01"
-        let expected = processor.state.driversLicenseItemState.issueDateDisplay
-
-        let textField = try subject.inspect().find(bitwardenTextField: Localizations.issueDate)
-        XCTAssertEqual(try textField.inputBinding().wrappedValue, expected)
-        XCTAssertTrue(expected.contains("2019"))
+        let picker = try subject.inspect().find(dateFieldPicker: Localizations.dateOfBirth)
+        let newDate = Date(year: 1989, month: 8, day: 1)
+        try picker.inputBinding().wrappedValue = newDate
+        XCTAssertEqual(processor.dispatchedActions.last, .driversLicenseFieldChanged(.dateOfBirthChanged(newDate)))
     }
 
-    /// The expiration date field is read-only and renders the long-date display string.
+    /// The issue date field shows the currently selected date.
     @MainActor
-    func test_driversLicense_expirationDateField_isDisabledAndShowsDisplayString() throws {
+    func test_driversLicense_issueDateField_showsSelectedDate() throws {
         processor.state.type = .driversLicense
-        processor.state.driversLicenseItemState.expirationDate = "2029-08-01"
-        let expected = processor.state.driversLicenseItemState.expirationDateDisplay
+        processor.state.driversLicenseItemState.issueDate = Date(year: 2019, month: 8, day: 1)
 
-        let textField = try subject.inspect().find(bitwardenTextField: Localizations.expirationDate)
-        XCTAssertEqual(try textField.inputBinding().wrappedValue, expected)
-        XCTAssertTrue(expected.contains("2029"))
+        let picker = try subject.inspect().find(dateFieldPicker: Localizations.issueDate)
+        XCTAssertEqual(try picker.inputBinding().wrappedValue, Date(year: 2019, month: 8, day: 1))
+    }
+
+    /// Selecting an issue date dispatches the `.driversLicenseFieldChanged(.issueDateChanged())` action.
+    @MainActor
+    func test_driversLicense_issueDateField_updateValue() throws {
+        processor.state.type = .driversLicense
+        let picker = try subject.inspect().find(dateFieldPicker: Localizations.issueDate)
+        let newDate = Date(year: 2019, month: 8, day: 1)
+        try picker.inputBinding().wrappedValue = newDate
+        XCTAssertEqual(processor.dispatchedActions.last, .driversLicenseFieldChanged(.issueDateChanged(newDate)))
+    }
+
+    /// The expiration date field shows the currently selected date.
+    @MainActor
+    func test_driversLicense_expirationDateField_showsSelectedDate() throws {
+        processor.state.type = .driversLicense
+        processor.state.driversLicenseItemState.expirationDate = Date(year: 2029, month: 8, day: 1)
+
+        let picker = try subject.inspect().find(dateFieldPicker: Localizations.expirationDate)
+        XCTAssertEqual(try picker.inputBinding().wrappedValue, Date(year: 2029, month: 8, day: 1))
+    }
+
+    /// Selecting an expiration date dispatches the `.driversLicenseFieldChanged(.expirationDateChanged())` action.
+    @MainActor
+    func test_driversLicense_expirationDateField_updateValue() throws {
+        processor.state.type = .driversLicense
+        let picker = try subject.inspect().find(dateFieldPicker: Localizations.expirationDate)
+        let newDate = Date(year: 2029, month: 8, day: 1)
+        try picker.inputBinding().wrappedValue = newDate
+        XCTAssertEqual(processor.dispatchedActions.last, .driversLicenseFieldChanged(.expirationDateChanged(newDate)))
+    }
+
+    // MARK: Passport
+
+    /// Updating the first name field dispatches the `.passportFieldChanged(.givenNameChanged())` action.
+    @MainActor
+    func test_passport_givenNameTextField_updateValue() throws {
+        processor.state.type = .passport
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.firstName)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .passportFieldChanged(.givenNameChanged("text")))
+    }
+
+    /// Updating the last name field dispatches the `.passportFieldChanged(.surnameChanged())` action.
+    @MainActor
+    func test_passport_surnameTextField_updateValue() throws {
+        processor.state.type = .passport
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.lastName)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .passportFieldChanged(.surnameChanged("text")))
+    }
+
+    /// Updating the sex field dispatches the `.passportFieldChanged(.sexChanged())` action.
+    @MainActor
+    func test_passport_sexTextField_updateValue() throws {
+        processor.state.type = .passport
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.sex)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .passportFieldChanged(.sexChanged("text")))
+    }
+
+    /// Updating the birth place field dispatches the `.passportFieldChanged(.birthPlaceChanged())` action.
+    @MainActor
+    func test_passport_birthPlaceTextField_updateValue() throws {
+        processor.state.type = .passport
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.birthPlace)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .passportFieldChanged(.birthPlaceChanged("text")))
+    }
+
+    /// Updating the nationality field dispatches the `.passportFieldChanged(.nationalityChanged())` action.
+    @MainActor
+    func test_passport_nationalityTextField_updateValue() throws {
+        processor.state.type = .passport
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.nationality)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .passportFieldChanged(.nationalityChanged("text")))
+    }
+
+    /// Updating the passport number field dispatches the `.passportFieldChanged(.passportNumberChanged())` action.
+    @MainActor
+    func test_passport_passportNumberTextField_updateValue() throws {
+        processor.state.type = .passport
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.passportNumber)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .passportFieldChanged(.passportNumberChanged("text")))
+    }
+
+    /// Updating the passport type field dispatches the `.passportFieldChanged(.passportTypeChanged())` action.
+    @MainActor
+    func test_passport_passportTypeTextField_updateValue() throws {
+        processor.state.type = .passport
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.passportType)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .passportFieldChanged(.passportTypeChanged("text")))
+    }
+
+    /// Updating the national identification number field dispatches the
+    /// `.passportFieldChanged(.nationalIdentificationNumberChanged())` action.
+    @MainActor
+    func test_passport_nationalIdentificationNumberTextField_updateValue() throws {
+        processor.state.type = .passport
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.nationalIdentificationNumber)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(
+            processor.dispatchedActions.last,
+            .passportFieldChanged(.nationalIdentificationNumberChanged("text")),
+        )
+    }
+
+    /// Updating the issuing country field dispatches the `.passportFieldChanged(.issuingCountryChanged())` action.
+    @MainActor
+    func test_passport_issuingCountryTextField_updateValue() throws {
+        processor.state.type = .passport
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.issuingCountry)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .passportFieldChanged(.issuingCountryChanged("text")))
+    }
+
+    /// Updating the issuing authority field dispatches the
+    /// `.passportFieldChanged(.issuingAuthorityChanged())` action.
+    @MainActor
+    func test_passport_issuingAuthorityTextField_updateValue() throws {
+        processor.state.type = .passport
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.issuingAuthorityOffice)
+        try textField.inputBinding().wrappedValue = "text"
+        XCTAssertEqual(processor.dispatchedActions.last, .passportFieldChanged(.issuingAuthorityChanged("text")))
+    }
+
+    /// Tapping the passport number visibility button dispatches the
+    /// `.passportFieldChanged(.togglePassportNumberVisibilityChanged())` action when the number is not visible.
+    @MainActor
+    func test_passport_passportNumberVisibilityButton_tap_whenNotVisible() throws {
+        processor.state.type = .passport
+        processor.state.passportItemState.isPassportNumberVisible = false
+        let button = try subject.inspect()
+            .find(bitwardenTextField: Localizations.passportNumber)
+            .find(buttonWithAccessibilityLabel: Localizations.passwordIsNotVisibleTapToShow)
+        try button.tap()
+        XCTAssertEqual(
+            processor.dispatchedActions.last,
+            .passportFieldChanged(.togglePassportNumberVisibilityChanged(true)),
+        )
+    }
+
+    /// Tapping the passport number visibility button dispatches the
+    /// `.passportFieldChanged(.togglePassportNumberVisibilityChanged())` action when the number is visible.
+    @MainActor
+    func test_passport_passportNumberVisibilityButton_tap_whenVisible() throws {
+        processor.state.type = .passport
+        processor.state.passportItemState.isPassportNumberVisible = true
+        let button = try subject.inspect()
+            .find(bitwardenTextField: Localizations.passportNumber)
+            .find(buttonWithAccessibilityLabel: Localizations.passwordIsVisibleTapToHide)
+        try button.tap()
+        XCTAssertEqual(
+            processor.dispatchedActions.last,
+            .passportFieldChanged(.togglePassportNumberVisibilityChanged(false)),
+        )
+    }
+
+    /// Tapping the national identification number visibility button dispatches the
+    /// `.passportFieldChanged(.toggleNationalIdentificationNumberVisibilityChanged())` action when not visible.
+    @MainActor
+    func test_passport_nationalIdentificationNumberVisibilityButton_tap_whenNotVisible() throws {
+        processor.state.type = .passport
+        processor.state.passportItemState.isNationalIdentificationNumberVisible = false
+        let button = try subject.inspect()
+            .find(bitwardenTextField: Localizations.nationalIdentificationNumber)
+            .find(buttonWithAccessibilityLabel: Localizations.passwordIsNotVisibleTapToShow)
+        try button.tap()
+        XCTAssertEqual(
+            processor.dispatchedActions.last,
+            .passportFieldChanged(.toggleNationalIdentificationNumberVisibilityChanged(true)),
+        )
+    }
+
+    /// Tapping the national identification number visibility button dispatches the
+    /// `.passportFieldChanged(.toggleNationalIdentificationNumberVisibilityChanged())` action when visible.
+    @MainActor
+    func test_passport_nationalIdentificationNumberVisibilityButton_tap_whenVisible() throws {
+        processor.state.type = .passport
+        processor.state.passportItemState.isNationalIdentificationNumberVisible = true
+        let button = try subject.inspect()
+            .find(bitwardenTextField: Localizations.nationalIdentificationNumber)
+            .find(buttonWithAccessibilityLabel: Localizations.passwordIsVisibleTapToHide)
+        try button.tap()
+        XCTAssertEqual(
+            processor.dispatchedActions.last,
+            .passportFieldChanged(.toggleNationalIdentificationNumberVisibilityChanged(false)),
+        )
+    }
+
+    /// The date of birth field shows the currently selected date.
+    @MainActor
+    func test_passport_dateOfBirthField_showsSelectedDate() throws {
+        processor.state.type = .passport
+        processor.state.passportItemState.dateOfBirth = Date(year: 2025, month: 4, day: 20)
+
+        let picker = try subject.inspect().find(dateFieldPicker: Localizations.dateOfBirth)
+        XCTAssertEqual(try picker.inputBinding().wrappedValue, Date(year: 2025, month: 4, day: 20))
+    }
+
+    /// Selecting a date of birth dispatches the `.passportFieldChanged(.dateOfBirthChanged())` action.
+    @MainActor
+    func test_passport_dateOfBirthField_updateValue() throws {
+        processor.state.type = .passport
+        let picker = try subject.inspect().find(dateFieldPicker: Localizations.dateOfBirth)
+        let newDate = Date(year: 2025, month: 4, day: 20)
+        try picker.inputBinding().wrappedValue = newDate
+        XCTAssertEqual(processor.dispatchedActions.last, .passportFieldChanged(.dateOfBirthChanged(newDate)))
+    }
+
+    /// The issue date field shows the currently selected date.
+    @MainActor
+    func test_passport_issueDateField_showsSelectedDate() throws {
+        processor.state.type = .passport
+        processor.state.passportItemState.issueDate = Date(year: 2021, month: 8, day: 10)
+
+        let picker = try subject.inspect().find(dateFieldPicker: Localizations.issueDate)
+        XCTAssertEqual(try picker.inputBinding().wrappedValue, Date(year: 2021, month: 8, day: 10))
+    }
+
+    /// Selecting an issue date dispatches the `.passportFieldChanged(.issueDateChanged())` action.
+    @MainActor
+    func test_passport_issueDateField_updateValue() throws {
+        processor.state.type = .passport
+        let picker = try subject.inspect().find(dateFieldPicker: Localizations.issueDate)
+        let newDate = Date(year: 2021, month: 8, day: 10)
+        try picker.inputBinding().wrappedValue = newDate
+        XCTAssertEqual(processor.dispatchedActions.last, .passportFieldChanged(.issueDateChanged(newDate)))
+    }
+
+    /// The expiration date field shows the currently selected date.
+    @MainActor
+    func test_passport_expirationDateField_showsSelectedDate() throws {
+        processor.state.type = .passport
+        processor.state.passportItemState.expirationDate = Date(year: 2026, month: 8, day: 10)
+
+        let picker = try subject.inspect().find(dateFieldPicker: Localizations.expirationDate)
+        XCTAssertEqual(try picker.inputBinding().wrappedValue, Date(year: 2026, month: 8, day: 10))
+    }
+
+    /// Selecting an expiration date dispatches the `.passportFieldChanged(.expirationDateChanged())` action.
+    @MainActor
+    func test_passport_expirationDateField_updateValue() throws {
+        processor.state.type = .passport
+        let picker = try subject.inspect().find(dateFieldPicker: Localizations.expirationDate)
+        let newDate = Date(year: 2026, month: 8, day: 10)
+        try picker.inputBinding().wrappedValue = newDate
+        XCTAssertEqual(processor.dispatchedActions.last, .passportFieldChanged(.expirationDateChanged(newDate)))
     }
 
     // MARK: Private

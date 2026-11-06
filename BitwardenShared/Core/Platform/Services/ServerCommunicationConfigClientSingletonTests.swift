@@ -1,6 +1,7 @@
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenSdk
+import BitwardenSdkMocks
 import TestHelpers
 import XCTest
 
@@ -18,7 +19,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase { // swif
     var errorReporter: MockErrorReporter!
     var sdkRepositoryFactory: MockSdkRepositoryFactory!
     var serverCommunicationConfigAPIService: MockServerCommunicationConfigAPIService!
-    var serverCommunicationConfigClient: MockServerCommunicationConfigClient!
+    var serverCommunicationConfigClient: MockServerCommunicationConfigClientProtocol!
     var serverCommunicationConfigRepository: MockServerCommunicationConfigRepository!
     var stateService: MockStateService!
     var subject: DefaultServerCommunicationConfigClientSingleton!
@@ -35,7 +36,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase { // swif
         sdkRepositoryFactory = MockSdkRepositoryFactory()
         serverCommunicationConfigAPIService = MockServerCommunicationConfigAPIService()
 
-        serverCommunicationConfigClient = MockServerCommunicationConfigClient()
+        serverCommunicationConfigClient = MockServerCommunicationConfigClientProtocol()
         clientService.mockPlatform.serverCommunicationConfigReturnValue = serverCommunicationConfigClient
 
         serverCommunicationConfigRepository = MockServerCommunicationConfigRepository()
@@ -81,9 +82,9 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase { // swif
 
         try await waitForAsync { self.serverCommunicationConfigClient.setCommunicationTypeCallsCount > 0 }
 
-        XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedDomain, hostname)
+        XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedArguments?.domain, hostname)
         XCTAssertEqual(
-            serverCommunicationConfigClient.setCommunicationTypeReceivedRequest,
+            serverCommunicationConfigClient.setCommunicationTypeReceivedArguments?.request,
             SetCommunicationTypeRequest(bootstrap: .direct),
         )
         XCTAssertTrue(errorReporter.errors.isEmpty)
@@ -100,9 +101,9 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase { // swif
 
         try await waitForAsync { self.serverCommunicationConfigClient.setCommunicationTypeCallsCount > 0 }
 
-        XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedDomain, hostname)
+        XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedArguments?.domain, hostname)
         XCTAssertEqual(
-            serverCommunicationConfigClient.setCommunicationTypeReceivedRequest,
+            serverCommunicationConfigClient.setCommunicationTypeReceivedArguments?.request,
             SetCommunicationTypeRequest(bootstrap: .direct),
         )
         XCTAssertTrue(errorReporter.errors.isEmpty)
@@ -180,9 +181,9 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase { // swif
 
         try await waitForAsync { self.serverCommunicationConfigClient.setCommunicationTypeCallsCount > 0 }
 
-        XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedDomain, hostname)
+        XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedArguments?.domain, hostname)
         XCTAssertEqual(
-            serverCommunicationConfigClient.setCommunicationTypeReceivedRequest,
+            serverCommunicationConfigClient.setCommunicationTypeReceivedArguments?.request,
             SetCommunicationTypeRequest(
                 bootstrap: .ssoCookieVendor(
                     SsoCookieVendorConfigRequest(
@@ -208,9 +209,9 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase { // swif
 
         try await waitForAsync { self.serverCommunicationConfigClient.setCommunicationTypeCallsCount > 0 }
 
-        XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedDomain, hostname)
+        XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedArguments?.domain, hostname)
         XCTAssertEqual(
-            serverCommunicationConfigClient.setCommunicationTypeReceivedRequest,
+            serverCommunicationConfigClient.setCommunicationTypeReceivedArguments?.request,
             SetCommunicationTypeRequest(
                 bootstrap: .ssoCookieVendor(
                     SsoCookieVendorConfigRequest(
@@ -283,7 +284,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase { // swif
 
         try await waitForAsync { self.serverCommunicationConfigClient.setCommunicationTypeCallsCount > 0 }
 
-        XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedDomain, hostname)
+        XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedArguments?.domain, hostname)
         XCTAssertTrue(errorReporter.errors.isEmpty)
     }
 
@@ -300,7 +301,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase { // swif
 
         try await waitForAsync { self.serverCommunicationConfigClient.setCommunicationTypeCallsCount > 0 }
 
-        XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedDomain, expectedHostname)
+        XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedArguments?.domain, expectedHostname)
         XCTAssertTrue(errorReporter.errors.isEmpty)
     }
 
@@ -350,6 +351,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase { // swif
                         EnvironmentServerConfigResponseModel(
                             api: nil,
                             cloudRegion: nil,
+                            fillAssistRules: nil,
                             identity: nil,
                             notifications: nil,
                             sso: nil,

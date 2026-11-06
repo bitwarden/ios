@@ -122,6 +122,7 @@ extension CipherDetailsResponseModel {
             card: cipher.card.map(CipherCardModel.init),
             collectionIds: cipher.collectionIds,
             creationDate: cipher.creationDate,
+            data: cipher.data,
             deletedDate: cipher.deletedDate,
             driversLicense: cipher.driversLicense.map(CipherDriversLicenseModel.init),
             edit: cipher.edit,
@@ -376,6 +377,23 @@ extension BitwardenSdk.Attachment {
     }
 }
 
+extension BitwardenSdk.BankAccount {
+    init(cipherBankAccountModel model: CipherBankAccountModel) {
+        self.init(
+            bankName: model.bankName,
+            nameOnAccount: model.nameOnAccount,
+            accountType: model.accountType,
+            accountNumber: model.accountNumber,
+            routingNumber: model.routingNumber,
+            branchNumber: model.branchNumber,
+            pin: model.pin,
+            swiftCode: model.swiftCode,
+            iban: model.iban,
+            bankContactPhone: model.bankContactPhone,
+        )
+    }
+}
+
 extension BitwardenSdk.Card {
     init(cipherCardModel model: CipherCardModel) {
         self.init(
@@ -407,6 +425,26 @@ extension BitwardenSdk.DriversLicense {
     }
 }
 
+extension BitwardenSdk.Passport {
+    init(cipherPassportModel model: CipherPassportModel) {
+        self.init(
+            surname: model.surname,
+            givenName: model.givenName,
+            dateOfBirth: model.dateOfBirth,
+            sex: model.sex,
+            birthPlace: model.birthPlace,
+            nationality: model.nationality,
+            issuingCountry: model.issuingCountry,
+            passportNumber: model.passportNumber,
+            passportType: model.passportType,
+            nationalIdentificationNumber: model.nationalIdentificationNumber,
+            issuingAuthority: model.issuingAuthority,
+            issueDate: model.issueDate,
+            expirationDate: model.expirationDate,
+        )
+    }
+}
+
 extension BitwardenSdk.Cipher {
     init(cipherData: CipherData) throws {
         guard let model = cipherData.model else {
@@ -430,9 +468,9 @@ extension BitwardenSdk.Cipher {
             card: model.card.map(Card.init),
             secureNote: model.secureNote.map(SecureNote.init),
             sshKey: model.sshKey.map(SshKey.init),
-            bankAccount: nil, // TODO: PM-32809
+            bankAccount: model.bankAccount.map(BankAccount.init),
             driversLicense: model.driversLicense.map(DriversLicense.init),
-            passport: nil, // TODO: PM-32805
+            passport: model.passport.map(Passport.init),
             favorite: model.favorite,
             reprompt: BitwardenSdk.CipherRepromptType(model.reprompt),
             organizationUseTotp: model.organizationUseTotp,
@@ -447,7 +485,8 @@ extension BitwardenSdk.Cipher {
             deletedDate: model.deletedDate,
             revisionDate: model.revisionDate,
             archivedDate: model.archivedDate,
-            data: nil,
+            data: model.data,
+            partialData: nil,
         )
     }
 
@@ -478,9 +517,9 @@ extension BitwardenSdk.Cipher {
             card: model.card.map(Card.init),
             secureNote: model.secureNote.map(SecureNote.init),
             sshKey: model.sshKey.map(SshKey.init),
-            bankAccount: nil, // TODO: PM-32809
+            bankAccount: model.bankAccount.map(BankAccount.init),
             driversLicense: model.driversLicense.map(DriversLicense.init),
-            passport: nil, // TODO: PM-32805
+            passport: model.passport.map(Passport.init),
             favorite: originalCipher?.favorite ?? false,
             reprompt: BitwardenSdk.CipherRepromptType(model.reprompt),
             organizationUseTotp: model.organizationUseTotp,
@@ -495,7 +534,8 @@ extension BitwardenSdk.Cipher {
             deletedDate: model.deletedDate,
             revisionDate: model.revisionDate,
             archivedDate: model.archivedDate,
-            data: nil,
+            data: model.data,
+            partialData: nil,
         )
     }
 }
@@ -503,6 +543,16 @@ extension BitwardenSdk.Cipher {
 extension BitwardenSdk.CipherListView: @retroactive Identifiable, Fido2UserVerifiableCipherView {}
 
 extension BitwardenSdk.CipherListViewType {
+    /// Whether the type is a bankAccount.
+    var isBankAccount: Bool {
+        switch self {
+        case .bankAccount:
+            true
+        default:
+            false
+        }
+    }
+
     /// Whether the type is card.
     var isCard: Bool {
         switch self {
@@ -587,6 +637,7 @@ extension BitwardenSdk.CipherView: @retroactive Identifiable, Fido2UserVerifiabl
             deletedDate: nil,
             revisionDate: timeProvider.presentTime,
             archivedDate: nil,
+            partial: false,
         )
     }
 }
@@ -625,7 +676,7 @@ extension BitwardenSdk.CipherRepromptType {
     }
 }
 
-extension BitwardenSdk.Fido2Credential: @retroactive Identifiable, @unchecked @retroactive Sendable {
+extension BitwardenSdk.Fido2Credential: @retroactive Identifiable {
     public var id: String { credentialId }
 
     init(cipherLoginFido2Credential model: CipherLoginFido2Credential) {
@@ -646,10 +697,6 @@ extension BitwardenSdk.Fido2Credential: @retroactive Identifiable, @unchecked @r
         )
     }
 }
-
-extension BitwardenSdk.Fido2CredentialView: @unchecked @retroactive Sendable {}
-
-extension BitwardenSdk.Fido2CredentialAutofillView: @unchecked @retroactive Sendable {}
 
 extension BitwardenSdk.Field {
     init(cipherFieldModel model: CipherFieldModel) {
@@ -872,7 +919,7 @@ extension BitwardenSdk.CollectionType {
     }
 }
 
-extension BitwardenSdk.CollectionView: @unchecked @retroactive Sendable, @retroactive Identifiable, TreeNodeModel {}
+extension BitwardenSdk.CollectionView: @retroactive Identifiable, TreeNodeModel {}
 
 // MARK: - Folders (BitwardenSdk)
 
@@ -899,7 +946,7 @@ extension BitwardenSdk.Folder {
     }
 }
 
-extension BitwardenSdk.FolderView: @retroactive Menuable, @unchecked @retroactive Sendable, TreeNodeModel {
+extension BitwardenSdk.FolderView: @retroactive Menuable, TreeNodeModel {
     public static var defaultValueLocalizedName: String {
         Localizations.folderNone
     }

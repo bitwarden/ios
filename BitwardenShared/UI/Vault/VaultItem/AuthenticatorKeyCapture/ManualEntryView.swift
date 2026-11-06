@@ -88,48 +88,39 @@ struct ManualEntryView: View {
 }
 
 #if DEBUG
-struct ManualEntryView_Previews: PreviewProvider {
-    struct PreviewState: ManualEntryState {
-        var authenticatorKey: String = ""
+private struct ManualEntryPreviewState: ManualEntryState {
+    var authenticatorKey: String = ""
 
-        var deviceSupportsCamera: Bool = true
+    var deviceSupportsCamera: Bool = true
 
-        var manualEntryState: ManualEntryState {
-            self
-        }
+    var manualEntryState: ManualEntryState {
+        self
     }
+}
 
-    static var previews: some View {
-        empty
-        textAdded
-    }
-
-    @ViewBuilder static var empty: some View {
-        NavigationView {
-            ManualEntryView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: PreviewState().manualEntryState,
-                    ),
+#Preview("Empty") {
+    NavigationView {
+        ManualEntryView(
+            store: Store(
+                processor: StateProcessor(
+                    state: ManualEntryPreviewState().manualEntryState,
                 ),
-            )
-        }
-        .previewDisplayName("Empty")
+            ),
+        )
     }
+}
 
-    @ViewBuilder static var textAdded: some View {
-        NavigationView {
-            ManualEntryView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: PreviewState(
-                            authenticatorKey: "manualEntry",
-                        ).manualEntryState,
-                    ),
+#Preview("Text Added") {
+    NavigationView {
+        ManualEntryView(
+            store: Store(
+                processor: StateProcessor(
+                    state: ManualEntryPreviewState(
+                        authenticatorKey: "manualEntry",
+                    ).manualEntryState,
                 ),
-            )
-        }
-        .previewDisplayName("Text Added")
+            ),
+        )
     }
 }
 #endif

@@ -37,6 +37,21 @@ extension Account {
         )
     }
 
+    static func fixtureWithMasterPasswordUnlock(
+        masterPasswordUnlock: MasterPasswordUnlockResponseModel = .fixture(),
+    ) -> Account {
+        Account.fixture(
+            profile: Account.AccountProfile.fixture(
+                userDecryptionOptions: UserDecryptionOptions(
+                    hasMasterPassword: true,
+                    masterPasswordUnlock: masterPasswordUnlock,
+                    keyConnectorOption: nil,
+                    trustedDeviceOption: nil,
+                ),
+            ),
+        )
+    }
+
     static func fixtureWithTDE() -> Account {
         Account.fixture(
             profile: Account.AccountProfile.fixture(

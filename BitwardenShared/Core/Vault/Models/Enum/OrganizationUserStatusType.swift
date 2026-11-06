@@ -9,4 +9,7 @@ enum OrganizationUserStatusType: Int, Codable {
 
     /// The user has been confirmed in the organization.
     case confirmed = 2
+
+    /// The user has been provisioned but has not yet been invited.
+    case staged = 3
 }

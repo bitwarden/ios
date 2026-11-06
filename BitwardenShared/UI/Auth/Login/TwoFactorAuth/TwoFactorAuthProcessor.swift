@@ -7,8 +7,8 @@ import Foundation
 /// Errors thrown by `TwoFactorAuthProcessor`.
 ///
 enum TwoFactorAuthError: Error {
-    /// The organization's identifier is missing, but required for Key Connector unlock.
-    case missingOrgIdentifier
+    /// The key connector wrapped user key is missing, but required for Key Connector unlock.
+    case missingKeyConnectorKey
 }
 
 // MARK: - TwoFactorAuthProcessor
@@ -245,13 +245,13 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
                     ),
                 )
                 coordinator.navigate(to: .dismiss)
-            case let .keyConnector(keyConnectorUrl):
-                guard let orgIdentifier = state.orgIdentifier else {
-                    throw TwoFactorAuthError.missingOrgIdentifier
+            case let .keyConnector(keyConnectorKeyWrappedUserKey, keyConnectorUrl):
+                guard let keyConnectorKeyWrappedUserKey else {
+                    throw TwoFactorAuthError.missingKeyConnectorKey
                 }
                 try await services.authRepository.unlockVaultWithKeyConnectorKey(
+                    keyConnectorKeyWrappedUserKey: keyConnectorKeyWrappedUserKey,
                     keyConnectorURL: keyConnectorUrl,
-                    orgIdentifier: orgIdentifier,
                 )
                 await coordinator.handleEvent(.didCompleteAuth)
             }
@@ -266,11 +266,10 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
         switch unlockMethod {
         case let .password(password):
             try await services.authRepository.unlockVaultWithPassword(password: password)
-        case let .loginWithDevice(key, masterPasswordHash, privateKey):
+        case let .loginWithDevice(key, privateKey):
             try await services.authRepository.unlockVaultFromLoginWithDevice(
                 privateKey: privateKey,
                 key: key,
-                masterPasswordHash: masterPasswordHash,
             )
         }
     }
@@ -281,7 +280,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
 /// An object that is signaled when specific circumstances in the web authentication on flow have been encountered.
 ///
 @MainActor
-protocol DuoAuthenticationFlowDelegate: AnyObject {
+protocol DuoAuthenticationFlowDelegate: AnyObject { // sourcery: AutoMockable
     /// Called when the web auth flow has been completed successfully.
     ///
     /// - Parameter code: The code that was returned by the single sign on web auth process.

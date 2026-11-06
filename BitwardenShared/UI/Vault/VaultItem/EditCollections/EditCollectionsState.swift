@@ -16,6 +16,9 @@ struct EditCollectionsState: Equatable, Sendable {
     /// The list of collections for the organization.
     var collections: [CollectionView] = []
 
+    /// Whether the `vfo1-foundation` feature flag is enabled.
+    var isVfo1FoundationFeatureFlagEnabled = false
+
     // MARK: Initialization
 
     /// Initialize an `EditCollectionsState` from a cipher.

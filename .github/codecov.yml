@@ -1,9 +1,11 @@
 ignore:
   - "**/*Tests*/**"
   - "**/TestHelpers/**"
+  - "**/*Tests.swift"
   - "**/Fixtures/**"
   - "GlobalTestHelpers/**"
   - "GlobalTestHelpers-bwa/**"
   - "GlobalTestHelpers-bwth/**"
+  - "ViewInspectorTestHelpers/**"
   - "**/Mocks/**"
   - "**/*Mock*.swift"

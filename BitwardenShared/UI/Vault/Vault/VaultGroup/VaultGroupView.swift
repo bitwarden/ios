@@ -44,6 +44,9 @@ struct VaultGroupView: View {
             .task {
                 await store.perform(.streamShowWebIcons)
             }
+            .task {
+                await store.perform(.streamSyncComplete)
+            }
             .toast(
                 store.binding(
                     get: \.toast,
@@ -55,7 +58,7 @@ struct VaultGroupView: View {
 
     // MARK: Private
 
-    /// The action card for premium subscription ended for archive.
+    /// The action card for Premium subscription ended for archive.
     @ViewBuilder private var archivePremiumSubscriptionEndedCard: some View {
         if store.state.showArchivePremiumSubscriptionEndedCard {
             ActionCard(
@@ -78,8 +81,11 @@ struct VaultGroupView: View {
             .searchDebouncedTask(id: store.state.searchText) {
                 await store.perform(.search(store.state.searchText))
             }
-            .task(id: store.state.searchVaultFilterType) {
+            .task {
                 await store.perform(.search(store.state.searchText))
+            }
+            .onChange(of: store.state.searchVaultFilterType) { _ in
+                Task { await store.perform(.search(store.state.searchText)) }
             }
             .animation(.default, value: store.state.isSearching)
     }
@@ -162,15 +168,11 @@ struct VaultGroupView: View {
                     searchVaultFilterRow
 
                     ForEach(store.state.searchResults) { item in
-                        Button {
-                            store.send(.itemPressed(item))
-                        } label: {
-                            vaultItemRow(
-                                for: item,
-                                isLastInSection: store.state.searchResults.last == item,
-                            )
-                            .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
-                        }
+                        vaultItemRow(
+                            for: item,
+                            isLastInSection: store.state.searchResults.last == item,
+                        )
+                        .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
                     }
                 }
             }
@@ -222,11 +224,7 @@ struct VaultGroupView: View {
 
             ForEach(sections) { section in
                 VaultListSectionView(section: section) { item in
-                    Button {
-                        store.send(.itemPressed(item))
-                    } label: {
-                        vaultItemRow(for: item, isLastInSection: section.items.last == item)
-                    }
+                    vaultItemRow(for: item, isLastInSection: section.items.last == item)
                 }
             }
         }
@@ -247,6 +245,8 @@ struct VaultGroupView: View {
                 state: { state in
                     VaultListItemRowState(
                         iconBaseURL: state.iconBaseURL,
+                        hasPremium: state.hasPremium,
+                        isVfo1FoundationFeatureFlagEnabled: state.isVfo1FoundationFeatureFlagEnabled,
                         item: item,
                         hasDivider: !isLastInSection,
                         showWebIcons: state.showWebIcons,
@@ -260,8 +260,12 @@ struct VaultGroupView: View {
                 },
                 mapEffect: { effect in
                     switch effect {
+                    case let .accessibilityMoreOptionsActionPressed(kind):
+                        .accessibilityMoreOptionsActionPressed(item, kind)
                     case .morePressed:
                         .morePressed(item)
+                    case .pressed:
+                        .itemPressed(item)
                     }
                 },
             ),

@@ -20,6 +20,9 @@ public protocol EnvironmentService {
     /// The URL for the events API.
     var eventsURL: URL { get }
 
+    /// The URL for fetching Fill-Assist targeting rules.
+    var fillAssistRulesURL: URL { get }
+
     /// The URL for the icons API.
     var iconsURL: URL { get }
 
@@ -50,7 +53,7 @@ public protocol EnvironmentService {
     /// The URL for setting up two-factor login.
     var setUpTwoFactorURL: URL { get }
 
-    /// The URL for upgrading to premium.
+    /// The URL for upgrading to Premium.
     var upgradeToPremiumURL: URL { get }
 
     /// The URL for the web vault.

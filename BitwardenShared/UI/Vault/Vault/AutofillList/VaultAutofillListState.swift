@@ -40,14 +40,26 @@ struct VaultAutofillListState: Equatable, Sendable {
     /// Whether the extension mode is creating a Fido2 credential.
     var isCreatingFido2Credential: Bool = false
 
+    /// Whether the `vfo1-foundation` feature flag is enabled.
+    var isVfo1FoundationFeatureFlagEnabled = false
+
     /// The loading state of the autofill list screen.
     var loadingState: LoadingState<[VaultListSection]> = .loading(nil)
 
     /// The user's current account profile state and alternative accounts.
     var profileSwitcherState: ProfileSwitcherState = .empty(shouldAlwaysHideAddAccount: true)
 
+    /// Whether the text-to-insert list releases all text field focus (including the keyboard anchor)
+    /// when an item is tapped. See `TextToInsertKeyboardSession.releasesFocusOnItemTap`.
+    var releasesFocusOnItemTap = false
+
     /// The text that the user is currently searching for.
     var searchText = ""
+
+    /// Whether the text-to-insert list should clear the inline search field's focus. Set when an
+    /// item is tapped (on iOS 27+), along with releasing the extension's keyboard anchor, so no
+    /// extension text field is focused when the request completes.
+    var shouldClearFocus = false
 
     /// Whether the no search results view should be shown.
     var showNoResults = false

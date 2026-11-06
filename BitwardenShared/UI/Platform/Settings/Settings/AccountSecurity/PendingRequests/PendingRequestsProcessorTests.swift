@@ -122,7 +122,7 @@ class PendingRequestsProcessorTests: BitwardenTestCase {
     @MainActor
     func test_receive_dismiss() {
         subject.receive(.dismiss)
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 
     /// `receive(_:)` with `.requestTapped(_)` shows the login request view.

@@ -9,7 +9,7 @@ public enum CipherOwner: Equatable, Hashable, Menuable, Sendable {
     case organization(id: String, name: String)
 
     /// The cipher is owned by the user.
-    case personal(email: String)
+    case personal(displayName: String)
 
     /// Whether the owner of the cipher is a personal account.
     var isPersonal: Bool {
@@ -21,8 +21,8 @@ public enum CipherOwner: Equatable, Hashable, Menuable, Sendable {
         switch self {
         case let .organization(_, name):
             name
-        case let .personal(email):
-            email
+        case let .personal(displayName):
+            displayName
         }
     }
 

@@ -2,6 +2,21 @@ import BitwardenSdk
 
 /// Extension providing factory methods for creating `WrappedAccountCryptographicState`.
 extension WrappedAccountCryptographicState {
+    /// Initializes a `WrappedAccountCryptographicState` from the response of an API request that returns a
+    /// response with account encryption keys.
+    ///
+    /// - Parameter responseModel: The API response model that has account encryption keys.
+    ///
+    init?(responseModel: AccountKeysResponseModelProtocol) {
+        let privateKey = responseModel.accountKeys?.publicKeyEncryptionKeyPair.wrappedPrivateKey
+            ?? responseModel.privateKey
+        guard let privateKey else {
+            return nil
+        }
+
+        self = .create(accountKeys: responseModel.accountKeys, privateKey: privateKey)
+    }
+
     /// Creates a `WrappedAccountCryptographicState` based on the available cryptographic parameters.
     ///
     /// Returns `WrappedAccountCryptographicState.v2` if signing key, signed public key, and security

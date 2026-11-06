@@ -47,6 +47,21 @@ public struct HTTPRequest: Equatable, Sendable {
 }
 
 public extension HTTPRequest {
+    /// Initialize a `HTTPRequest` from a `URLRequest`.
+    ///
+    /// Returns `nil` if `urlRequest.url` is `nil`.
+    ///
+    /// - Parameter urlRequest: The `URLRequest` to convert.
+    ///
+    init?(from urlRequest: URLRequest) {
+        guard let url = urlRequest.url else { return nil }
+        body = urlRequest.httpBody
+        headers = urlRequest.allHTTPHeaderFields ?? [:]
+        method = HTTPMethod(rawValue: urlRequest.httpMethod ?? "GET")
+        requestID = UUID()
+        self.url = url
+    }
+
     /// Initialize a `HTTPRequest` from a `Request` instance.
     ///
     /// - Parameters:

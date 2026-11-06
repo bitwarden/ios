@@ -7,7 +7,24 @@ import SwiftUI
 /// A view that allows the user to add or edit a driver's license item for a vault.
 ///
 struct AddEditDriversLicenseItemView: View {
+    // MARK: Types
+
+    /// The focusable fields in the driver's license view.
+    enum FocusedField: Int, Hashable {
+        case firstName
+        case middleName
+        case lastName
+        case licenseNumber
+        case issuingCountry
+        case issuingState
+        case issuingAuthority
+        case licenseClass
+    }
+
     // MARK: Properties
+
+    /// The currently focused field.
+    @FocusState private var focusedField: FocusedField?
 
     /// The `Store` for this view.
     @ObservedObject var store: Store<
@@ -26,7 +43,9 @@ struct AddEditDriversLicenseItemView: View {
                         send: AddEditDriversLicenseItemAction.firstNameChanged,
                     ),
                     accessibilityIdentifier: "DriversLicenseFirstNameEntry",
+                    focus: .field($focusedField, equals: .firstName),
                 )
+                .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
                     title: Localizations.middleName,
@@ -35,7 +54,9 @@ struct AddEditDriversLicenseItemView: View {
                         send: AddEditDriversLicenseItemAction.middleNameChanged,
                     ),
                     accessibilityIdentifier: "DriversLicenseMiddleNameEntry",
+                    focus: .field($focusedField, equals: .middleName),
                 )
+                .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
                     title: Localizations.lastName,
@@ -44,7 +65,9 @@ struct AddEditDriversLicenseItemView: View {
                         send: AddEditDriversLicenseItemAction.lastNameChanged,
                     ),
                     accessibilityIdentifier: "DriversLicenseLastNameEntry",
+                    focus: .field($focusedField, equals: .lastName),
                 )
+                .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
                     title: Localizations.licenseNumber,
@@ -54,18 +77,23 @@ struct AddEditDriversLicenseItemView: View {
                     ),
                     accessibilityIdentifier: "DriversLicenseNumberEntry",
                     passwordVisibilityAccessibilityId: "ShowDriversLicenseNumberButton",
+                    passwordVisibilityFieldName: Localizations.licenseNumber,
+                    focus: .field($focusedField, equals: .licenseNumber),
                     isPasswordVisible: store.binding(
                         get: \.isLicenseNumberVisible,
                         send: AddEditDriversLicenseItemAction.toggleLicenseNumberVisibilityChanged,
                     ),
                 )
+                .onSubmit { focusNextField($focusedField) }
 
-                // TODO: PM-38360 - replace with DateFieldPicker
-                BitwardenTextField(
+                DateFieldPicker(
                     title: Localizations.dateOfBirth,
-                    text: .constant(store.state.dateOfBirthDisplay),
                     accessibilityIdentifier: "DriversLicenseDateOfBirthEntry",
-                    isTextFieldDisabled: true,
+                    date: store.binding(
+                        get: \.dateOfBirth,
+                        send: AddEditDriversLicenseItemAction.dateOfBirthChanged,
+                    ),
+                    in: Date.distantPast ... Date().asUTCCalendarDay(),
                 )
 
                 BitwardenTextField(
@@ -75,7 +103,9 @@ struct AddEditDriversLicenseItemView: View {
                         send: AddEditDriversLicenseItemAction.issuingCountryChanged,
                     ),
                     accessibilityIdentifier: "DriversLicenseIssuingCountryEntry",
+                    focus: .field($focusedField, equals: .issuingCountry),
                 )
+                .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
                     title: Localizations.issuingStateProvince,
@@ -84,7 +114,9 @@ struct AddEditDriversLicenseItemView: View {
                         send: AddEditDriversLicenseItemAction.issuingStateChanged,
                     ),
                     accessibilityIdentifier: "DriversLicenseIssuingStateEntry",
+                    focus: .field($focusedField, equals: .issuingState),
                 )
+                .onSubmit { focusNextField($focusedField) }
 
                 BitwardenTextField(
                     title: Localizations.issuingAuthority,
@@ -93,22 +125,27 @@ struct AddEditDriversLicenseItemView: View {
                         send: AddEditDriversLicenseItemAction.issuingAuthorityChanged,
                     ),
                     accessibilityIdentifier: "DriversLicenseIssuingAuthorityEntry",
+                    focus: .field($focusedField, equals: .issuingAuthority),
                 )
+                .onSubmit { focusNextField($focusedField) }
 
-                // TODO: PM-38360 - replace with DateFieldPicker
-                BitwardenTextField(
+                DateFieldPicker(
                     title: Localizations.issueDate,
-                    text: .constant(store.state.issueDateDisplay),
                     accessibilityIdentifier: "DriversLicenseIssueDateEntry",
-                    isTextFieldDisabled: true,
+                    date: store.binding(
+                        get: \.issueDate,
+                        send: AddEditDriversLicenseItemAction.issueDateChanged,
+                    ),
+                    in: Date.distantPast ... Date().asUTCCalendarDay(),
                 )
 
-                // TODO: PM-38360 - replace with DateFieldPicker
-                BitwardenTextField(
+                DateFieldPicker(
                     title: Localizations.expirationDate,
-                    text: .constant(store.state.expirationDateDisplay),
                     accessibilityIdentifier: "DriversLicenseExpirationDateEntry",
-                    isTextFieldDisabled: true,
+                    date: store.binding(
+                        get: \.expirationDate,
+                        send: AddEditDriversLicenseItemAction.expirationDateChanged,
+                    ),
                 )
 
                 BitwardenTextField(
@@ -118,6 +155,7 @@ struct AddEditDriversLicenseItemView: View {
                         send: AddEditDriversLicenseItemAction.licenseClassChanged,
                     ),
                     accessibilityIdentifier: "DriversLicenseClassEntry",
+                    focus: .field($focusedField, equals: .licenseClass),
                 )
             }
         }
@@ -184,10 +222,10 @@ private extension DriversLicenseItemState {
     /// A fully populated state used by previews.
     static var previewPopulated: DriversLicenseItemState {
         DriversLicenseItemState(
-            dateOfBirth: "1989-08-01",
-            expirationDate: "2029-08-01",
+            dateOfBirth: Date(year: 1989, month: 8, day: 1),
+            expirationDate: Date(year: 2029, month: 8, day: 1),
             firstName: "Bit",
-            issueDate: "2019-08-01",
+            issueDate: Date(year: 2019, month: 8, day: 1),
             issuingAuthority: "DMV",
             issuingCountry: "United States",
             issuingState: "California",

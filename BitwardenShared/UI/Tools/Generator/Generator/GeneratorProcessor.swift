@@ -44,6 +44,10 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     /// The key path of the currently focused text field.
     private var focusedKeyPath: KeyPath<GeneratorState, String>?
 
+    /// The parsed password rules constraint from `state.forcedPasswordRules`, cached after load so
+    /// it can be re-applied as floors on every generation without re-parsing the rules string.
+    private var forcedPasswordRulesConstraint: PasswordGeneratorRequest?
+
     /// Whether the slider is currently in editing mode.
     private var isEditingSlider = false
 
@@ -87,7 +91,10 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             await reloadGeneratorOptions()
             await generateValue(shouldSavePassword: true)
             await checkLearnGeneratorActionCardEligibility()
-            state.shouldShowUpgradedToPremiumActionCard = await services.billingService.shouldShowUpgradedToPremiumActionCard()
+            state.shouldShowUpgradedToPremiumActionCard = await services.billingService
+                .shouldShowUpgradedToPremiumActionCard()
+        case .createLoginPressed:
+            await createLogin()
         case .dismissLearnGeneratorActionCard:
             await services.stateService.setLearnGeneratorActionCardStatus(.complete)
             state.isLearnGeneratorActionCardEligible = false
@@ -120,12 +127,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             coordinator.navigate(to: .cancel)
         case let .emailTypeChanged(emailType):
             state.usernameState.updateEmailType(emailType)
-        case let .generatorTypeChanged(generatorType):
-            state.generatorType = generatorType
-        case .refreshGeneratedValue:
-            // Generating a new value happens below.
-            break
-        case .selectButtonPressed:
+        case .fillGeneratedValue:
             coordinator.navigate(
                 to: .complete(
                     type: state.generatorType,
@@ -135,6 +137,11 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             Task {
                 await services.reviewPromptService.trackUserAction(.copiedOrInsertedGeneratedValue)
             }
+        case let .generatorTypeChanged(generatorType):
+            state.generatorType = generatorType
+        case .refreshGeneratedValue:
+            // Generating a new value happens below.
+            break
         case .showPasswordHistory:
             coordinator.navigate(to: .generatorHistory)
         case let .sliderEditingChanged(_, isEditing):
@@ -210,6 +217,21 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     private func checkLearnGeneratorActionCardEligibility() async {
         state.isLearnGeneratorActionCardEligible = await services.stateService
             .getLearnGeneratorActionCardStatus() == .incomplete
+    }
+
+    /// Navigates to the add login screen, prefilled with the generated value.
+    ///
+    private func createLogin() async {
+        guard state.hasGeneratedValue else { return }
+
+        let newCipherOptions = switch state.generatorType {
+        case .passphrase, .password:
+            NewCipherOptions(password: state.generatedValue)
+        case .username:
+            NewCipherOptions(username: state.generatedValue)
+        }
+        let hasPremium = await services.stateService.doesActiveAccountHavePremium()
+        coordinator.navigate(to: .addLogin(hasPremium: hasPremium, newCipherOptions: newCipherOptions))
     }
 
     /// Generate a new passphrase.
@@ -313,10 +335,12 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     /// Fetches the user's saved generator options and updates the state with the previous selections.
     ///
     func loadGeneratorOptions() async throws {
-        var passwordOptions = try await services.generatorRepository.getPasswordGenerationOptions()
-        state.isPolicyInEffect = try await services.policyService.applyPasswordGenerationPolicy(
-            options: &passwordOptions,
-        )
+        let (passwordOptions, isPolicyInEffect) = try await services.generatorRepository
+            .getEffectivePasswordGenerationOptions(rules: state.forcedPasswordRules)
+        if let rules = state.forcedPasswordRules {
+            forcedPasswordRulesConstraint = await services.generatorRepository.passwordRulesRequest(rules: rules)
+        }
+        state.isPolicyInEffect = isPolicyInEffect
         state.setGeneratorType(passwordGeneratorType: passwordOptions.type)
         state.passwordState.update(with: passwordOptions)
 
@@ -356,6 +380,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     /// - Parameter value: The generated value to save to the user's password history.
     ///
     func saveGeneratedValue(_ value: String) async throws {
+        guard state.savePasswordHistory else { return }
         try await services.generatorRepository.addPasswordHistory(
             PasswordHistoryView(
                 password: value,
@@ -407,6 +432,13 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         var passwordOptions = state.passwordState.passwordGenerationOptions(generatorType: state.generatorType)
         state.isPolicyInEffect = await (try? services.policyService
             .applyPasswordGenerationPolicy(options: &passwordOptions)) ?? false
+
+        if let rulesConstraint = forcedPasswordRulesConstraint {
+            passwordOptions.type = .password
+            passwordOptions.overridePasswordType = false
+            passwordOptions.apply(rulesConstraint)
+        }
+
         state.setGeneratorType(passwordGeneratorType: passwordOptions.type)
         state.passwordState.update(with: passwordOptions)
 

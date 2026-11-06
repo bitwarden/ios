@@ -106,6 +106,8 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator, ProfileSwitcher
             showGenerator(delegate: delegate)
         case .premiumUpgrade:
             showPremiumUpgrade()
+        case .premiumUpgradeComplete:
+            showPremiumUpgradeCompleteScreen()
         case let .share(url):
             showShareSheet(for: [url])
         case let .view(sendView):
@@ -146,6 +148,8 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator, ProfileSwitcher
     private func showAddItem(content: AddSendContentType?) {
         var state = AddEditSendItemState()
         switch content {
+        case let .copy(sendView):
+            state = AddEditSendItemState(copyingFrom: sendView)
         case let .file(fileName, fileData):
             state.fileName = fileName
             state.fileData = fileData
@@ -227,12 +231,21 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator, ProfileSwitcher
         generatorCoordinator = coordinator
     }
 
-    /// Shows the premium upgrade screen.
+    /// Shows the Premium upgrade screen.
     ///
     private func showPremiumUpgrade() {
         let navigationController = module.makeNavigationController()
         let coordinator = module.makeBillingCoordinator(stackNavigator: navigationController)
         coordinator.navigate(to: .premiumUpgrade)
+        stackNavigator?.present(navigationController)
+    }
+
+    /// Shows a standalone Premium upgrade complete screen in a new modal.
+    ///
+    private func showPremiumUpgradeCompleteScreen() {
+        let navigationController = module.makeNavigationController()
+        let coordinator = module.makeBillingCoordinator(stackNavigator: navigationController)
+        coordinator.navigate(to: .premiumUpgradeCompleteStandalone)
         stackNavigator?.present(navigationController)
     }
 

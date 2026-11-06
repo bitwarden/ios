@@ -8,6 +8,7 @@ import XCTest
 class VaultSettingsProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
@@ -19,6 +20,7 @@ class VaultSettingsProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        configService = MockConfigService()
         coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
@@ -27,6 +29,7 @@ class VaultSettingsProcessorTests: BitwardenTestCase {
         subject = VaultSettingsProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                configService: configService,
                 environmentService: environmentService,
                 errorReporter: errorReporter,
                 stateService: stateService,
@@ -38,6 +41,7 @@ class VaultSettingsProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        configService = nil
         coordinator = nil
         environmentService = nil
         errorReporter = nil
@@ -116,7 +120,19 @@ class VaultSettingsProcessorTests: BitwardenTestCase {
     func test_receive_foldersTapped() {
         subject.receive(.foldersTapped)
 
-        XCTAssertEqual(coordinator.routes.last, .folders)
+        XCTAssertEqual(coordinator.routes.last, .folders(isVfo1FoundationFeatureFlagEnabled: false))
+    }
+
+    /// `receive(_:)` with  `.foldersTapped` navigates to the folders screen, passing through the
+    /// `vfo1-foundation` feature flag state.
+    @MainActor
+    func test_receive_foldersTapped_vfo1FoundationEnabled() async {
+        configService.featureFlagsBool[.vfo1Foundation] = true
+        await subject.perform(.streamSettingsBadge)
+
+        subject.receive(.foldersTapped)
+
+        XCTAssertEqual(coordinator.routes.last, .folders(isVfo1FoundationFeatureFlagEnabled: true))
     }
 
     /// `receive(_:)` with `.importItemsTapped` shows an alert for navigating to the import items website.

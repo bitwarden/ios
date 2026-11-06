@@ -59,7 +59,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     @MainActor
-    func setUpSubject() {
+    func setUpSubject(state: GeneratorState = GeneratorState()) {
         subject = GeneratorProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
@@ -72,7 +72,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 reviewPromptService: reviewPromptService,
                 stateService: stateService,
             ),
-            state: GeneratorState(),
+            state: state,
         )
     }
 
@@ -102,7 +102,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 wordSeparator: "-",
             ),
         )
-        XCTAssertTrue(policyService.applyPasswordGenerationOptionsCalled)
+        XCTAssertTrue(generatorRepository.getEffectivePasswordGenerationOptionsCalled)
         XCTAssertFalse(subject.state.isPolicyInEffect)
     }
 
@@ -149,7 +149,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 wordSeparator: "*",
             ),
         )
-        XCTAssertTrue(policyService.applyPasswordGenerationOptionsCalled)
+        XCTAssertTrue(generatorRepository.getEffectivePasswordGenerationOptionsCalled)
         XCTAssertFalse(subject.state.isPolicyInEffect)
     }
 
@@ -157,26 +157,20 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// state based on the options.
     @MainActor
     func test_init_loadsPasswordOptions_withPolicy() {
+        // Policy is applied inside the repository layer; supply the already-merged options and
+        // the isPolicyInEffect flag directly so the processor test stays focused on its own logic.
         generatorRepository.getPasswordGenerationOptionsResult = .success(PasswordGenerationOptions(
-            capitalize: false,
-            length: 10,
-            lowercase: false,
+            capitalize: true,
+            length: 40,
+            lowercase: true,
             minNumber: 5,
-            minSpecial: 1,
-            uppercase: false,
+            minSpecial: 3,
+            number: true,
+            special: true,
+            type: .passphrase,
+            uppercase: true,
         ))
-        policyService.applyPasswordGenerationOptionsResult = true
-        policyService.applyPasswordGenerationOptionsTransform = { options in
-            options.capitalize = true
-            options.length = 40
-            options.lowercase = true
-            options.number = true
-            options.minNumber = 5
-            options.minSpecial = 3
-            options.special = true
-            options.type = .passphrase
-            options.uppercase = true
-        }
+        generatorRepository.getEffectivePasswordGenerationOptionsIsPolicyInEffect = true
 
         setUpSubject()
         waitFor { subject.didLoadGeneratorOptions }
@@ -199,7 +193,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 wordSeparator: "-",
             ),
         )
-        XCTAssertTrue(policyService.applyPasswordGenerationOptionsCalled)
+        XCTAssertTrue(generatorRepository.getEffectivePasswordGenerationOptionsCalled)
         XCTAssertTrue(subject.state.isPolicyInEffect)
     }
 
@@ -491,7 +485,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.receive(.copyGeneratedValue)
         waitFor { !reviewPromptService.userActions.isEmpty }
 
-        XCTAssertEqual(pasteboardService.copiedString, "PASSWORD")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "PASSWORD")
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.password)))
         XCTAssertEqual(reviewPromptService.userActions, [.copiedOrInsertedGeneratedValue])
     }
@@ -506,7 +500,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.receive(.copyGeneratedValue)
         waitFor { !reviewPromptService.userActions.isEmpty }
 
-        XCTAssertEqual(pasteboardService.copiedString, "PASSPHRASE")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "PASSPHRASE")
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.passphrase)))
         XCTAssertEqual(reviewPromptService.userActions, [.copiedOrInsertedGeneratedValue])
     }
@@ -521,7 +515,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.receive(.copyGeneratedValue)
         waitFor { !reviewPromptService.userActions.isEmpty }
 
-        XCTAssertEqual(pasteboardService.copiedString, "USERNAME")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "USERNAME")
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.username)))
         XCTAssertEqual(reviewPromptService.userActions, [.copiedOrInsertedGeneratedValue])
     }
@@ -531,6 +525,75 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     func test_receive_dismissPressed() {
         subject.receive(.dismissPressed)
         XCTAssertEqual(coordinator.routes.last, .cancel)
+    }
+
+    /// `perform(_:)` with `.createLoginPressed` doesn't navigate if there's no generated value.
+    @MainActor
+    func test_perform_createLoginPressed_emptyValue() async {
+        subject.state.generatedValue = ""
+
+        await subject.perform(.createLoginPressed)
+
+        XCTAssertTrue(coordinator.routes.isEmpty)
+    }
+
+    /// `perform(_:)` with `.createLoginPressed` navigates to the add login route with the generated
+    /// passphrase prefilled as the password.
+    @MainActor
+    func test_perform_createLoginPressed_passphrase() async {
+        subject.state.generatorType = .passphrase
+        subject.state.generatedValue = "correct-horse-battery"
+
+        await subject.perform(.createLoginPressed)
+
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .addLogin(hasPremium: true, newCipherOptions: NewCipherOptions(password: "correct-horse-battery")),
+        )
+    }
+
+    /// `perform(_:)` with `.createLoginPressed` navigates to the add login route with the generated
+    /// password prefilled and the user's premium status.
+    @MainActor
+    func test_perform_createLoginPressed_password() async {
+        stateService.doesActiveAccountHavePremiumResult = false
+        subject.state.generatorType = .password
+        subject.state.generatedValue = "password"
+
+        await subject.perform(.createLoginPressed)
+
+        XCTAssertTrue(stateService.doesActiveAccountHavePremiumCalled)
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .addLogin(hasPremium: false, newCipherOptions: NewCipherOptions(password: "password")),
+        )
+    }
+
+    /// `perform(_:)` with `.createLoginPressed` doesn't navigate if the generated value is the
+    /// placeholder username, e.g. when a forwarded email service isn't configured.
+    @MainActor
+    func test_perform_createLoginPressed_placeholderUsername() async {
+        subject.state.generatorType = .username
+        subject.state.generatedValue = Constants.defaultGeneratedUsername
+
+        await subject.perform(.createLoginPressed)
+
+        XCTAssertTrue(coordinator.routes.isEmpty)
+    }
+
+    /// `perform(_:)` with `.createLoginPressed` navigates to the add login route with the generated
+    /// username prefilled as the username.
+    @MainActor
+    func test_perform_createLoginPressed_username() async {
+        subject.state.generatorType = .username
+        subject.state.generatedValue = "user@bitwarden.com"
+
+        await subject.perform(.createLoginPressed)
+
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .addLogin(hasPremium: true, newCipherOptions: NewCipherOptions(username: "user@bitwarden.com")),
+        )
     }
 
     /// `perform(_:)` with `.dismissNewLoginActionCard` will set `.isLearnGeneratorActionCardEligible` to
@@ -579,6 +642,17 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         subject.receive(.emailTypeChanged(.random))
         XCTAssertEqual(subject.state.usernameState.plusAddressedEmailType, .random)
+    }
+
+    /// `receive(_:)` with `.fillGeneratedValue` navigates to the `.complete` route.
+    @MainActor
+    func test_receive_fillGeneratedValue() {
+        subject.state.generatorType = .password
+        subject.state.generatedValue = "password"
+        subject.receive(.fillGeneratedValue)
+        XCTAssertEqual(coordinator.routes.last, .complete(type: .password, value: "password"))
+        waitFor(!reviewPromptService.userActions.isEmpty)
+        XCTAssertEqual(reviewPromptService.userActions, [.copiedOrInsertedGeneratedValue])
     }
 
     /// `receive(_:)` with `.generatorTypeChanged` updates the state's generator type value.
@@ -724,17 +798,6 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         XCTAssertEqual(subject.state.generatedValue, "USERNAME")
         XCTAssertFalse(generatorRepository.addPasswordHistoryCalled)
-    }
-
-    /// `receive(_:)` with `.selectButtonPressed` navigates to the `.complete` route.
-    @MainActor
-    func test_receive_selectButtonPressed() {
-        subject.state.generatorType = .password
-        subject.state.generatedValue = "password"
-        subject.receive(.selectButtonPressed)
-        XCTAssertEqual(coordinator.routes.last, .complete(type: .password, value: "password"))
-        waitFor(!reviewPromptService.userActions.isEmpty)
-        XCTAssertEqual(reviewPromptService.userActions, [.copiedOrInsertedGeneratedValue])
     }
 
     /// `receive(_:)` with `.showPasswordHistory` asks the coordinator to show the password history.
@@ -955,6 +1018,22 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         subject.receive(.usernameGeneratorTypeChanged(.catchAllEmail))
         XCTAssertEqual(subject.state.usernameState.usernameGeneratorType, .catchAllEmail)
+    }
+
+    /// `saveGeneratedValue(_:)` skips adding to password history when `savePasswordHistory` is `false`.
+    @MainActor
+    func test_saveGeneratedValue_skipsHistoryWhenDisabled() async throws {
+        subject = GeneratorProcessor(
+            coordinator: coordinator.asAnyCoordinator(),
+            services: ServiceContainer.withMocks(
+                generatorRepository: generatorRepository,
+            ),
+            state: GeneratorState(savePasswordHistory: false),
+        )
+
+        try await subject.saveGeneratedValue("test-password")
+
+        XCTAssertFalse(generatorRepository.addPasswordHistoryCalled)
     }
 
     /// The user's password options are saved when any of the password options are changed.
@@ -1215,5 +1294,82 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.receive(.clearUrl)
 
         XCTAssertNil(subject.state.url)
+    }
+
+    /// `loadGeneratorOptions` with `forcedPasswordRules` does not set `isPolicyInEffect` when
+    /// no org policy is active — site rules are not org policies.
+    @MainActor
+    func test_loadGeneratorOptions_forcedPasswordRules_doesNotSetIsPolicyInEffect() {
+        generatorRepository.passwordRulesRequestResult = PasswordGeneratorRequest(
+            lowercase: true,
+            uppercase: true,
+            numbers: true,
+            special: true,
+            length: 20,
+            avoidAmbiguous: false,
+            minLowercase: nil,
+            minUppercase: nil,
+            minNumber: nil,
+            minSpecial: 2,
+        )
+        generatorRepository.getEffectivePasswordGenerationOptionsIsPolicyInEffect = false
+
+        var state = GeneratorState()
+        state.forcedPasswordRules = "minlength: 20;"
+        setUpSubject(state: state)
+        waitFor { subject.didLoadGeneratorOptions }
+
+        XCTAssertFalse(subject.state.isPolicyInEffect)
+    }
+
+    /// `loadGeneratorOptions` with `forcedPasswordRules` AND an active org policy correctly
+    /// reflects `isPolicyInEffect = true` from the org policy.
+    @MainActor
+    func test_loadGeneratorOptions_forcedPasswordRulesAndPolicy_setsIsPolicyInEffect() {
+        generatorRepository.getEffectivePasswordGenerationOptionsIsPolicyInEffect = true
+
+        var state = GeneratorState()
+        state.forcedPasswordRules = "minlength: 20;"
+        setUpSubject(state: state)
+        waitFor { subject.didLoadGeneratorOptions }
+
+        XCTAssertTrue(subject.state.isPolicyInEffect)
+    }
+
+    /// After `loadGeneratorOptions` caches a rules constraint, regeneration re-applies its floors
+    /// so a user cannot lower a slider below the site-rule minimum.
+    @MainActor
+    func test_generatePassword_appliesForcedPasswordRulesFloors() throws {
+        generatorRepository.passwordRulesRequestResult = PasswordGeneratorRequest(
+            lowercase: true,
+            uppercase: true,
+            numbers: true,
+            special: true,
+            length: 20,
+            avoidAmbiguous: false,
+            minLowercase: nil,
+            minUppercase: nil,
+            minNumber: nil,
+            minSpecial: 3,
+        )
+
+        var state = GeneratorState()
+        state.forcedPasswordRules = "minlength: 20; required: special;"
+        setUpSubject(state: state)
+        waitFor { subject.didLoadGeneratorOptions }
+
+        // Simulate the user dragging the length slider below the rules minimum.
+        subject.state.passwordState.length = 10
+        subject.state.passwordState.minimumSpecial = 1
+
+        subject.receive(.refreshGeneratedValue)
+        waitFor { generatorRepository.passwordGeneratorRequest != nil }
+
+        // The rules floor for length (20) must be re-enforced.
+        XCTAssertGreaterThanOrEqual(subject.state.passwordState.length, 20)
+        let request = try XCTUnwrap(generatorRepository.passwordGeneratorRequest)
+        XCTAssertGreaterThanOrEqual(Int(request.length), 20)
+        // Special must be enabled and its minimum raised to the rules floor.
+        XCTAssertTrue(subject.state.passwordState.containsSpecial)
     }
 }

@@ -18,6 +18,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     var authRepository: MockAuthRepository!
     var billingRepository: MockBillingRepository!
     var billingService: MockBillingService!
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
@@ -39,6 +40,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         billingRepository = MockBillingRepository()
         billingRepository.isInAppUpgradeAvailableReturnValue = false
         billingService = MockBillingService()
+        configService = MockConfigService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
@@ -59,6 +61,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
                 authRepository: authRepository,
                 billingRepository: billingRepository,
                 billingService: billingService,
+                configService: configService,
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
                 searchProcessorMediatorFactory: searchProcessorMediatorFactory,
@@ -81,6 +84,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         authRepository = nil
         billingRepository = nil
         billingService = nil
+        configService = nil
         coordinator = nil
         errorReporter = nil
         pasteboardService = nil
@@ -102,10 +106,20 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertTrue(searchProcessorMediatorFactory.makeCalled)
     }
 
-    /// `itemAdded()` requests the coordinator dismiss the view.
+    /// `itemAdded(type:)` requests the coordinator dismiss the view.
     @MainActor
     func test_itemAdded() {
-        let shouldDismiss = subject.itemAdded()
+        let shouldDismiss = subject.itemAdded(type: .login)
+
+        XCTAssertEqual(coordinator.routes, [.dismiss()])
+        XCTAssertFalse(shouldDismiss)
+    }
+
+    /// `itemDismissed()` requests the coordinator dismiss the view, so that cancelling the add
+    /// item screen also tears down the item selection screen presented beneath it.
+    @MainActor
+    func test_itemDismissed() {
+        let shouldDismiss = subject.itemDismissed()
 
         XCTAssertEqual(coordinator.routes, [.dismiss()])
         XCTAssertFalse(shouldDismiss)
@@ -127,13 +141,21 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertEqual(coordinator.routes, [.dismiss()])
     }
 
-    /// `itemUpdated()` requests the coordinator dismiss the view.
+    /// `itemUpdated(type:)` requests the coordinator dismiss the view.
     @MainActor
     func test_itemUpdated() {
-        let shouldDismiss = subject.itemUpdated()
+        let shouldDismiss = subject.itemUpdated(type: .login)
 
         XCTAssertEqual(coordinator.routes, [.dismiss()])
         XCTAssertFalse(shouldDismiss)
+    }
+
+    /// `perform(_:)` with `.loadData` loads the vfo1-foundation feature flag.
+    @MainActor
+    func test_perform_loadData_featureFlags_vfo1Foundation() async {
+        configService.featureFlagsBool[.vfo1Foundation] = true
+        await subject.perform(.loadData)
+        XCTAssertTrue(subject.state.isVfo1FoundationFeatureFlagEnabled)
     }
 
     /// `perform(_:)` with `.loadData` loads the profile switcher state.
@@ -161,6 +183,55 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertEqual(subject.state.profileSwitcherState, .empty(shouldAlwaysHideAddAccount: true))
     }
 
+    /// `perform(_:)` with `.loadData` loads whether the active account has Premium.
+    @MainActor
+    func test_perform_loadData_hasPremium() async {
+        vaultRepository.doesActiveAccountHavePremiumResult = true
+
+        await subject.perform(.loadData)
+
+        XCTAssertTrue(subject.state.hasPremium)
+    }
+
+    /// `perform(_:)` with `.accessibilityMoreOptionsActionPressed` has the vault item more options
+    /// helper perform the action directly.
+    @MainActor
+    func test_perform_accessibilityMoreOptionsActionPressed() async throws {
+        let item = VaultListItem.fixture()
+        await subject.perform(.accessibilityMoreOptionsActionPressed(item, .copyUsername))
+
+        XCTAssertTrue(vaultItemMoreOptionsHelper.performActionCalled)
+        XCTAssertEqual(vaultItemMoreOptionsHelper.performActionKind, .copyUsername)
+        XCTAssertEqual(vaultItemMoreOptionsHelper.performActionItem, item)
+        XCTAssertNotNil(vaultItemMoreOptionsHelper.performActionHandleDisplayToast)
+        XCTAssertNotNil(vaultItemMoreOptionsHelper.performActionHandleOpenURL)
+
+        let toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.username))
+        vaultItemMoreOptionsHelper.performActionHandleDisplayToast?(toast)
+        XCTAssertEqual(subject.state.toast, toast)
+
+        let url = URL.example
+        vaultItemMoreOptionsHelper.performActionHandleOpenURL?(url)
+        XCTAssertEqual(subject.state.url, url)
+    }
+
+    /// `perform(_:)` with `.accessibilityMoreOptionsActionPressed` passes the same delegate as the
+    /// more options alert, which shows a confirmation toast once the item is saved and leaves this
+    /// screen in place.
+    @MainActor
+    func test_perform_accessibilityMoreOptionsActionPressed_editShowsToastWithoutDismissing() async throws {
+        await subject.perform(.accessibilityMoreOptionsActionPressed(.fixture(), .edit))
+
+        let delegate = try XCTUnwrap(vaultItemMoreOptionsHelper.performActionDelegate)
+        XCTAssertNotIdentical(delegate as AnyObject, subject)
+
+        let shouldDismiss = delegate.itemUpdated(type: .driversLicense)
+
+        XCTAssertTrue(shouldDismiss)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.licenseSaved))
+        XCTAssertTrue(coordinator.routes.isEmpty)
+    }
+
     /// `perform(_:)` with `.morePressed` has the vault item more options helper display the alert.
     @MainActor
     func test_perform_morePressed() async throws {
@@ -179,7 +250,24 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertEqual(subject.state.url, url)
     }
 
-    /// `perform(_:)` with `.morePressed` delegates to the premium upgrade helper when the
+    /// `perform(_:)` with `.morePressed` passes a delegate that shows a confirmation toast once
+    /// the item is saved and leaves this screen in place, rather than this screen's own delegate
+    /// conformance, which dismisses on save for the OTP key flow.
+    @MainActor
+    func test_perform_morePressed_editShowsToastWithoutDismissing() async throws {
+        await subject.perform(.morePressed(.fixture()))
+
+        let delegate = try XCTUnwrap(vaultItemMoreOptionsHelper.showMoreOptionsAlertDelegate)
+        XCTAssertNotIdentical(delegate as AnyObject, subject)
+
+        let shouldDismiss = delegate.itemUpdated(type: .driversLicense)
+
+        XCTAssertTrue(shouldDismiss)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.licenseSaved))
+        XCTAssertTrue(coordinator.routes.isEmpty)
+    }
+
+    /// `perform(_:)` with `.morePressed` delegates to the Premium upgrade helper when the
     /// upgrade action is triggered.
     @MainActor
     func test_perform_morePressed_navigateToPremiumUpgrade() async throws {

@@ -130,7 +130,7 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(clientService.mockSends.encryptReceivedSend, sendView)
     }
 
-    /// `doesActiveAccountHavePremium()` returns whether the active account has access to premium features.
+    /// `doesActiveAccountHavePremium()` returns whether the active account has access to Premium features.
     func test_doesActiveAccountHavePremium() async {
         stateService.doesActiveAccountHavePremiumResult = true
         var hasPremium = await subject.doesActiveAccountHavePremium()
@@ -139,27 +139,6 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.doesActiveAccountHavePremiumResult = false
         hasPremium = await subject.doesActiveAccountHavePremium()
         XCTAssertFalse(hasPremium)
-    }
-
-    /// `doesActiveAccountHaveVerifiedEmail()` with verified email returns true.
-    func test_doesActiveAccountHaveVerifiedEmail_true() async throws {
-        stateService.activeAccount = .fixture(profile: .fixture(emailVerified: true))
-        let isVerified = try await subject.doesActiveAccountHaveVerifiedEmail()
-        XCTAssertTrue(isVerified)
-    }
-
-    /// `doesActiveAccountHavePremium()` with unverified email returns false.
-    func test_doesActiveAccountHaveVerifiedEmail_false() async throws {
-        stateService.activeAccount = .fixture(profile: .fixture(emailVerified: false))
-        let isVerified = try await subject.doesActiveAccountHaveVerifiedEmail()
-        XCTAssertFalse(isVerified)
-    }
-
-    /// `doesActiveAccountHavePremium()` with nil verified email returns false.
-    func test_doesActiveAccountHaveVerifiedEmail_nil() async throws {
-        stateService.activeAccount = .fixture(profile: .fixture(emailVerified: nil))
-        let isVerified = try await subject.doesActiveAccountHaveVerifiedEmail()
-        XCTAssertFalse(isVerified)
     }
 
     /// `fetchSync(forceSync:)` while manual refresh is allowed does perform a sync.
@@ -317,7 +296,7 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_sendListPublisher_withoutValues() async throws {
         sendService.sendsSubject.send([])
 
-        var iterator = try await subject.sendListPublisher().makeAsyncIterator()
+        var iterator = try await subject.sendListPublisher(includeTypesSection: true).makeAsyncIterator()
         let sections = try await iterator.next()
 
         try assertInlineSnapshot(of: dumpSendListSections(XCTUnwrap(sections)), as: .lines) {
@@ -342,7 +321,7 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             ),
         ])
 
-        var iterator = try await subject.sendListPublisher().makeAsyncIterator()
+        var iterator = try await subject.sendListPublisher(includeTypesSection: true).makeAsyncIterator()
         let sections = try await iterator.next()
 
         try assertInlineSnapshot(of: dumpSendListSections(XCTUnwrap(sections)), as: .lines) {
@@ -353,6 +332,34 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             Section: All Sends
               - Send: encrypted name
               - Send: encrypted name
+            """
+        }
+    }
+
+    /// `sendListPublisher(includeTypesSection:)` omits the "Types" filter section when
+    /// `includeTypesSection` is `false`.
+    func test_sendListPublisher_includeTypesSectionFalse_omitsTypesSection() async throws {
+        sendService.sendsSubject.send([
+            .fixture(
+                name: "encrypted text name",
+                text: .init(hidden: false, text: "encrypted text"),
+                type: .text,
+            ),
+            .fixture(
+                file: .init(fileName: "test.txt", id: "1", size: "123", sizeName: "123 KB"),
+                name: "encrypted file name",
+                type: .file,
+            ),
+        ])
+
+        var iterator = try await subject.sendListPublisher(includeTypesSection: false).makeAsyncIterator()
+        let sections = try await iterator.next()
+
+        try assertInlineSnapshot(of: dumpSendListSections(XCTUnwrap(sections)), as: .lines) {
+            """
+            Section: All Sends
+              - Send: encrypted file name
+              - Send: encrypted text name
             """
         }
     }

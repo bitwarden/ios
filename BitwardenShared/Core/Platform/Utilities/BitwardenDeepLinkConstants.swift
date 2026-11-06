@@ -5,7 +5,7 @@
 enum BitwardenDeepLinkConstants {
     // MARK: Types
 
-    /// Query parameter constants for the premium checkout result deep link.
+    /// Query parameter constants for the Premium checkout result deep link.
     enum PremiumCheckoutResultQuery {
         /// The name of the query parameter that carries the checkout result.
         static let parameterName = "result"
@@ -23,7 +23,7 @@ enum BitwardenDeepLinkConstants {
     /// then present the Vault selection screen to save that item.
     static let authenticatorNewItem = "bitwarden://authenticator/newItem"
 
-    /// The URL host for the premium checkout result deep link.
+    /// The URL host for the Premium checkout result deep link.
     static let premiumCheckoutResultHost = "premium-checkout-result"
 
     /// Base URL of the deep link used by the SSO cookie vendor flow. The browser redirects to this

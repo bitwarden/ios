@@ -6,6 +6,14 @@ import SwiftUI
 /// current account.
 ///
 struct VaultUnlockView: View {
+    // MARK: Private Types
+
+    /// The fields in the view that can be focused.
+    private enum FocusedField: Hashable {
+        /// The master password or PIN field.
+        case passwordOrPin
+    }
+
     // MARK: Properties
 
     /// The `Store` for this view.
@@ -28,6 +36,13 @@ struct VaultUnlockView: View {
             ? Localizations.verifyPIN
             : Localizations.verifyMasterPassword
     }
+
+    // MARK: Private Properties
+
+    /// The field that currently has focus.
+    @FocusState private var focusedField: FocusedField?
+
+    // MARK: View
 
     var body: some View {
         ZStack {
@@ -56,6 +71,9 @@ struct VaultUnlockView: View {
         }
         .task {
             await store.perform(.appeared)
+        }
+        .onChange(of: store.state.shouldFocusPasswordOrPinField) { shouldFocus in
+            focusedField = shouldFocus ? .passwordOrPin : nil
         }
         .toast(store.binding(
             get: \.toast,
@@ -145,7 +163,7 @@ struct VaultUnlockView: View {
                 ),
                 accessibilityIdentifier: "MasterPasswordEntry",
                 passwordVisibilityAccessibilityId: "PasswordVisibilityToggle",
-                isPasswordAutoFocused: true,
+                focus: .field($focusedField, equals: .passwordOrPin),
                 isPasswordVisible: store.binding(
                     get: \.isMasterPasswordRevealed,
                     send: VaultUnlockAction.revealMasterPasswordFieldPressed,
@@ -174,7 +192,7 @@ struct VaultUnlockView: View {
                 ),
                 accessibilityIdentifier: "PinEntry",
                 passwordVisibilityAccessibilityId: "PinVisibilityToggle",
-                isPasswordAutoFocused: true,
+                focus: .field($focusedField, equals: .passwordOrPin),
                 isPasswordVisible: store.binding(
                     get: \.isPinRevealed,
                     send: VaultUnlockAction.revealPinFieldPressed,

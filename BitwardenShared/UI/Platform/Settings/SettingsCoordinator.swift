@@ -65,19 +65,23 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
 
     typealias Services = HasASSettingsMediator
         & HasAccountAPIService
+        & HasAppIDService
         & HasAppInfoService
         & HasAuthRepository
         & HasAuthService
         & HasAutofillCredentialService
+        & HasBillingRepository
         & HasBillingService
         & HasBiometricsRepository
         & HasConfigService
+        & HasDeviceAPIService
         & HasEnvironmentService
         & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasEventService
         & HasExportCXFCiphersRepository
         & HasExportVaultService
+        & HasFillAssistRepository
         & HasFlightRecorder
         & HasLanguageStateService
         & HasNotificationCenterService
@@ -170,8 +174,18 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showAutoFill()
         case .deleteAccount:
             showDeleteAccount()
-        case .dismiss:
-            stackNavigator?.dismiss()
+        case .deviceManagement:
+            showDeviceManagement()
+        case let .dismiss(action):
+            // If we're presenting a more complicated stack of view controllers (in particular, this could happen
+            // if the user navigates to the Premium upgrade flow) then we only want to dismiss the presented one,
+            // not the full stack.
+            let completion = action?.action
+            if let presentedViewController = stackNavigator?.rootViewController?.presentedViewController {
+                presentedViewController.dismiss(animated: UI.animated, completion: completion)
+            } else {
+                stackNavigator?.dismiss(completion: completion)
+            }
         case .exportVault:
             showExportVault()
         case .exportVaultToApp:
@@ -180,8 +194,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showExportVaultToFile()
         case let .flightRecorder(route):
             showFlightRecorder(route: route)
-        case .folders:
-            showFolders()
+        case let .folders(isVfo1FoundationFeatureFlagEnabled):
+            showFolders(isVfo1FoundationFeatureFlagEnabled: isVfo1FoundationFeatureFlagEnabled)
         case .importLogins:
             showImportLogins()
         case let .loginRequest(loginRequest):
@@ -196,6 +210,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showPremiumPlan(subscription: subscription)
         case .premiumUpgrade:
             showPremiumUpgrade()
+        case .premiumUpgradeComplete:
+            showPremiumUpgradeCompleteScreen()
         case let .selectLanguage(currentLanguage: currentLanguage):
             showSelectLanguage(currentLanguage: currentLanguage, delegate: context as? SelectLanguageDelegate)
         case let .settings(presentationMode):
@@ -349,6 +365,17 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         stackNavigator?.present(DeleteAccountView(store: Store(processor: processor)))
     }
 
+    /// Shows the device management screen.
+    ///
+    private func showDeviceManagement() {
+        let processor = DeviceManagementProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: DeviceManagementState(),
+        )
+        stackNavigator?.present(DeviceManagementView(store: Store(processor: processor)))
+    }
+
     /// Shows the export vault screen.
     ///
     @MainActor
@@ -394,16 +421,19 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
 
     /// Shows the folders screen.
     ///
-    private func showFolders() {
+    /// - Parameter isVfo1FoundationFeatureFlagEnabled: Whether the `vfo1-foundation` feature flag is enabled.
+    ///
+    private func showFolders(isVfo1FoundationFeatureFlagEnabled: Bool) {
+        let state = FoldersState(isVfo1FoundationFeatureFlagEnabled: isVfo1FoundationFeatureFlagEnabled)
         let processor = FoldersProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: FoldersState(),
+            state: state,
         )
         let view = FoldersView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never
-        stackNavigator?.push(viewController, navigationTitle: Localizations.folders)
+        stackNavigator?.push(viewController, navigationTitle: state.navigationTitle)
     }
 
     /// Shows the import login items screen.
@@ -472,7 +502,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         stackNavigator?.present(PendingRequestsView(store: Store(processor: processor)))
     }
 
-    /// Shows the premium plan screen.
+    /// Shows the Premium plan screen.
     ///
     /// - Parameter subscription: An already-fetched subscription; pass `nil` to let the plan screen fetch it.
     ///
@@ -482,12 +512,24 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         coordinator.navigate(to: .premiumPlan(subscription))
     }
 
-    /// Shows the premium upgrade screen.
+    /// Shows the Premium upgrade screen.
     ///
     private func showPremiumUpgrade() {
         guard let stackNavigator else { return }
         let coordinator = module.makeBillingCoordinator(stackNavigator: stackNavigator)
         coordinator.navigate(to: .premiumUpgrade)
+    }
+
+    /// Shows a standalone Premium upgrade complete screen in a new modal.
+    ///
+    private func showPremiumUpgradeCompleteScreen() {
+        // The pushed `PremiumUpgradeView` is still on top of this stack. Pop it so closing the
+        // celebration returns to Settings rather than a stale upgrade screen.
+        stackNavigator?.pop(animated: false)
+        let navigationController = module.makeNavigationController()
+        let coordinator = module.makeBillingCoordinator(stackNavigator: navigationController)
+        coordinator.navigate(to: .premiumUpgradeCompleteStandalone)
+        stackNavigator?.present(navigationController)
     }
 
     /// Shows the select language screen.

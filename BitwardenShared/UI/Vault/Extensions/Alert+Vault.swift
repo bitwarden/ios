@@ -11,7 +11,7 @@ extension Alert {
     /// Returns an alert for when archive is unavailable.
     ///
     /// - Parameters:
-    ///   - action: A closure to execute on upgrading to premium.
+    ///   - action: A closure to execute on upgrading to Premium.
     /// - Returns: The alert when archive is unavailable.
     static func archiveUnavailable(
         action: @escaping () async -> Void,
@@ -20,7 +20,7 @@ extension Alert {
             await action()
         }
         let alert = Alert(
-            title: Localizations.archiveUnavailable,
+            title: Localizations.premiumSubscriptionRequired,
             message: Localizations.archivingItemsIsAPremiumFeatureDescriptionLong,
             alertActions: [
                 preferredAction,
@@ -34,7 +34,7 @@ extension Alert {
     /// Returns an alert for when attachments are unavailable.
     ///
     /// - Parameters:
-    ///   - action: A closure to execute on upgrading to premium.
+    ///   - action: A closure to execute on upgrading to Premium.
     /// - Returns: The alert when attachments are unavailable.
     static func attachmentsUnavailable(
         action: @escaping () async -> Void,
@@ -43,52 +43,8 @@ extension Alert {
             await action()
         }
         let alert = Alert(
-            title: Localizations.attachmentsUnavailable,
+            title: Localizations.premiumSubscriptionRequired,
             message: Localizations.addingAttachmentsIsAPremiumFeatureDescriptionLong,
-            alertActions: [
-                preferredAction,
-                AlertAction(title: Localizations.cancel, style: .cancel),
-            ],
-        )
-        alert.preferredAction = preferredAction
-        return alert
-    }
-
-    /// Returns an alert notifying the user that a premium subscription is required to send files,
-    /// with an option to upgrade.
-    ///
-    /// - Parameters:
-    ///   - action: A closure to execute on upgrading to premium.
-    /// - Returns: The alert shown when a non-premium user tries to send a file.
-    static func fileSendPremiumRequired(
-        action: @escaping () -> Void,
-    ) -> Alert {
-        let preferredAction = AlertAction(title: Localizations.upgradeToPremium, style: .default) { _, _ in action() }
-        let alert = Alert(
-            title: Localizations.premiumSubscriptionRequired,
-            message: Localizations.sendFilePremiumRequired,
-            alertActions: [
-                preferredAction,
-                AlertAction(title: Localizations.cancel, style: .cancel),
-            ],
-        )
-        alert.preferredAction = preferredAction
-        return alert
-    }
-
-    /// Returns an alert for when the "Specific People" Send feature is unavailable due to
-    /// lack of premium subscription.
-    ///
-    /// - Parameters:
-    ///   - action: A closure to execute on upgrading to premium.
-    /// - Returns: The alert when "Specific People" is unavailable.
-    static func specificPeopleUnavailable(
-        action: @escaping () -> Void,
-    ) -> Alert {
-        let preferredAction = AlertAction(title: Localizations.upgradeToPremium, style: .default) { _, _ in action() }
-        let alert = Alert(
-            title: Localizations.premiumSubscriptionRequired,
-            message: Localizations.sharingWithSpecificPeopleIsPremiumFeatureDescriptionLong,
             alertActions: [
                 preferredAction,
                 AlertAction(title: Localizations.cancel, style: .cancel),
@@ -267,6 +223,28 @@ extension Alert {
         )
     }
 
+    /// Returns an alert notifying the user that a Premium subscription is required to send files,
+    /// with an option to upgrade.
+    ///
+    /// - Parameters:
+    ///   - action: A closure to execute on upgrading to Premium.
+    /// - Returns: The alert shown when a non-Premium user tries to send a file.
+    static func fileSendPremiumRequired(
+        action: @escaping () -> Void,
+    ) -> Alert {
+        let preferredAction = AlertAction(title: Localizations.upgradeToPremium, style: .default) { _, _ in action() }
+        let alert = Alert(
+            title: Localizations.premiumSubscriptionRequired,
+            message: Localizations.sendFilePremiumRequired,
+            alertActions: [
+                preferredAction,
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ],
+        )
+        alert.preferredAction = preferredAction
+        return alert
+    }
+
     /// An alert asking the user if they have a computer available to import logins.
     ///
     /// - Parameter action: The action taken when the user taps on continue.
@@ -327,194 +305,28 @@ extension Alert {
     /// An alert presenting the user with more options for a vault list item.
     ///
     /// - Parameters:
-    ///   - context: The context for the alert used for passing the cipher and decide whether to show options.
+    ///   - context: The context for the alert, including which options are applicable to the
+    ///     cipher (see `CipherListView.applicableMoreOptionsActionKinds(hasPremium:)`).
     ///   - action: The action to perform after selecting an option.
     ///
     /// - Returns: An alert presenting the user with options to select an attachment type.
     @MainActor
-    static func moreOptions( // swiftlint:disable:this function_body_length cyclomatic_complexity
+    static func moreOptions(
         context: MoreOptionsAlertContext,
         action: @escaping (_ action: MoreOptionsAction) async -> Void,
     ) -> Alert {
-        // All the cipher types have the option to view the cipher.
-        var alertActions = [
-            AlertAction(title: Localizations.view, style: .default) { _, _ in
-                await action(.view(id: context.id))
-            },
-        ]
-
-        // Add the option to edit the cipher if desired.
-        if context.showEdit {
-            alertActions.append(AlertAction(title: Localizations.edit, style: .default) { _, _ in
-                await action(.edit(cipherView: context.cipherView))
-            })
-        }
-
-        // Add any additional actions for the type of cipher selected.
-        switch context.cipherView.type {
-        case .card:
-            if let number = context.cipherView.card?.number {
-                alertActions.append(AlertAction(title: Localizations.copyNumber, style: .default) { _, _ in
-                    await action(.copy(
-                        toast: Localizations.number,
-                        value: number,
-                        requiresMasterPasswordReprompt: true,
-                        logEvent: nil,
-                        cipherId: nil,
-                    ))
-                })
+        let alertActions = context.actionKinds.compactMap { kind -> AlertAction? in
+            guard let moreOptionsAction = kind.moreOptionsAction(
+                cipherView: context.cipherView,
+                itemId: context.id,
+            ) else {
+                return nil
             }
-            if let code = context.cipherView.card?.code {
-                alertActions.append(AlertAction(title: Localizations.copySecurityCode, style: .default) { _, _ in
-                    await action(.copy(
-                        toast: Localizations.securityCode,
-                        value: code,
-                        requiresMasterPasswordReprompt: true,
-                        logEvent: .cipherClientCopiedCardCode,
-                        cipherId: context.cipherView.id,
-                    ))
-                })
-            }
-        case .login:
-            if let username = context.cipherView.login?.username {
-                alertActions.append(AlertAction(title: Localizations.copyUsername, style: .default) { _, _ in
-                    await action(.copy(
-                        toast: Localizations.username,
-                        value: username,
-                        requiresMasterPasswordReprompt: false,
-                        logEvent: nil,
-                        cipherId: nil,
-                    ))
-                })
-            }
-            if let password = context.cipherView.login?.password,
-               context.cipherView.viewPassword {
-                alertActions.append(AlertAction(title: Localizations.copyPassword, style: .default) { _, _ in
-                    await action(.copy(
-                        toast: Localizations.password,
-                        value: password,
-                        requiresMasterPasswordReprompt: true,
-                        logEvent: .cipherClientCopiedPassword,
-                        cipherId: context.cipherView.id,
-                    ))
-                })
-            }
-            if context.canCopyTotp, let totp = context.cipherView.login?.totp {
-                alertActions.append(AlertAction(title: Localizations.copyTotp, style: .default) { _, _ in
-                    await action(.copyTotp(totpKey: TOTPKeyModel(authenticatorKey: totp)))
-                })
-            }
-            if let uri = context.cipherView.login?.uris?.first?.uri,
-               let url = URL(string: uri) {
-                alertActions
-                    .append(AlertAction(title: Localizations.launch, style: .default) { _, _ in
-                        await action(.launch(url: url))
-                    })
-            }
-        case .identity:
-            // No-op: no extra options beyond view and edit.
-            break
-        case .secureNote:
-            if let notes = context.cipherView.notes {
-                alertActions.append(AlertAction(title: Localizations.copyNotes, style: .default) { _, _ in
-                    await action(.copy(
-                        toast: Localizations.notes,
-                        value: notes,
-                        requiresMasterPasswordReprompt: true,
-                        logEvent: nil,
-                        cipherId: nil,
-                    ))
-                })
-            }
-        case .sshKey:
-            if let sshKey = context.cipherView.sshKey {
-                alertActions.append(AlertAction(title: Localizations.copyPublicKey, style: .default) { _, _ in
-                    await action(.copy(
-                        toast: Localizations.publicKey,
-                        value: sshKey.publicKey,
-                        requiresMasterPasswordReprompt: true,
-                        logEvent: nil,
-                        cipherId: context.cipherView.id,
-                    ))
-                })
-                if context.cipherView.viewPassword {
-                    alertActions.append(AlertAction(title: Localizations.copyPrivateKey, style: .default) { _, _ in
-                        await action(.copy(
-                            toast: Localizations.privateKey,
-                            value: sshKey.privateKey,
-                            requiresMasterPasswordReprompt: true,
-                            logEvent: nil,
-                            cipherId: context.cipherView.id,
-                        ))
-                    })
-                }
-                alertActions.append(AlertAction(title: Localizations.copyFingerprint, style: .default) { _, _ in
-                    await action(.copy(
-                        toast: Localizations.fingerprint,
-                        value: sshKey.fingerprint,
-                        requiresMasterPasswordReprompt: true,
-                        logEvent: nil,
-                        cipherId: context.cipherView.id,
-                    ))
-                })
-            }
-        case .bankAccount:
-            if let accountNumber = context.cipherView.bankAccount?.accountNumber {
-                alertActions.append(AlertAction(title: Localizations.copyAccountNumber, style: .default) { _, _ in
-                    await action(.copy(
-                        toast: Localizations.accountNumber,
-                        value: accountNumber,
-                        requiresMasterPasswordReprompt: true,
-                        logEvent: nil,
-                        cipherId: nil,
-                    ))
-                })
-            }
-            if let routingNumber = context.cipherView.bankAccount?.routingNumber {
-                alertActions.append(AlertAction(title: Localizations.copyRoutingNumber, style: .default) { _, _ in
-                    await action(.copy(
-                        toast: Localizations.routingNumber,
-                        value: routingNumber,
-                        requiresMasterPasswordReprompt: true,
-                        logEvent: nil,
-                        cipherId: nil,
-                    ))
-                })
-            }
-        case .driversLicense:
-            // TODO: PM-32807
-            break
-        case .passport:
-            if let passportNumber = context.cipherView.passport?.passportNumber {
-                alertActions.append(AlertAction(title: Localizations.copyPassportNumber, style: .default) { _, _ in
-                    await action(.copy(
-                        toast: Localizations.passportNumber,
-                        value: passportNumber,
-                        requiresMasterPasswordReprompt: true,
-                        logEvent: nil,
-                        cipherId: context.cipherView.id,
-                    ))
-                })
+            return AlertAction(title: kind.localizedName, style: .default) { _, _ in
+                await action(moreOptionsAction)
             }
         }
 
-        if context.canArchive {
-            alertActions.append(
-                AlertAction(title: Localizations.archive, style: .default) { _, _ in
-                    await action(.archive(cipherView: context.cipherView))
-                },
-            )
-        }
-
-        if context.canUnarchive {
-            alertActions.append(
-                AlertAction(title: Localizations.unarchive, style: .default) { _, _ in
-                    await action(.unarchive(cipherView: context.cipherView))
-                },
-            )
-        }
-
-        // Return the alert.
         return Alert(
             title: context.cipherView.name,
             message: nil,
@@ -547,6 +359,107 @@ extension Alert {
                 AlertAction(title: Localizations.okGotIt, style: .default) { _, _ in await action() },
             ],
         )
+    }
+
+    /// Returns an alert notifying the user that an enterprise policy restricts them to a single
+    /// Send type, and that the current action can't be completed.
+    ///
+    /// - Parameters:
+    ///   - allowedType: The Send type permitted by policy.
+    ///   - action: A closure to execute when the user acknowledges the alert.
+    /// - Returns: The alert shown when a Send of the disallowed type would otherwise be created.
+    static func sendTypeRestrictedByPolicy(
+        _ allowedType: SendType,
+        action: @escaping () -> Void,
+    ) -> Alert {
+        let message = switch allowedType {
+        case .file: Localizations.dueToAnEnterprisePolicyYouCanOnlyCreateFileSends
+        case .text: Localizations.dueToAnEnterprisePolicyYouCanOnlyCreateTextSends
+        case .unknown: Localizations.sendOptionsPolicyInEffect
+        }
+        return Alert(
+            title: nil,
+            message: message,
+            alertActions: [
+                AlertAction(title: Localizations.ok, style: .default) { _, _ in action() },
+            ],
+        )
+    }
+
+    /// Returns an alert for when the "Specific People" Send feature is unavailable due to
+    /// lack of Premium subscription.
+    ///
+    /// - Parameters:
+    ///   - action: A closure to execute on upgrading to Premium.
+    /// - Returns: The alert when "Specific People" is unavailable.
+    static func specificPeopleUnavailable(
+        action: @escaping () -> Void,
+    ) -> Alert {
+        let preferredAction = AlertAction(title: Localizations.upgradeToPremium, style: .default) { _, _ in action() }
+        let alert = Alert(
+            title: Localizations.premiumSubscriptionRequired,
+            message: Localizations.sharingWithSpecificPeopleIsPremiumFeatureDescriptionLong,
+            alertActions: [
+                preferredAction,
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ],
+        )
+        alert.preferredAction = preferredAction
+        return alert
+    }
+
+    /// An alert shown when a vault sync fails.
+    ///
+    /// - Parameters:
+    ///   - message: The message to display — a server-supplied message when one is available,
+    ///     otherwise the generic sync failure copy.
+    ///   - tryAgainHandler: A closure called when the user taps "Try again".
+    /// - Returns: An `Alert` with "Not now" and "Try again" actions.
+    static func syncUnsuccessful(
+        message: String,
+        tryAgainHandler: @escaping () async -> Void,
+    ) -> Alert {
+        Alert(
+            title: Localizations.syncUnsuccessful,
+            message: message,
+            alertActions: [
+                AlertAction(
+                    title: Localizations.notNow,
+                    style: .cancel,
+                ),
+                AlertAction(
+                    title: Localizations.tryAgain,
+                    style: .default,
+                    handler: { _, _ in
+                        await tryAgainHandler()
+                    },
+                ),
+            ],
+        )
+    }
+
+    /// Returns an alert notifying the user that a Premium subscription is required to view TOTP
+    /// codes, with an option to upgrade.
+    ///
+    /// - Parameters:
+    ///   - action: A closure to execute on upgrading to Premium.
+    /// - Returns: The alert shown when a non-Premium user taps the TOTP premium required field.
+    static func totpPremiumRequired(
+        action: @escaping () async -> Void,
+    ) -> Alert {
+        let preferredAction = AlertAction(title: Localizations.upgradeToPremium, style: .default) { _ in
+            await action()
+        }
+        let alert = Alert(
+            title: Localizations.premiumSubscriptionRequired,
+            message: Localizations.premiumRequiredTOTPDescriptionLong,
+            alertActions: [
+                preferredAction,
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ],
+        )
+        alert.preferredAction = preferredAction
+        return alert
     }
 
     /// An alert notifying the user to update their encryption settings.
@@ -582,28 +495,4 @@ extension Alert {
             ],
         )
     }
-}
-
-// MARK: - MoreOptionsAlertContext
-
-/// Context for displaying a more options alert for a vault item.
-///
-struct MoreOptionsAlertContext {
-    /// Whether the cipher can be archived.
-    let canArchive: Bool
-
-    /// Whether the user can copy the TOTP code (because they have premium or the organization uses TOTP).
-    let canCopyTotp: Bool
-
-    /// Whether the cipher can be unarchived.
-    let canUnarchive: Bool
-
-    /// The cipher view to show.
-    let cipherView: CipherView
-
-    /// The id of the item.
-    let id: String
-
-    /// Whether to show the edit option (should be `false` for items in the trash).
-    let showEdit: Bool
 }

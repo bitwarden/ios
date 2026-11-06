@@ -8,16 +8,6 @@
 	<array>
 		<dict>
 			<key>Type</key>
-			<string>PSTitleValueSpecifier</string>
-			<key>Title</key>
-			<string>Version</string>
-			<key>Key</key>
-			<string>Version</string>
-			<key>DefaultValue</key>
-			<string>1.0.0 (1)</string>
-		</dict>
-		<dict>
-			<key>Type</key>
 			<string>PSChildPaneSpecifier</string>
 			<key>Title</key>
 			<string>Acknowledgements</string>

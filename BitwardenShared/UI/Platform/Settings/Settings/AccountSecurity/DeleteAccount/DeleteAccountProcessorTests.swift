@@ -53,7 +53,7 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
     func test_receive_dismiss() {
         subject.receive(.dismiss)
 
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 
     /// Perform with `.deleteAccount` presents the master password prompt alert.
@@ -307,6 +307,6 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
 
         coordinator.alertOnDismissed?()
 
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 }

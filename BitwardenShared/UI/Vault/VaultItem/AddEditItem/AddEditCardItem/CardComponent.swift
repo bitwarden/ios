@@ -162,9 +162,9 @@ extension CardComponent.Brand {
 
 extension CardComponent.Brand: CaseIterable {}
 extension CardComponent.Brand: Menuable {
-    /// default state title for title type
+    /// The default placeholder shown when no card brand is selected.
     static var defaultValueLocalizedName: String {
-        "--\(Localizations.select)--"
+        Localizations.none
     }
 
     /// Provides a localized string representation of the card brand.
@@ -267,11 +267,32 @@ extension CardComponent.Brand {
     }
 }
 
+extension CardComponent.Brand {
+    /// The set of valid PAN lengths for this card brand.
+    ///
+    /// Used during card scanning to reject numbers whose digit count does not match
+    /// the brand inferred from their leading digits.
+    var validDigitLengths: Set<Int> {
+        switch self {
+        case .americanExpress: [15]
+        case .dinersClub: [14]
+        case .discover: [16, 17, 18, 19]
+        case .jcb: [15, 16, 17, 18, 19]
+        case .maestro: Set(12 ... 19)
+        case .mastercard: [16]
+        case .other: Set(13 ... 19)
+        case .ruPay: [16]
+        case .unionPay: Set(16 ... 19)
+        case .visa: [13, 16, 19]
+        }
+    }
+}
+
 extension CardComponent.Month: CaseIterable {}
 extension CardComponent.Month: Menuable {
-    /// default state title for title type
+    /// The default placeholder shown when no expiration month is selected.
     static var defaultValueLocalizedName: String {
-        "--\(Localizations.select)--"
+        Localizations.none
     }
 
     var localizedName: String {

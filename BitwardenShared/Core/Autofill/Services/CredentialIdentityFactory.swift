@@ -6,7 +6,7 @@ protocol CredentialIdentityFactory {
     /// Creates the `ASCredentialIdentity` array from a `CipherView` (it may return empty).
     /// - Parameters:
     ///   - cipher: The cipher to get the identities from.
-    ///   - accountHasPremium: Whether the active account has premium access.
+    ///   - accountHasPremium: Whether the active account has Premium access.
     /// - Returns: An array of `ASCredentialIdentity` (password or one time code)
     @available(iOS 17.0, *)
     func createCredentialIdentities(from cipher: CipherView, accountHasPremium: Bool) async -> [ASCredentialIdentity]

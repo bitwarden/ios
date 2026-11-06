@@ -10,9 +10,6 @@ struct SetAccountKeysResponseModel: Equatable, JSONResponse, AccountKeysResponse
     /// The user's account keys.
     let accountKeys: PrivateKeysResponseModel?
 
-    /// The user's key.
-    let key: String?
-
     /// The user's private key.
     @available(*, deprecated, message: "Use accountKeys instead when possible") // TODO: PM-24659 remove
     let privateKey: String?

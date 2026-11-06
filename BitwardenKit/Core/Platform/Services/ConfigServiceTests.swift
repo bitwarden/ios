@@ -1,30 +1,28 @@
 import BitwardenKitMocks
+import Foundation
 import TestHelpers
-import XCTest
+import Testing
 
 @testable import BitwardenKit
 
 @MainActor
-final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
+struct ConfigServiceTests { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
-    var appSettingsStore: MockConfigSettingsStore!
-    var configApiService: MockConfigAPIService!
-    var errorReporter: MockErrorReporter!
-    var now: Date!
-    var stateService: MockConfigStateService!
-    var subject: DefaultConfigService!
-    var timeProvider: MockTimeProvider!
+    let appSettingsStore: MockConfigSettingsStore
+    let configApiService: MockConfigAPIService
+    let errorReporter: MockErrorReporter
+    let stateService: MockConfigStateService
+    let subject: DefaultConfigService
+    let timeProvider: MockTimeProvider
 
     // MARK: Setup & Teardown
 
-    override func setUp() {
-        super.setUp()
-
+    init() {
+        let now = Date(year: 2024, month: 2, day: 14, hour: 8, minute: 0, second: 0)
         appSettingsStore = MockConfigSettingsStore()
         configApiService = MockConfigAPIService()
         errorReporter = MockErrorReporter()
-        now = Date(year: 2024, month: 2, day: 14, hour: 8, minute: 0, second: 0)
         stateService = MockConfigStateService()
         timeProvider = MockTimeProvider(.mockTime(now))
         subject = DefaultConfigService(
@@ -37,21 +35,11 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.activeAccountId = "1"
     }
 
-    override func tearDown() async throws {
-        try await super.tearDown()
-
-        appSettingsStore = nil
-        configApiService = nil
-        errorReporter = nil
-        stateService = nil
-        subject = nil
-        timeProvider = nil
-    }
-
     // MARK: Tests - getConfig remote interactions
 
-    /// `getConfig(:)` gets the configuration from the server if `forceRefresh` is true
-    func test_getConfig_local_forceRefresh() async throws {
+    /// `getConfig(forceRefresh:isPreAuth:)` gets the configuration from the server if `forceRefresh` is true
+    @Test
+    func getConfig_local_forceRefresh() async throws {
         stateService.serverConfig["1"] = ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
@@ -65,14 +53,15 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         )
         configApiService.clientResult = .httpSuccess(testData: .validServerConfig)
         let response = await subject.getConfig(forceRefresh: true, isPreAuth: false)
-        XCTAssertEqual(configApiService.clientRequestCount, 1)
-        XCTAssertEqual(response?.gitHash, "75238191")
+        #expect(configApiService.clientRequestCount == 1)
+        #expect(response?.gitHash == "75238191")
 
         try await assertConfigPublisherWith(isPreAuth: false, userId: "1", gitHash: "75238191")
     }
 
-    /// `getConfig(:)` gets the local config when server throws if `forceRefresh` is true
-    func test_getConfig_local_forceRefreshServerCallThrowing() async {
+    /// `getConfig(forceRefresh:isPreAuth:)` gets the local config when server throws if `forceRefresh` is true
+    @Test
+    func getConfig_local_forceRefreshServerCallThrowing() async {
         stateService.serverConfig["1"] = ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
@@ -86,14 +75,15 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         )
         configApiService.clientResult = .failure(BitwardenTestError.example)
         let response = await subject.getConfig(forceRefresh: true, isPreAuth: false)
-        XCTAssertEqual(configApiService.clientRequestCount, 1)
-        XCTAssertEqual(response?.gitHash, "75238192")
-        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        #expect(configApiService.clientRequestCount == 1)
+        #expect(response?.gitHash == "75238192")
+        #expect(errorReporter.errors as? [BitwardenTestError] == [.example])
     }
 
-    /// `getConfig(:)` uses the local configuration if it is expired
+    /// `getConfig(forceRefresh:isPreAuth:)` uses the local configuration if it is expired
     /// but updates the local config when the http request finishes.
-    func test_getConfig_local_expired() async throws {
+    @Test
+    func getConfig_local_expired() async throws {
         stateService.serverConfig["1"] = ServerConfig(
             date: Date(year: 2024, month: 2, day: 10, hour: 8, minute: 0, second: 0),
             responseModel: ConfigResponseModel(
@@ -107,20 +97,21 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         )
         configApiService.clientResult = .httpSuccess(testData: .validServerConfig)
         let response = await subject.getConfig(forceRefresh: false, isPreAuth: false)
-        XCTAssertEqual(response?.gitHash, "75238192")
+        #expect(response?.gitHash == "75238192")
 
         try await waitForAsync {
-            self.stateService.serverConfig["1"]?.gitHash == "75238191"
+            stateService.serverConfig["1"]?.gitHash == "75238191"
         }
 
-        XCTAssertEqual(stateService.serverConfig["1"]?.gitHash, "75238191")
+        #expect(stateService.serverConfig["1"]?.gitHash == "75238191")
 
         try await assertConfigPublisherWith(isPreAuth: false, userId: "1", gitHash: "75238191")
     }
 
-    /// `getConfig(:)` uses the local configuration if it is expired
+    /// `getConfig(forceRefresh:isPreAuth:)` uses the local configuration if it is expired
     /// but updates the local config when the http request finishes.
-    func test_getConfig_local_expiredAndServerCallThrowing() async throws {
+    @Test
+    func getConfig_local_expiredAndServerCallThrowing() async throws {
         stateService.serverConfig["1"] = ServerConfig(
             date: Date(year: 2024, month: 2, day: 10, hour: 8, minute: 0, second: 0),
             responseModel: ConfigResponseModel(
@@ -134,17 +125,18 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         )
         configApiService.clientResult = .failure(BitwardenTestError.example)
         let response = await subject.getConfig(forceRefresh: false, isPreAuth: false)
-        XCTAssertEqual(response?.gitHash, "75238192")
+        #expect(response?.gitHash == "75238192")
 
         try await waitForAsync {
-            !self.errorReporter.errors.isEmpty
+            !errorReporter.errors.isEmpty
         }
 
-        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        #expect(errorReporter.errors as? [BitwardenTestError] == [.example])
     }
 
-    /// `getConfig(:)` uses the local configuration if it's not expired
-    func test_getConfig_local_notExpired() async {
+    /// `getConfig(forceRefresh:isPreAuth:)` uses the local configuration if it's not expired
+    @Test
+    func getConfig_local_notExpired() async {
         stateService.serverConfig["1"] = ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
@@ -157,32 +149,33 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             ),
         )
         let response = await subject.getConfig(forceRefresh: false, isPreAuth: false)
-        XCTAssertEqual(configApiService.clientRequestCount, 0)
-        XCTAssertEqual(response?.gitHash, "75238192")
+        #expect(configApiService.clientRequestCount == 0)
+        #expect(response?.gitHash == "75238192")
     }
 
-    /// `getConfig(:)` gets the configuration from the server if there is no local configuration
+    /// `getConfig(forceRefresh:isPreAuth:)` gets the configuration from the server if there is no local configuration
     ///  but in background returning nil to the caller as is the current available local config.
-    func test_getConfig_noLocal() async throws {
+    @Test
+    func getConfig_noLocal() async throws {
         configApiService.clientResult = .httpSuccess(testData: .validServerConfig)
         let response = await subject.getConfig(forceRefresh: false, isPreAuth: false)
-        XCTAssertNil(response)
+        #expect(response == nil)
 
         try await waitForAsync {
-            self.stateService.serverConfig["1"] != nil
+            stateService.serverConfig["1"] != nil
         }
 
-        XCTAssertEqual(stateService.serverConfig["1"]?.gitHash, "75238191")
-        XCTAssertEqual(
-            stateService.serverConfig["1"]?.featureStates[FeatureFlag.testFeatureFlag.rawValue],
-            .bool(true),
+        #expect(stateService.serverConfig["1"]?.gitHash == "75238191")
+        #expect(
+            stateService.serverConfig["1"]?.featureStates[FeatureFlag.testFeatureFlag.rawValue] == .bool(true),
         )
     }
 
-    /// `getConfig(:)` gets the configuration from the pre authenticated server config if `forceRefresh` is true,
-    /// there is no local config and there's a pre authenticated server config.
+    /// `getConfig(forceRefresh:isPreAuth:)` gets the configuration from the pre authenticated server
+    /// config if `forceRefresh` is true, there is no local config and there's a pre authenticated server config.
     /// It also updates the local config with the pre authenticated server config.
-    func test_getConfig_forceRefreshServerCallThrowingWithPreAuthConfig() async {
+    @Test
+    func getConfig_forceRefreshServerCallThrowingWithPreAuthConfig() async {
         stateService.preAuthServerConfig = ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
@@ -196,29 +189,31 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         )
         configApiService.clientResult = .failure(BitwardenTestError.example)
         let response = await subject.getConfig(forceRefresh: true, isPreAuth: false)
-        XCTAssertEqual(configApiService.clientRequestCount, 1)
-        XCTAssertEqual(response?.gitHash, "75238192")
-        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
-        XCTAssertEqual(stateService.serverConfig["1"]?.gitHash, "75238192")
+        #expect(configApiService.clientRequestCount == 1)
+        #expect(response?.gitHash == "75238192")
+        #expect(errorReporter.errors as? [BitwardenTestError] == [.example])
+        #expect(stateService.serverConfig["1"]?.gitHash == "75238192")
     }
 
-    /// `getConfig(:)` returns `nil` if `forceRefresh` is true,
+    /// `getConfig(forceRefresh:isPreAuth:)` returns `nil` if `forceRefresh` is true,
     /// there is no local config nor a pre authenticated server config.
-    func test_getConfig_forceRefreshServerCallThrowingWithoutPreAuthConfig() async {
+    @Test
+    func getConfig_forceRefreshServerCallThrowingWithoutPreAuthConfig() async {
         configApiService.clientResult = .failure(BitwardenTestError.example)
         let response = await subject.getConfig(forceRefresh: true, isPreAuth: false)
-        XCTAssertEqual(configApiService.clientRequestCount, 1)
-        XCTAssertNil(response)
-        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
-        XCTAssertNil(stateService.serverConfig["1"])
-        XCTAssertNil(stateService.preAuthServerConfig)
+        #expect(configApiService.clientRequestCount == 1)
+        #expect(response == nil)
+        #expect(errorReporter.errors as? [BitwardenTestError] == [.example])
+        #expect(stateService.serverConfig["1"] == nil)
+        #expect(stateService.preAuthServerConfig == nil)
     }
 
     // MARK: Tests - getConfig pre-auth
 
-    /// `getConfig(:)` gets the configuration from the server if `forceRefresh` is true
+    /// `getConfig(forceRefresh:isPreAuth:)` gets the configuration from the server if `forceRefresh` is true
     /// and the user has not been authenticated.
-    func test_getConfig_local_forceRefreshPreAuth() async throws {
+    @Test
+    func getConfig_local_forceRefreshPreAuth() async throws {
         stateService.preAuthServerConfig = ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
@@ -232,17 +227,18 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         )
         configApiService.clientResult = .httpSuccess(testData: .validServerConfig)
         let response = await subject.getConfig(forceRefresh: true, isPreAuth: true)
-        XCTAssertEqual(configApiService.clientRequestCount, 1)
-        XCTAssertEqual(response?.gitHash, "75238191")
-        XCTAssertEqual(stateService.preAuthServerConfig?.gitHash, "75238191")
+        #expect(configApiService.clientRequestCount == 1)
+        #expect(response?.gitHash == "75238191")
+        #expect(stateService.preAuthServerConfig?.gitHash == "75238191")
 
         try await assertConfigPublisherWith(isPreAuth: true, userId: "1", gitHash: "75238191")
     }
 
-    /// `getConfig(:)` uses the local configuration if it is expired
+    /// `getConfig(forceRefresh:isPreAuth:)` uses the local configuration if it is expired
     /// and the user has not been authenticated
     /// but updates the local config when the http request finishes.
-    func test_getConfig_local_expiredPreAuth() async throws {
+    @Test
+    func getConfig_local_expiredPreAuth() async throws {
         stateService.preAuthServerConfig = ServerConfig(
             date: Date(year: 2024, month: 2, day: 10, hour: 8, minute: 0, second: 0),
             responseModel: ConfigResponseModel(
@@ -256,21 +252,22 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         )
         configApiService.clientResult = .httpSuccess(testData: .validServerConfig)
         let response = await subject.getConfig(forceRefresh: false, isPreAuth: true)
-        XCTAssertEqual(response?.gitHash, "75238192")
+        #expect(response?.gitHash == "75238192")
 
         try await waitForAsync {
-            self.stateService.preAuthServerConfig?.gitHash == "75238191"
+            stateService.preAuthServerConfig?.gitHash == "75238191"
         }
 
-        XCTAssertEqual(stateService.preAuthServerConfig?.gitHash, "75238191")
+        #expect(stateService.preAuthServerConfig?.gitHash == "75238191")
 
         try await assertConfigPublisherWith(isPreAuth: true, userId: "1", gitHash: "75238191")
     }
 
-    /// `getConfig(:)` uses the local configuration if it is expired, server throws
+    /// `getConfig(forceRefresh:isPreAuth:)` uses the local configuration if it is expired, server throws
     /// and the user has not been authenticated
     /// but updates the local config when the http request finishes.
-    func test_getConfig_local_expiredAndServerCallThrowingPreAuth() async throws {
+    @Test
+    func getConfig_local_expiredAndServerCallThrowingPreAuth() async throws {
         stateService.preAuthServerConfig = ServerConfig(
             date: Date(year: 2024, month: 2, day: 10, hour: 8, minute: 0, second: 0),
             responseModel: ConfigResponseModel(
@@ -284,18 +281,19 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         )
         configApiService.clientResult = .failure(BitwardenTestError.example)
         let response = await subject.getConfig(forceRefresh: false, isPreAuth: true)
-        XCTAssertEqual(response?.gitHash, "75238192")
+        #expect(response?.gitHash == "75238192")
 
         try await waitForAsync {
-            !self.errorReporter.errors.isEmpty
+            !errorReporter.errors.isEmpty
         }
 
-        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        #expect(errorReporter.errors as? [BitwardenTestError] == [.example])
     }
 
-    /// `getConfig(:)` uses the local configuration if it's not expired
+    /// `getConfig(forceRefresh:isPreAuth:)` uses the local configuration if it's not expired
     /// and the user has not been authenticated
-    func test_getConfig_local_notExpiredPreAuth() async {
+    @Test
+    func getConfig_local_notExpiredPreAuth() async {
         stateService.preAuthServerConfig = ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
@@ -308,71 +306,76 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             ),
         )
         let response = await subject.getConfig(forceRefresh: false, isPreAuth: true)
-        XCTAssertEqual(configApiService.clientRequestCount, 0)
-        XCTAssertEqual(response?.gitHash, "75238192")
-        XCTAssertEqual(stateService.preAuthServerConfig?.gitHash, "75238192")
+        #expect(configApiService.clientRequestCount == 0)
+        #expect(response?.gitHash == "75238192")
+        #expect(stateService.preAuthServerConfig?.gitHash == "75238192")
     }
 
-    /// `getConfig(:)` gets the configuration from the server if there is no local configuration
+    /// `getConfig(forceRefresh:isPreAuth:)` gets the configuration from the server if there is no local configuration
     /// and the user has not been authenticated
     /// but in background returning nil to the caller as is the current available local config.
-    func test_getConfig_noLocalPreAuth() async throws {
+    @Test
+    func getConfig_noLocalPreAuth() async throws {
         configApiService.clientResult = .httpSuccess(testData: .validServerConfig)
-        // Subscribe before getConfig so the background-task emission is not missed.
         var configUpdates = await subject.configPublisher().makeAsyncIterator()
-        let response = await subject.getConfig(forceRefresh: false, isPreAuth: true)
-        XCTAssertNil(response)
-
-        // CurrentValueSubject emits nil on subscribe; skip it, then await the
-        // background fetch update via the thread-safe publisher instead of polling
-        // the mock's state across thread boundaries (which causes SEGV data races).
+        // AsyncPublisher uses demand-based delivery (.max(1) per next() call). Consuming the
+        // initial nil here replenishes demand to 1 before the background fetch fires, so the
+        // subsequent MetaServerConfig emission is delivered rather than dropped.
         _ = await configUpdates.next()
+
+        let response = await subject.getConfig(forceRefresh: false, isPreAuth: true)
+        #expect(response == nil)
+
         let wrappedMetaConfig = await configUpdates.next()
-        let metaConfig = try XCTUnwrap(XCTUnwrap(wrappedMetaConfig))
-        XCTAssertTrue(metaConfig.isPreAuth)
-        XCTAssertEqual(metaConfig.serverConfig?.gitHash, "75238191")
-        XCTAssertEqual(
-            metaConfig.serverConfig?.featureStates[FeatureFlag.testFeatureFlag.rawValue],
-            .bool(true),
+        let optionalMetaConfig = try #require(wrappedMetaConfig)
+        let metaConfig = try #require(optionalMetaConfig)
+        #expect(metaConfig.isPreAuth)
+        #expect(metaConfig.serverConfig?.gitHash == "75238191")
+        #expect(
+            metaConfig.serverConfig?.featureStates[FeatureFlag.testFeatureFlag.rawValue] == .bool(true),
         )
     }
 
     // MARK: Tests - getFeatureFlag initial values
 
-    /// `getFeatureFlag(:)` returns the initial value for booleans if it is configured.
-    func test_getFeatureFlag_initialValue_localBool() async {
+    /// `getFeatureFlag(_:defaultValue:forceRefresh:)` returns the initial value for booleans if it is configured.
+    @Test
+    func getFeatureFlag_initialValue_localBool() async {
         let value = await subject.getFeatureFlag(
             .testInitialBoolFlag,
             defaultValue: false,
             forceRefresh: false,
         )
-        XCTAssertTrue(value)
+        #expect(value)
     }
 
-    /// `getFeatureFlag(:)` returns the initial value for integers if it is configured.
-    func test_getFeatureFlag_initialValue_localInt() async {
+    /// `getFeatureFlag(_:defaultValue:forceRefresh:)` returns the initial value for integers if it is configured.
+    @Test
+    func getFeatureFlag_initialValue_localInt() async {
         let value = await subject.getFeatureFlag(
             .testInitialIntFlag,
             defaultValue: 10,
             forceRefresh: false,
         )
-        XCTAssertEqual(value, 42)
+        #expect(value == 42)
     }
 
-    /// `getFeatureFlag(:)` returns the initial value for strings if it is configured.
-    func test_getFeatureFlag_initialValue_localString() async {
+    /// `getFeatureFlag(_:defaultValue:forceRefresh:)` returns the initial value for strings if it is configured.
+    @Test
+    func getFeatureFlag_initialValue_localString() async {
         let value = await subject.getFeatureFlag(
             .testInitialStringFlag,
             defaultValue: "Default",
             forceRefresh: false,
         )
-        XCTAssertEqual(value, "Test String")
+        #expect(value == "Test String")
     }
 
     // MARK: Tests - getFeatureFlag
 
-    /// `getFeatureFlag(:)` can return a boolean if it's in the configuration
-    func test_getFeatureFlag_bool_exists() async {
+    /// `getFeatureFlag(_:defaultValue:forceRefresh:)` can return a boolean if it's in the configuration
+    @Test
+    func getFeatureFlag_bool_exists() async {
         stateService.serverConfig["1"] = ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
@@ -385,11 +388,12 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             ),
         )
         let value = await subject.getFeatureFlag(.testFeatureFlag, defaultValue: false, forceRefresh: false)
-        XCTAssertTrue(value)
+        #expect(value)
     }
 
-    /// `getFeatureFlag(:)` returns the default value for booleans
-    func test_getFeatureFlag_bool_fallback() async {
+    /// `getFeatureFlag(_:defaultValue:forceRefresh:)` returns the default value for booleans
+    @Test
+    func getFeatureFlag_bool_fallback() async {
         stateService.serverConfig["1"] = ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
@@ -402,11 +406,12 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             ),
         )
         let value = await subject.getFeatureFlag(.testFeatureFlag, defaultValue: true, forceRefresh: false)
-        XCTAssertTrue(value)
+        #expect(value)
     }
 
-    /// `getFeatureFlag(:)` can return an integer if it's in the configuration
-    func test_getFeatureFlag_int_exists() async {
+    /// `getFeatureFlag(_:defaultValue:forceRefresh:)` can return an integer if it's in the configuration
+    @Test
+    func getFeatureFlag_int_exists() async {
         stateService.serverConfig["1"] = ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
@@ -419,11 +424,12 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             ),
         )
         let value = await subject.getFeatureFlag(.testFeatureFlag, defaultValue: 30, forceRefresh: false)
-        XCTAssertEqual(value, 42)
+        #expect(value == 42)
     }
 
-    /// `getFeatureFlag(:)` returns the default value for integers
-    func test_getFeatureFlag_int_fallback() async {
+    /// `getFeatureFlag(_:defaultValue:forceRefresh:)` returns the default value for integers
+    @Test
+    func getFeatureFlag_int_fallback() async {
         stateService.serverConfig["1"] = ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
@@ -436,11 +442,12 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             ),
         )
         let value = await subject.getFeatureFlag(.testFeatureFlag, defaultValue: 30, forceRefresh: false)
-        XCTAssertEqual(value, 30)
+        #expect(value == 30)
     }
 
-    /// `getFeatureFlag(:)` can return a string if it's in the configuration
-    func test_getFeatureFlag_string_exists() async {
+    /// `getFeatureFlag(_:defaultValue:forceRefresh:)` can return a string if it's in the configuration
+    @Test
+    func getFeatureFlag_string_exists() async {
         stateService.serverConfig["1"] = ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
@@ -453,11 +460,12 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             ),
         )
         let value = await subject.getFeatureFlag(.testFeatureFlag, defaultValue: "fallback", forceRefresh: false)
-        XCTAssertEqual(value, "exists")
+        #expect(value == "exists")
     }
 
-    /// `getFeatureFlag(:)` returns the default value for strings
-    func test_getFeatureFlag_string_fallback() async {
+    /// `getFeatureFlag(_:defaultValue:forceRefresh:)` returns the default value for strings
+    @Test
+    func getFeatureFlag_string_fallback() async {
         stateService.serverConfig["1"] = ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
@@ -470,11 +478,12 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             ),
         )
         let value = await subject.getFeatureFlag(.testFeatureFlag, defaultValue: "fallback", forceRefresh: false)
-        XCTAssertEqual(value, "fallback")
+        #expect(value == "fallback")
     }
 
-    /// `getDebugFeatureFlags(:)` returns the default value if the feature is not remotely configurable for strings
-    func test_getDebugFeatureFlags() async {
+    /// `getDebugFeatureFlags(_:)` returns the debug override value when a flag has been overridden
+    @Test
+    func getDebugFeatureFlags() async throws {
         stateService.serverConfig["1"] = ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
@@ -488,39 +497,42 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         )
         appSettingsStore.overrideDebugFeatureFlag(name: "test-feature-flag", value: false)
         let flags = await subject.getDebugFeatureFlags(FeatureFlag.allCases)
-        let flag = try? XCTUnwrap(flags.first { $0.feature.rawValue == "test-feature-flag" })
-        XCTAssertFalse(flag?.isEnabled ?? true)
+        let flag = try #require(flags.first { $0.feature.rawValue == "test-feature-flag" })
+        #expect(!flag.isEnabled)
     }
 
     // MARK: Tests - Other
 
-    /// `toggleDebugFeatureFlag` will correctly change the value of the flag given.
-    func test_toggleDebugFeatureFlag() async throws {
+    /// `toggleDebugFeatureFlag(name:newValue:)` correctly changes the value of the flag given.
+    @Test
+    func toggleDebugFeatureFlag() async throws {
         await subject.toggleDebugFeatureFlag(
             name: FeatureFlag.testFeatureFlag.rawValue,
             newValue: true,
         )
         let flags = await subject.getDebugFeatureFlags(FeatureFlag.allCases)
-        XCTAssertTrue(appSettingsStore.overrideDebugFeatureFlagCalled)
-        let flag = try XCTUnwrap(flags.first { $0.feature == .testFeatureFlag })
-        XCTAssertTrue(flag.isEnabled)
+        #expect(appSettingsStore.overrideDebugFeatureFlagCalled)
+        let flag = try #require(flags.first { $0.feature == .testFeatureFlag })
+        #expect(flag.isEnabled)
     }
 
-    /// `refreshDebugFeatureFlags` will reset the flags to the original state before overriding.
-    func test_refreshDebugFeatureFlags() async throws {
+    /// `refreshDebugFeatureFlags(_:)` resets the flags to the original state before overriding.
+    @Test
+    func refreshDebugFeatureFlags() async throws {
         let flags = await subject.refreshDebugFeatureFlags(FeatureFlag.allCases)
-        XCTAssertTrue(appSettingsStore.overrideDebugFeatureFlagCalled)
-        let flag = try XCTUnwrap(flags.first { $0.feature == .testFeatureFlag })
-        XCTAssertFalse(flag.isEnabled)
+        #expect(appSettingsStore.overrideDebugFeatureFlagCalled)
+        let flag = try #require(flags.first { $0.feature == .testFeatureFlag })
+        #expect(!flag.isEnabled)
     }
 
     // MARK: Tests - Server communication cookie
 
     /// `clearServerCommunicationCookieValue(hostname:)` delegates to the state service with the correct hostname.
-    func test_clearServerCommunicationCookieValue() async throws {
+    @Test
+    func clearServerCommunicationCookieValue() async throws {
         try await subject.clearServerCommunicationCookieValue(hostname: "example.com")
 
-        XCTAssertEqual(stateService.clearServerCommCookieValueHostname, "example.com")
+        #expect(stateService.clearServerCommCookieValueHostname == "example.com")
     }
 
     // MARK: Private
@@ -534,14 +546,14 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         isPreAuth: Bool,
         userId: String?,
         gitHash: String?,
-        file: StaticString = #file,
-        line: UInt = #line,
+        sourceLocation: SourceLocation = #_sourceLocation,
     ) async throws {
         var publisher = await subject.configPublisher().makeAsyncIterator()
         let result = await publisher.next()
-        let metaConfig = try XCTUnwrap(XCTUnwrap(result))
-        XCTAssertEqual(metaConfig.isPreAuth, isPreAuth, file: file, line: line)
-        XCTAssertEqual(metaConfig.userId, userId, file: file, line: line)
-        XCTAssertEqual(metaConfig.serverConfig?.gitHash, gitHash, file: file, line: line)
+        let wrapped = try #require(result, sourceLocation: sourceLocation)
+        let metaConfig = try #require(wrapped, sourceLocation: sourceLocation)
+        #expect(metaConfig.isPreAuth == isPreAuth, sourceLocation: sourceLocation)
+        #expect(metaConfig.userId == userId, sourceLocation: sourceLocation)
+        #expect(metaConfig.serverConfig?.gitHash == gitHash, sourceLocation: sourceLocation)
     }
 } // swiftlint:disable:this file_length

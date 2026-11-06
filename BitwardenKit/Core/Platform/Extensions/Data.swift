@@ -34,6 +34,7 @@ public extension Data {
     ///
     /// - Returns: The data as a hash value.
     ///
+    @_optimize(none) // TODO: PM-25026 Remove when optimization for this is fixed on release config.
     func generatedHash(
         using hashFunction: any HashFunction.Type,
     ) -> String {

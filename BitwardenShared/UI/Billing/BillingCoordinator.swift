@@ -64,6 +64,8 @@ class BillingCoordinator: NSObject, Coordinator, HasStackNavigator {
             }
         case .premiumUpgradeComplete:
             showPremiumUpgradeComplete()
+        case .premiumUpgradeCompleteStandalone:
+            showPremiumUpgradeCompleteStandalone()
         case let .premiumPlan(subscription):
             showPremiumPlan(subscription: subscription)
         case .premiumUpgrade:
@@ -75,7 +77,7 @@ class BillingCoordinator: NSObject, Coordinator, HasStackNavigator {
 
     // MARK: Private Methods
 
-    /// Shows the premium upgrade complete screen.
+    /// Shows the Premium upgrade complete screen.
     ///
     private func showPremiumUpgradeComplete() {
         premiumUpgradeCompleteOnClose = isUpgradeAsModalRoot
@@ -94,7 +96,18 @@ class BillingCoordinator: NSObject, Coordinator, HasStackNavigator {
         stackNavigator?.present(view)
     }
 
-    /// Shows the premium plan screen.
+    /// Shows the Premium upgrade complete screen as the sole content of this coordinator's stack.
+    ///
+    private func showPremiumUpgradeCompleteStandalone() {
+        let processor = PremiumUpgradeCompleteProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+        )
+        let view = PremiumUpgradeCompleteView(store: Store(processor: processor))
+        stackNavigator?.replace(view)
+    }
+
+    /// Shows the Premium plan screen.
     ///
     /// - Parameter subscription: An already-fetched subscription; pass `nil` to let the plan screen fetch it.
     ///
@@ -111,7 +124,7 @@ class BillingCoordinator: NSObject, Coordinator, HasStackNavigator {
         stackNavigator?.push(viewController, navigationTitle: Localizations.plan)
     }
 
-    /// Shows the premium upgrade screen.
+    /// Shows the Premium upgrade screen.
     ///
     private func showPremiumUpgrade() {
         let shouldReplaceStack = stackNavigator?.isEmpty == true
@@ -130,7 +143,7 @@ class BillingCoordinator: NSObject, Coordinator, HasStackNavigator {
         } else {
             let viewController = UIHostingController(rootView: view)
             viewController.navigationItem.largeTitleDisplayMode = .never
-            stackNavigator?.push(viewController, navigationTitle: Localizations.upgradeToPremium)
+            stackNavigator?.push(viewController, navigationTitle: Localizations.premium)
         }
     }
 }

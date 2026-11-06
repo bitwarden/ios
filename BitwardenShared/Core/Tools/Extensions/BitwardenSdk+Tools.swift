@@ -2,8 +2,21 @@
 
 import BitwardenKit
 import BitwardenSdk
+import Foundation
 
 // MARK: - Sends
+
+extension SendDataModel {
+    init(sendItem: SendItem) throws {
+        // The SDK already hands back the sealed cipher blob the API stores verbatim.
+        // TODO: PM-41094 - Share: `SendItemMetadata.itemId` has no counterpart on `SendDataModel`,
+        // so it isn't carried over to the API model.
+        self.init(
+            data: sendItem.data,
+            encryptionVersion: Int(sendItem.encryptionVersion.rawValue),
+        )
+    }
+}
 
 extension SendFileModel {
     init(sendFile: SendFile) {
@@ -19,10 +32,11 @@ extension SendFileModel {
 extension SendResponseModel {
     init(send: Send) throws {
         guard let id = send.id, let accessId = send.accessId else { throw DataMappingError.missingId }
-        self.init(
+        try self.init(
             accessCount: send.accessCount,
             accessId: accessId,
             authType: SendAuthType(authType: send.authType),
+            data: send.data.map(SendDataModel.init),
             deletionDate: send.deletionDate,
             disabled: send.disabled,
             emails: send.emails,
@@ -58,6 +72,9 @@ extension SendType {
             self = .file
         case .text:
             self = .text
+        // TODO: PM-41094 - Share: Implement Share panel and vault item menu integration.
+        case .item:
+            self = .unknown
         }
     }
 }
@@ -69,20 +86,24 @@ extension BitwardenSdk.Send {
         guard let model = sendData.model else {
             throw DataMappingError.invalidData
         }
-        self.init(sendResponseModel: model)
+        try self.init(sendResponseModel: model)
     }
 
-    init(sendResponseModel model: SendResponseModel) {
-        self.init(
+    init(sendResponseModel model: SendResponseModel) throws {
+        guard let type = BitwardenSdk.SendType(type: model.type) else {
+            throw DataMappingError.invalidData
+        }
+        try self.init(
             id: model.id,
             accessId: model.accessId,
             name: model.name,
             notes: model.notes,
             key: model.key,
             password: model.password,
-            type: BitwardenSdk.SendType(type: model.type),
+            type: type,
             file: model.file.map(SendFile.init),
             text: model.text.map(SendText.init),
+            data: model.data.map(SendItem.init),
             maxAccessCount: model.maxAccessCount,
             accessCount: model.accessCount,
             disabled: model.disabled,
@@ -97,13 +118,41 @@ extension BitwardenSdk.Send {
 }
 
 extension BitwardenSdk.SendType {
-    init(type: SendType) {
+    init?(type: SendType) {
         switch type {
         case .file:
             self = .file
         case .text:
             self = .text
+        case .unknown:
+            return nil
         }
+    }
+}
+
+extension BitwardenSdk.SendItem {
+    init(sendDataModel model: SendDataModel) throws {
+        guard let data = model.data else {
+            throw DataMappingError.invalidData
+        }
+
+        // A missing encryption version defaults to v1, matching the SDK.
+        var encryptionVersion = BitwardenSdk.SendEncryptionType.v1
+        if let rawVersion = model.encryptionVersion {
+            guard let version = UInt8(exactly: rawVersion).flatMap(BitwardenSdk.SendEncryptionType.init) else {
+                throw DataMappingError.invalidData
+            }
+            encryptionVersion = version
+        }
+
+        // The API model stores the sealed cipher blob verbatim, so it's passed straight through.
+        // TODO: PM-41094 - Share: `SendDataModel` carries no item ID, so the metadata can't be
+        // round-tripped from the API response yet.
+        self.init(
+            encryptionVersion: encryptionVersion,
+            data: data,
+            metadata: SendItemMetadata(itemId: ""),
+        )
     }
 }
 

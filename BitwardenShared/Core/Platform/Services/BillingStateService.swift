@@ -6,43 +6,165 @@ import Foundation
 /// A service that provides state management functionality around billing.
 ///
 protocol BillingStateService { // sourcery: AutoMockable
-    /// Returns whether the premium upgrade banner has been permanently dismissed by the user.
-    ///
-    /// - Returns: `true` if the user has dismissed the banner.
-    ///
-    func isPremiumUpgradeBannerDismissed() async -> Bool
+    // MARK: Premium Upgrade Banner
 
-    /// Returns whether the user meets the eligibility criteria for the premium upgrade.
+    /// Gets whether the Premium upgrade banner has been dismissed.
     ///
-    /// - Returns: `true` if the user is eligible for the premium upgrade.
+    /// - Parameters:
+    ///   - userId: The user ID associated with the Premium upgrade banner dismissed value.
+    ///     Defaults to the active account if `nil`.
+    /// - Returns: Whether the Premium upgrade banner has been dismissed.
+    ///
+    func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool
+
+    /// Sets whether the Premium upgrade banner has been dismissed.
+    ///
+    /// - Parameters:
+    ///   - dismissed: Whether the Premium upgrade banner has been dismissed.
+    ///   - userId: The user ID associated with the Premium upgrade banner dismissed value.
+    ///     Defaults to the active account if `nil`.
+    ///
+    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws
+
+    // MARK: Premium Upgrade Eligibility
+
+    /// Returns whether the user meets the eligibility criteria for the Premium upgrade.
+    ///
+    /// - Returns: `true` if the user is eligible for the Premium upgrade.
     ///
     func isPremiumUpgradeEligible() async -> Bool
+
+    // MARK: Premium Upgrade Pending
+
+    /// Returns whether a Premium upgrade is pending.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID of the account to check. Defaults to the active account if `nil`.
+    /// - Returns: `true` if a Premium upgrade is pending.
+    ///
+    func getPremiumUpgradePending(userId: String?) async throws -> Bool
+
+    /// Sets whether a Premium upgrade is pending.
+    ///
+    /// - Parameters:
+    ///   - pending: Whether a Premium upgrade is pending.
+    ///   - userId: The user ID of the account to update. Defaults to the active account if `nil`.
+    ///
+    func setPremiumUpgradePending(_ pending: Bool, userId: String?) async throws
+
+    // MARK: Previous Personal Premium
+
+    /// Returns the personal Premium value last recorded for the account.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID of the account to check. Defaults to the active account if `nil`.
+    /// - Returns: The personal Premium value last recorded, or `nil` if no value has been recorded
+    ///   for the account.
+    ///
+    func getPreviousPersonalPremium(userId: String?) async throws -> Bool?
+
+    /// Sets the personal Premium value last recorded for the account.
+    ///
+    /// - Parameters:
+    ///   - previousPersonalPremium: The personal Premium value to record, or `nil` to clear the
+    ///     recorded value.
+    ///   - userId: The user ID of the account to update. Defaults to the active account if `nil`.
+    ///
+    func setPreviousPersonalPremium(_ previousPersonalPremium: Bool?, userId: String?) async throws
+
+    // MARK: Subscription Attention Card
+
+    /// Returns whether the "subscription needs attention" action card should be shown for the
+    /// active account.
+    ///
+    /// - Returns: `true` if the card should be shown.
+    ///
+    func getSubscriptionAttentionCardVisible() async throws -> Bool
+
+    /// Persists whether the "subscription needs attention" action card should be shown for the
+    /// active account.
+    ///
+    /// - Parameters:
+    ///   - visible: Whether the card should be shown.
+    ///
+    func setSubscriptionAttentionCardVisible(_ visible: Bool) async throws
+
+    // MARK: Upgraded to Premium Card
+
+    /// Returns whether the "Upgraded to Premium" action card should be shown.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID of the account to check. Defaults to the active account if `nil`.
+    /// - Returns: `true` if the card should be shown.
+    ///
+    func getUpgradedToPremiumActionCardVisible(userId: String?) async throws -> Bool
+
+    /// Sets whether the "Upgraded to Premium" action card should be shown.
+    ///
+    /// - Parameters:
+    ///   - visible: Whether the action card should be shown.
+    ///   - userId: The user ID of the account to update. Defaults to the active account if `nil`.
+    ///
+    func setUpgradedToPremiumActionCardVisible(_ visible: Bool, userId: String?) async throws
+}
+
+// MARK: - BillingStateService Convenience Methods
+
+extension BillingStateService {
+    // MARK: Premium Upgrade Banner
+
+    /// Gets whether the Premium upgrade banner has been dismissed for the active account.
+    ///
+    /// - Returns: Whether the Premium upgrade banner has been dismissed.
+    ///
+    func getPremiumUpgradeBannerDismissed() async throws -> Bool {
+        try await getPremiumUpgradeBannerDismissed(userId: nil)
+    }
+
+    /// Sets whether the Premium upgrade banner has been dismissed for the active account.
+    ///
+    /// - Parameters:
+    ///   - dismissed: Whether the Premium upgrade banner has been dismissed.
+    ///
+    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool) async throws {
+        try await setPremiumUpgradeBannerDismissed(dismissed, userId: nil)
+    }
+
+    // MARK: Premium Upgrade Pending
+
+    /// Returns whether a Premium upgrade is pending for the active account.
+    ///
+    /// - Returns: `true` if a Premium upgrade is pending.
+    ///
+    func getPremiumUpgradePending() async throws -> Bool {
+        try await getPremiumUpgradePending(userId: nil)
+    }
+
+    /// Sets whether a Premium upgrade is pending for the active account.
+    ///
+    /// - Parameters:
+    ///   - pending: Whether a Premium upgrade is pending.
+    ///
+    func setPremiumUpgradePending(_ pending: Bool) async throws {
+        try await setPremiumUpgradePending(pending, userId: nil)
+    }
+
+    // MARK: Upgraded to Premium Card
 
     /// Returns whether the "Upgraded to Premium" action card should be shown for the active account.
     ///
     /// - Returns: `true` if the card should be shown.
     ///
-    func getUpgradedToPremiumActionCardVisible() async -> Bool
-}
-
-// MARK: - DefaultStateService
-
-extension DefaultStateService: BillingStateService {
-    func isPremiumUpgradeBannerDismissed() async -> Bool {
-        do {
-            return try await getPremiumUpgradeBannerDismissed()
-        } catch {
-            errorReporter.log(error: error)
-            return false
-        }
+    func getUpgradedToPremiumActionCardVisible() async throws -> Bool {
+        try await getUpgradedToPremiumActionCardVisible(userId: nil)
     }
 
-    func isPremiumUpgradeEligible() async -> Bool {
-        guard await !doesActiveAccountHavePremium() else { return false }
-
-        // Check account age >= 7 days
-        guard let account = try? await getActiveAccount(),
-              let creationDate = account.profile.creationDate else { return false }
-        return timeProvider.timeSince(creationDate) >= Constants.premiumUpgradeBannerAccountAge
+    /// Sets whether the "Upgraded to Premium" action card should be shown for the active account.
+    ///
+    /// - Parameters:
+    ///   - visible: Whether the action card should be shown.
+    ///
+    func setUpgradedToPremiumActionCardVisible(_ visible: Bool) async throws {
+        try await setUpgradedToPremiumActionCardVisible(visible, userId: nil)
     }
 }

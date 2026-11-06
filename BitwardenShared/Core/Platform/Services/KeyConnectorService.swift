@@ -25,13 +25,6 @@ protocol KeyConnectorService {
     ///
     func getManagingOrganization() async throws -> Organization?
 
-    /// Fetches the user's master key from Key Connector.
-    ///
-    /// - Parameter keyConnectorUrl: The URL to the Key Connector API.
-    /// - Returns: The user's master key.
-    ///
-    func getMasterKeyFromKeyConnector(keyConnectorUrl: URL) async throws -> String
-
     /// Migrates the user to use Key Connector.
     ///
     /// - Parameter password: The user's master password.
@@ -141,11 +134,8 @@ extension DefaultKeyConnectorService: KeyConnectorService {
                 ),
             )
 
-            try await stateService.setAccountEncryptionKeys(
-                AccountEncryptionKeys(
-                    cryptographicState: .v1(privateKey: keyConnectorResponse.keys.private),
-                    encryptedUserKey: keyConnectorResponse.encryptedUserKey,
-                ),
+            try await stateService.setAccountCryptographicState(
+                .v1(privateKey: keyConnectorResponse.keys.private),
             )
             return KeyConnectorConversionResult(
                 encryptedUserKey: keyConnectorResponse.encryptedUserKey,
@@ -158,12 +148,7 @@ extension DefaultKeyConnectorService: KeyConnectorService {
             ssoOrgIdentifier: orgIdentifier,
         )
 
-        try await stateService.setAccountEncryptionKeys(
-            AccountEncryptionKeys(
-                cryptographicState: result.accountCryptographicState,
-                encryptedUserKey: result.keyConnectorKeyWrappedUserKey,
-            ),
-        )
+        try await stateService.setAccountCryptographicState(result.accountCryptographicState)
 
         return KeyConnectorConversionResult(
             encryptedUserKey: result.keyConnectorKeyWrappedUserKey,
@@ -176,10 +161,6 @@ extension DefaultKeyConnectorService: KeyConnectorService {
             .first { $0.keyConnectorEnabled && !$0.isAdmin }
     }
 
-    func getMasterKeyFromKeyConnector(keyConnectorUrl: URL) async throws -> String {
-        try await keyConnectorAPIService.getMasterKeyFromKeyConnector(keyConnectorUrl: keyConnectorUrl)
-    }
-
     func migrateUser(password: String) async throws {
         guard let organization = try await getManagingOrganization(),
               let keyConnectorUrlString = organization.keyConnectorUrl,
@@ -189,16 +170,15 @@ extension DefaultKeyConnectorService: KeyConnectorService {
         }
 
         let account = try await stateService.getActiveAccount()
-        let encryptionKeys = try await stateService.getAccountEncryptionKeys(userId: account.profile.userId)
-        guard let encryptedUserKey = encryptionKeys.encryptedUserKey else {
+        guard let masterPasswordUnlock = account.profile.userDecryptionOptions?.masterPasswordUnlock else {
             throw KeyConnectorServiceError.missingEncryptedUserKey
         }
 
         let masterKey = try await clientService.crypto().deriveKeyConnector(request: DeriveKeyConnectorRequest(
-            userKeyEncrypted: encryptedUserKey,
+            userKeyEncrypted: masterPasswordUnlock.masterKeyEncryptedUserKey,
             password: password,
-            kdf: account.kdf.sdkKdf,
-            email: account.profile.email,
+            kdf: masterPasswordUnlock.kdf.sdkKdf,
+            email: masterPasswordUnlock.salt,
         ))
 
         try await keyConnectorAPIService.postMasterKeyToKeyConnector(

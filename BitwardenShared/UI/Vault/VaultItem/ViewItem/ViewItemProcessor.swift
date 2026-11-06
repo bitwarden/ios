@@ -14,6 +14,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         & HasAuthRepository
         & HasBillingRepository
         & HasBillingService
+        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasEventService
@@ -29,11 +30,20 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         /// An action that requires data has been performed while loading.
         case dataNotLoaded(String)
 
+        /// An error for bank account action handling
+        case nonBankAccountTypeToggle(String)
+
         /// An error for card action handling
         case nonCardTypeToggle(String)
 
+        /// An error for driver's license action handling
+        case nonDriversLicenseTypeToggle(String)
+
         /// A password visibility toggle occurred when not possible.
         case nonLoginPasswordToggle(String)
+
+        /// An error for passport action handling
+        case nonPassportTypeToggle(String)
 
         /// An error for ssh key action handling
         case nonSshKeyTypeToggle(String)
@@ -53,13 +63,16 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     /// The delegate that is notified when delete cipher item have occurred.
     private weak var delegate: CipherItemOperationDelegate?
 
+    /// Whether the `vfo1-foundation` feature flag is enabled.
+    private var isVfo1FoundationFeatureFlagEnabled = false
+
     /// The ID of the item being viewed.
     private let itemId: String
 
     /// The services used by this processor.
     private let services: Services
 
-    /// The helper used to navigate to the premium upgrade flow.
+    /// The helper used to navigate to the Premium upgrade flow.
     lazy var premiumUpgradeHelper: PremiumUpgradeHelper = DefaultPremiumUpgradeHelper(
         services: services,
         coordinator: coordinator,
@@ -115,6 +128,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     override func perform(_ effect: ViewItemEffect) async {
         switch effect {
         case .appeared:
+            await loadFeatureFlags()
             streamCipherDetailsTask?.cancel()
             streamCipherDetailsTask = Task {
                 await streamCipherDetails()
@@ -147,6 +161,8 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 
     override func receive(_ action: ViewItemAction) { // swiftlint:disable:this function_body_length
         switch action {
+        case let .bankAccountItemAction(bankAccountAction):
+            handleBankAccountAction(bankAccountAction)
         case let .cardItemAction(cardAction):
             handleCardAction(cardAction)
         case .clearURL:
@@ -177,10 +193,14 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             coordinator.navigate(to: .dismiss())
         case let .downloadAttachment(attachment):
             confirmDownload(attachment)
+        case let .driversLicenseItemAction(action):
+            handleDriversLicenseAction(action)
         case .editPressed:
             editItem()
         case let .morePressed(menuAction):
             handleMenuAction(menuAction)
+        case let .passportItemAction(action):
+            handlePassportAction(action)
         case .passwordVisibilityPressed:
             guard case var .data(cipherState) = state.loadingState else {
                 services.errorReporter.log(
@@ -207,6 +227,10 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         case .passwordHistoryPressed:
             guard let passwordHistory = state.passwordHistory else { return }
             coordinator.navigate(to: .passwordHistory(passwordHistory))
+        case .premiumSubscriptionRequiredTapped:
+            coordinator.showAlert(.totpPremiumRequired { [weak self] in
+                await self?.navigateToPremiumUpgrade()
+            })
         case let .sshKeyItemAction(sshKeyAction):
             handleSSHKeyAction(sshKeyAction)
         case let .toastShown(newValue):
@@ -239,7 +263,7 @@ private extension ViewItemProcessor {
         }
     }
 
-    /// Navigates to the premium upgrade flow. Uses the in-app upgrade path when available;
+    /// Navigates to the Premium upgrade flow. Uses the in-app upgrade path when available;
     /// otherwise opens the web vault upgrade URL as a fallback.
     ///
     private func navigateToPremiumUpgrade() async {
@@ -351,6 +375,11 @@ private extension ViewItemProcessor {
         }
     }
 
+    /// Loads the feature flags required for this processor.
+    private func loadFeatureFlags() async {
+        isVfo1FoundationFeatureFlagEnabled = await services.configService.getFeatureFlag(.vfo1Foundation)
+    }
+
     /// Permanently deletes the item currently stored in `state`.
     ///
     private func permanentDeleteItem(id: String) async {
@@ -369,6 +398,38 @@ private extension ViewItemProcessor {
             operation: { try await self.services.vaultRepository.softDeleteCipher(cipher) },
             onDismiss: { [delegate] in delegate?.itemSoftDeleted() },
         )
+    }
+
+    /// Handles `ViewBankAccountItemAction` events.
+    ///
+    /// - Parameter action: The action to handle.
+    ///
+    private func handleBankAccountAction(_ action: ViewBankAccountItemAction) {
+        guard case var .data(cipherState) = state.loadingState else {
+            services.errorReporter.log(
+                error: ActionError.dataNotLoaded("Cannot handle bank account action without loaded data"),
+            )
+            return
+        }
+        guard case .bankAccount = cipherState.type else {
+            services.errorReporter.log(
+                error: ActionError.nonBankAccountTypeToggle(
+                    "Cannot handle bank account action on non-bank account type",
+                ),
+            )
+            return
+        }
+        switch action {
+        case let .toggleAccountNumberVisibilityChanged(isVisible):
+            cipherState.bankAccountItemState.isAccountNumberVisible = isVisible
+            state.loadingState = .data(cipherState)
+        case let .toggleIbanVisibilityChanged(isVisible):
+            cipherState.bankAccountItemState.isIbanVisible = isVisible
+            state.loadingState = .data(cipherState)
+        case let .togglePinVisibilityChanged(isVisible):
+            cipherState.bankAccountItemState.isPinVisible = isVisible
+            state.loadingState = .data(cipherState)
+        }
     }
 
     /// Handles `ViewCardItemAction` events.
@@ -414,6 +475,32 @@ private extension ViewItemProcessor {
         }
     }
 
+    /// Handles `ViewDriversLicenseItemAction` events.
+    ///
+    /// - Parameter action: The action to handle.
+    ///
+    private func handleDriversLicenseAction(_ action: ViewDriversLicenseItemAction) {
+        guard case var .data(cipherState) = state.loadingState else {
+            services.errorReporter.log(
+                error: ActionError.dataNotLoaded("Cannot handle driver's license action without loaded data"),
+            )
+            return
+        }
+        guard case .driversLicense = cipherState.type else {
+            services.errorReporter.log(
+                error: ActionError.nonDriversLicenseTypeToggle(
+                    "Cannot handle driver's license action on non-driver's license type",
+                ),
+            )
+            return
+        }
+        switch action {
+        case .toggleLicenseNumberVisibilityChanged:
+            cipherState.driversLicenseItemState.isLicenseNumberVisible.toggle()
+            state.loadingState = .data(cipherState)
+        }
+    }
+
     /// Handles an action associated with the `VaultItemManagementMenuAction` menu.
     ///
     /// - Parameter action: The action that was sent from the menu.
@@ -440,6 +527,33 @@ private extension ViewItemProcessor {
             coordinator.navigate(to: .moveToOrganization(cipher), context: self)
         case .restore:
             showRestoreItemConfirmation()
+        }
+    }
+
+    /// Handles `ViewPassportItemAction` events.
+    ///
+    /// - Parameter action: The action to handle.
+    ///
+    private func handlePassportAction(_ action: ViewPassportItemAction) {
+        guard case var .data(cipherState) = state.loadingState else {
+            services.errorReporter.log(
+                error: ActionError.dataNotLoaded("Cannot handle passport action without loaded data"),
+            )
+            return
+        }
+        guard case .passport = cipherState.type else {
+            services.errorReporter.log(
+                error: ActionError.nonPassportTypeToggle("Cannot handle passport action on non-passport type"),
+            )
+            return
+        }
+        switch action {
+        case let .toggleNationalIdentificationNumberVisibilityChanged(isVisible):
+            cipherState.passportItemState.isNationalIdentificationNumberVisible = isVisible
+            state.loadingState = .data(cipherState)
+        case let .togglePassportNumberVisibilityChanged(isVisible):
+            cipherState.passportItemState.isPassportNumberVisible = isVisible
+            state.loadingState = .data(cipherState)
         }
     }
 
@@ -579,12 +693,17 @@ private extension ViewItemProcessor {
                     itemState.loginState.totpState = totpState
                     itemState.allUserCollections = collections
                     itemState.folderName = folder?.name
+                    itemState.isVfo1FoundationFeatureFlagEnabled = isVfo1FoundationFeatureFlagEnabled
                     itemState.organizationName = organization?.name
                     itemState.ownershipOptions = ownershipOptions
                     itemState.showWebIcons = showWebIcons
 
                     newState.loadingState = .data(itemState)
                 }
+
+                // Carry over any toast, so that a toast shown in response to saving the item isn't
+                // cleared out from under the user by the cipher update that the save triggers.
+                newState.toast = state.toast
                 state = newState
             }
         } catch {
@@ -619,7 +738,7 @@ private extension ViewItemProcessor {
 private extension ViewItemProcessor {
     /// Updates the TOTP code for the view.
     func updateTOTPCode() async {
-        // Only update the code if the user has premium and there is a valid TOTP key model.
+        // Only update the code if the user has Premium and there is a valid TOTP key model.
         guard state.hasPremiumFeatures,
               case let .data(cipherItemState) = state.loadingState,
               let calculationKey = cipherItemState.loginState.totpState.authKeyModel
@@ -648,6 +767,10 @@ private extension ViewItemProcessor {
 // MARK: - CipherItemOperationDelegate
 
 extension ViewItemProcessor: CipherItemOperationDelegate {
+    func didFinishAddingItem(id: String, type: CipherType) {
+        coordinator.navigate(to: .viewItem(id: id, toastTitle: type.savedToastTitle), context: delegate)
+    }
+
     func itemArchived() {
         coordinator.navigate(to: .dismiss(DismissAction(action: { [delegate] in delegate?.itemArchived() })))
     }
@@ -667,13 +790,19 @@ extension ViewItemProcessor: CipherItemOperationDelegate {
     func itemUnarchived() {
         coordinator.navigate(to: .dismiss(DismissAction(action: { [delegate] in delegate?.itemUnarchived() })))
     }
+
+    func itemUpdated(type: CipherType) -> Bool {
+        state.toast = Toast(title: type.savedToastTitle)
+        return true
+    }
 }
 
 // MARK: - EditCollectionsProcessorDelegate
 
 extension ViewItemProcessor: EditCollectionsProcessorDelegate {
     func didUpdateCipher() {
-        state.toast = Toast(title: Localizations.itemUpdated)
+        let title = state.loadingState.data?.type.savedToastTitle ?? Localizations.itemUpdated
+        state.toast = Toast(title: title)
     }
 }
 

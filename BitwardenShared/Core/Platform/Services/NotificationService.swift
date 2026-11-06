@@ -393,7 +393,15 @@ class DefaultNotificationService: NotificationService { // swiftlint:disable:thi
             )
             UNUserNotificationCenter.current().setNotificationCategories([category])
             let request = UNNotificationRequest(identifier: data.id, content: content, trigger: nil)
-            try await UNUserNotificationCenter.current().add(request)
+            do {
+                try await UNUserNotificationCenter.current().add(request)
+            } catch {
+                // The banner is best-effort. On iOS 27+, `add(_:)` throws if notifications aren't
+                // authorized, but the login request should still be shown in the app.
+                await flightRecorder.log(
+                    "[Notification] Unable to add login request banner notification: \(error.localizedDescription)",
+                )
+            }
         }
 
         try await showOrSwitchForLoginRequest(id: data.id, loginSourceAccount: loginSourceAccount, showAlert: true)

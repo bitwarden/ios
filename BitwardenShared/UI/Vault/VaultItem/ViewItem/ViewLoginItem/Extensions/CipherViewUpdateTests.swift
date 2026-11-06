@@ -66,7 +66,7 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
     }
 
     /// `driversLicenseItemState()` returns the driver's license item state from the cipher view,
-    /// reading every field including the raw date strings without parsing.
+    /// reading every field.
     func test_driversLicenseItemState() { // swiftlint:disable:this function_body_length
         let cipherView = CipherView.fixture(type: .driversLicense)
         let withLicense = CipherView(
@@ -88,12 +88,12 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
                 firstName: "Bit",
                 middleName: "W",
                 lastName: "Warden",
-                dateOfBirth: "1989-08-01",
+                dateOfBirth: Date(year: 1989, month: 8, day: 1),
                 licenseNumber: "D1234567",
                 issuingCountry: "United States",
                 issuingState: "California",
-                issueDate: "2019-08-01",
-                expirationDate: "2029-08-01",
+                issueDate: Date(year: 2019, month: 8, day: 1),
+                expirationDate: Date(year: 2029, month: 8, day: 1),
                 issuingAuthority: "DMV",
                 licenseClass: "C",
             ),
@@ -113,18 +113,19 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
             deletedDate: cipherView.deletedDate,
             revisionDate: cipherView.revisionDate,
             archivedDate: cipherView.archivedDate,
+            partial: false,
         )
 
         let state = withLicense.driversLicenseItemState()
         XCTAssertEqual(state.firstName, "Bit")
         XCTAssertEqual(state.middleName, "W")
         XCTAssertEqual(state.lastName, "Warden")
-        XCTAssertEqual(state.dateOfBirth, "1989-08-01")
+        XCTAssertEqual(state.dateOfBirth, Date(year: 1989, month: 8, day: 1))
         XCTAssertEqual(state.licenseNumber, "D1234567")
         XCTAssertEqual(state.issuingCountry, "United States")
         XCTAssertEqual(state.issuingState, "California")
-        XCTAssertEqual(state.issueDate, "2019-08-01")
-        XCTAssertEqual(state.expirationDate, "2029-08-01")
+        XCTAssertEqual(state.issueDate, Date(year: 2019, month: 8, day: 1))
+        XCTAssertEqual(state.expirationDate, Date(year: 2029, month: 8, day: 1))
         XCTAssertEqual(state.issuingAuthority, "DMV")
         XCTAssertEqual(state.licenseClass, "C")
     }
@@ -136,19 +137,19 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertEqual(state, DriversLicenseItemState())
     }
 
-    /// `updatedView(with:)` round-trips a driver's license, preserving all 11 fields as strings.
+    /// `updatedView(with:)` round-trips a driver's license, preserving all 11 fields.
     func test_update_driversLicense_edits_succeeds() {
         cipherItemState.type = .driversLicense
         var expectedLicenseState = DriversLicenseItemState()
         expectedLicenseState.firstName = "Bit"
         expectedLicenseState.middleName = "W"
         expectedLicenseState.lastName = "Warden"
-        expectedLicenseState.dateOfBirth = "1989-08-01"
+        expectedLicenseState.dateOfBirth = Date(year: 1989, month: 8, day: 1)
         expectedLicenseState.licenseNumber = "D1234567"
         expectedLicenseState.issuingCountry = "United States"
         expectedLicenseState.issuingState = "California"
-        expectedLicenseState.issueDate = "2019-08-01"
-        expectedLicenseState.expirationDate = "2029-08-01"
+        expectedLicenseState.issueDate = Date(year: 2019, month: 8, day: 1)
+        expectedLicenseState.expirationDate = Date(year: 2029, month: 8, day: 1)
         expectedLicenseState.issuingAuthority = "DMV"
         expectedLicenseState.licenseClass = "C"
         cipherItemState.driversLicenseItemState = expectedLicenseState
@@ -160,9 +161,99 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertNil(comparison.identity)
 
         XCTAssertEqual(comparison.driversLicenseItemState(), expectedLicenseState)
-        XCTAssertEqual(comparison.driversLicense?.dateOfBirth, "1989-08-01")
-        XCTAssertEqual(comparison.driversLicense?.issueDate, "2019-08-01")
-        XCTAssertEqual(comparison.driversLicense?.expirationDate, "2029-08-01")
+        XCTAssertEqual(comparison.driversLicense?.dateOfBirth, Date(year: 1989, month: 8, day: 1))
+        XCTAssertEqual(comparison.driversLicense?.issueDate, Date(year: 2019, month: 8, day: 1))
+        XCTAssertEqual(comparison.driversLicense?.expirationDate, Date(year: 2029, month: 8, day: 1))
+    }
+
+    /// `bankAccountItemState()` returns the bank account item state from the cipher view, reading
+    /// every field.
+    func test_bankAccountItemState() {
+        let cipherView = CipherView.fixture(
+            bankAccount: BankAccountView(
+                bankName: "Bank of America",
+                nameOnAccount: "Personal Checking",
+                accountType: "checking",
+                accountNumber: "1234567890123456",
+                routingNumber: "1234567890",
+                branchNumber: "100",
+                pin: "1234",
+                swiftCode: "123234",
+                iban: "23423434543",
+                bankContactPhone: "123-456-7890",
+            ),
+            type: .bankAccount,
+        )
+
+        let state = cipherView.bankAccountItemState()
+        XCTAssertEqual(state.bankName, "Bank of America")
+        XCTAssertEqual(state.nameOnAccount, "Personal Checking")
+        XCTAssertEqual(state.accountType, .custom(.checking))
+        XCTAssertEqual(state.accountNumber, "1234567890123456")
+        XCTAssertEqual(state.routingNumber, "1234567890")
+        XCTAssertEqual(state.branchNumber, "100")
+        XCTAssertEqual(state.pin, "1234")
+        XCTAssertEqual(state.swiftCode, "123234")
+        XCTAssertEqual(state.iban, "23423434543")
+        XCTAssertEqual(state.bankContactPhone, "123-456-7890")
+    }
+
+    /// `bankAccountItemState()` returns an empty state when there's no `bankAccount` in the cipher view.
+    func test_bankAccountItemState_nil() {
+        let cipherView = CipherView.fixture()
+        let state = cipherView.bankAccountItemState()
+        XCTAssertEqual(state, BankAccountItemState())
+    }
+
+    /// `bankAccountItemState()` maps an unrecognized account type to `.default` while still
+    /// reading the remaining fields.
+    func test_bankAccountItemState_unknownAccountType() {
+        let cipherView = CipherView.fixture(
+            bankAccount: BankAccountView(
+                bankName: "Bank of America",
+                nameOnAccount: nil,
+                accountType: "not-a-real-type",
+                accountNumber: nil,
+                routingNumber: nil,
+                branchNumber: nil,
+                pin: nil,
+                swiftCode: nil,
+                iban: nil,
+                bankContactPhone: nil,
+            ),
+            type: .bankAccount,
+        )
+
+        let state = cipherView.bankAccountItemState()
+        XCTAssertEqual(state.accountType, .default)
+        XCTAssertEqual(state.bankName, "Bank of America")
+    }
+
+    /// `updatedView(with:)` round-trips a bank account, preserving all 10 fields.
+    func test_update_bankAccount_edits_succeeds() {
+        cipherItemState.type = .bankAccount
+        var expectedBankAccountState = BankAccountItemState()
+        expectedBankAccountState.bankName = "Bank of America"
+        expectedBankAccountState.nameOnAccount = "Personal Checking"
+        expectedBankAccountState.accountType = .custom(.checking)
+        expectedBankAccountState.accountNumber = "1234567890123456"
+        expectedBankAccountState.routingNumber = "1234567890"
+        expectedBankAccountState.branchNumber = "100"
+        expectedBankAccountState.pin = "1234"
+        expectedBankAccountState.swiftCode = "123234"
+        expectedBankAccountState.iban = "23423434543"
+        expectedBankAccountState.bankContactPhone = "123-456-7890"
+        cipherItemState.bankAccountItemState = expectedBankAccountState
+
+        let comparison = subject.updatedView(with: cipherItemState)
+        XCTAssertEqual(comparison.type, .bankAccount)
+        XCTAssertNil(comparison.login)
+        XCTAssertNil(comparison.card)
+        XCTAssertNil(comparison.identity)
+
+        XCTAssertEqual(comparison.bankAccountItemState(), expectedBankAccountState)
+        XCTAssertEqual(comparison.bankAccount?.accountType, "checking")
+        XCTAssertEqual(comparison.bankAccount?.accountNumber, "1234567890123456")
     }
 
     /// `sshKeyItemState()` returns the correct SSH key item state based on the CIpherView.
@@ -590,6 +681,82 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertNil(comparison.login)
         XCTAssertNil(comparison.identity)
         XCTAssertNil(comparison.secureNote)
+    }
+
+    /// `passportItemState()` returns the passport item state from the cipher view, reading every
+    /// field.
+    func test_passportItemState() {
+        let cipherView = CipherView.fixture(
+            passport: .fixture(
+                surname: "Johnson",
+                givenName: "Mitchell",
+                dateOfBirth: Date(year: 2025, month: 4, day: 20),
+                sex: "Male",
+                birthPlace: "USA",
+                nationality: "USA",
+                issuingCountry: "United States",
+                passportNumber: "X12345678",
+                passportType: "Regular/Tourist",
+                nationalIdentificationNumber: "123456789",
+                issuingAuthority: "U.S. Department of State",
+                issueDate: Date(year: 2021, month: 8, day: 10),
+                expirationDate: Date(year: 2026, month: 8, day: 10),
+            ),
+            type: .passport,
+        )
+
+        let state = cipherView.passportItemState()
+        XCTAssertEqual(state.surname, "Johnson")
+        XCTAssertEqual(state.givenName, "Mitchell")
+        XCTAssertEqual(state.dateOfBirth, Date(year: 2025, month: 4, day: 20))
+        XCTAssertEqual(state.sex, "Male")
+        XCTAssertEqual(state.birthPlace, "USA")
+        XCTAssertEqual(state.nationality, "USA")
+        XCTAssertEqual(state.issuingCountry, "United States")
+        XCTAssertEqual(state.passportNumber, "X12345678")
+        XCTAssertEqual(state.passportType, "Regular/Tourist")
+        XCTAssertEqual(state.nationalIdentificationNumber, "123456789")
+        XCTAssertEqual(state.issuingAuthority, "U.S. Department of State")
+        XCTAssertEqual(state.issueDate, Date(year: 2021, month: 8, day: 10))
+        XCTAssertEqual(state.expirationDate, Date(year: 2026, month: 8, day: 10))
+    }
+
+    /// `passportItemState()` returns an empty state when there's no `passport` in the cipher view.
+    func test_passportItemState_nil() {
+        let cipherView = CipherView.fixture()
+        let state = cipherView.passportItemState()
+        XCTAssertEqual(state, PassportItemState())
+    }
+
+    /// `updatedView(with:)` round-trips a passport, preserving all fields.
+    func test_update_passport_edits_succeeds() {
+        cipherItemState.type = .passport
+        var expectedPassportState = PassportItemState()
+        expectedPassportState.surname = "Johnson"
+        expectedPassportState.givenName = "Mitchell"
+        expectedPassportState.dateOfBirth = Date(year: 2025, month: 4, day: 20)
+        expectedPassportState.sex = "Male"
+        expectedPassportState.birthPlace = "USA"
+        expectedPassportState.nationality = "USA"
+        expectedPassportState.issuingCountry = "United States"
+        expectedPassportState.passportNumber = "X12345678"
+        expectedPassportState.passportType = "Regular/Tourist"
+        expectedPassportState.nationalIdentificationNumber = "123456789"
+        expectedPassportState.issuingAuthority = "U.S. Department of State"
+        expectedPassportState.issueDate = Date(year: 2021, month: 8, day: 10)
+        expectedPassportState.expirationDate = Date(year: 2026, month: 8, day: 10)
+        cipherItemState.passportItemState = expectedPassportState
+
+        let comparison = subject.updatedView(with: cipherItemState)
+        XCTAssertEqual(comparison.type, .passport)
+        XCTAssertNil(comparison.login)
+        XCTAssertNil(comparison.card)
+        XCTAssertNil(comparison.identity)
+
+        XCTAssertEqual(comparison.passportItemState(), expectedPassportState)
+        XCTAssertEqual(comparison.passport?.dateOfBirth, Date(year: 2025, month: 4, day: 20))
+        XCTAssertEqual(comparison.passport?.issueDate, Date(year: 2021, month: 8, day: 10))
+        XCTAssertEqual(comparison.passport?.expirationDate, Date(year: 2026, month: 8, day: 10))
     }
 
     /// Tests that the update succeeds with new properties.

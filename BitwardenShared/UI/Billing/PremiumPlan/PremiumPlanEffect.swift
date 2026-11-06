@@ -6,4 +6,7 @@ enum PremiumPlanEffect: Equatable {
 
     /// The manage plan button was tapped.
     case managePlanTapped
+
+    /// The "Try again" button on the error view was tapped.
+    case tryAgainTapped
 }

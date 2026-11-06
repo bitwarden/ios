@@ -80,6 +80,18 @@ class BitwardenSdkVaultCipherDetailsResponseModelTests: BitwardenTestCase {
 class BitwardenSdkCipherListViewTypeTests: BitwardenTestCase {
     // MARK: Tests
 
+    /// `isBankAccount` returns whether the type is a bank account.
+    func test_isBankAccount() {
+        XCTAssertTrue(
+            CipherListViewType.bankAccount(BankAccountListView(accountNumber: nil, accountType: nil)).isBankAccount,
+        )
+        XCTAssertFalse(CipherListViewType.login(.fixture()).isBankAccount)
+        XCTAssertFalse(CipherListViewType.card(.init(brand: nil)).isBankAccount)
+        XCTAssertFalse(CipherListViewType.identity.isBankAccount)
+        XCTAssertFalse(CipherListViewType.secureNote.isBankAccount)
+        XCTAssertFalse(CipherListViewType.sshKey.isBankAccount)
+    }
+
     /// `isLogin` returns whether the type is a login.
     func test_isLogin() {
         XCTAssertTrue(CipherListViewType.login(.fixture()).isLogin)
@@ -135,6 +147,38 @@ class BitwardenSdkVaultCipherBankAccountModelTests: BitwardenTestCase {
         XCTAssertEqual(model.pin, "pin")
         XCTAssertEqual(model.routingNumber, "routingNumber")
         XCTAssertEqual(model.swiftCode, "swiftCode")
+    }
+
+    /// `BankAccount.init(cipherBankAccountModel:)` round-trips all 10 fields from the API model back
+    /// into the SDK type.
+    func test_init_fromCipherBankAccountModel() {
+        let model = CipherBankAccountModel(
+            bankAccount: .init(
+                bankName: "bankName",
+                nameOnAccount: "nameOnAccount",
+                accountType: "accountType",
+                accountNumber: "accountNumber",
+                routingNumber: "routingNumber",
+                branchNumber: "branchNumber",
+                pin: "pin",
+                swiftCode: "swiftCode",
+                iban: "iban",
+                bankContactPhone: "bankContactPhone",
+            ),
+        )
+
+        let bankAccount = BitwardenSdk.BankAccount(cipherBankAccountModel: model)
+
+        XCTAssertEqual(bankAccount.bankName, "bankName")
+        XCTAssertEqual(bankAccount.nameOnAccount, "nameOnAccount")
+        XCTAssertEqual(bankAccount.accountType, "accountType")
+        XCTAssertEqual(bankAccount.accountNumber, "accountNumber")
+        XCTAssertEqual(bankAccount.routingNumber, "routingNumber")
+        XCTAssertEqual(bankAccount.branchNumber, "branchNumber")
+        XCTAssertEqual(bankAccount.pin, "pin")
+        XCTAssertEqual(bankAccount.swiftCode, "swiftCode")
+        XCTAssertEqual(bankAccount.iban, "iban")
+        XCTAssertEqual(bankAccount.bankContactPhone, "bankContactPhone")
     }
 }
 
@@ -248,6 +292,41 @@ class BitwardenSdkVaultCipherPassportModelTests: BitwardenTestCase {
         XCTAssertEqual(model.sex, "sex")
         XCTAssertEqual(model.surname, "surname")
     }
+
+    /// `init(cipherPassportModel:)` inits the SDK passport from the cipher passport model.
+    func test_init_fromCipherPassportModel() {
+        let model = CipherPassportModel(
+            birthPlace: "birthPlace",
+            dateOfBirth: "dateOfBirth",
+            expirationDate: "expirationDate",
+            givenName: "givenName",
+            issueDate: "issueDate",
+            issuingAuthority: "issuingAuthority",
+            issuingCountry: "issuingCountry",
+            nationalIdentificationNumber: "nationalIdentificationNumber",
+            nationality: "nationality",
+            passportNumber: "passportNumber",
+            passportType: "passportType",
+            sex: "sex",
+            surname: "surname",
+        )
+
+        let passport = BitwardenSdk.Passport(cipherPassportModel: model)
+
+        XCTAssertEqual(passport.surname, "surname")
+        XCTAssertEqual(passport.givenName, "givenName")
+        XCTAssertEqual(passport.dateOfBirth, "dateOfBirth")
+        XCTAssertEqual(passport.sex, "sex")
+        XCTAssertEqual(passport.birthPlace, "birthPlace")
+        XCTAssertEqual(passport.nationality, "nationality")
+        XCTAssertEqual(passport.issuingCountry, "issuingCountry")
+        XCTAssertEqual(passport.passportNumber, "passportNumber")
+        XCTAssertEqual(passport.passportType, "passportType")
+        XCTAssertEqual(passport.nationalIdentificationNumber, "nationalIdentificationNumber")
+        XCTAssertEqual(passport.issuingAuthority, "issuingAuthority")
+        XCTAssertEqual(passport.issueDate, "issueDate")
+        XCTAssertEqual(passport.expirationDate, "expirationDate")
+    }
 }
 
 // MARK: - CipherSSHKeyModel
@@ -295,7 +374,10 @@ class BitwardenSdkVaultCipherTypeTests: BitwardenTestCase {
         XCTAssertEqual(CipherType(CipherListViewType.identity), .identity)
         XCTAssertEqual(CipherType(CipherListViewType.secureNote), .secureNote)
         XCTAssertEqual(CipherType(CipherListViewType.sshKey), .sshKey)
-        XCTAssertEqual(CipherType(CipherListViewType.bankAccount), .bankAccount)
+        XCTAssertEqual(
+            CipherType(CipherListViewType.bankAccount(.init(accountNumber: nil, accountType: nil))),
+            .bankAccount,
+        )
         XCTAssertEqual(CipherType(CipherListViewType.driversLicense), .driversLicense)
         XCTAssertEqual(CipherType(CipherListViewType.passport), .passport)
     }
@@ -372,6 +454,7 @@ class CipherViewTests: BitwardenTestCase {
                 deletedDate: nil,
                 revisionDate: timeProvider.presentTime,
                 archivedDate: nil,
+                partial: false,
             ),
         )
     }
@@ -427,6 +510,7 @@ class CipherViewTests: BitwardenTestCase {
                 deletedDate: nil,
                 revisionDate: timeProvider.presentTime,
                 archivedDate: nil,
+                partial: false,
             ),
         )
     }

@@ -38,7 +38,7 @@ env:
 jobs:
   build:
     name: Build ${{ inputs.bw-env }}
-    runs-on: macos-26
+    runs-on: xcode-27-xlarge
     timeout-minutes: 60
     permissions:
       contents: read
@@ -53,7 +53,7 @@ jobs:
           inputs: "${{ toJson(inputs) }}"
 
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
@@ -71,14 +71,8 @@ jobs:
         with:
           xcode-version: ${{ env._XCODE_VERSION }}
 
-      - name: Install simulators for specific Xcode version
-        if: ${{ env._XCODE_VERSION == '26.0-beta' }}
-        run: |
-          xcodebuild -downloadPlatform iOS
-          xcodebuild -downloadPlatform watchOS
-
       - name: Configure Ruby
-        uses: ruby/setup-ruby@c4e5b1316158f92e3d49443a9d58b31d25ac0f8f # v1.306.0
+        uses: ruby/setup-ruby@12fd324f1d0b43274fdc8130f6980590a667c455 # v1.312.0
         with:
           bundler-cache: true
 
@@ -90,7 +84,7 @@ jobs:
 
       - name: Cache Mint packages
         id: mint-cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .mint
           key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
@@ -299,17 +293,12 @@ jobs:
           _KEY_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
           _ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
         run: |
-          ALTOOL_OUTPUT=$(xcrun altool --upload-app \
+          xcrun altool --upload-app \
             --type ios \
             --file "$_EXPORT_FILEPATH" \
             --apiKey "$_KEY_ID" \
             --apiIssuer "$_ISSUER" \
-            --apple-id "$APPLE_ID" 2>&1)
-          echo "$ALTOOL_OUTPUT"
-          if echo "$ALTOOL_OUTPUT" | grep -q "ERROR:"; then
-            echo "::error::xcrun altool reported errors — upload failed"
-            exit 1
-          fi
+            --apple-id "$APPLE_ID"
 
       - name: Build TestFlight trigger data
         id: build-trigger-data

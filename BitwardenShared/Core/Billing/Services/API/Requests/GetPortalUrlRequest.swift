@@ -3,7 +3,7 @@ import Networking
 // MARK: - GetPortalUrlRequest
 
 /// A networking request to create a customer portal session for managing
-/// the premium subscription.
+/// the Premium subscription.
 ///
 struct GetPortalUrlRequest: Request {
     typealias Response = PortalUrlResponseModel

@@ -8,9 +8,6 @@ enum StartRegistrationAction: Equatable {
     /// The user edited the email text field.
     case emailTextChanged(String)
 
-    /// The start registration appeared on screen.
-    case disappeared
-
     /// The `StartRegistrationView` was dismissed.
     case dismiss
 

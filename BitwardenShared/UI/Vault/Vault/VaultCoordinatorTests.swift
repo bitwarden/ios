@@ -92,6 +92,22 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         XCTAssertTrue(module.addEditFolderCoordinator.isStarted)
         XCTAssertEqual(module.addEditFolderCoordinator.routes, [.addEditFolder(folder: nil)])
+        XCTAssertNil(module.addEditFolderCoordinator.contexts.last as? AddEditFolderDelegate)
+    }
+
+    /// `navigate(to:)` with `.addFolder` and a context passes the context along to the add/edit
+    /// folder coordinator as the delegate.
+    @MainActor
+    func test_navigateTo_addFolder_withDelegate() throws {
+        let delegate = MockAddEditFolderDelegate()
+        subject.navigate(to: .addFolder, context: delegate)
+
+        XCTAssertTrue(module.addEditFolderCoordinator.isStarted)
+        XCTAssertEqual(module.addEditFolderCoordinator.routes, [.addEditFolder(folder: nil)])
+        XCTAssertIdentical(
+            module.addEditFolderCoordinator.contexts.last as? AddEditFolderDelegate,
+            delegate,
+        )
     }
 
     /// `navigate(to:)` with `.autofillList` replaces the stack navigator's stack with the autofill list.
@@ -255,12 +271,12 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(mockNavController.dismissCalled)
     }
 
-    /// `navigate(to:)` with `.flightRecorderSettings` notifies the delegate to switch to the about
+    /// `navigate(to:)` with `.premiumPlan` notifies the delegate to switch to the premium plan
     /// screen in the settings tab.
     @MainActor
-    func test_navigateTo_flightRecorderSettings() throws {
-        subject.navigate(to: .flightRecorderSettings)
-        XCTAssertEqual(delegate.switchToSettingsTabRoute, .about)
+    func test_navigateTo_premiumPlan() throws {
+        subject.navigate(to: .premiumPlan)
+        XCTAssertEqual(delegate.switchToSettingsTabRoute, .premiumPlan(nil))
     }
 
     /// `navigate(to:)` with `.autofillListForGroup` pushes the vault autofill list view
@@ -274,6 +290,14 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         let view = try XCTUnwrap((action.view as? UIHostingController<VaultAutofillListView>)?.rootView)
         XCTAssertEqual(view.store.state.group, .identity)
+    }
+
+    /// `navigate(to:)` with `.flightRecorderSettings` notifies the delegate to switch to the about
+    /// screen in the settings tab.
+    @MainActor
+    func test_navigateTo_flightRecorderSettings() throws {
+        subject.navigate(to: .flightRecorderSettings)
+        XCTAssertEqual(delegate.switchToSettingsTabRoute, .about)
     }
 
     /// `navigate(to:)` with `.group` pushes the vault group view onto the stack navigator.
@@ -395,7 +419,7 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(userInitiated)
     }
 
-    /// `navigate(to:)` with `.premiumUpgrade` presents the premium upgrade view via the billing coordinator.
+    /// `navigate(to:)` with `.premiumUpgrade` presents the Premium upgrade view via the billing coordinator.
     @MainActor
     func test_navigateTo_premiumUpgrade() throws {
         subject.navigate(to: .premiumUpgrade)
@@ -403,6 +427,17 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
         XCTAssertEqual(module.billingCoordinator.routes, [.premiumUpgrade])
+    }
+
+    /// `navigate(to:)` with `.premiumUpgradeComplete` presents a standalone Premium upgrade
+    /// complete screen via the billing coordinator.
+    @MainActor
+    func test_navigateTo_premiumUpgradeComplete() throws {
+        subject.navigate(to: .premiumUpgradeComplete)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertEqual(module.billingCoordinator.routes, [.premiumUpgradeCompleteStandalone])
     }
 
     /// `navigate(to:)` with `.switchAccount(userId:, isUnlocked: isUnlocked)`calls the associated delegate method.

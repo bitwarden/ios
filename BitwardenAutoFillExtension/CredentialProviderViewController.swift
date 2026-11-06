@@ -24,6 +24,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 
     /// Zero-frame text field that holds first responder in `autofillText` mode to keep
     /// InputUI's keyboard session alive across view-controller transitions and search dismissals.
+    /// Released when an item is tapped on iOS 27+ (see `TextToInsertKeyboardSession.releasesFocusOnItemTap`).
     private var keyboardAnchor: KeyboardAnchorTextField?
 
     override func viewDidAppear(_ animated: Bool) {
@@ -166,7 +167,12 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 
         if context.flowWithUserInteraction {
             Task {
-                await appProcessor.start(appContext: .appExtension, navigator: self, window: nil)
+                await appProcessor.start(
+                    appContext: .appExtension,
+                    initialRoute: context.initialRoute,
+                    navigator: self,
+                    window: nil,
+                )
             }
         }
     }
@@ -316,14 +322,66 @@ extension CredentialProviderViewController {
 
 extension CredentialProviderViewController {
     @available(iOSApplicationExtension 26.2, *)
+    override func prepareInterface(for generatePasswordsRequest: ASGeneratePasswordsRequest) {
+        initializeApp(with: DefaultCredentialProviderContext(
+            .generatePasswordCredential(generatePasswordsRequest, userInteraction: true),
+        ))
+    }
+
+    @available(iOSApplicationExtension 26.2, *)
+    override func performWithoutUserInteraction(generatePasswordsRequest: ASGeneratePasswordsRequest) {
+        Task {
+            await initializeAppWithoutUserInteraction(
+                with: DefaultCredentialProviderContext(
+                    .generatePasswordCredential(generatePasswordsRequest, userInteraction: false),
+                ),
+            )
+            await generatePassword(request: generatePasswordsRequest)
+        }
+    }
+
+    @available(iOSApplicationExtension 26.2, *)
     override func performWithoutUserInteractionIfPossible(savePasswordRequest: ASSavePasswordRequest) {
         Task {
             await initializeAppWithoutUserInteraction(
                 with: DefaultCredentialProviderContext(
-                    .savePasswordWithoutUserInteraction(savePasswordRequest),
+                    .savePasswordCredential(savePasswordRequest, userInteraction: false),
                 ),
             )
             await savePassword(savePasswordRequest: savePasswordRequest)
+        }
+    }
+
+    @available(iOSApplicationExtension 26.2, *)
+    override func prepareInterface(for savePasswordRequest: ASSavePasswordRequest) {
+        initializeApp(with: DefaultCredentialProviderContext(
+            .savePasswordCredential(savePasswordRequest, userInteraction: true),
+        ))
+    }
+
+    // MARK: Private methods
+
+    /// Generates a password for the requesting app using the developer-specified rules in the request.
+    ///
+    /// - Parameter request: The generate-password request containing developer-specified rules.
+    ///
+    @available(iOSApplicationExtension 26.2, *)
+    private func generatePassword(request: ASGeneratePasswordsRequest) async {
+        guard let appProcessor else {
+            cancel(error: ASExtensionError(.failed))
+            return
+        }
+
+        do {
+            let password = try await appProcessor.generatePasswordCredential(request: request)
+            // TODO: PM-29569 Derive kind from request rules once SDK exposes the mapping API.
+            extensionContext.completeGeneratePasswordRequest(
+                results: [ASGeneratedPassword(kind: .alphanumeric, value: password)],
+                completionHandler: nil,
+            )
+        } catch {
+            Logger.appExtension.error("Error generating password without user interaction: \(error)")
+            cancel(error: error)
         }
     }
 
@@ -347,7 +405,7 @@ extension CredentialProviderViewController {
             extensionContext.completeSavePasswordRequest(completionHandler: nil)
         } catch {
             Logger.appExtension.error("Error saving password credential without user interaction: \(error)")
-            cancel(error: error)
+            cancel(error: ASExtensionError(.userInteractionRequired))
         }
     }
 }
@@ -478,9 +536,22 @@ extension CredentialProviderViewController: CredentialProviderExtensionDelegate 
         extensionContext.completeAssertionRequest(using: assertionCredential)
     }
 
+    @available(iOSApplicationExtension 26.2, *)
+    func completeGeneratePasswordRequest(kind: ASGeneratedPassword.Kind, password: String) {
+        extensionContext.completeGeneratePasswordRequest(
+            results: [ASGeneratedPassword(kind: kind, value: password)],
+            completionHandler: nil,
+        )
+    }
+
     @available(iOSApplicationExtension 18.0, *)
     func completeOTPRequest(code: String) {
         extensionContext.completeOneTimeCodeRequest(using: ASOneTimeCodeCredential(code: code))
+    }
+
+    func completeSavePasswordRequest() {
+        guard #available(iOSApplicationExtension 26.2, *) else { return }
+        extensionContext.completeSavePasswordRequest(completionHandler: nil)
     }
 
     @available(iOSApplicationExtension 17.0, *)
@@ -499,6 +570,16 @@ extension CredentialProviderViewController: CredentialProviderExtensionDelegate 
             .values
     }
 
+    func releaseKeyboardAnchor() {
+        keyboardAnchor?.tearDown()
+        keyboardAnchor = nil
+    }
+
+    @available(iOSApplicationExtension 18.0, *)
+    func setMatchedExcludedCredentialFound() {
+        cancel(error: ASExtensionError(.matchedExcludedCredential))
+    }
+
     func setUserInteractionRequired() {
         context?.flowFailedBecauseUserInteractionRequired = true
         cancel(error: ASExtensionError(.userInteractionRequired))
@@ -512,7 +593,7 @@ extension CredentialProviderViewController: RootNavigator {
 
     func show(child: Navigator) {
         // In autofillText mode, reclaim the anchor before the transition to keep the keyboard
-        // session alive. In other modes keyboardAnchor is nil, so this is a no-op.
+        // session alive. In other modes (or once released) keyboardAnchor is nil, so this is a no-op.
         keyboardAnchor?.becomeFirstResponder()
 
         removeChildViewController()
@@ -558,6 +639,20 @@ private final class KeyboardAnchorTextField: UITextField {
             name: UIResponder.keyboardWillHideNotification,
             object: nil,
         )
+    }
+
+    /// Stops reclaiming first responder, resigns it if needed, and removes the anchor from the view
+    /// hierarchy.
+    func tearDown() {
+        NotificationCenter.default.removeObserver(
+            self,
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil,
+        )
+        if isFirstResponder {
+            resignFirstResponder()
+        }
+        removeFromSuperview()
     }
 
     @objc

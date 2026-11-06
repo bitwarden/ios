@@ -155,7 +155,7 @@ class SendCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(action.view is BitwardenShared.SendListView)
     }
 
-    /// `navigate(to:)` with `.premiumUpgrade` presents the premium upgrade screen.
+    /// `navigate(to:)` with `.premiumUpgrade` presents the Premium upgrade screen.
     @MainActor
     func test_navigateTo_premiumUpgrade() throws {
         subject.navigate(to: .premiumUpgrade)
@@ -164,6 +164,18 @@ class SendCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(action.type, .presented)
         XCTAssertTrue(action.view is UINavigationController)
         XCTAssertEqual(module.billingCoordinator.routes, [.premiumUpgrade])
+    }
+
+    /// `navigate(to:)` with `.premiumUpgradeComplete` presents a standalone Premium upgrade
+    /// complete screen via the billing coordinator.
+    @MainActor
+    func test_navigateTo_premiumUpgradeComplete() throws {
+        subject.navigate(to: .premiumUpgradeComplete)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is UINavigationController)
+        XCTAssertEqual(module.billingCoordinator.routes, [.premiumUpgradeCompleteStandalone])
     }
 
     /// `navigate(to:)` with `.share` presents the share sheet.

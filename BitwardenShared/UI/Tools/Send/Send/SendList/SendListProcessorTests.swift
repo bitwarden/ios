@@ -76,8 +76,8 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(coordinator.routes.last, .addItem(type: .file))
     }
 
-    /// `perform(_:)` with `.addItemPressed` shows a premium required alert with an upgrade action
-    /// if attempting to add a file send and the user doesn't have premium.
+    /// `perform(_:)` with `.addItemPressed` shows a Premium required alert with an upgrade action
+    /// if attempting to add a file send and the user doesn't have Premium.
     @MainActor
     func test_perform_addItemPressed_fileType_withoutPremium() async throws {
         sendRepository.doesActivateAccountHavePremiumResult = false
@@ -88,8 +88,8 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertTrue(coordinator.routes.isEmpty)
     }
 
-    /// `perform(_:)` with `.addItemPressed` tapping "Upgrade to Premium" in the premium required
-    /// alert triggers the premium upgrade flow.
+    /// `perform(_:)` with `.addItemPressed` tapping "Upgrade to Premium" in the Premium required
+    /// alert triggers the Premium upgrade flow.
     @MainActor
     func test_perform_addItemPressed_fileType_withoutPremium_upgradeAction() async throws {
         sendRepository.doesActivateAccountHavePremiumResult = false
@@ -116,10 +116,19 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     func test_perform_loadData_policies() async {
         await subject.perform(.loadData)
         XCTAssertFalse(subject.state.isSendDisabled)
+        XCTAssertNil(subject.state.restrictedSendType)
 
-        policyService.policyAppliesToUserResult[.disableSend] = true
+        policyService.getSendPolicyOptionsResult.isSendDisabled = true
         await subject.perform(.loadData)
         XCTAssertTrue(subject.state.isSendDisabled)
+    }
+
+    /// `perform(_:)` with `loadData` sets the restricted Send type from the enforced policy type.
+    @MainActor
+    func test_perform_loadData_restrictedSendType() async {
+        policyService.getSendPolicyOptionsResult.enforcedSendType = .file
+        await subject.perform(.loadData)
+        XCTAssertEqual(subject.state.restrictedSendType, .file)
     }
 
     /// `perform(_:)` with `refresh` requests a fetch sync update, but does not force a sync.
@@ -234,7 +243,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         await subject.perform(.sendListItemRow(.copyLinkPressed(sendView)))
 
         XCTAssertEqual(sendRepository.shareURLSendView, sendView)
-        XCTAssertEqual(pasteboardService.copiedString, "https://example.com")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "https://example.com")
         XCTAssertEqual(
             subject.state.toast,
             Toast(title: Localizations.valueHasBeenCopied(Localizations.sendLink)),
@@ -428,6 +437,25 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(sections.count, 1)
         XCTAssertEqual(sections[0].items, [sendListItem])
         XCTAssertTrue(vaultRepository.needsSyncCalled)
+    }
+
+    /// `perform(_:)` with `.streamSendList` tells the repository to omit the "Types" filter section
+    /// when the user is restricted to a single Send type.
+    @MainActor
+    func test_perform_streamSendList_restrictedSendType() throws {
+        subject.state.restrictedSendType = .file
+        sendRepository.sendListSubject.send([
+            SendListSection(id: "AllSends", items: [], name: "All sends"),
+        ])
+
+        let task = Task {
+            await subject.perform(.streamSendList)
+        }
+
+        waitFor(sendRepository.sendListPublisherIncludeTypesSection != nil)
+        task.cancel()
+
+        XCTAssertEqual(sendRepository.sendListPublisherIncludeTypesSection, false)
     }
 
     /// `perform(_:)` with `.streamSendList` updates the state's send list whenever it changes.

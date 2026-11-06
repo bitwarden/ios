@@ -10,6 +10,12 @@ import XCTest
 class CardComponentBrandTests: BitwardenTestCase {
     // MARK: Tests
 
+    /// `defaultValueLocalizedName` is the localized `None` placeholder shown when no brand is
+    /// selected.
+    func test_defaultValueLocalizedName() {
+        XCTAssertEqual(CardComponent.Brand.defaultValueLocalizedName, Localizations.none)
+    }
+
     /// `getter:icon` returns the appropriate icon for each card brand.
     func test_icon() {
         XCTAssertEqual(CardComponent.Brand.americanExpress.icon.name, SharedAsset.Icons.Cards.amex.name)
@@ -226,5 +232,69 @@ class CardComponentBrandTests: BitwardenTestCase {
     func test_formattedCardNumber_nonDigitInput_returnsUnchanged() {
         XCTAssertEqual(CardComponent.Brand.visa.formattedCardNumber("4111-1111-1111-1111"), "4111-1111-1111-1111")
         XCTAssertEqual(CardComponent.Brand.visa.formattedCardNumber("abcd"), "abcd")
+    }
+
+    // MARK: Tests – validDigitLengths
+
+    /// `validDigitLengths` returns `[15]` for American Express.
+    func test_validDigitLengths_americanExpress() {
+        XCTAssertEqual(CardComponent.Brand.americanExpress.validDigitLengths, [15])
+    }
+
+    /// `validDigitLengths` returns `[14]` for Diners Club.
+    func test_validDigitLengths_dinersClub() {
+        XCTAssertEqual(CardComponent.Brand.dinersClub.validDigitLengths, [14])
+    }
+
+    /// `validDigitLengths` returns `[16, 17, 18, 19]` for Discover.
+    func test_validDigitLengths_discover() {
+        XCTAssertEqual(CardComponent.Brand.discover.validDigitLengths, [16, 17, 18, 19])
+    }
+
+    /// `validDigitLengths` returns `[15, 16, 17, 18, 19]` for JCB.
+    func test_validDigitLengths_jcb() {
+        XCTAssertEqual(CardComponent.Brand.jcb.validDigitLengths, [15, 16, 17, 18, 19])
+    }
+
+    /// `validDigitLengths` returns the full 12–19 range for Maestro.
+    func test_validDigitLengths_maestro() {
+        XCTAssertEqual(CardComponent.Brand.maestro.validDigitLengths, Set(12 ... 19))
+    }
+
+    /// `validDigitLengths` returns `[16]` for Mastercard.
+    func test_validDigitLengths_mastercard() { // swiftlint:disable:this inclusive_language
+        XCTAssertEqual(CardComponent.Brand.mastercard.validDigitLengths, [16])
+    }
+
+    /// `validDigitLengths` returns the full 13–19 range for unknown brands.
+    func test_validDigitLengths_other() {
+        XCTAssertEqual(CardComponent.Brand.other.validDigitLengths, Set(13 ... 19))
+    }
+
+    /// `validDigitLengths` returns `[16]` for RuPay.
+    func test_validDigitLengths_ruPay() {
+        XCTAssertEqual(CardComponent.Brand.ruPay.validDigitLengths, [16])
+    }
+
+    /// `validDigitLengths` returns `[16, 17, 18, 19]` for UnionPay.
+    func test_validDigitLengths_unionPay() {
+        XCTAssertEqual(CardComponent.Brand.unionPay.validDigitLengths, Set(16 ... 19))
+    }
+
+    /// `validDigitLengths` returns `[13, 16, 19]` for Visa.
+    func test_validDigitLengths_visa() {
+        XCTAssertEqual(CardComponent.Brand.visa.validDigitLengths, [13, 16, 19])
+    }
+}
+
+// MARK: - CardComponentMonthTests
+
+class CardComponentMonthTests: BitwardenTestCase {
+    // MARK: Tests
+
+    /// `defaultValueLocalizedName` is the localized `None` placeholder shown when no expiration
+    /// month is selected.
+    func test_defaultValueLocalizedName() {
+        XCTAssertEqual(CardComponent.Month.defaultValueLocalizedName, Localizations.none)
     }
 }

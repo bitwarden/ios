@@ -4,7 +4,7 @@ import SwiftUI
 
 // MARK: - PremiumUpgradeCompleteView
 
-/// A view that informs the user that the premium upgrade was successful.
+/// A view that informs the user that the Premium upgrade was successful.
 ///
 struct PremiumUpgradeCompleteView: View {
     // MARK: Properties

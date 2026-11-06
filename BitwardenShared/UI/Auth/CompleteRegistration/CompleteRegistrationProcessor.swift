@@ -6,6 +6,8 @@ import Combine
 import Foundation
 import OSLog
 
+// swiftlint:disable file_length
+
 // MARK: - MasterPasswordUpdateDelegate
 
 /// A delegate protocol for handling master password updates during registration completion.
@@ -43,7 +45,7 @@ enum CompleteRegistrationError: Error {
 
 /// The processor used to manage state and handle actions for the complete registration screen.
 ///
-class CompleteRegistrationProcessor: StateProcessor<
+class CompleteRegistrationProcessor: StateProcessor<// swiftlint:disable:this type_body_length
     CompleteRegistrationState,
     CompleteRegistrationAction,
     CompleteRegistrationEffect,
@@ -204,10 +206,17 @@ class CompleteRegistrationProcessor: StateProcessor<
                 body: RegisterFinishRequestModel(
                     email: state.userEmail,
                     emailVerificationToken: state.emailVerificationToken,
-                    kdfConfig: kdfConfig,
-                    masterPasswordHash: hashedPassword,
+                    masterPasswordAuthentication: MasterPasswordAuthenticationDataRequestModel(
+                        kdf: kdfConfig,
+                        masterPasswordAuthenticationHash: hashedPassword,
+                        salt: state.userEmail,
+                    ),
                     masterPasswordHint: state.passwordHintText,
-                    userSymmetricKey: keys.encryptedUserKey,
+                    masterPasswordUnlock: MasterPasswordUnlockDataRequestModel(
+                        kdf: kdfConfig,
+                        masterKeyWrappedUserKey: keys.encryptedUserKey,
+                        salt: state.userEmail,
+                    ),
                     userAsymmetricKeys: KeysRequestModel(
                         encryptedPrivateKey: keys.keys.private,
                         publicKey: keys.keys.public,
@@ -227,6 +236,7 @@ class CompleteRegistrationProcessor: StateProcessor<
                     masterPassword: state.passwordText,
                     masterPasswordHint: state.passwordHintText.nilIfEmpty,
                     emailVerificationToken: state.emailVerificationToken,
+                    salesAssistedToken: nil,
                     organizationUserId: nil,
                     orgInviteToken: nil,
                     orgSponsoredFreeFamilyPlanToken: nil,
@@ -234,6 +244,7 @@ class CompleteRegistrationProcessor: StateProcessor<
                     acceptEmergencyAccessId: nil,
                     providerInviteToken: nil,
                     providerUserId: nil,
+                    openOrgInvite: nil,
                 ),
             )
 

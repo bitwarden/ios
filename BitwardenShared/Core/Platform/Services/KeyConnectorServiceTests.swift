@@ -101,8 +101,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             "org-id",
         )
         XCTAssertTrue(client.requests.isEmpty)
-        XCTAssertNotNil(stateService.accountEncryptionKeys["1"]?.cryptographicState)
-        XCTAssertEqual(stateService.accountEncryptionKeys["1"]?.encryptedUserKey, "encryptedUserKey")
+        XCTAssertNotNil(stateService.accountCryptographicStates["1"])
     }
 
     /// `convertNewUserToKeyConnector()` throws if SDK registration fails.
@@ -116,7 +115,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             )
         }
 
-        XCTAssertNil(stateService.accountEncryptionKeys["1"])
+        XCTAssertNil(stateService.accountCryptographicStates["1"])
     }
 
     /// `convertNewUserToKeyConnector()` (v1) makes connector keys and uploads them to key connector and the API.
@@ -140,13 +139,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/key-connector/user-keys")!)
         XCTAssertEqual(client.requests[1].method, .post)
         XCTAssertEqual(client.requests[1].url, URL(string: "https://example.com/api/accounts/set-key-connector-key")!)
-        XCTAssertEqual(
-            stateService.accountEncryptionKeys["1"],
-            AccountEncryptionKeys(
-                cryptographicState: .v1(privateKey: "private"),
-                encryptedUserKey: "encryptedUserKey",
-            ),
-        )
+        XCTAssertEqual(stateService.accountCryptographicStates["1"], .v1(privateKey: "private"))
     }
 
     /// `convertNewUserToKeyConnector()` (v1) throws an error if making key connector keys fails.
@@ -163,7 +156,7 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         XCTAssertTrue(clientService.mockAuth.makeKeyConnectorKeysCalled)
         XCTAssertTrue(client.requests.isEmpty)
-        XCTAssertNil(stateService.accountEncryptionKeys["1"])
+        XCTAssertNil(stateService.accountCryptographicStates["1"])
     }
 
     /// `convertNewUserToKeyConnector()` (v1) throws an error if uploading the keys fails.
@@ -182,8 +175,8 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(client.requests.count, 1)
     }
 
-    /// `convertNewUserToKeyConnector()` (v1) throws an error if setting the account encryption keys fails.
-    func test_convertNewUserToKeyConnector_v1_setAccountEncryptionKeysFailure() async throws {
+    /// `convertNewUserToKeyConnector()` (v1) throws an error if setting the account cryptographic state fails.
+    func test_convertNewUserToKeyConnector_v1_setAccountCryptographicStateFailure() async throws {
         configService.featureFlagsBool[.accountEncryptionV2KeyConnector] = false
         client.results = [
             .httpSuccess(testData: .emptyResponse),
@@ -200,31 +193,27 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].method, .post)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/key-connector/user-keys")!)
-        XCTAssertNil(stateService.accountEncryptionKeys["1"])
+        XCTAssertNil(stateService.accountCryptographicStates["1"])
     }
 
-    /// `getMasterKeyFromKeyConnector()` returns the user's master key from the Key Connector API.
-    func test_getMasterKeyFromKeyConnector() async throws {
-        client.result = .httpSuccess(testData: .keyConnectorUserKey)
-        stateService.activeAccount = .fixture(
+    /// `migrateUser()` migrates the user keys and uploads them to the API and Key Connector,
+    /// deriving the master key with the salt and KDF params from the master password unlock data.
+    func test_migrateUser() async throws {
+        let account = Account.fixture(
             profile: .fixture(
+                kdfIterations: 500_000,
                 userDecryptionOptions: UserDecryptionOptions(
-                    hasMasterPassword: false,
-                    keyConnectorOption: KeyConnectorUserDecryptionOption(keyConnectorUrl: "https://example.com"),
+                    hasMasterPassword: true,
+                    masterPasswordUnlock: .fixture(
+                        iterations: 600_000,
+                        masterKeyEncryptedUserKey: "encryptedUserKey",
+                        salt: "UNLOCK_SALT",
+                    ),
+                    keyConnectorOption: nil,
                     trustedDeviceOption: nil,
                 ),
             ),
         )
-
-        let key = try await subject.getMasterKeyFromKeyConnector(
-            keyConnectorUrl: URL(string: "https://example.com/key-connector")!,
-        )
-        XCTAssertEqual(key, "EXsYYd2Wx4H/9dhzmINS0P30lpG8bZ44RRn/T15tVA8=")
-    }
-
-    /// `migrateUser()` migrates the user keys and uploads them to the API and Key Connector.
-    func test_migrateUser() async throws {
-        let account = Account.fixture()
         client.results = [
             .httpSuccess(testData: .emptyResponse),
             .httpSuccess(testData: .emptyResponse),
@@ -234,10 +223,6 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             .fixture(keyConnectorEnabled: true, keyConnectorUrl: "https://example.com/key-connector"),
         ])
         stateService.activeAccount = account
-        stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
-            cryptographicState: .v1(privateKey: "encryptedPrivateKey"),
-            encryptedUserKey: "encryptedUserKey",
-        )
 
         try await subject.migrateUser(
             password: "testPassword123",
@@ -256,8 +241,8 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             DeriveKeyConnectorRequest(
                 userKeyEncrypted: "encryptedUserKey",
                 password: "testPassword123",
-                kdf: account.kdf.sdkKdf,
-                email: "user@bitwarden.com",
+                kdf: .pbkdf2(iterations: 600_000),
+                email: "UNLOCK_SALT",
             ),
         )
         XCTAssertEqual(stateService.userHasMasterPassword["1"], false)
@@ -280,10 +265,6 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             .fixture(keyConnectorEnabled: true, keyConnectorUrl: "https://https://example.com/key-connector"),
         ])
         stateService.activeAccount = .fixture()
-        stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
-            cryptographicState: .v1(privateKey: "encryptedPrivateKey"),
-            encryptedUserKey: nil,
-        )
 
         await assertAsyncThrows(error: KeyConnectorServiceError.missingEncryptedUserKey) {
             try await subject.migrateUser(
@@ -298,10 +279,15 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         organizationService.fetchAllOrganizationsResult = .success([
             .fixture(keyConnectorEnabled: true, keyConnectorUrl: "https://https://example.com/key-connector"),
         ])
-        stateService.activeAccount = .fixture()
-        stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
-            cryptographicState: .v1(privateKey: "encryptedPrivateKey"),
-            encryptedUserKey: "encryptedUserKey",
+        stateService.activeAccount = .fixture(
+            profile: .fixture(
+                userDecryptionOptions: UserDecryptionOptions(
+                    hasMasterPassword: true,
+                    masterPasswordUnlock: .fixture(masterKeyEncryptedUserKey: "encryptedUserKey"),
+                    keyConnectorOption: nil,
+                    trustedDeviceOption: nil,
+                ),
+            ),
         )
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
@@ -321,10 +307,15 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         organizationService.fetchAllOrganizationsResult = .success([
             .fixture(keyConnectorEnabled: true, keyConnectorUrl: "https://https://example.com/key-connector"),
         ])
-        stateService.activeAccount = .fixture()
-        stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
-            cryptographicState: .v1(privateKey: "encryptedPrivateKey"),
-            encryptedUserKey: "encryptedUserKey",
+        stateService.activeAccount = .fixture(
+            profile: .fixture(
+                userDecryptionOptions: UserDecryptionOptions(
+                    hasMasterPassword: true,
+                    masterPasswordUnlock: .fixture(masterKeyEncryptedUserKey: "encryptedUserKey"),
+                    keyConnectorOption: nil,
+                    trustedDeviceOption: nil,
+                ),
+            ),
         )
 
         await assertAsyncThrows(error: URLError(.networkConnectionLost)) {

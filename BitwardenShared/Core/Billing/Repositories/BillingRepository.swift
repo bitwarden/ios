@@ -7,13 +7,24 @@ import Foundation
 /// needed by the UI layer.
 ///
 protocol BillingRepository { // sourcery: AutoMockable
-    /// Returns `true` when the in-app premium upgrade path is available for the active user.
+    /// Returns `true` when the in-app Premium upgrade path is available on this device.
     ///
-    /// Does **not** check banner dismissal -- callers that need that check must do so separately.
+    /// Only checks the feature flag and the App Store storefront. It does not check the user's Premium
+    /// status, account age, or vault size -- callers that need those checks must do so separately.
     ///
-    /// - Returns: Whether the in-app premium upgrade path is available.
+    /// - Returns: Whether the in-app Premium upgrade path is available.
     ///
     func isInAppUpgradeAvailable() async -> Bool
+
+    /// Returns `true` when the Upgrade to Premium banner can be shown for the active user.
+    ///
+    /// Requires the in-app upgrade path to be available, the user to be eligible for the upgrade
+    /// (not Premium and account old enough), and the vault to contain the minimum number of items.
+    /// Does **not** check banner dismissal -- callers that need that check must do so separately.
+    ///
+    /// - Returns: Whether the Upgrade to Premium banner can be shown.
+    ///
+    func isPremiumUpgradeBannerAvailable() async -> Bool
 }
 
 // MARK: - DefaultBillingRepository
@@ -23,14 +34,14 @@ protocol BillingRepository { // sourcery: AutoMockable
 class DefaultBillingRepository: BillingRepository {
     // MARK: Properties
 
+    /// The service used to manage the app's billing state.
+    private let billingStateService: BillingStateService
+
     /// The service used to manage feature flags.
     private let configService: ConfigService
 
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
-
-    /// The service used to manage the app's state.
-    private let stateService: BillingStateService
 
     /// The service used to retrieve App Store storefront information.
     private let storefrontService: StorefrontService
@@ -43,22 +54,22 @@ class DefaultBillingRepository: BillingRepository {
     /// Creates a new `DefaultBillingRepository`.
     ///
     /// - Parameters:
+    ///   - billingStateService: The service used to manage the app's billing state.
     ///   - configService: The service used to manage feature flags.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
-    ///   - stateService: The service used to manage the app's state.
     ///   - storefrontService: The service used to retrieve App Store storefront information.
     ///   - vaultRepository: The repository used to manage vault data.
     ///
     init(
+        billingStateService: BillingStateService,
         configService: ConfigService,
         errorReporter: ErrorReporter,
-        stateService: BillingStateService,
         storefrontService: StorefrontService,
         vaultRepository: VaultRepository,
     ) {
+        self.billingStateService = billingStateService
         self.configService = configService
         self.errorReporter = errorReporter
-        self.stateService = stateService
         self.storefrontService = storefrontService
         self.vaultRepository = vaultRepository
     }
@@ -67,8 +78,14 @@ class DefaultBillingRepository: BillingRepository {
 
     func isInAppUpgradeAvailable() async -> Bool {
         guard await configService.getFeatureFlag(.premiumUpgradePath),
-              await storefrontService.isUSStorefront(),
-              await stateService.isPremiumUpgradeEligible()
+              await storefrontService.isUSStorefront()
+        else { return false }
+        return true
+    }
+
+    func isPremiumUpgradeBannerAvailable() async -> Bool {
+        guard await isInAppUpgradeAvailable(),
+              await billingStateService.isPremiumUpgradeEligible()
         else { return false }
         do {
             guard try await vaultRepository

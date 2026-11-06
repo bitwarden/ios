@@ -1,4 +1,5 @@
 // swiftlint:disable:this file_name
+// swiftlint:disable file_length
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
@@ -13,7 +14,7 @@ import XCTest
 
 // MARK: - VaultListViewTests
 
-class VaultListViewTests: BitwardenTestCase {
+class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var processor: MockProcessor<VaultListState, VaultListAction, VaultListEffect>!
@@ -30,6 +31,7 @@ class VaultListViewTests: BitwardenTestCase {
             userInitials: "AA",
         )
         let state = VaultListState(
+            itemTypesUserCanCreate: CipherType.canCreateCases,
             profileSwitcherState: ProfileSwitcherState(
                 accounts: [account],
                 activeAccountId: account.userId,
@@ -193,6 +195,136 @@ class VaultListViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions, [.showImportLogins])
     }
 
+    /// The subscription attention action card is hidden when `shouldShowSubscriptionAttentionCard` is false.
+    @MainActor
+    func test_subscriptionAttentionActionCard_hidden() {
+        processor.state.loadingState = .data([VaultListSection(id: "1", items: [.fixture()], name: "")])
+        processor.state.shouldShowSubscriptionAttentionCard = false
+        XCTAssertThrowsError(
+            try subject.inspect().find(actionCard: Localizations.subscriptionNeedsAttention),
+        )
+    }
+
+    /// The subscription attention action card is visible in the empty vault state.
+    @MainActor
+    func test_subscriptionAttentionActionCard_visible_emptyVault() {
+        processor.state.loadingState = .data([])
+        processor.state.shouldShowSubscriptionAttentionCard = true
+        XCTAssertNoThrow(
+            try subject.inspect().find(actionCard: Localizations.subscriptionNeedsAttention),
+        )
+    }
+
+    /// The subscription attention action card is visible in the populated vault state.
+    @MainActor
+    func test_subscriptionAttentionActionCard_visible_populatedVault() {
+        processor.state.loadingState = .data([VaultListSection(id: "1", items: [.fixture()], name: "")])
+        processor.state.shouldShowSubscriptionAttentionCard = true
+        XCTAssertNoThrow(
+            try subject.inspect().find(actionCard: Localizations.subscriptionNeedsAttention),
+        )
+    }
+
+    /// Tapping the "View plan" button on the subscription attention action card dispatches `.viewPlan`.
+    @MainActor
+    func test_subscriptionAttentionActionCard_tapViewPlan() async throws {
+        processor.state.loadingState = .data([VaultListSection(id: "1", items: [.fixture()], name: "")])
+        processor.state.shouldShowSubscriptionAttentionCard = true
+        let actionCard = try subject.inspect().find(actionCard: Localizations.subscriptionNeedsAttention)
+        let button = try actionCard.find(asyncButton: Localizations.viewPlan)
+        try await button.tap()
+        XCTAssertEqual(processor.dispatchedActions, [.viewPlan])
+    }
+
+    /// The import logins action card is hidden when the subscription attention card is showing.
+    @MainActor
+    func test_importLoginsActionCard_hidden_whenSubscriptionAttentionShowing() {
+        processor.state.importLoginsSetupProgress = .incomplete
+        processor.state.loadingState = .data([])
+        processor.state.shouldShowSubscriptionAttentionCard = true
+        XCTAssertThrowsError(
+            try subject.inspect().find(actionCard: Localizations.importSavedLogins),
+        )
+    }
+
+    /// The archive onboarding action card is hidden when the subscription attention card is showing.
+    @MainActor
+    func test_archiveOnboardingActionCard_hidden_whenSubscriptionAttentionShowing() {
+        processor.state.loadingState = .data([VaultListSection(id: "1", items: [.fixture()], name: "")])
+        processor.state.shouldShowArchiveOnboardingActionCard = true
+        processor.state.shouldShowSubscriptionAttentionCard = true
+        XCTAssertThrowsError(
+            try subject.inspect().find(actionCard: Localizations.introducingArchive),
+        )
+    }
+
+    /// The organization banner action card is hidden when `organizationUserNotificationBannerData` is `nil`.
+    @MainActor
+    func test_orgBannerActionCard_hidden() {
+        processor.state.loadingState = .data([])
+        XCTAssertThrowsError(try subject.inspect().find(actionCard: "Upcoming Maintenance"))
+    }
+
+    /// The organization banner action card is visible when `organizationUserNotificationBannerData` is set.
+    @MainActor
+    func test_orgBannerActionCard_visible() {
+        processor.state.loadingState = .data([])
+        processor.state.organizationUserNotificationBannerData = .fixture()
+        XCTAssertNoThrow(try subject.inspect().find(actionCard: "Upcoming Maintenance"))
+    }
+
+    /// The organization banner action card takes precedence over other action cards, which are
+    /// shown once the banner is dismissed.
+    @MainActor
+    func test_orgBannerActionCard_takesPrecedenceOverOtherActionCards() throws {
+        processor.state.loadingState = .data([])
+        processor.state.importLoginsSetupProgress = .incomplete
+        processor.state.organizationUserNotificationBannerData = .fixture()
+        XCTAssertNoThrow(try subject.inspect().find(actionCard: "Upcoming Maintenance"))
+        XCTAssertThrowsError(try subject.inspect().find(actionCard: Localizations.importSavedLogins))
+
+        processor.state.organizationUserNotificationBannerData = nil
+        XCTAssertThrowsError(try subject.inspect().find(actionCard: "Upcoming Maintenance"))
+        XCTAssertNoThrow(try subject.inspect().find(actionCard: Localizations.importSavedLogins))
+    }
+
+    /// When the organization banner has a primary button (and a header), the close (X) button is not shown.
+    @MainActor
+    func test_orgBannerActionCard_primaryButtonHidesCloseButton() throws {
+        processor.state.loadingState = .data([])
+        processor.state.organizationUserNotificationBannerData = .fixture(
+            buttonText: "I understand",
+            headerText: "Upcoming Maintenance",
+        )
+        let actionCard = try subject.inspect().find(actionCard: "Upcoming Maintenance")
+        XCTAssertNoThrow(try actionCard.find(asyncButton: "I understand"))
+        XCTAssertThrowsError(try actionCard.find(asyncButton: Localizations.dismiss))
+    }
+
+    /// Tapping the dismiss button on the organization banner dispatches the
+    /// `.dismissOrganizationBanner(fromActionButton: false)` effect.
+    @MainActor
+    func test_orgBannerActionCard_tapDismiss() async throws {
+        processor.state.loadingState = .data([])
+        processor.state.organizationUserNotificationBannerData = .fixture(buttonText: nil)
+        let actionCard = try subject.inspect().find(actionCard: "Upcoming Maintenance")
+        let button = try actionCard.find(asyncButton: Localizations.dismiss)
+        try await button.tap()
+        XCTAssertEqual(processor.effects, [.dismissOrganizationBanner(fromActionButton: false)])
+    }
+
+    /// Tapping the action button on the organization banner dispatches the
+    /// `.dismissOrganizationBanner(fromActionButton: true)` effect.
+    @MainActor
+    func test_orgBannerActionCard_tapActionButton() async throws {
+        processor.state.loadingState = .data([])
+        processor.state.organizationUserNotificationBannerData = .fixture()
+        let actionCard = try subject.inspect().find(actionCard: "Upcoming Maintenance")
+        let button = try actionCard.find(asyncButton: "I understand")
+        try await button.tap()
+        XCTAssertEqual(processor.effects, [.dismissOrganizationBanner(fromActionButton: true)])
+    }
+
     /// Tapping the profile button dispatches the `.requestedProfileSwitcher` effect.
     @MainActor
     func test_profileButton_tap_withProfilesViewNotVisible() async throws {
@@ -218,14 +350,14 @@ class VaultListViewTests: BitwardenTestCase {
         )
     }
 
-    /// Tapping the search result dispatches the `.itemPressed` action.
+    /// Tapping the search result dispatches the `.itemPressed` effect.
     @MainActor
-    func test_searchResult_tap() throws {
+    func test_searchResult_tap() async throws {
         let result = VaultListItem.fixture()
         processor.state.searchResults = [result]
-        let button = try subject.inspect().find(button: "Bitwarden")
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .itemPressed(item: result))
+        let button = try subject.inspect().find(asyncButton: "Bitwarden")
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .itemPressed(result))
     }
 
     /// Tapping the go to settings button in the flight recorder toast banner dispatches the
@@ -245,25 +377,21 @@ class VaultListViewTests: BitwardenTestCase {
     @MainActor
     func test_tryAgainButton_tap() async throws {
         processor.state.loadingState = .error(
-            errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs,
+            errorMessage: Localizations.weCouldntSyncYourVaultWithTheServerDescriptionLong,
         )
         let button = try subject.inspect().find(asyncButton: Localizations.tryAgain)
         try await button.tap()
         XCTAssertEqual(processor.effects, [.tryAgainTapped])
     }
 
-    /// Tapping the vault item dispatches the `.itemPressed` action.
+    /// Tapping the vault item dispatches the `.itemPressed` effect.
     @MainActor
-    func test_vaultItem_tap() throws {
+    func test_vaultItem_tap() async throws {
         let item = VaultListItem(id: "1", itemType: .group(.login, 123))
         processor.state.loadingState = .data([VaultListSection(id: "1", items: [item], name: "Group")])
-        let button = try subject.inspect().find(LoadingViewType.self)
-            .find(ViewType.Button.self) { view in
-                _ = try view.find { try $0.accessibilityIdentifier() == "LoginCell" }
-                return true
-            }
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .itemPressed(item: item))
+        let button = try subject.inspect().find(asyncButtonWithAccessibilityIdentifier: "VaultListItemRowButton")
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .itemPressed(item))
     }
 
     /// Tapping the vault item copy totp button dispatches the `.copyTOTPCode` action.

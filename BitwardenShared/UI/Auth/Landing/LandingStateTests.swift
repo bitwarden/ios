@@ -21,4 +21,9 @@ class LandingStateTests: BitwardenTestCase {
         let subject = LandingState(email: "email@example.com")
         XCTAssertTrue(subject.isContinueButtonEnabled)
     }
+
+    func test_isCreateAccountButtonHidden_defaultsFalse() {
+        let subject = LandingState()
+        XCTAssertFalse(subject.isCreateAccountButtonHidden)
+    }
 }

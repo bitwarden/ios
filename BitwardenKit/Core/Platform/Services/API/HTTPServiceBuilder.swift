@@ -12,6 +12,9 @@ public class HTTPServiceBuilder {
     /// A `RequestHandler` that applies default headers (user agent, client type & name, etc) to requests.
     private let defaultHeadersRequestHandler: DefaultHeadersRequestHandler
 
+    /// A `RequestHandler` that applies the `Device-Identifier` header to requests.
+    private let deviceIdentifierRequestHandler: DeviceIdentifierRequestHandler
+
     /// The loggers used to log HTTP requests and responses.
     private let loggers: [HTTPLogger]
 
@@ -33,6 +36,8 @@ public class HTTPServiceBuilder {
     ///   - client: The underlying `HTTPClient` that performs the network request.
     ///   - defaultHeadersRequestHandler: A `RequestHandler` that applies default headers
     ///     (user agent, client type & name, etc) to requests.
+    ///   - deviceIdentifierRequestHandler: A `RequestHandler` that applies the `Device-Identifier`
+    ///     header to requests, for services built with `includeDeviceIdentifier` enabled.
     ///   - loggers: The loggers used to log HTTP requests and responses.
     ///   - ssoCookieVendorRequestHandler: A `RequestHandler` that handles whether the HTTP request
     ///   needs SSO vendor cookie.
@@ -42,12 +47,14 @@ public class HTTPServiceBuilder {
     public init(
         client: HTTPClient,
         defaultHeadersRequestHandler: DefaultHeadersRequestHandler,
+        deviceIdentifierRequestHandler: DeviceIdentifierRequestHandler,
         loggers: [HTTPLogger],
         ssoCookieVendorRequestHandler: RequestHandler,
         ssoCookieVendorResponseHandler: ResponseHandler,
     ) {
         self.client = client
         self.defaultHeadersRequestHandler = defaultHeadersRequestHandler
+        self.deviceIdentifierRequestHandler = deviceIdentifierRequestHandler
         self.loggers = loggers
         self.ssoCookieVendorRequestHandler = ssoCookieVendorRequestHandler
         self.ssoCookieVendorResponseHandler = ssoCookieVendorResponseHandler
@@ -61,20 +68,29 @@ public class HTTPServiceBuilder {
     ///   - baseURLGetter: A getter function for dynamically retrieving the base url against which
     ///     requests are resolved.
     ///   - tokenProvider: An object used to get an access token and refresh it when necessary.
+    ///   - includeDeviceIdentifier: Whether the `Device-Identifier` header should be applied to
+    ///     requests. This should only be enabled for services whose requests target Bitwarden hosts.
+    ///     Defaults to `false`.
     /// - Returns: An `HTTPService` with common loggers and handlers applied.
     ///
     public func makeService(
         baseURLGetter: @escaping @Sendable () -> URL,
         tokenProvider: TokenProvider? = nil,
+        includeDeviceIdentifier: Bool = false,
     ) -> HTTPService {
-        HTTPService(
+        var requestHandlers: [RequestHandler] = [
+            defaultHeadersRequestHandler,
+            ssoCookieVendorRequestHandler,
+        ]
+        if includeDeviceIdentifier {
+            requestHandlers.append(deviceIdentifierRequestHandler)
+        }
+
+        return HTTPService(
             baseURLGetter: baseURLGetter,
             client: client,
             loggers: loggers,
-            requestHandlers: [
-                defaultHeadersRequestHandler,
-                ssoCookieVendorRequestHandler,
-            ],
+            requestHandlers: requestHandlers,
             responseHandlers: [
                 ssoCookieVendorResponseHandler, // Order matters here, DO NOT invert with `responseValidationHandler`.
                 responseValidationHandler,

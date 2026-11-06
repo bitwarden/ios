@@ -1,0 +1,160 @@
+// swiftlint:disable:this file_name
+import BitwardenKit
+import BitwardenKitMocks
+import BitwardenResources
+import XCTest
+
+@testable import BitwardenShared
+
+class ViewDriversLicenseItemViewTests: BitwardenTestCase {
+    // MARK: Properties
+
+    var processor: MockProcessor<DriversLicenseItemState, ViewItemAction, Void>!
+    var subject: ViewDriversLicenseItemView!
+
+    // MARK: Setup & Teardown
+
+    override func setUp() {
+        super.setUp()
+
+        initSubject(state: populatedState())
+    }
+
+    override func tearDown() {
+        super.tearDown()
+
+        processor = nil
+        subject = nil
+    }
+
+    // MARK: Tests
+
+    /// Tapping the copy first name button dispatches the copy action.
+    @MainActor
+    func test_copyFirstNameButton_pressed() throws {
+        let button = try subject.inspect().find(
+            viewWithAccessibilityIdentifier: "DriversLicenseCopyFirstNameButton",
+        ).button()
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .copyPressed(value: "Bit", field: .firstName))
+    }
+
+    /// Tapping the copy middle name button dispatches the copy action.
+    @MainActor
+    func test_copyMiddleNameButton_pressed() throws {
+        let button = try subject.inspect().find(
+            viewWithAccessibilityIdentifier: "DriversLicenseCopyMiddleNameButton",
+        ).button()
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .copyPressed(value: "W", field: .middleName))
+    }
+
+    /// Tapping the copy last name button dispatches the copy action.
+    @MainActor
+    func test_copyLastNameButton_pressed() throws {
+        let button = try subject.inspect().find(
+            viewWithAccessibilityIdentifier: "DriversLicenseCopyLastNameButton",
+        ).button()
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .copyPressed(value: "Warden", field: .lastName))
+    }
+
+    /// Tapping the copy license number button dispatches the copy action.
+    @MainActor
+    func test_copyLicenseNumberButton_pressed() throws {
+        let button = try subject.inspect().find(
+            viewWithAccessibilityIdentifier: "DriversLicenseCopyNumberButton",
+        ).button()
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .copyPressed(value: "D1234567", field: .licenseNumber))
+    }
+
+    /// Tapping the license number visibility toggle dispatches the toggle action.
+    @MainActor
+    func test_licenseNumberVisibilityToggle_pressed() throws {
+        let button = try subject.inspect().find(
+            viewWithAccessibilityIdentifier: "ShowDriversLicenseNumberButton",
+        ).button()
+        try button.tap()
+        XCTAssertEqual(
+            processor.dispatchedActions.last,
+            .driversLicenseItemAction(.toggleLicenseNumberVisibilityChanged),
+        )
+    }
+
+    /// The license number visibility toggle announces the field name and current state to
+    /// VoiceOver.
+    @MainActor
+    func test_licenseNumberVisibilityToggle_accessibilityLabel() throws {
+        var state = populatedState()
+        state.isLicenseNumberVisible = false
+        initSubject(state: state)
+        _ = try subject.inspect().find(
+            buttonWithAccessibilityLabel: Localizations.fieldValueIsNotVisibleTapToShow(Localizations.licenseNumber),
+        )
+
+        state.isLicenseNumberVisible = true
+        initSubject(state: state)
+        _ = try subject.inspect().find(
+            buttonWithAccessibilityLabel: Localizations.fieldValueIsVisibleTapToHide(Localizations.licenseNumber),
+        )
+    }
+
+    /// The license number field asks VoiceOver to spell out its characters individually when
+    /// visible.
+    ///
+    /// - Note: ViewInspector doesn't support inspecting `speechSpellsOutCharacters`, so this
+    ///   verifies the flag is passed through to `PasswordText` rather than the final VoiceOver
+    ///   announcement, which should be confirmed with on-device VoiceOver testing.
+    @MainActor
+    func test_licenseNumber_spellsOutCharacters() throws {
+        var state = populatedState()
+        state.isLicenseNumberVisible = true
+        initSubject(state: state)
+        let passwordText = try subject.inspect().find(PasswordText.self) { view in
+            try view.actualView().password == "D1234567"
+        }.actualView()
+        XCTAssertTrue(passwordText.spellOutAccessibilityValue)
+    }
+
+    /// An empty state renders no fields, so the copy buttons are absent.
+    @MainActor
+    func test_emptyState_hidesFields() throws {
+        initSubject(state: DriversLicenseItemState())
+        XCTAssertThrowsError(
+            try subject.inspect().find(viewWithAccessibilityIdentifier: "DriversLicenseCopyFirstNameButton").button(),
+        )
+        XCTAssertThrowsError(
+            try subject.inspect().find(viewWithAccessibilityIdentifier: "ShowDriversLicenseNumberButton").button(),
+        )
+    }
+
+    // MARK: Private
+
+    /// Initializes the subject with the given state.
+    ///
+    /// - Parameter state: The driver's license state to render.
+    ///
+    @MainActor
+    func initSubject(state: DriversLicenseItemState) {
+        processor = MockProcessor(state: state)
+        subject = ViewDriversLicenseItemView(store: Store(processor: processor))
+    }
+
+    /// A fully populated driver's license state.
+    private func populatedState() -> DriversLicenseItemState {
+        DriversLicenseItemState(
+            dateOfBirth: Date(year: 1989, month: 8, day: 1),
+            expirationDate: Date(year: 2029, month: 8, day: 1),
+            firstName: "Bit",
+            issueDate: Date(year: 2019, month: 8, day: 1),
+            issuingAuthority: "DMV",
+            issuingCountry: "United States",
+            issuingState: "California",
+            lastName: "Warden",
+            licenseClass: "C",
+            licenseNumber: "D1234567",
+            middleName: "W",
+        )
+    }
+}

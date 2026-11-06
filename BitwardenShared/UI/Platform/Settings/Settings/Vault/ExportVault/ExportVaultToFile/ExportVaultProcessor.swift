@@ -64,7 +64,7 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
         switch action {
         case .dismiss:
             services.exportVaultService.clearTemporaryFiles()
-            coordinator.navigate(to: .dismiss)
+            coordinator.navigate(to: .dismiss())
         case let .fileFormatTypeChanged(fileFormat):
             state.fileFormat = fileFormat
         case let .filePasswordTextChanged(newValue):

@@ -52,3 +52,11 @@ extension Policy {
         data?[optionType.rawValue]
     }
 }
+
+extension [Policy] {
+    /// The policy with the earliest revision date, or `nil` if the list is empty.
+    ///
+    var policyWithEarliestRevisionDate: Policy? {
+        self.min { ($0.revisionDate ?? .distantFuture) < ($1.revisionDate ?? .distantFuture) }
+    }
+}

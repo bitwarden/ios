@@ -27,6 +27,17 @@ public struct AsyncButtonType: BaseViewType {
     ]
 }
 
+/// A generic type wrapper around `DateFieldPicker` to allow `ViewInspector` to find instances of
+/// `DateFieldPicker` without needing to know the details of its implementation.
+///
+public struct DateFieldPickerType: BaseViewType {
+    public static var typePrefix: String = "DateFieldPicker"
+
+    public static var namespacedPrefixes: [String] = [
+        "BitwardenKit.DateFieldPicker",
+    ]
+}
+
 /// A generic type wrapper around `BitwardenSlider` to allow `ViewInspector` to find instances of `BitwardenSlider`
 /// without needing to know the details of its implementation.
 ///
@@ -166,6 +177,20 @@ public extension InspectableView {
         }
     }
 
+    /// Attempts to locate an async button with the provided accessibility identifier.
+    ///
+    /// - Parameter accessibilityIdentifier: The accessibility identifier to use while searching for a button.
+    /// - Returns: A button, if one can be located.
+    /// - Throws: Throws an error if a view was unable to be located.
+    ///
+    func find(
+        asyncButtonWithAccessibilityIdentifier accessibilityIdentifier: String,
+    ) throws -> InspectableView<AsyncButtonType> {
+        try find(AsyncButtonType.self) { view in
+            try view.accessibilityIdentifier() == accessibilityIdentifier
+        }
+    }
+
     /// Attempts to locate a bitwarden menu field with the provided title.
     ///
     /// - Parameters:
@@ -194,6 +219,21 @@ public extension InspectableView {
         locale: Locale = .testsDefault,
     ) throws -> InspectableView<BitwardenTextFieldType> {
         try find(BitwardenTextFieldType.self, containing: title, locale: locale)
+    }
+
+    /// Attempts to locate a date field picker with the provided title.
+    ///
+    /// - Parameters:
+    ///   - title: The title to use while searching for a date field picker.
+    ///   - locale: The locale for text extraction.
+    /// - Returns: A `DateFieldPickerType`, if one can be located.
+    /// - Throws: Throws an error if a view was unable to be located.
+    ///
+    func find(
+        dateFieldPicker title: String,
+        locale: Locale = .testsDefault,
+    ) throws -> InspectableView<DateFieldPickerType> {
+        try find(DateFieldPickerType.self, containing: title, locale: locale)
     }
 
     /// Attempts to locate an floating action button with the provided accessibility identifier.
@@ -465,6 +505,22 @@ public extension InspectableView where View == BitwardenStepperType {
     func increment() throws {
         let button = try find(buttonWithId: "increment")
         try button.tap()
+    }
+}
+
+public extension InspectableView where View == DateFieldPickerType {
+    /// Locates the raw binding on this field's date value. Can be used to simulate selecting a date.
+    ///
+    func inputBinding() throws -> Binding<Date?> {
+        let mirror = Mirror(reflecting: self)
+        if let binding = mirror.descendant("content", "view", "_date") as? Binding<Date?> {
+            return binding
+        } else {
+            throw InspectionError.attributeNotFound(
+                label: "_date",
+                type: String(describing: DateFieldPickerType.self),
+            )
+        }
     }
 }
 

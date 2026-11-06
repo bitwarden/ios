@@ -141,6 +141,10 @@ class VaultUnlockProcessor: StateProcessor<
            services.application?.applicationState != .background {
             shouldAttemptAutomaticBiometricUnlock = false
             await unlockWithBiometrics()
+        } else {
+            // Biometric unlock isn't being attempted automatically, so focus the master password
+            // or PIN field to show the keyboard.
+            state.shouldFocusPasswordOrPinField = true
         }
     }
 
@@ -243,6 +247,11 @@ class VaultUnlockProcessor: StateProcessor<
             return
         }
 
+        // Don't show the keyboard while biometric unlock is in progress. Focusing a text field
+        // during biometric unlock can prevent an autofill host app from updating its fields after
+        // the extension completes (PM-44687).
+        state.shouldFocusPasswordOrPinField = false
+
         do {
             try await services.authRepository.unlockVaultWithBiometrics()
             await coordinator.handleEvent(.didCompleteAuth)
@@ -250,7 +259,8 @@ class VaultUnlockProcessor: StateProcessor<
             await services.userSessionStateService.setUnsuccessfulUnlockAttempts(0)
         } catch BiometricsServiceError.biometryCancelled {
             Logger.processor.error("Biometric unlock cancelled.")
-            // Do nothing if the user cancels.
+            // Focus the master password or PIN field so the user can unlock another way.
+            state.shouldFocusPasswordOrPinField = true
         } catch BiometricsServiceError.biometryLocked {
             Logger.processor.error("Biometric unlock failed duo to biometrics lockout.")
             // If the user has locked biometry, logout immediately.

@@ -9,6 +9,7 @@ extension Send {
     static func fixture(
         accessCount: UInt32 = 0,
         accessId: String = "ACCESS_ID",
+        data: SendItem? = nil,
         deletionDate: Date = Date(year: 2024, month: 01, day: 01),
         disabled: Bool = false,
         emails: String? = nil,
@@ -25,16 +26,20 @@ extension Send {
         text: SendTextModel? = nil,
         type: BitwardenShared.SendType = .text,
     ) -> Send {
-        self.init(
+        guard let sdkType = SendType(type: type) else {
+            preconditionFailure("The SDK's `SendType` has no case for `.unknown`; can't build a fixture with it.")
+        }
+        return self.init(
             id: id,
             accessId: accessId,
             name: name,
             notes: notes,
             key: key,
             password: password,
-            type: SendType(type: type),
+            type: sdkType,
             file: file.map(SendFile.init),
             text: text.map(SendText.init),
+            data: data,
             maxAccessCount: maxAccessCount,
             accessCount: accessCount,
             disabled: disabled,
@@ -44,6 +49,20 @@ extension Send {
             expirationDate: expirationDate,
             emails: emails,
             authType: AuthType.none,
+        )
+    }
+}
+
+extension SendItem {
+    static func fixture(
+        data: String = "SEALED_CIPHER_BLOB",
+        encryptionVersion: SendEncryptionType = .v1,
+        itemId: String = "CIPHER_ID",
+    ) -> SendItem {
+        SendItem(
+            encryptionVersion: encryptionVersion,
+            data: data,
+            metadata: SendItemMetadata(itemId: itemId),
         )
     }
 }

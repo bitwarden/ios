@@ -102,6 +102,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         case let .addItem(
             group,
             hasPremium,
+            navigatesToViewItemOnSave,
             newCipherOptions,
             organizationId,
             type,
@@ -109,6 +110,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             showAddItem(
                 for: group,
                 hasPremium: hasPremium,
+                navigatesToViewItemOnSave: navigatesToViewItemOnSave,
                 newCipherOptions: newCipherOptions,
                 organizationId: organizationId,
                 type: type,
@@ -143,13 +145,15 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             showPasswordHistory(passwordHistory)
         case .premiumUpgrade:
             showPremiumUpgrade()
+        case .premiumUpgradeComplete:
+            showPremiumUpgradeCompleteScreen()
         case let .saveFile(temporaryUrl):
             showSaveFile(temporaryUrl)
         case .setupTotpManual:
             guard let delegate = context as? AuthenticatorKeyCaptureDelegate else { return }
             showManualTotp(delegate: delegate)
-        case let .viewItem(id):
-            showViewItem(id: id, delegate: context as? CipherItemOperationDelegate)
+        case let .viewItem(id, toastTitle):
+            showViewItem(id: id, delegate: context as? CipherItemOperationDelegate, toastTitle: toastTitle)
         }
     }
 
@@ -191,7 +195,9 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     ///
     /// - Parameters:
     ///   - group: An optional `VaultListGroup` to initialize this view with.
-    ///   - hasPremium: Whether the user has premium,
+    ///   - hasPremium: Whether the user has Premium,
+    ///   - navigatesToViewItemOnSave: Whether saving the new item should replace the add item screen
+    ///     with the new item's view screen in the same navigation stack, rather than dismissing.
     ///   - newCipherOptions: Options that can be used to pre-populate the add item screen.
     ///   - organizationId: The organization id in case an organization was selected in the vault filter.
     ///   - type: The type of item to add.
@@ -201,6 +207,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     private func showAddItem( // swiftlint:disable:this function_parameter_count
         for group: VaultListGroup?,
         hasPremium: Bool,
+        navigatesToViewItemOnSave: Bool,
         newCipherOptions: NewCipherOptions?,
         organizationId: String?,
         type: CipherType,
@@ -225,6 +232,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             services: services,
             state: state,
             vaultItemActionHelper: vaultItemActionHelper,
+            navigatesToViewItemOnSave: navigatesToViewItemOnSave,
         )
         let store = Store(processor: processor)
         let view = AddEditItemView(store: store)
@@ -266,7 +274,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     ///   - cipherView: A `CipherView` to initialize this view with.
     ///   - delegate: A `CipherItemOperationDelegate` delegate that is notified when specific circumstances
     ///     in the add/edit/delete item view have occurred.
-    ///   - hasPremium: Whether the user has premium.
+    ///   - hasPremium: Whether the user has Premium.
     ///
     private func showCloneItem(
         for cipherView: CipherView,
@@ -314,7 +322,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     /// .
     /// - Parameters:
     ///   - cipherView: The `CipherView` to edit.
-    ///   - hasPremium: Whether the user has premium.
+    ///   - hasPremium: Whether the user has Premium.
     ///   - delegate: The delegate for the view.
     ///
     private func showEditItem(for cipherView: CipherView, hasPremium: Bool, delegate: CipherItemOperationDelegate?) {
@@ -453,12 +461,21 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         stackNavigator?.present(navigationController)
     }
 
-    /// Shows the premium upgrade screen.
+    /// Shows the Premium upgrade screen.
     ///
     private func showPremiumUpgrade() {
         let navigationController = module.makeNavigationController()
         let coordinator = module.makeBillingCoordinator(stackNavigator: navigationController)
         coordinator.navigate(to: .premiumUpgrade)
+        stackNavigator?.present(navigationController)
+    }
+
+    /// Shows a standalone Premium upgrade complete screen in a new modal.
+    ///
+    private func showPremiumUpgradeCompleteScreen() {
+        let navigationController = module.makeNavigationController()
+        let coordinator = module.makeBillingCoordinator(stackNavigator: navigationController)
+        coordinator.navigate(to: .premiumUpgradeCompleteStandalone)
         stackNavigator?.present(navigationController)
     }
 
@@ -476,14 +493,15 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     /// - Parameters:
     ///   - id: The id of the item to show.
     ///   - delegate: The delegate.
+    ///   - toastTitle: A toast title to show once the screen is displayed, if any.
     ///
-    private func showViewItem(id: String, delegate: CipherItemOperationDelegate?) {
+    private func showViewItem(id: String, delegate: CipherItemOperationDelegate?, toastTitle: String? = nil) {
         let processor = ViewItemProcessor(
             coordinator: asAnyCoordinator(),
             delegate: delegate,
             itemId: id,
             services: services,
-            state: ViewItemState(),
+            state: ViewItemState(toast: toastTitle.map { Toast(title: $0) }),
             vaultItemActionHelper: vaultItemActionHelper,
         )
         let store = Store(processor: processor)

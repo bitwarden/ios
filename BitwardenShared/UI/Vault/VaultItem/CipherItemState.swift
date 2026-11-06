@@ -33,11 +33,19 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
 
     // MARK: Properties
 
-    /// A flag indicating if this account has premium features.
+    /// A flag indicating if this account has Premium features.
     var accountHasPremium: Bool
+
+    /// The bank account item state.
+    var bankAccountItemState = BankAccountItemState()
 
     /// The card item state.
     var cardItemState = CardItemState()
+
+    /// The icon to use for a collection the item belongs to.
+    var collectionIcon: SharedImageAsset {
+        isVfo1FoundationFeatureFlagEnabled ? SharedAsset.Icons.sharedFolder16 : SharedAsset.Icons.collections16
+    }
 
     /// The list of collection IDs that the cipher is included in.
     var collectionIds: [String]
@@ -96,6 +104,9 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     /// Whether it's showing multiple collections or not.
     var isShowingMultipleCollections: Bool = false
 
+    /// Whether the `vfo1-foundation` feature flag is enabled.
+    var isVfo1FoundationFeatureFlagEnabled = false
+
     /// The state for a login type item.
     var loginState: LoginItemState
 
@@ -104,6 +115,14 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
 
     /// The notes for this item.
     var notes = ""
+
+    /// The accessibility label describing the organization the cipher belongs to, if any.
+    var organizationAccessibilityLabel: String? {
+        guard let organizationName else { return nil }
+        return isVfo1FoundationFeatureFlagEnabled
+            ? Localizations.vaultX(organizationName)
+            : Localizations.ownerX(organizationName)
+    }
 
     /// The organization ID of the cipher, if the cipher is owned by an organization.
     var organizationId: String?
@@ -114,8 +133,16 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     /// The organization IDs that have `.personalOwnership` policy applied.
     var organizationsWithPersonalOwnershipPolicy: [String] = []
 
+    /// The title to display for the ownership field.
+    var ownerFieldTitle: String {
+        isVfo1FoundationFeatureFlagEnabled ? Localizations.vault : Localizations.owner
+    }
+
     /// The list of ownership options that can be selected for the cipher.
     var ownershipOptions = [CipherOwner]()
+
+    /// The passport item state.
+    var passportItemState = PassportItemState()
 
     /// If master password reprompt toggle should be shown
     var showMasterPasswordReprompt = true
@@ -395,6 +422,15 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
 
     // MARK: Methods
 
+    /// Returns the accessibility label describing a collection the item belongs to.
+    /// - Parameter collectionName: The name of the collection.
+    /// - Returns: The accessibility label.
+    func collectionAccessibilityLabel(_ collectionName: String) -> String {
+        isVfo1FoundationFeatureFlagEnabled
+            ? Localizations.sharedFolderX(collectionName)
+            : Localizations.collectionX(collectionName)
+    }
+
     /// Toggles the password visibility for the specified custom field.
     ///
     /// - Parameter customFieldState: The custom field to update.
@@ -444,7 +480,8 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
             configuration = .existing(cipherView: cipherView)
         }
 
-        cardItemState = cipherView.cardItemState()
+        bankAccountItemState = cipherView.bankAccountItemState()
+        cardItemState = cipherView.cardItemState().preservingCardScannerState(from: cardItemState)
         driversLicenseItemState = cipherView.driversLicenseItemState()
         collectionIds = cipherView.collectionIds
         customFieldsState = AddEditCustomFieldsState(cipherType: type, customFields: cipherView.customFields)
@@ -461,6 +498,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         name = overrideName ?? cipherView.name
         notes = cipherView.notes ?? ""
         organizationId = cipherView.organizationId
+        passportItemState = cipherView.passportItemState()
         sshKeyState = cipherView.sshKeyItemState()
         self.type = type
         updatedDate = cipherView.revisionDate
@@ -469,6 +507,10 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
 
 extension CipherItemState: AddEditItemState {
     // MARK: Properties
+
+    var folderTitle: String {
+        isVfo1FoundationFeatureFlagEnabled ? Localizations.myFolder : Localizations.folder
+    }
 
     var navigationTitle: String {
         switch configuration {
@@ -554,6 +596,13 @@ extension CipherItemState: ViewVaultItemState {
         loginView
     }
 
+    var folderAccessibilityLabel: String? {
+        guard let folderName else { return nil }
+        return isVfo1FoundationFeatureFlagEnabled
+            ? Localizations.myFolderX(folderName)
+            : Localizations.folderX(folderName)
+    }
+
     var icon: SharedImageAsset {
         switch cipher.type {
         case .card:
@@ -598,6 +647,12 @@ extension CipherItemState: ViewVaultItemState {
             return Localizations.showLess
         }
         return Localizations.showMore
+    }
+
+    var noFolderAccessibilityLabel: String {
+        isVfo1FoundationFeatureFlagEnabled
+            ? Localizations.myFolderX(Localizations.folderNone)
+            : Localizations.folderX(Localizations.folderNone)
     }
 
     var shouldDisplayFolder: Bool {
@@ -653,9 +708,9 @@ extension CipherItemState {
             card: type == .card ? cardItemState.cardView : nil,
             secureNote: type == .secureNote ? .init(type: .generic) : nil,
             sshKey: type == .sshKey ? sshKeyState.sshKeyView : nil,
-            bankAccount: nil, // TODO: PM-32809
+            bankAccount: type == .bankAccount ? bankAccountItemState.bankAccountView : nil,
             driversLicense: type == .driversLicense ? driversLicenseItemState.driversLicenseView : nil,
-            passport: nil, // TODO: PM-32805
+            passport: type == .passport ? passportItemState.passportView : nil,
             favorite: isFavoriteOn,
             reprompt: isMasterPasswordRePromptOn ? .password : .none,
             organizationUseTotp: false,
@@ -678,6 +733,7 @@ extension CipherItemState {
             deletedDate: nil,
             revisionDate: creationDate,
             archivedDate: nil,
+            partial: false,
         )
     }
 } // swiftlint:disable:this file_length

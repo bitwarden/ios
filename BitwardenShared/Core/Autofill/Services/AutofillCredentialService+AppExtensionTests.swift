@@ -4,6 +4,7 @@ import AuthenticationServices
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenSdk
+import BitwardenSdkMocks
 import TestHelpers
 import XCTest
 
@@ -69,8 +70,6 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
         timeProvider = MockTimeProvider(.currentTime)
         totpService = MockTOTPService()
         vaultTimeoutService = MockVaultTimeoutService()
-
-        clientService.mockPlatform.mockFido2.vaultAuthenticatorReturnValue = MockClientFido2Authenticator()
 
         subject = DefaultAutofillCredentialService(
             appContextHelper: appContextHelper,

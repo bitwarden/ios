@@ -71,9 +71,6 @@ class StartRegistrationProcessor: StateProcessor<
         stateService: services.stateService,
     )
 
-    /// Whether the start registration view is visible in the view hierarchy.
-    private var viewIsVisible = false
-
     // MARK: Initialization
 
     /// Creates a new `StartRegistrationProcessor`.
@@ -100,13 +97,13 @@ class StartRegistrationProcessor: StateProcessor<
     override func perform(_ effect: StartRegistrationEffect) async {
         switch effect {
         case .appeared:
-            viewIsVisible = true
             await regionHelper.loadRegion()
             state.isReceiveMarketingToggleOn = state.region == .unitedStates
         case .regionTapped:
             await regionHelper.presentRegionSelectorAlert(
                 title: Localizations.creatingOn,
                 currentRegion: state.region,
+                excludingRegions: [.gov],
             )
         case .startRegistration:
             await startRegistration()
@@ -117,8 +114,6 @@ class StartRegistrationProcessor: StateProcessor<
         switch action {
         case let .emailTextChanged(text):
             state.emailText = text
-        case .disappeared:
-            viewIsVisible = false
         case .dismiss:
             coordinator.navigate(to: .dismiss)
         case let .nameTextChanged(text):
@@ -137,6 +132,20 @@ class StartRegistrationProcessor: StateProcessor<
     private func startRegistration() async {
         // Hide the loading overlay when exiting this method, in case it hasn't been hidden yet.
         defer { coordinator.hideLoadingOverlay() }
+
+        let serverConfig = await services.configService.getConfig(forceRefresh: false, isPreAuth: true)
+        if serverConfig?.settings?.disableUserRegistration == true {
+            // Guard against a race where the cached config belongs to a previously selected region:
+            // region changes refresh the config in a background Task, so the cache may lag behind.
+            // If hosts don't match, skip the check — the server will reject the request if needed.
+            let preAuthURLs = await services.stateService.getPreAuthEnvironmentURLs()
+            if serverConfig?.isCurrentConfig(for: preAuthURLs) == true,
+               let vaultString = serverConfig?.environment?.vault,
+               let configHost = URL(string: vaultString)?.host {
+                await coordinator.showAlert(.registrationDisabled(serverURL: configHost))
+                return
+            }
+        }
 
         do {
             let email = state.emailText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
@@ -180,6 +189,15 @@ class StartRegistrationProcessor: StateProcessor<
                 await self.startRegistration()
             }
         }
+    }
+
+    /// Refreshes the server configuration for the current pre-auth environment.
+    ///
+    private func refreshConfig() async {
+        await services.configService.getConfig(
+            forceRefresh: true,
+            isPreAuth: true,
+        )
     }
 
     /// Shows a `StartRegistrationError` alert.
@@ -227,5 +245,10 @@ extension StartRegistrationProcessor: RegionDelegate {
         state.region = region
         state.showReceiveMarketingToggle = state.region != .selfHosted
         await delegate?.didChangeRegion()
+        // Using Task avoids delaying region-change side effects (e.g. closing self-host sheet)
+        // when internet speed is low — mirrors LandingProcessor.setRegion.
+        Task {
+            await refreshConfig()
+        }
     }
 }

@@ -3,6 +3,7 @@ import BitwardenKitMocks
 import BitwardenResources
 import BitwardenSdk
 import SwiftUI
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -229,6 +230,29 @@ final class ProfileSwitcherHandlerTests: BitwardenTestCase {
                 .action(.logout(userId: loggedOutAccount.userId, userInitiated: true)),
             ],
         )
+    }
+
+    /// `handleProfileSwitcherEffect(.addAccountPressed)` saves the active account's last-active time
+    /// before navigating to add a new account.
+    @MainActor
+    func test_handleProfileSwitcherEffect_addAccountPressed_savesLastActiveTime() async throws {
+        await subject.handleProfileSwitcherEffect(.addAccountPressed)
+
+        XCTAssertTrue(authRepository.setLastActiveAccountTimeCalled)
+        XCTAssertTrue(subject.showAddAccountCalled)
+    }
+
+    /// `handleProfileSwitcherEffect(.addAccountPressed)` logs any error from saving the last-active
+    /// time and still navigates to add a new account.
+    @MainActor
+    func test_handleProfileSwitcherEffect_addAccountPressed_savesLastActiveTime_errorLogged() async throws {
+        authRepository.setLastActiveAccountTimeError = BitwardenTestError.example
+
+        await subject.handleProfileSwitcherEffect(.addAccountPressed)
+
+        XCTAssertTrue(authRepository.setLastActiveAccountTimeCalled)
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+        XCTAssertTrue(subject.showAddAccountCalled)
     }
 
     /// `handleProfileSwitcherEffect(.refreshAccountProfiles)` refreshes the profile state.

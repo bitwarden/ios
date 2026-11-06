@@ -13,6 +13,35 @@ extension CipherView {
 
     // MARK: Methods
 
+    /// Creates a `BankAccountItemState` representation of the cipher.
+    ///
+    /// This function converts the `bankAccount` information of the cipher into a
+    /// `BankAccountItemState`, which is used to manage and display bank account data in the UI.
+    ///
+    /// - Returns: A `BankAccountItemState` representing the bank account information of the cipher.
+    ///
+    func bankAccountItemState() -> BankAccountItemState {
+        guard let bankAccount else { return BankAccountItemState() }
+        return BankAccountItemState(
+            accountNumber: bankAccount.accountNumber ?? "",
+            accountType: {
+                guard let accountType = bankAccount.accountType,
+                      let value = BankAccountType(rawValue: accountType) else {
+                    return .default
+                }
+                return .custom(value)
+            }(),
+            bankContactPhone: bankAccount.bankContactPhone ?? "",
+            bankName: bankAccount.bankName ?? "",
+            branchNumber: bankAccount.branchNumber ?? "",
+            iban: bankAccount.iban ?? "",
+            nameOnAccount: bankAccount.nameOnAccount ?? "",
+            pin: bankAccount.pin ?? "",
+            routingNumber: bankAccount.routingNumber ?? "",
+            swiftCode: bankAccount.swiftCode ?? "",
+        )
+    }
+
     /// Creates a `CardItemState` representation of the cipher.
     ///
     /// This function converts the `card` information of the cipher into a `CardItemState`, which
@@ -53,17 +82,17 @@ extension CipherView {
     ///
     /// This function converts the `driversLicense` information of the cipher into a
     /// `DriversLicenseItemState`, which is used to manage and display driver's license data in the
-    /// UI. Date fields are read as raw strings without any parsing.
+    /// UI.
     ///
     /// - Returns: A `DriversLicenseItemState` representing the driver's license information of the cipher.
     ///
     func driversLicenseItemState() -> DriversLicenseItemState {
         guard let driversLicense else { return DriversLicenseItemState() }
         return DriversLicenseItemState(
-            dateOfBirth: driversLicense.dateOfBirth ?? "",
-            expirationDate: driversLicense.expirationDate ?? "",
+            dateOfBirth: driversLicense.dateOfBirth,
+            expirationDate: driversLicense.expirationDate,
             firstName: driversLicense.firstName ?? "",
-            issueDate: driversLicense.issueDate ?? "",
+            issueDate: driversLicense.issueDate,
             issuingAuthority: driversLicense.issuingAuthority ?? "",
             issuingCountry: driversLicense.issuingCountry ?? "",
             issuingState: driversLicense.issuingState ?? "",
@@ -141,6 +170,32 @@ extension CipherView {
         )
     }
 
+    /// Creates a `PassportItemState` representation of the cipher.
+    ///
+    /// This function converts the `passport` information of the cipher into a `PassportItemState`,
+    /// which is used to manage and display passport data in the UI.
+    ///
+    /// - Returns: A `PassportItemState` representing the passport information of the cipher.
+    ///
+    func passportItemState() -> PassportItemState {
+        guard let passport else { return PassportItemState() }
+        return PassportItemState(
+            birthPlace: passport.birthPlace ?? "",
+            dateOfBirth: passport.dateOfBirth,
+            expirationDate: passport.expirationDate,
+            givenName: passport.givenName ?? "",
+            issueDate: passport.issueDate,
+            issuingAuthority: passport.issuingAuthority ?? "",
+            issuingCountry: passport.issuingCountry ?? "",
+            nationalIdentificationNumber: passport.nationalIdentificationNumber ?? "",
+            nationality: passport.nationality ?? "",
+            passportNumber: passport.passportNumber ?? "",
+            passportType: passport.passportType ?? "",
+            sex: passport.sex ?? "",
+            surname: passport.surname ?? "",
+        )
+    }
+
     /// Creates an `SSHKeyItemState` representation of the cipher.
     ///
     /// This function converts the `sshKey` information of the cipher into an `SSHKeyItemState`,
@@ -215,11 +270,11 @@ extension CipherView {
             card: (addEditState.type == .card) ? addEditState.cardItemState.cardView : nil,
             secureNote: (addEditState.type == .secureNote) ? secureNote : nil,
             sshKey: (addEditState.type == .sshKey) ? sshKey : nil,
-            bankAccount: bankAccount, // TODO: PM-32809
+            bankAccount: (addEditState.type == .bankAccount) ? addEditState.bankAccountItemState.bankAccountView : nil,
             driversLicense: (addEditState.type == .driversLicense)
                 ? addEditState.driversLicenseItemState.driversLicenseView
                 : nil,
-            passport: passport, // TODO: PM-32805
+            passport: (addEditState.type == .passport) ? addEditState.passportItemState.passportView : nil,
             favorite: addEditState.isFavoriteOn,
             reprompt: addEditState.isMasterPasswordRePromptOn ? .password : .none,
             organizationUseTotp: organizationUseTotp,
@@ -235,6 +290,7 @@ extension CipherView {
             deletedDate: deletedDate,
             revisionDate: revisionDate,
             archivedDate: archivedDate,
+            partial: partial,
         )
     }
 
@@ -412,6 +468,7 @@ extension CipherView {
             deletedDate: deletedDate,
             revisionDate: revisionDate,
             archivedDate: archivedDate,
+            partial: partial,
         )
     }
 }

@@ -127,7 +127,6 @@ class LoginDecryptionOptionsProcessor: StateProcessor<
             try await services.authRepository.unlockVaultFromLoginWithDevice(
                 privateKey: savedPendingAdminLoginRequest.privateKey,
                 key: key,
-                masterPasswordHash: adminAuthRequest.masterPasswordHash,
             )
 
             // Remove admin pending login request if exists

@@ -17,6 +17,7 @@ class VaultItemSelectionProcessor: StateProcessor<
     typealias Services = HasAuthRepository
         & HasBillingRepository
         & HasBillingService
+        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasEventService
@@ -30,7 +31,7 @@ class VaultItemSelectionProcessor: StateProcessor<
     /// The `Coordinator` that handles navigation.
     private var coordinator: AnyCoordinator<VaultRoute, AuthAction>
 
-    /// The helper used to navigate to the premium upgrade flow.
+    /// The helper used to navigate to the Premium upgrade flow.
     lazy var premiumUpgradeHelper: PremiumUpgradeHelper = DefaultPremiumUpgradeHelper(
         services: services,
         coordinator: coordinator,
@@ -48,6 +49,14 @@ class VaultItemSelectionProcessor: StateProcessor<
 
     /// The helper to handle the more options menu for a vault item.
     private let vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
+
+    /// The delegate used when editing an item from the more options menu. This screen's own
+    /// delegate conformance dismisses on save, which is correct for the OTP key flow but not for
+    /// a plain edit, which should stay put and show a confirmation toast. Retained here because
+    /// `AddEditItemProcessor` holds its delegate weakly.
+    private lazy var moreOptionsEditDelegate = CipherSavedToastDelegate { [weak self] toast in
+        self?.state.toast = toast
+    }
 
     // MARK: Initialization
 
@@ -80,11 +89,29 @@ class VaultItemSelectionProcessor: StateProcessor<
 
     override func perform(_ effect: VaultItemSelectionEffect) async {
         switch effect {
+        case let .accessibilityMoreOptionsActionPressed(item, kind):
+            await vaultItemMoreOptionsHelper.performMoreOptionsAction(
+                kind,
+                for: item,
+                delegate: moreOptionsEditDelegate,
+                handleDisplayToast: { [weak self] toast in
+                    self?.state.toast = toast
+                },
+                handleNavigateToPremiumUpgrade: { [weak self] in
+                    await self?.navigateToPremiumUpgrade()
+                },
+                handleOpenURL: { [weak self] url in
+                    self?.state.url = url
+                },
+            )
         case .loadData:
+            state.isVfo1FoundationFeatureFlagEnabled = await services.configService.getFeatureFlag(.vfo1Foundation)
+            state.hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
             await refreshProfileState()
         case let .morePressed(item):
             await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
                 for: item,
+                delegate: moreOptionsEditDelegate,
                 handleDisplayToast: { [weak self] toast in
                     self?.state.toast = toast
                 },
@@ -152,7 +179,7 @@ class VaultItemSelectionProcessor: StateProcessor<
 
     // MARK: Private Methods
 
-    /// Navigates to the premium upgrade flow. Uses the in-app upgrade path when available;
+    /// Navigates to the Premium upgrade flow. Uses the in-app upgrade path when available;
     /// otherwise opens the web vault upgrade URL as a fallback.
     ///
     private func navigateToPremiumUpgrade() async {
@@ -285,7 +312,7 @@ class VaultItemSelectionProcessor: StateProcessor<
 // MARK: - CipherItemOperationDelegate
 
 extension VaultItemSelectionProcessor: CipherItemOperationDelegate {
-    func itemAdded() -> Bool {
+    func itemAdded(type _: CipherType) -> Bool {
         coordinator.navigate(to: .dismiss())
         // Return false to notify the calling processor that the dismissal occurs here.
         return false
@@ -295,11 +322,17 @@ extension VaultItemSelectionProcessor: CipherItemOperationDelegate {
         coordinator.navigate(to: .dismiss())
     }
 
+    func itemDismissed() -> Bool {
+        coordinator.navigate(to: .dismiss())
+        // Return false to notify the calling processor that the dismissal occurs here.
+        return false
+    }
+
     func itemUnarchived() {
         coordinator.navigate(to: .dismiss())
     }
 
-    func itemUpdated() -> Bool {
+    func itemUpdated(type _: CipherType) -> Bool {
         coordinator.navigate(to: .dismiss())
         // Return false to notify the calling processor that the dismissal occurs here.
         return false

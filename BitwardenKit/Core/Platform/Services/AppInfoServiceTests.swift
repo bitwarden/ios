@@ -179,6 +179,7 @@ class AppInfoServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                     environment: EnvironmentServerConfigResponseModel(
                         api: nil,
                         cloudRegion: "EU",
+                        fillAssistRules: nil,
                         identity: nil,
                         notifications: nil,
                         sso: nil,
@@ -254,6 +255,7 @@ class AppInfoServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                     environment: EnvironmentServerConfigResponseModel(
                         api: nil,
                         cloudRegion: "US",
+                        fillAssistRules: nil,
                         identity: nil,
                         notifications: nil,
                         sso: nil,

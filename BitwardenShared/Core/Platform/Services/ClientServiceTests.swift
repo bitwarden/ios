@@ -12,6 +12,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
     var sdkRepositoryFactory: MockSdkRepositoryFactory!
+    var sdkStateBridgeStateService: MockSdkStateBridgeStateService!
     var stateService: MockStateService!
     var subject: DefaultClientService!
 
@@ -27,17 +28,20 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         sdkRepositoryFactory.makeRepositoriesReturnValue = BitwardenSdk.Repositories(
             cipher: nil,
             folder: nil,
-            userKeyState: nil,
             localUserDataKeyState: nil,
-            ephemeralPinEnvelopeState: nil,
             organizationSharedKey: nil,
+            send: nil,
+            policy: nil,
+            organization: nil,
         )
+        sdkStateBridgeStateService = MockSdkStateBridgeStateService()
         stateService = MockStateService()
         subject = DefaultClientService(
             clientBuilder: clientBuilder,
             configService: configService,
             errorReporter: errorReporter,
             sdkRepositoryFactory: sdkRepositoryFactory,
+            sdkStateBridgeStateService: sdkStateBridgeStateService,
             stateService: stateService,
         )
     }
@@ -49,6 +53,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         configService = nil
         errorReporter = nil
         sdkRepositoryFactory = nil
+        sdkStateBridgeStateService = nil
         stateService = nil
         subject = nil
     }
@@ -180,6 +185,16 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertIdentical(auth, client.authClient)
         XCTAssertTrue(sdkRepositoryFactory.makeRepositoriesCalled)
         XCTAssertNotNil(client.platformClient.mockState.registerClientManagedRepositoriesReceivedRepositories)
+    }
+
+    /// `client(for:)` registers a user-scoped `SdkStateBridge` with the SDK's key management
+    /// state bridge.
+    func test_client_registersKmStateBridge() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+
+        _ = try await subject.auth()
+        let client = try XCTUnwrap(clientBuilder.clients.first)
+        XCTAssertNotNil(client.kmStateBridgeClient.registerBridgeImplReceivedBridgeImpl)
     }
 
     /// `configPublisher` loads flags into the SDK.
@@ -359,6 +374,17 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         let user2Sends = try await subject.sends(for: "2")
         XCTAssertNotIdentical(sends, user2Sends)
+    }
+
+    /// `userCryptoManagement(for:)` returns a new `UserCryptoManagementClientService` for every user.
+    func test_userCryptoManagement() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+
+        let userCryptoManagement = try await subject.userCryptoManagement()
+        XCTAssertIdentical(userCryptoManagement, clientBuilder.clients.first?.userCryptoManagementClient)
+
+        let user2UserCryptoManagement = try await subject.userCryptoManagement(for: "2")
+        XCTAssertNotIdentical(userCryptoManagement, user2UserCryptoManagement)
     }
 
     /// `vault(for:)` returns a new `VaultClientProtocol` for every user.

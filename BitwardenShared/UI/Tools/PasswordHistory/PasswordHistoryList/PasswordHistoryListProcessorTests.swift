@@ -6,6 +6,7 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class PasswordHistoryListProcessorTests: BitwardenTestCase {
     // MARK: Properties
@@ -119,7 +120,7 @@ class PasswordHistoryListProcessorTests: BitwardenTestCase {
     @MainActor
     func test_receive_copyPassword() {
         subject.receive(.copyPassword(.fixture(password: "PASSWORD")))
-        XCTAssertEqual(pasteboardService.copiedString, "PASSWORD")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "PASSWORD")
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.password)))
     }
 

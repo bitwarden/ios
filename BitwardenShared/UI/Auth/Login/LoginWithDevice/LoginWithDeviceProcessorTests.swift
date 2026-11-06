@@ -73,7 +73,6 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(authRepository.unlockVaultFromLoginWithDeviceKey, "KEY")
         XCTAssertEqual(authRepository.unlockVaultFromLoginWithDevicePrivateKey, "PRIVATE_KEY")
-        XCTAssertEqual(authRepository.unlockVaultFromLoginWithDeviceMasterPasswordHash, "reallyLongMasterPasswordHash")
 
         XCTAssertEqual(coordinator.events, [.didCompleteAuth])
     }
@@ -182,7 +181,6 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
                 "",
                 .loginWithDevice(
                     key: "reallyLongKey",
-                    masterPasswordHash: "reallyLongMasterPasswordHash",
                     privateKey: "PRIVATE_KEY",
                 ),
                 AuthMethodsData(),

@@ -1,5 +1,6 @@
 import BitwardenResources
 import BitwardenSdk
+import Foundation
 
 extension CipherListView {
     // MARK: Properties
@@ -31,6 +32,16 @@ extension CipherListView {
         archivedDate != nil || deletedDate != nil
     }
 
+    /// Whether this cipher can be archived. Mirrors `CipherView.canBeArchived`.
+    var canBeArchived: Bool {
+        archivedDate == nil && deletedDate == nil
+    }
+
+    /// Whether this cipher can be unarchived. Mirrors `CipherView.canBeUnarchived`.
+    var canBeUnarchived: Bool {
+        archivedDate != nil && deletedDate == nil
+    }
+
     // MARK: Methods
 
     /// Whether the cipher belongs to a group.
@@ -41,7 +52,7 @@ extension CipherListView {
         case .archive:
             archivedDate != nil
         case .bankAccount:
-            type == .bankAccount
+            type.isBankAccount
         case .card:
             type.isCard
         case let .collection(id, _, _):
@@ -135,6 +146,7 @@ extension CipherListView {
         name == Localizations.errorCannotDecrypt
     }
 
+    // swiftlint:disable:next function_body_length
     init(cipherDecryptFailure cipher: Cipher) {
         let type: CipherListViewType = switch cipher.type {
         case .card:
@@ -156,7 +168,12 @@ extension CipherListView {
         case .sshKey:
             .sshKey
         case .bankAccount:
-            .bankAccount
+            .bankAccount(
+                BankAccountListView(
+                    accountNumber: nil,
+                    accountType: nil,
+                ),
+            )
         case .driversLicense:
             .driversLicense
         case .passport:
@@ -168,7 +185,6 @@ extension CipherListView {
             organizationId: cipher.organizationId,
             folderId: cipher.folderId,
             collectionIds: cipher.collectionIds,
-            key: cipher.key,
             name: Localizations.errorCannotDecrypt,
             subtitle: "",
             type: type,
@@ -186,6 +202,7 @@ extension CipherListView {
             archivedDate: cipher.archivedDate,
             copyableFields: [],
             localData: nil,
+            partial: false,
         )
     }
 }

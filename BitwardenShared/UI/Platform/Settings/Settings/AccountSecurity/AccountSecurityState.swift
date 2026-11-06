@@ -86,6 +86,9 @@ struct AccountSecurityState: Equatable {
     /// Whether the user has enabled the sync with the authenticator app..
     var isAuthenticatorSyncEnabled = false
 
+    /// Whether the manage devices feature is enabled.
+    var isManageDevicesEnabled = false
+
     /// Whether the timeout action policy is in effect.
     var isPolicyTimeoutActionEnabled = false
 

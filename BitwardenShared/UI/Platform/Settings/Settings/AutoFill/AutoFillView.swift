@@ -85,6 +85,23 @@ struct AutoFillView: View {
     /// The additional options section.
     private var additionalOptionsSection: some View {
         SectionView(Localizations.additionalOptions, contentSpacing: 8) {
+            if store.state.isFillAssistFeatureFlagEnabled {
+                BitwardenToggle(
+                    footer: Localizations.turnOnFillAssistDescriptionLong,
+                    isOn: store.binding(
+                        get: \.isFillAssistEnabled,
+                        send: AutoFillAction.toggleFillAssist,
+                    ),
+                    accessibilityIdentifier: "FillAssistSwitch",
+                    accessibilityLabel: Localizations.turnOnFillAssist,
+                    helpURL: ExternalLinksConstants.fillAssistHelp,
+                    title: {
+                        Text(Localizations.turnOnFillAssist)
+                    },
+                )
+                .contentBlock()
+            }
+
             BitwardenToggle(
                 Localizations.copyTotpAutomatically,
                 footer: Localizations.copyTotpAutomaticallyDescription,

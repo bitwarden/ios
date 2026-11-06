@@ -14,6 +14,7 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
     typealias Services = HasAuthRepository
         & HasBillingRepository
         & HasBillingService
+        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasPasteboardService
@@ -32,7 +33,7 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
     /// The `Coordinator` that handles navigation for this processor.
     let coordinator: AnyCoordinator<SendItemRoute, AuthAction>
 
-    /// The helper used to navigate to the premium upgrade flow.
+    /// The helper used to navigate to the Premium upgrade flow.
     lazy var premiumUpgradeHelper: PremiumUpgradeHelper = DefaultPremiumUpgradeHelper(
         services: services,
         coordinator: coordinator,
@@ -100,16 +101,12 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
     override func receive(_ action: AddEditSendItemAction) { // swiftlint:disable:this function_body_length
         switch action {
         case let .accessTypeChanged(newValue):
-            // Check if non-premium user is trying to select "Specific People"
+            // Check if non-Premium user is trying to select "Specific People"
             if newValue == .specificPeople, !state.hasPremium {
                 showSpecificPeoplePremiumRequiredAlert()
                 return
             }
             state.accessType = newValue
-            // Ensure there's at least one email row when selecting "Specific People"
-            if newValue == .specificPeople, state.recipientEmails.isEmpty {
-                state.recipientEmails.append("")
-            }
         case .addRecipientEmail:
             state.recipientEmails.append("")
             state.focusedRecipientEmailIndex = state.recipientEmails.count - 1
@@ -125,6 +122,7 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
             guard state.focusedRecipientEmailIndex != newValue else { return }
             state.focusedRecipientEmailIndex = newValue
         case .generatePasswordPressed:
+            guard !state.isPasswordFieldDisabled else { return }
             if state.password.isEmpty {
                 coordinator.navigate(to: .generator, context: self)
             } else {
@@ -137,6 +135,7 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
         case .optionsPressed:
             state.isOptionsExpanded.toggle()
         case let .passwordChanged(newValue):
+            guard !state.isPasswordFieldDisabled else { return }
             state.password = newValue
         case let .passwordVisibleChanged(newValue):
             state.isPasswordVisible = newValue
@@ -230,8 +229,36 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
     /// Load any initial data for the view.
     ///
     private func loadData() async {
-        state.isSendDisabled = await services.policyService.policyAppliesToUser(.disableSend)
-        state.isSendHideEmailDisabled = await services.policyService.isSendHideEmailDisabledByPolicy()
+        state.isSendControlsPolicyEnabled = await services.configService.getFeatureFlag(.sendControls)
+        state.sendPolicyOptions = await services.policyService.getSendPolicyOptions()
+
+        // The share extension sets `state.type` directly from the shared content (file vs. text)
+        // without going through `SendListProcessor`'s `restrictedSendType`, so it's the only mode
+        // that can actually reach here with a disallowed type; `.add` is already constrained by
+        // the Send list's add button before this screen is shown. Only block creating a new Send
+        // of a disallowed type; editing an existing Send whose type no longer matches the policy
+        // (e.g. the policy was enforced after the Send was created) should still be allowed.
+        if state.mode != .edit,
+           let enforcedSendType = state.sendPolicyOptions.enforcedSendType,
+           enforcedSendType != state.type {
+            coordinator.showAlert(.sendTypeRestrictedByPolicy(enforcedSendType) { [weak self] in
+                self?.coordinator.navigate(to: .cancel)
+            })
+            return
+        }
+
+        if let enforcedAccessType = state.sendPolicyOptions.enforcedAccessType {
+            state.accessType = enforcedAccessType
+        }
+        // Only default new Sends to the policy-enforced deletion date; overwriting an existing
+        // Send's date would recalculate a preset like `.sevenDays` from now instead of its
+        // original creation date, risking a value the policy would reject on save.
+        if state.mode != .edit, let enforcedDeletionDate = state.policyEnforcedDeletionDate {
+            state.deletionDate = enforcedDeletionDate
+        }
+        if state.mode != .edit, state.sendPolicyOptions.isHideEmailDisabled {
+            state.isHideMyEmailOn = false
+        }
         state.hasPremium = await services.sendRepository.doesActiveAccountHavePremium()
         await refreshProfileState()
 
@@ -287,6 +314,15 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
             let newSend = try await services.sendRepository.removePassword(from: sendView)
             var newState = AddEditSendItemState(sendView: newSend)
             newState.isOptionsExpanded = state.isOptionsExpanded
+            newState.isSendControlsPolicyEnabled = state.isSendControlsPolicyEnabled
+            newState.sendPolicyOptions = state.sendPolicyOptions
+            newState.hasPremium = state.hasPremium
+            if let enforcedAccessType = state.sendPolicyOptions.enforcedAccessType {
+                newState.accessType = enforcedAccessType
+            }
+            // Deliberately not reapplying the policy-enforced deletion date here (unlike
+            // `accessType` above) — see the comment in `loadData()` for why overwriting an
+            // existing Send's date is unsafe.
             state = newState
 
             coordinator.hideLoadingOverlay()
@@ -307,8 +343,8 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
         coordinator.showLoadingOverlay(LoadingOverlayState(title: Localizations.saving))
         defer { coordinator.hideLoadingOverlay() }
 
-        let sendView = state.newSendView()
         do {
+            let sendView = try state.newSendView()
             let newSendView: SendView
             switch state.mode {
             case .add, .shareExtension:
@@ -318,6 +354,8 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
                     newSendView = try await services.sendRepository.addFileSend(sendView, data: fileData)
                 case .text:
                     newSendView = try await services.sendRepository.addTextSend(sendView)
+                case .unknown:
+                    return
                 }
                 await services.reviewPromptService.trackUserAction(.createdNewSend)
             case .edit:
@@ -367,6 +405,23 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
             return false
         }
 
+        // The text to share is required for text sends.
+        if state.type == .text,
+           state.text.isEmpty {
+            let alert = Alert.validationFieldRequired(fieldName: Localizations.textToShare)
+            coordinator.showAlert(alert)
+            return false
+        }
+
+        // A password is required whenever "Anyone with password" access is selected, whether by
+        // policy or by the user, unless the send being edited already has one.
+        if state.accessType == .anyoneWithPassword,
+           state.password.isEmpty,
+           state.originalSendView?.hasPassword != true {
+            coordinator.showAlert(.validationFieldRequired(fieldName: Localizations.password))
+            return false
+        }
+
         // Validate recipient emails for "Specific people" access type.
         if state.accessType == .specificPeople {
             // Check if at least one email is provided
@@ -382,6 +437,19 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
                     return false
                 }
             }
+
+            // When the policy restricts recipients to specific domains, validate each email's domain.
+            let allowedDomains = state.sendPolicyOptions.allowedDomains
+            if !allowedDomains.isEmpty {
+                let normalizedAllowedDomains = Set(allowedDomains.map { $0.lowercased() })
+                for email in state.normalizedRecipientEmails {
+                    let domain = email.split(separator: "@").last.map(String.init) ?? ""
+                    guard normalizedAllowedDomains.contains(domain) else {
+                        coordinator.showAlert(.invalidEmailAddressesForDomains(allowedDomains))
+                        return false
+                    }
+                }
+            }
         }
 
         // Only perform further checks for file sends.
@@ -393,15 +461,6 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
                 guard let self else { return }
                 Task { await self.premiumUpgradeHelper.navigateToPremiumUpgrade() }
             })
-            return false
-        }
-
-        let isEmailVerified = try? await services.sendRepository.doesActiveAccountHaveVerifiedEmail()
-        guard isEmailVerified ?? false else {
-            let alert = Alert.defaultAlert(
-                message: Localizations.sendFileEmailVerificationRequired,
-            )
-            coordinator.showAlert(alert)
             return false
         }
 
@@ -429,7 +488,7 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
         return true
     }
 
-    /// Shows an alert indicating that the "Specific People" feature requires a premium subscription.
+    /// Shows an alert indicating that the "Specific People" feature requires a Premium subscription.
     ///
     private func showSpecificPeoplePremiumRequiredAlert() {
         let alert = Alert.specificPeopleUnavailable { [weak self] in

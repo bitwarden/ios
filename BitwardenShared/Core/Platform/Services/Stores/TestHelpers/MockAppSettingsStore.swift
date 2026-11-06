@@ -40,13 +40,16 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     var biometricAuthenticationEnabled = [String: Bool?]()
     var clearClipboardValues = [String: ClearClipboardValue]()
+    var collapsedVaultListSectionIdsByUserId = [String: [String]]()
     var connectToWatchByUserId = [String: Bool]()
     var defaultUriMatchTypeByUserId = [String: BitwardenShared.UriMatchType]()
     var disableAutoTotpCopyByUserId = [String: Bool]()
     var encryptedPinByUserId = [String: String]()
-    var encryptedUserKeys = [String: String]()
     var eventsByUserId = [String: [EventData]]()
     var featureFlags = [String: Bool]()
+    var fillAssistCachedDataByUserId = [String: FillAssistCachedData]()
+    var fillAssistEnabledByUserId = [String: Bool]()
+    var fillAssistLastFetchTimestampByUserId = [String: Date]()
     var hasPerformedSyncAfterLogin = [String: Bool]()
     var lastActiveTime = [String: Date]()
     var lastRequestToTurnOnCredentialProviderDate: Date? // swiftlint:disable:this identifier_name
@@ -55,10 +58,15 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var manuallyLockedAccounts = [String: Bool]()
     var masterPasswordHashes = [String: String]()
     var notificationsLastRegistrationDates = [String: Date]()
+    // swiftlint:disable:next identifier_name
+    var organizationUserNotificationBannerDismissals = [String: OrganizationUserNotificationBannerDismissal]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pinProtectedUserKey = [String: String]()
     var pinProtectedUserKeyEnvelope = [String: String]()
     var premiumUpgradeBannerDismissedByUserId = [String: Bool]()
+    var premiumUpgradePendingByUserId = [String: Bool]()
+    var previousPersonalPremiumByUserId = [String: Bool]()
+    var subscriptionAttentionCardVisibleByUserId = [String: Bool]()
     var upgradedToPremiumCardVisibleByUserId = [String: Bool]()
     var accountCreationEnvironmentURLs = [String: EnvironmentURLData]()
     var serverConfig = [String: ServerConfig]()
@@ -67,7 +75,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var syncToAuthenticatorByUserId = [String: Bool]()
     var timeoutAction = [String: Int]()
     var twoFactorTokens = [String: String]()
+    var userKeyIdByUserId = [String: String]()
     var usesKeyConnector = [String: Bool]()
+    var v2EncryptedMigrationsGracePeriodStarts = [String: V2EncryptedMigrationsGracePeriodStart]()
+    var v2UpgradeTokenByUserId = [String: V2UpgradeToken]()
     var vaultTimeout = [String: Int]()
     var state: State? {
         didSet {
@@ -116,6 +127,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         clearClipboardValues[userId] ?? .never
     }
 
+    func collapsedVaultListSectionIds(userId: String) -> [String] {
+        collapsedVaultListSectionIdsByUserId[userId] ?? []
+    }
+
     func connectToWatch(userId: String) -> Bool {
         connectToWatchByUserId[userId] ?? false
     }
@@ -136,12 +151,20 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         encryptedPinByUserId[userId]
     }
 
-    func encryptedUserKey(userId: String) -> String? {
-        encryptedUserKeys[userId]
-    }
-
     func events(userId: String) -> [EventData] {
         eventsByUserId[userId] ?? []
+    }
+
+    func fillAssistCachedData(userId: String) -> FillAssistCachedData? {
+        fillAssistCachedDataByUserId[userId]
+    }
+
+    func fillAssistEnabled(userId: String) -> Bool {
+        fillAssistEnabledByUserId[userId] ?? false
+    }
+
+    func fillAssistLastFetchTimestamp(userId: String) -> Date? {
+        fillAssistLastFetchTimestampByUserId[userId]
     }
 
     func hasPerformedSyncAfterLogin(userId: String) -> Bool {
@@ -176,6 +199,12 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         notificationsLastRegistrationDates[userId]
     }
 
+    func organizationUserNotificationBannerDismissal(
+        userId: String,
+    ) -> OrganizationUserNotificationBannerDismissal? {
+        organizationUserNotificationBannerDismissals[userId]
+    }
+
     func overrideDebugFeatureFlag(name: String, value: Bool?) {
         overrideDebugFeatureFlagCalled = true
         featureFlags[name] = value
@@ -195,6 +224,18 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func premiumUpgradeBannerDismissed(userId: String) -> Bool {
         premiumUpgradeBannerDismissedByUserId[userId] ?? false
+    }
+
+    func premiumUpgradePending(userId: String) -> Bool {
+        premiumUpgradePendingByUserId[userId] ?? false
+    }
+
+    func previousPersonalPremium(userId: String) -> Bool? {
+        previousPersonalPremiumByUserId[userId]
+    }
+
+    func subscriptionAttentionCardVisible(userId: String) -> Bool {
+        subscriptionAttentionCardVisibleByUserId[userId] ?? false
     }
 
     func upgradedToPremiumActionCardVisible(userId: String) -> Bool {
@@ -257,6 +298,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         clearClipboardValues[userId] = clearClipboardValue
     }
 
+    func setCollapsedVaultListSectionIds(_ ids: [String], userId: String) {
+        collapsedVaultListSectionIdsByUserId[userId] = ids
+    }
+
     func setConnectToWatch(_ connectToWatch: Bool, userId: String) {
         connectToWatchByUserId[userId] = connectToWatch
     }
@@ -273,16 +318,20 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         encryptedPinByUserId[userId] = encryptedPin
     }
 
-    func setEncryptedUserKey(key: String?, userId: String) {
-        guard let key else {
-            encryptedUserKeys.removeValue(forKey: userId)
-            return
-        }
-        encryptedUserKeys[userId] = key
-    }
-
     func setEvents(_ events: [EventData], userId: String) {
         eventsByUserId[userId] = events
+    }
+
+    func setFillAssistCachedData(_ data: FillAssistCachedData?, userId: String) {
+        fillAssistCachedDataByUserId[userId] = data
+    }
+
+    func setFillAssistEnabled(_ fillAssistEnabled: Bool?, userId: String) {
+        fillAssistEnabledByUserId[userId] = fillAssistEnabled
+    }
+
+    func setFillAssistLastFetchTimestamp(_ timestamp: Date?, userId: String) {
+        fillAssistLastFetchTimestampByUserId[userId] = timestamp
     }
 
     func setHasPerformedSyncAfterLogin(_ hasBeenPerformed: Bool?, userId: String) {
@@ -321,6 +370,17 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         notificationsLastRegistrationDates[userId] = date
     }
 
+    func setOrganizationUserNotificationBannerDismissal(
+        _ dismissal: OrganizationUserNotificationBannerDismissal?,
+        userId: String,
+    ) {
+        guard let dismissal else {
+            organizationUserNotificationBannerDismissals.removeValue(forKey: userId)
+            return
+        }
+        organizationUserNotificationBannerDismissals[userId] = dismissal
+    }
+
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String) {
         guard let options else {
             passwordGenerationOptions.removeValue(forKey: userId)
@@ -339,6 +399,18 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String) {
         premiumUpgradeBannerDismissedByUserId[userId] = dismissed
+    }
+
+    func setPremiumUpgradePending(_ pending: Bool, userId: String) {
+        premiumUpgradePendingByUserId[userId] = pending
+    }
+
+    func setPreviousPersonalPremium(_ previousPersonalPremium: Bool?, userId: String) {
+        previousPersonalPremiumByUserId[userId] = previousPersonalPremium
+    }
+
+    func setSubscriptionAttentionCardVisible(_ visible: Bool, userId: String) {
+        subscriptionAttentionCardVisibleByUserId[userId] = visible
     }
 
     func setUpgradedToPremiumActionCardVisible(_ visible: Bool, userId: String) {
@@ -377,6 +449,14 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         unsuccessfulUnlockAttempts[userId] = attempts
     }
 
+    func setUserKeyId(_ keyId: String?, userId: String) {
+        guard let keyId else {
+            userKeyIdByUserId.removeValue(forKey: userId)
+            return
+        }
+        userKeyIdByUserId[userId] = keyId
+    }
+
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String) {
         guard let options else {
             usernameGenerationOptions.removeValue(forKey: userId)
@@ -387,6 +467,14 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String) {
         self.usesKeyConnector[userId] = usesKeyConnector
+    }
+
+    func setV2EncryptedMigrationsGracePeriodStart(_ date: V2EncryptedMigrationsGracePeriodStart?, userId: String) {
+        v2EncryptedMigrationsGracePeriodStarts[userId] = date
+    }
+
+    func setV2UpgradeToken(_ token: V2UpgradeToken?, userId: String) {
+        v2UpgradeTokenByUserId[userId] = token
     }
 
     func setVaultTimeout(minutes: Int, userId: String) {
@@ -413,12 +501,24 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         unsuccessfulUnlockAttempts[userId] ?? 0
     }
 
+    func userKeyId(userId: String) -> String? {
+        userKeyIdByUserId[userId]
+    }
+
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
         usernameGenerationOptions[userId]
     }
 
     func usesKeyConnector(userId: String) -> Bool {
         usesKeyConnector[userId] ?? false
+    }
+
+    func v2EncryptedMigrationsGracePeriodStart(userId: String) -> V2EncryptedMigrationsGracePeriodStart? {
+        v2EncryptedMigrationsGracePeriodStarts[userId]
+    }
+
+    func v2UpgradeToken(userId: String) -> V2UpgradeToken? {
+        v2UpgradeTokenByUserId[userId]
     }
 
     func vaultTimeout(userId: String) -> Int? {

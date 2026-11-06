@@ -136,4 +136,34 @@ struct CipherRequestModelTests {
 
         #expect(subject.passport == nil)
     }
+
+    /// `init(encryptionContext:)` maps `encryptedFor`, `encryptedByKeyId`, and cipher data.
+    @Test
+    func init_encryptionContext() {
+        let context = EncryptionContext(
+            encryptedFor: "user-1",
+            encryptedByKeyId: "key-abc",
+            cipher: .fixture(name: "Test Cipher"),
+        )
+
+        let subject = CipherRequestModel(encryptionContext: context)
+
+        #expect(subject.encryptedFor == "user-1")
+        #expect(subject.encryptedByKeyId == "key-abc")
+        #expect(subject.name == "Test Cipher")
+    }
+
+    /// `init(encryptionContext:)` maps a `nil` `encryptedByKeyId` when the context has none.
+    @Test
+    func init_encryptionContext_nilEncryptedByKeyId() {
+        let context = EncryptionContext(
+            encryptedFor: "user-1",
+            cipher: .fixture(),
+        )
+
+        let subject = CipherRequestModel(encryptionContext: context)
+
+        #expect(subject.encryptedFor == "user-1")
+        #expect(subject.encryptedByKeyId == nil)
+    }
 }

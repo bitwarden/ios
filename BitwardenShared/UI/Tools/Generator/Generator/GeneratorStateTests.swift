@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import InlineSnapshotTesting
 import XCTest
@@ -33,6 +34,57 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         subject.presentationMode = .tab
 
         XCTAssertEqual(subject.availableGeneratorTypes, [.password, .passphrase, .username])
+    }
+
+    /// `GeneratorType.copyButtonAccessibilityLabel` returns the accessibility label for the
+    /// buttons used to copy the generated value to the clipboard, for each generator type.
+    func test_copyButtonAccessibilityLabel() {
+        XCTAssertEqual(GeneratorType.passphrase.copyButtonAccessibilityLabel, Localizations.copyPassphrase)
+        XCTAssertEqual(GeneratorType.password.copyButtonAccessibilityLabel, Localizations.copyPassword)
+        XCTAssertEqual(GeneratorType.username.copyButtonAccessibilityLabel, Localizations.copyUsername)
+    }
+
+    /// `GeneratorType.fillButtonTitle` returns the title of the button used to fill the
+    /// generated value into the field the user came from, for each generator type.
+    func test_fillButtonTitle() {
+        XCTAssertEqual(GeneratorType.passphrase.fillButtonTitle, Localizations.useThisPassphrase)
+        XCTAssertEqual(GeneratorType.password.fillButtonTitle, Localizations.useThisPassword)
+        XCTAssertEqual(GeneratorType.username.fillButtonTitle, Localizations.useThisUsername)
+    }
+
+    /// `GeneratorType.regenerateButtonAccessibilityLabel` returns the accessibility label for the
+    /// button used to regenerate the generated value, for each generator type.
+    func test_regenerateButtonAccessibilityLabel() {
+        XCTAssertEqual(GeneratorType.passphrase.regenerateButtonAccessibilityLabel, Localizations.generatePassphrase)
+        XCTAssertEqual(GeneratorType.password.regenerateButtonAccessibilityLabel, Localizations.generatePassword)
+        XCTAssertEqual(GeneratorType.username.regenerateButtonAccessibilityLabel, Localizations.generateUsername)
+    }
+
+    /// `hasGeneratedValue` is `false` when the generated value is empty or the placeholder
+    /// username, and `true` otherwise.
+    func test_hasGeneratedValue() {
+        var subject = GeneratorState()
+
+        subject.generatedValue = ""
+        XCTAssertFalse(subject.hasGeneratedValue)
+
+        subject.generatedValue = Constants.defaultGeneratedUsername
+        XCTAssertFalse(subject.hasGeneratedValue)
+
+        subject.generatedValue = "password"
+        XCTAssertTrue(subject.hasGeneratedValue)
+    }
+
+    /// `PresentationMode.isCreateLoginButtonVisible` is only `true` when presented in a tab.
+    func test_isCreateLoginButtonVisible() {
+        XCTAssertTrue(GeneratorState.PresentationMode.tab.isCreateLoginButtonVisible)
+        XCTAssertFalse(GeneratorState.PresentationMode.inPlace.isCreateLoginButtonVisible)
+    }
+
+    /// `PresentationMode.isFillButtonVisible` is only `true` when presented in place.
+    func test_isFillButtonVisible() {
+        XCTAssertFalse(GeneratorState.PresentationMode.tab.isFillButtonVisible)
+        XCTAssertTrue(GeneratorState.PresentationMode.inPlace.isFillButtonVisible)
     }
 
     /// `formSections` returns the sections and fields for generating a passphrase.
