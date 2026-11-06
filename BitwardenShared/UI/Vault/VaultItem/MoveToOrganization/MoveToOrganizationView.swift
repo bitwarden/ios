@@ -36,7 +36,7 @@ struct MoveToOrganizationView: View {
                             await store.perform(.moveCipher)
                         }
                     } else {
-                        toolbarButton(Localizations.move) {
+                        primaryActionToolbarButton(Localizations.move) {
                             await store.perform(.moveCipher)
                         }
                         .accessibilityIdentifier("MoveButton")
@@ -149,6 +149,35 @@ struct MoveToOrganizationView: View {
                                 organizationId: "1",
                             ),
                         ],
+                        organizationId: "1",
+                        ownershipOptions: [.organization(id: "1", name: "Organization")],
+                    ),
+                ),
+            ),
+        )
+    }
+}
+
+#Preview("Organizations - VFO1") {
+    NavigationView {
+        MoveToOrganizationView(
+            store: Store(
+                processor: StateProcessor(
+                    state: MoveToOrganizationState(
+                        cipher: .fixture(),
+                        collections: [
+                            .fixture(
+                                id: "1",
+                                name: "Design",
+                                organizationId: "1",
+                            ),
+                            .fixture(
+                                id: "2",
+                                name: "Engineering",
+                                organizationId: "1",
+                            ),
+                        ],
+                        isVfo1FoundationFeatureFlagEnabled: true,
                         organizationId: "1",
                         ownershipOptions: [.organization(id: "1", name: "Organization")],
                     ),

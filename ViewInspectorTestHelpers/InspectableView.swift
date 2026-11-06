@@ -388,10 +388,8 @@ public extension InspectableView {
     /// - Returns: A save toolbar button, if one can be located.
     /// - Throws: Throws an error if a view was unable to be located.
     ///
-    func findSaveToolbarButton() throws -> InspectableView<ViewType.Button> {
-        try find(ViewType.Button.self) { view in
-            try view.accessibilityIdentifier() == "SaveButton"
-        }
+    func findSaveToolbarButton() throws -> InspectableView<AsyncButtonType> {
+        try find(asyncButtonWithAccessibilityIdentifier: "SaveButton")
     }
 }
 
