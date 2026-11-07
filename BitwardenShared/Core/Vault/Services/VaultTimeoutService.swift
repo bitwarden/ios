@@ -4,6 +4,8 @@ import BitwardenSdk
 import Combine
 import Foundation
 
+// swiftlint:disable file_length
+
 // MARK: - VaultTimeoutServiceError
 
 /// The errors thrown from a `VaultTimeoutService`.
@@ -83,6 +85,16 @@ protocol VaultTimeoutService: AnyObject {
     ///
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws
 
+    /// The amount of time remaining until a user's session timeout elapses.
+    ///
+    /// - Parameter userId: The user ID to check.
+    /// - Returns: The number of seconds remaining until the session times out, which may be zero
+    ///   or negative if the timeout has already elapsed or the elapsed time can't be determined.
+    ///   Returns `nil` if the user's timeout value doesn't allow a schedulable timeout (`.never`
+    ///   or `.onAppRestart`).
+    ///
+    func timeUntilSessionTimeout(userId: String) async throws -> TimeInterval?
+
     /// Unlocks the user's vault
     ///
     /// - Parameters:
@@ -142,10 +154,10 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     private let stateService: StateService
 
     /// Provides the current time.
-    private let timeProvider: TimeProvider
+    let timeProvider: TimeProvider
 
     /// A service that provides state management functionality around user session values.
-    private let userSessionStateService: UserSessionStateService
+    let userSessionStateService: UserSessionStateService
 
     /// A subject containing the user's vault locked status mapped to their user ID.
     private let vaultLockStatusSubject = CurrentValueSubject<[String: Bool], Never>([:])
@@ -201,50 +213,14 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
             // On app restart, trigger timeout if this is actually an app restart
             return isAppRestart
         default:
-            let lastActiveMonotonic = try await userSessionStateService.getLastActiveMonotonicTime(userId: userId)
-            let lastActiveTime = try await userSessionStateService.getLastActiveTime(userId: userId)
-
-            // We need both times to calculate session timeout. If any of the times is not present
-            // then treat it as the session has timed out.
-            guard let lastActiveMonotonic, let lastActiveTime else {
+            // If the elapsed time can't be determined (missing state, tampering, or a
+            // reboot-timing attack), fail closed and treat the session as timed out.
+            guard let elapsed = try await effectiveElapsedTime(userId: userId) else {
                 return true
             }
 
-            // Use monotonic time for tamper-resistant timeout checking
-            let result = timeProvider.calculateTamperResistantElapsedTime(
-                lastMonotonicTime: lastActiveMonotonic,
-                lastWallClockTime: lastActiveTime,
-                divergenceThreshold: 5.0,
-            )
-
-            // Force timeout if tampering detected (reboot or clock manipulation)
-            if result.tamperingDetected {
-                return true
-            }
-
-            // Check for the reboot-timing attack: an attacker who reboots the device and
-            // waits until the monotonic clock matches the stored value bypasses the isReboot
-            // flag. The boot epoch shifts dramatically across a reboot and catches this.
-            // Guard on isReboot: a legitimate reboot is already caught above via tamperingDetected.
-            let storedBootEpoch = try await userSessionStateService.getLastActiveBootEpoch(userId: userId)
-            let currentBootEpoch = timeProvider.presentTime.timeIntervalSinceReferenceDate
-                - timeProvider.monotonicTime
-            // Boot epoch must always co-exist with lastActiveMonotonicTime — both are written
-            // atomically in setLastActiveTime. A missing boot epoch after the guard above means
-            // partial or manipulated state, so fail closed.
-            guard let storedBootEpoch else {
-                return true
-            }
-            if !result.isReboot {
-                let epochDrift = abs(currentBootEpoch - storedBootEpoch)
-                if epochDrift > 5.0 {
-                    return true
-                }
-            }
-
-            // Use monotonic elapsed time exclusively as the tamper-resistant timeout source
             let timeoutSeconds = TimeInterval(vaultTimeout.seconds)
-            return result.effectiveElapsed >= timeoutSeconds
+            return elapsed >= timeoutSeconds
         }
     }
 
@@ -331,6 +307,20 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         )
     }
 
+    func timeUntilSessionTimeout(userId: String) async throws -> TimeInterval? {
+        let vaultTimeout = try await sessionTimeoutValue(userId: userId)
+        guard vaultTimeout.allowsUserSessionKeySharing else { return nil }
+
+        // If the elapsed time can't be determined (missing state, tampering, or a reboot-timing
+        // attack), fail closed and treat the session as already timed out.
+        guard let elapsed = try await effectiveElapsedTime(userId: userId) else {
+            return 0
+        }
+
+        let timeoutSeconds = TimeInterval(vaultTimeout.seconds)
+        return timeoutSeconds - elapsed
+    }
+
     func unlockVault(userId: String?, hadUserInteraction: Bool) async throws {
         guard let id = try? await stateService.getAccountIdOrActiveId(userId: userId) else { return }
         vaultLockStatusSubject.value[id] = false
@@ -353,6 +343,60 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
             }
             .removeDuplicates()
             .eraseToAnyPublisher()
+    }
+
+    /// Calculates the tamper-resistant elapsed time since the user was last active, shared by
+    /// `hasPassedSessionTimeout` and `timeUntilSessionTimeout`.
+    ///
+    /// - Parameter userId: The user ID to check.
+    /// - Returns: The elapsed time in seconds since the user was last active, or `nil` if the
+    ///   elapsed time can't be determined — missing last-active state, detected tampering (clock
+    ///   manipulation or reboot), or a reboot-timing attack. Callers should fail closed and treat
+    ///   `nil` as "already timed out".
+    ///
+    private func effectiveElapsedTime(userId: String) async throws -> TimeInterval? {
+        let lastActiveMonotonic = try await userSessionStateService.getLastActiveMonotonicTime(userId: userId)
+        let lastActiveTime = try await userSessionStateService.getLastActiveTime(userId: userId)
+
+        // We need both times to calculate session timeout. If any of the times is not present
+        // then treat it as the session has timed out.
+        guard let lastActiveMonotonic, let lastActiveTime else {
+            return nil
+        }
+
+        // Use monotonic time for tamper-resistant timeout checking
+        let result = timeProvider.calculateTamperResistantElapsedTime(
+            lastMonotonicTime: lastActiveMonotonic,
+            lastWallClockTime: lastActiveTime,
+            divergenceThreshold: 5.0,
+        )
+
+        // Force timeout if tampering detected (reboot or clock manipulation)
+        if result.tamperingDetected {
+            return nil
+        }
+
+        // Check for the reboot-timing attack: an attacker who reboots the device and
+        // waits until the monotonic clock matches the stored value bypasses the isReboot
+        // flag. The boot epoch shifts dramatically across a reboot and catches this.
+        // Guard on isReboot: a legitimate reboot is already caught above via tamperingDetected.
+        let storedBootEpoch = try await userSessionStateService.getLastActiveBootEpoch(userId: userId)
+        let currentBootEpoch = timeProvider.presentTime.timeIntervalSinceReferenceDate
+            - timeProvider.monotonicTime
+        // Boot epoch must always co-exist with lastActiveMonotonicTime — both are written
+        // atomically in setLastActiveTime. A missing boot epoch after the guard above means
+        // partial or manipulated state, so fail closed.
+        guard let storedBootEpoch else {
+            return nil
+        }
+        if !result.isReboot {
+            let epochDrift = abs(currentBootEpoch - storedBootEpoch)
+            if epochDrift > 5.0 {
+                return nil
+            }
+        }
+
+        return result.effectiveElapsed
     }
 
     /// Updates the shared timeout value in the SharedTimeoutService, so that BWA can log users out
