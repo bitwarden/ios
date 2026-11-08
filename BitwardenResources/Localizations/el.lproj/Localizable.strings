@@ -1306,3 +1306,5 @@
 "OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
 "ConfirmExport" = "Επιβεβαίωση εξαγωγής";
 "ForYourSecurityDontShareOrSendDescriptionLong" = "Αυτή η εξαγωγή περιέχει τα δεδομένα σε αποκρυπτογραφημένη μορφή. Δεν πρέπει να αποθηκεύετε ή να στείλετε το εξαγόμενο αρχείο μέσω μη ασφαλών τρόπων (όπως μέσω ηλ. ταχυδρομείου). Διαγράψτε το αμέσως μόλις τελειώσετε με τη χρήση του.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Create login";

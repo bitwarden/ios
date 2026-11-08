@@ -1307,3 +1307,5 @@
 "OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "只有儲存在此裝置本機的代碼會被匯出。同步的代碼不會包含在內。";
 "ConfirmExport" = "確認匯出";
 "ForYourSecurityDontShareOrSendDescriptionLong" = "此次匯出的密碼庫檔案為未加密格式。您不應將它存放或經由不安全的方式（例如電子郵件）傳送。用完後請立即將它刪除。";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "建立登入項目";

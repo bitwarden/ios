@@ -1306,3 +1306,5 @@
 "OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Budou exportovány jen kódy uložené v tomto zařízení. Synchronizované kódy nejsou zahrnuty.";
 "ConfirmExport" = "Potvrdit export";
 "ForYourSecurityDontShareOrSendDescriptionLong" = "Z důvodu bezpečnosti nesdílejte ani neposílejte tento soubor na nezabezpečené kanály (jako je e-mail) a smažte jej, když jste hotovi.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Vytvořit přihlášení";

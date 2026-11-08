@@ -1302,7 +1302,9 @@
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Nie mogliśmy zsynchronizować sejfu z serwerem. Sejf może nie zawierać najnowszych zmian. Spróbuj ponownie lub poczekaj na automatyczną synchronizację.";
 "TextToShareRequired" = "Tekst do udostępnienia (wymagane)";
 /* Header on the Authenticator export screen, shown above a description of which codes are exported. */
-"IncludedInThisReport" = "Included in this report";
+"IncludedInThisReport" = "Zawartość eksportu";
 "OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Tylko kody przechowywane lokalnie na tym urządzeniu zostaną wyeksportowane. Zsynchronizowane kody nie są uwzględniane.";
 "ConfirmExport" = "Potwierdź eksportowanie";
 "ForYourSecurityDontShareOrSendDescriptionLong" = "Nie udostępniaj ani nie wysyłaj tego pliku za pomocą niezabezpieczonych kanałów (takich jak poczta e-mail) i usuń go po zakończeniu pracy.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Utwórz dane logowania";
