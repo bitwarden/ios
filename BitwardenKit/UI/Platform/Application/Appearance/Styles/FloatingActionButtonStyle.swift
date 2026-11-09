@@ -47,6 +47,10 @@ public struct FloatingActionButtonStyle: ButtonStyle {
                 .foregroundStyle(foregroundColor)
                 .frame(width: diameter, height: diameter)
                 .glassEffect(.regular.tint(backgroundColor).interactive(), in: Circle())
+                // Without a circular content shape, a `Menu` using this style briefly animates from
+                // a rectangle when it opens.
+                .contentShape(Circle())
+                .contentShape(.contextMenuPreview, Circle())
         } else {
             configuration.label
                 .foregroundColor(foregroundColor)
