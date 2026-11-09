@@ -2581,6 +2581,18 @@ extension DefaultStateService: BillingStateService {
         appSettingsStore.setPreviousPersonalPremium(previousPersonalPremium, userId: userId)
     }
 
+    // MARK: Subscription
+
+    func getHasPersonalSubscription(userId: String?) async throws -> Bool? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.hasPersonalSubscription(userId: userId)
+    }
+
+    func setHasPersonalSubscription(_ hasPersonalSubscription: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setHasPersonalSubscription(hasPersonalSubscription, userId: userId)
+    }
+
     // MARK: Subscription Attention Card
 
     func getSubscriptionAttentionCardVisible() async throws -> Bool {

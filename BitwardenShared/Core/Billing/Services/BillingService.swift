@@ -59,6 +59,14 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func getSubscription() async throws -> PremiumSubscription
 
+    /// Gets whether the active account has a Stripe subscription for personal Premium, as last
+    /// recorded by `refreshSubscriptionStatus(subscription:)`.
+    ///
+    /// - Returns: Whether the account has a Stripe subscription, or `nil` if the server hasn't yet
+    ///   answered or the stored value couldn't be read.
+    ///
+    func hasPersonalSubscription() async -> Bool?
+
     /// Gets whether the Premium upgrade banner has been dismissed by the active account.
     ///
     /// - Returns: Whether the banner has been dismissed.
@@ -92,7 +100,7 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
 
     /// Notifies that a `premiumStatusChanged` push notification arrived, and force-syncs the
     /// active account. The sync's own completion handling reconciles a pending upgrade and
-    /// refreshes the subscription attention card; this publishes no checkout status.
+    /// refreshes the cached subscription status; this publishes no checkout status.
     ///
     /// This always syncs, whichever account the push names and whether or not the account already
     /// has Premium or is eligible for the Premium upgrade path. The server sends this push for
@@ -113,19 +121,22 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func premiumUpgradeLifecycleState(userId: String?) async -> PremiumUpgradeLifecycleState
 
-    /// Fetches the current subscription status and updates the visibility of the subscription
-    /// attention action card.
+    /// Fetches the current subscription status, updates the visibility of the subscription
+    /// attention action card, and stores whether the account has a Stripe subscription.
     ///
-    /// This runs for all non-self-hosted accounts regardless of their current premium status.
+    /// This runs for all accounts eligible for the Premium upgrade path regardless of their
+    /// current premium status.
     /// A user whose subscription has lapsed (e.g. unpaid after repeated payment failures) still
     /// needs their payment-problem state surfaced even though the server reports them as
     /// non-premium. Accounts with no personal subscription (free users) receive a
-    /// `GetSubscriptionRequestError` and are handled silently — the card is hidden for them.
+    /// `GetSubscriptionRequestError` and are handled silently — the card is hidden for them and
+    /// the account is recorded as having no Stripe subscription. Any other failure leaves the
+    /// stored Stripe subscription state unchanged.
     ///
     /// - Parameters:
     ///   - subscription: A previously fetched subscription to use, or `nil` to fetch fresh.
     ///
-    func refreshSubscriptionAttentionCard(subscription: PremiumSubscription?) async
+    func refreshSubscriptionStatus(subscription: PremiumSubscription?) async
 
     /// Retries an upgrade that is already pending. Like `premiumCheckoutSucceeded()`, but never
     /// marks an upgrade pending, so it's safe for a user-initiated retry that may not follow a
@@ -301,6 +312,15 @@ class DefaultBillingService: BillingService {
         return PremiumSubscription(response: response)
     }
 
+    func hasPersonalSubscription() async -> Bool? {
+        do {
+            return try await billingStateService.getHasPersonalSubscription()
+        } catch {
+            errorReporter.log(error: error)
+            return nil
+        }
+    }
+
     func isPremiumUpgradeBannerDismissed() async -> Bool {
         do {
             return try await billingStateService.getPremiumUpgradeBannerDismissed()
@@ -385,7 +405,7 @@ class DefaultBillingService: BillingService {
         return await stateService.doesAccountHavePremium(userId: resolvedUserId) ? .premium : .notPremium
     }
 
-    func refreshSubscriptionAttentionCard(subscription: PremiumSubscription?) async {
+    func refreshSubscriptionStatus(subscription: PremiumSubscription?) async {
         guard await isEligibleForPremiumUpgradePath() else {
             do {
                 try await billingStateService.setSubscriptionAttentionCardVisible(false)
@@ -401,10 +421,12 @@ class DefaultBillingService: BillingService {
                 try await getSubscription()
             }
             try await billingStateService.setSubscriptionAttentionCardVisible(sub.status.isPaymentProblemState)
-        } catch is GetSubscriptionRequestError {
-            // No personal subscription — free user or subscription fully gone. Card not shown.
+            try await billingStateService.setHasPersonalSubscription(true)
+        } catch GetSubscriptionRequestError.noSubscription {
+            // No personal subscription — free user or subscription fully gone.
             do {
                 try await billingStateService.setSubscriptionAttentionCardVisible(false)
+                try await billingStateService.setHasPersonalSubscription(false)
             } catch {
                 errorReporter.log(error: error)
             }

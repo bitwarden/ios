@@ -208,6 +208,16 @@ protocol AppSettingsStore: AnyObject {
     ///
     func hasPerformedSyncAfterLogin(userId: String) -> Bool
 
+    /// Gets whether the given user has a Stripe subscription for personal Premium, as last reported
+    /// by the server.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID.
+    /// - Returns: Whether the user has a Stripe subscription, or `nil` if the server hasn't yet
+    ///   answered.
+    ///
+    func hasPersonalSubscription(userId: String) -> Bool?
+
     /// Get the user's Biometric Authentication Preference.
     ///
     /// - Parameter userId: The user ID associated with the biometric authentication preference.
@@ -500,6 +510,15 @@ protocol AppSettingsStore: AnyObject {
     ///   - hasBeenPerformed: Whether a sync has been performed after login.
     ///   - userId: The user ID associated with the sync after login.
     func setHasPerformedSyncAfterLogin(_ hasBeenPerformed: Bool?, userId: String)
+
+    /// Sets whether the given user has a Stripe subscription for personal Premium.
+    ///
+    /// - Parameters:
+    ///   - hasPersonalSubscription: Whether the user has a Stripe subscription, or `nil` to clear
+    ///     the stored value.
+    ///   - userId: The user ID.
+    ///
+    func setHasPersonalSubscription(_ hasPersonalSubscription: Bool?, userId: String)
 
     /// Sets the time of the last request to turn on credential provider for the user ID.
     ///
@@ -941,6 +960,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case fillAssistLastFetchTimestamp(userId: String)
         case flightRecorderData
         case hasPerformedSyncAfterLogin(userId: String)
+        case hasPersonalSubscription(userId: String)
         case introCarouselShown
         case learnNewLoginActionCardStatus
         case lastRequestToTurnOnCredentialProvider
@@ -1042,6 +1062,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "flightRecorderData"
             case let .hasPerformedSyncAfterLogin(userId):
                 "hasPerformedSyncAfterLogin_\(userId)"
+            case let .hasPersonalSubscription(userId):
+                "hasPersonalSubscription_\(userId)"
             case .introCarouselShown:
                 "introCarouselShown"
             case .learnNewLoginActionCardStatus:
@@ -1313,6 +1335,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .hasPerformedSyncAfterLogin(userId: userId))
     }
 
+    func hasPersonalSubscription(userId: String) -> Bool? {
+        fetch(for: .hasPersonalSubscription(userId: userId))
+    }
+
     func isBiometricAuthenticationEnabled(userId: String) -> Bool {
         fetch(for: .biometricAuthEnabled(userId: userId))
     }
@@ -1471,6 +1497,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func setHasPerformedSyncAfterLogin(_ hasBeenPerformed: Bool?, userId: String) {
         store(hasBeenPerformed, for: .hasPerformedSyncAfterLogin(userId: userId))
+    }
+
+    func setHasPersonalSubscription(_ hasPersonalSubscription: Bool?, userId: String) {
+        store(hasPersonalSubscription, for: .hasPersonalSubscription(userId: userId))
     }
 
     func setLastRequestToTurnOnCredentialProvider(_ date: Date?) {
