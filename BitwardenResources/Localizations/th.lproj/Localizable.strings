@@ -1306,3 +1306,5 @@
 "OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
 "ConfirmExport" = "ยืนยันการส่งออก";
 "ForYourSecurityDontShareOrSendDescriptionLong" = "เพื่อความปลอดภัย อย่าแชร์หรือส่งไฟล์นี้ผ่านช่องทางที่ไม่ปลอดภัย (เช่น อีเมล) และลบไฟล์เมื่อใช้งานเสร็จแล้ว";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Create login";

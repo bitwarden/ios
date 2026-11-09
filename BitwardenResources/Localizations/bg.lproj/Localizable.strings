@@ -1306,3 +1306,5 @@
 "OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Само съхраняваните на това устройство кодове ще бъдат изнесени. Синхронизираните кодове няма да бъдат включени.";
 "ConfirmExport" = "Потвърждаване на изнасянето";
 "ForYourSecurityDontShareOrSendDescriptionLong" = "Данните от трезора ви ще се изнесат в незащитен формат. Не го пращайте по незащитени канали като е-поща. Изтрийте файла незабавно след като свършите работата си с него.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Създаване на запис за вписване";

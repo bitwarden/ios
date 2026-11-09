@@ -1306,3 +1306,5 @@
 "OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
 "ConfirmExport" = "Экспортту ырастоо";
 "ForYourSecurityDontShareOrSendDescriptionLong" = "Коопсуздугуңуз үчүн, бул файлды коопсуз эмес каналдар (мисалы, электрондук почта) аркылуу бөлүшпөңүз же жөнөтпөңүз жана колдонуп бүткөндөн кийин өчүрүңүз.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Create login";

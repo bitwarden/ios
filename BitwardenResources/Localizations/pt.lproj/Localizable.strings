@@ -1306,3 +1306,5 @@
 "OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Só serão exportados os códigos guardados localmente neste dispositivo. Os códigos sincronizados não serão incluídos.";
 "ConfirmExport" = "Confirmar a exportação";
 "ForYourSecurityDontShareOrSendDescriptionLong" = "Para sua segurança, não partilhe nem envie este ficheiro por canais não seguros (como e-mail) e elimine-o quando terminar.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Criar credencial";

@@ -1,7 +1,7 @@
 "About" = "O aplikácii";
 "Add" = "Pridať";
 "AddFolder" = "Pridať priečinok";
-"AnErrorHasOccurred" = "Vyskytla sa chyba.";
+"AnErrorHasOccurred" = "Vyskytla sa chyba";
 "Back" = "Späť";
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Zrušiť";
@@ -1306,3 +1306,5 @@
 "OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Exportovať sa budú len miestne kódy v tomto zariadení. Synchronizované kódy nie sú zahrnuté.";
 "ConfirmExport" = "Potvrdiť export";
 "ForYourSecurityDontShareOrSendDescriptionLong" = "V záujme bezpečnosti nezdieľajte ani neposielajte tento súbor nezabezpečenými kanálmi (napríklad e-mailom) a po skončení ho odstráňte.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Vytvoriť prihlasovacie údaje";

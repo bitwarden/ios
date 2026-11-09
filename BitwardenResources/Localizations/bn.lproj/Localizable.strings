@@ -1306,3 +1306,5 @@
 "OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
 "ConfirmExport" = "রপ্তানি নিশ্চিত করুন";
 "ForYourSecurityDontShareOrSendDescriptionLong" = "এই রফতানীতে একটি বিনা-এনক্রিপ্টেড করা বিন্যাসে আপনার ভল্ট তথ্য রয়েছে। আপনার রফতানিকৃত হওয়া ফাইল নিরাপত্তাহীন চ্যানেলগুলির মাধ্যমে (যেমন ইমেল) সংরক্ষণ বা প্রেরণ করা উচিত নয়। আপনি এটি ব্যবহার করে কাজ শেষ করার পর সাথে সাথে মুছে ফেলুন।";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Create login";

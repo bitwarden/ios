@@ -25,7 +25,7 @@
 "EnterPIN" = "PIN kodunuzu girin.";
 "Favorites" = "Favoriler";
 "Folder" = "Klasör";
-"FolderCreated" = "Yeni klasör oluşturuldu.";
+"FolderCreated" = "Yeni klasör oluşturuldu";
 "FolderDeleted" = "Klasör silindi.";
 "FolderNone" = "Klasör yok";
 "Folders" = "Klasörler";
@@ -45,8 +45,8 @@
 "RemoveAccount" = "Hesabı kaldır";
 "RemoveAccountConfirmation" = "Bu hesabı kaldırmak istediğinizden emin misiniz?";
 "AccountAlreadyAdded" = "Hesap zaten eklenmiş";
-"AccountCreationRestricted" = "Account creation restricted";
-"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ only allows invited users to create accounts.";
+"AccountCreationRestricted" = "Hesap oluşturma kısıtlandı";
+"XOnlyAllowsInvitedUsersToCreateAccounts" = "%1$@ yalnızca davet edilen kullanıcıların hesap oluşturmasına izin veriyor.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Bu hesaba geçmek ister misiniz?";
 "MasterPassword" = "Ana parola";
 "MoreOptions" = "Diğer seçenekler";
@@ -310,7 +310,7 @@
 "NoEmailAddressesEntered" = "E-posta adresi girilmedi";
 "EnterAtLeastOneValidEmailToShareSend" = "Bu Send'i paylaşmak için en az bir geçerli e-posta adresi girin.";
 "OneOrMoreEmailAddressesIncorrect" = "Bir veya daha fazla e posta adresi geçersiz. Lütfen kontrol edip yeniden deneyin.";
-"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Only include the following domains: %1$@. Please review and try again.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Yalnızca şu etki alanlarını ekleyin: %1$@. Lütfen kontrol edip yeniden deneyin.";
 "Cards" = "Kartlar";
 "Identities" = "Kimlikler";
 "Logins" = "Hesaplar";
@@ -329,22 +329,22 @@
 /* Empty state message on the Collections screen shown when a user has no collections. */
 "NoCollectionsToList" = "Listelenecek koleksiyon yok.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
-"ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
+"ThereAreNoSharedFoldersToList" = "Listelenecek paylaşılan klasör yok.";
 "MovedItemToOrg" = "%1$@, %2$@ kuruluşuna taşındı.";
 /* Alert message shown when saving an item with no collection selected. */
 "SelectOneCollection" = "En az bir koleksiyon seçmelisiniz.";
 /* Alert message shown when saving an item with no shared folder selected. */
-"YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
+"YouMustSelectAtLeastOneSharedFolder" = "En az bir paylaşılan klasör seçmelisiniz.";
 "Share" = "Paylaş";
 "ShareAll" = "Tümünü paylaş";
 /* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
 "MoveToOrganization" = "Kuruluşa taşı";
 /* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
-"NoVaultsToList" = "No vaults to list.";
+"NoVaultsToList" = "Listelenecek kasa yok.";
 /* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
 "NoOrgsToList" = "Listelenecek kuruluş yok.";
 /* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
-"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
+"ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Bu kaydı taşımak istediğiniz kasayı seçin. Başka bir kasaya taşımak, kaydın sahipliğini o kuruluşa devreder. Taşındıktan sonra bu kaydın doğrudan sahibi artık siz olmayacaksınız.";
 /* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
 "MoveToOrgDesc" = "Bu kaydı taşımak istediğiniz kuruluşu seçin. Taşıdığınız kaydın sahipliği seçtiğiniz kuruluşa aktarılacak. Artık bu kaydın doğrudan sahibi olmayacaksınız.";
 "NumberOfWords" = "Kelime sayısı";
@@ -446,19 +446,19 @@
 "NewSendCreated" = "Send oluşturuldu";
 "Custom" = "Özel";
 "SendDisabledWarning" = "Bir kuruluş ilkesi nedeniyle yalnızca mevcut Send'leri silebilirsiniz.";
-"ThisDateIsEnforcedByYourOrganization" = "This date is enforced by your organization";
+"ThisDateIsEnforcedByYourOrganization" = "Bu tarih kuruluşunuz tarafından zorunlu kılınıyor";
 "AboutSend" = "Send hakkında";
 "HideEmail" = "E-posta adresimi alıcılardan gizle";
 "SendOptionsPolicyInEffect" = "Bir veya daha fazla kuruluş ilkesi Send seçeneklerinizi etkiliyor.";
 "SendFilePremiumRequired" = "Ücretsiz hesaplar yalnızca metin paylaşabilir. Send ile dosya paylaşmak için premium üyelik gerekir.";
 /* Alert message shown when Send Controls policy restricts creation to File Sends only. */
-"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Bir kurumsal ilke nedeniyle yalnızca dosya Send'leri oluşturabilirsiniz.";
 /* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
-"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
-"OrganizationPolicyRestriction" = "Organization policy restriction";
-"TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
-"ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
-"ToEditThisSendMakeACopyDescriptionLong" = "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed.";
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Bir kurumsal ilke nedeniyle yalnızca metin Send'leri oluşturabilirsiniz.";
+"OrganizationPolicyRestriction" = "Kuruluş ilkesi kısıtlaması";
+"TextSendsAreNotAllowedDescriptionLong" = "Kuruluşunuzda metin Send'lerine izin verilmiyor; bu Send belirlenen silinme tarihinde otomatik olarak sona erecek.";
+"ThisSendIsNotCompliantDescriptionLong" = "Bu Send kuruluşunuzun Send ilkesine uygun değil ve belirlenen silinme tarihinde otomatik olarak sona erecek.";
+"ToEditThisSendMakeACopyDescriptionLong" = "Bu Send'i düzenlemek için bir kopyasını oluşturun. Bu Send belirlenen silinme tarihinde sona erebiliyorsa herhangi bir işlem yapmanız gerekmez.";
 "MakeACopy" = "Kopya oluştur";
 "PasswordPrompt" = "Ana parolayı yeniden iste";
 "PasswordConfirmation" = "Ana parola onayı";
@@ -741,7 +741,7 @@
 "ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "Hesap oluşturmayı başlatmak için Ön Kimlik Doğrulama Url'leri yüklenemedi.";
 "FromYourDeviceSettingsToggleOnAutoFillPasswordsAndPasskeys" = "Cihaz ayarlarınızdan **Şifreleri ve Parolaları otomatik doldurma** özelliğini açın";
 "ToggleOffICloudToMakeBitwardenYourDefaultAutoFillSource" = "Bitwarden'ı varsayılan otomatik doldurma kaynağı yapmak için **iCloud Anahtar Zinciri** seçeneğini kapatın.";
-"ToggleOnBitwardenToUseYourSavedPasswordsToLogIntoYourAccounts" = "**Bitwarden'ı etkinleştirin**, kaydedilmiş şifrelerinizi kullanarak hesaplarınıza giriş yapın.";
+"ToggleOnBitwardenToUseYourSavedPasswordsToLogIntoYourAccounts" = "**Bitwarden'ı etkinleştirin**, kayıtlı parolalarınızı kullanarak hesaplarınıza giriş yapın.";
 "TurnOnAutoFill" = "Otomatik doldurmayı etkinleştir";
 "UseAutoFillToLogIntoYourAccountsWithASingleTap" = "Hesaplarınıza tek dokunuşla giriş yapmak için otomatik doldurmayı kullanabilirsiniz.";
 "NeedHelpCheckOutAutofillHelp" = "Yardıma mı ihtiyacınız var? **[Otomatik doldurma yardımını](%1$@)** inceleyin";
@@ -913,7 +913,7 @@
 /* VoiceOver accessibility label for a collection the item belongs to. */
 "CollectionX" = "Koleksiyon, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
-"SharedFolderX" = "Shared folder, %1$@";
+"SharedFolderX" = "Paylaşılan klasör, %1$@";
 "FolderX" = "Klasör, %1$@";
 "MyFolderX" = "Klasörüm, %1$@";
 "ItemXOfY" = "Kayıt %1$@/%2$@";
@@ -937,7 +937,7 @@
 "ConfirmKeyConnectorDomain" = "Key Connector alan adını onaylayın";
 "KeyConnectorDomain" = "Key Connector alan adı:";
 "KeyConnectorOrganization" = "Kuruluş:";
-"KeyConnectorConfirmDomainWithAdmin" = "Lütfen aşağıdaki etki alanını kuruluş yöneticinizle onaylayın.\n\\Key Connector etki alanı:\n%1$@";
+"KeyConnectorConfirmDomainWithAdmin" = "Lütfen aşağıdaki etki alanını kuruluş yöneticinizle onaylayın.\n\nKey Connector etki alanı:\n%1$@";
 "DoYouReallyWantToDeleteThisLog" = "Bu günlüğü gerçekten silmek istiyor musunuz?";
 "DoYouReallyWantToDeleteAllRecordedLogs" = "Tüm kaydedilen günlükleri gerçekten silmek istiyor musunuz?";
 "ThisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden" = "Bu hesap yakında silinecek. Bitwarden'ı kullanmaya devam etmek için %1$@ adresinden giriş yapın.";
@@ -1079,10 +1079,10 @@
 "OrganizationNotFound" = "Kuruluş bulunamadı.";
 "ItemsTransferred" = "Kayıtlar aktarıldı";
 "ArchiveIsEmpty" = "Arşiv boş";
-"ArchiveEmptyDescriptionLong" = "Arşivini, arama sonuçlarında ve otomatik doldurma önerilerinde görmek istemediğin ancak bir gün ihtiyaç duyabileceğin öğelerle doldur.";
+"ArchiveEmptyDescriptionLong" = "Arşivinizi, arama sonuçlarında ve otomatik doldurma önerilerinde görmek istemediğiniz ama bir gün ihtiyaç duyabileceğiniz kayıtlarla doldurun.";
 "ArchiveItem" = "Kaydı arşivle";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Bu kayıt arşivlendikten sonra arama sonuçlarından ve otomatik doldurma önerilerinden çıkarılacaktır.";
-"ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Öğeleri arşivlemek bir Premium özelliğidir. Şuanki planınız bu özelliği içermiyor.";
+"ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Kayıtları arşivlemek bir Premium özelliğidir. Mevcut planınız bu özelliği içermiyor.";
 "AddingAttachmentsIsAPremiumFeatureDescriptionLong" = "Ek ekleme özelliği Premium plana özeldir. Mevcut planın bu özelliğe erişim sağlamamaktadır.";
 "UpgradeToPremium" = "Premium’a yükselt";
 "ThisItemIsArchived" = "Bu kayıt arşivlendi.";
@@ -1094,22 +1094,22 @@
 "AddEmail" = "E-posta ekle";
 "AnyoneWithPasswordSetByYou" = "Belirlediğiniz parolaya sahip olan herkes";
 "AnyoneWithTheLink" = "Bağlantıya sahip olan herkes";
-"AnyoneWithThisLinkCanViewThisSend" = "Bu bağlantıya sahip olan herkes bu Gönderiyi görüntüleyebilir.";
+"AnyoneWithThisLinkCanViewThisSend" = "Bu bağlantıya sahip olan herkes bu Send'i görüntüleyebilir.";
 "AfterSharingThisSendLinkDescriptionLong" = "Bu Send bağlantısını paylaştığınızda kullanıcıların bu Send'i görüntülemeleri için e-posta adreslerini bir kodla doğrulamaları gerekecektir.";
 "IndividualsWillNeedToEnterThisPasswordDescriptionLong" = "Bu Send'i görmek isteyen kişilerin bu parolayı girmesi gerekecektir";
 "SpecificPeople" = "Belirli kişiler";
 "WhoCanView" = "Kim görebilir";
-"SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Seçili kişiler ile paylaşmak bir Premium özelliğidir.Şuanki planınız bu özelliği içermiyor.";
+"SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Belirli kişilerle paylaşım bir Premium özelliğidir. Mevcut planınız bu özelliğe erişimi içermiyor.";
 "Alias" = "Takma Ad";
 "CertificateAlias" = "Sertifika takma adı";
 "TheCertificateCouldNotBeInstalled" = "Sertifika yüklenemedi.";
 "TheCertificateHasExpired" = "Sertifikanın süresi dolmuş.";
 "TheCertificateFileIsInvalidOrCorrupted" = "Sertifika dosyası geçersiz ya da çökmüş.";
-"TheCertificatePasswordIsIncorrect" = "Sertifika şifresi yanlış.";
+"TheCertificatePasswordIsIncorrect" = "Sertifika parolası yanlış.";
 "CertificateUsedForClientAuthentication" = "İstemci kimlik doğrulaması için kullanılacak sertifika.";
 "ClientCertificateMtls" = "İstemci sertifikası (mTLS)";
 "ACertificateWithTheAliasAlreadyExistsDescriptionLong" = "\"%1$@\" takma adına sahip bir sertifika zaten mevcut. Değiştirmek istiyor musun?";
-"EnterTheCertificatePasswordAndAlias" = "Sertifika şifresini ve istenilen takma adını gir.";
+"EnterTheCertificatePasswordAndAlias" = "Sertifika parolasını ve istediğiniz takma adı girin.";
 "ImportCertificate" = "Sertifikayı içe aktar";
 "ImportClientCertificate" = "İstemci sertifikasını içe aktar";
 "NoCertificateDataAvailable" = "Sertifika verisi mevcut değil.";
@@ -1125,7 +1125,7 @@
 "LearnMoreAboutAutofill" = "Otomatik doldurma hakkında bilgi alın";
 "TurnOnNow" = "Şimdi etkinleştir";
 "AcceptTransfer" = "Aktarımı kabul et";
-"YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "Şifren ve ipucun aynı olamaz. Lütfen farklı bir ipucu seç.";
+"YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "Parolanız ve ipucunuz aynı olamaz. Lütfen farklı bir ipucu seçin.";
 "Plan" = "Paket";
 "Premium" = "Premium";
 "Active" = "Aktif";
@@ -1158,40 +1158,40 @@
 "PerYearVoiceOver" = "yıllık";
 "XAmountPerCadence" = "%1$@ %2$@";
 /* %1$@ is an amount and cadence together, e.g. "$1.65 / month". */
-"XCancelAnytime" = "%1$@ · Cancel anytime";
+"XCancelAnytime" = "%1$@ · İstediğiniz zaman iptal edin";
 /* VoiceOver reading of "XCancelAnytime", spoken instead of shown. */
-"XCancelAnytimeVoiceOver" = "%1$@, Cancel anytime";
+"XCancelAnytimeVoiceOver" = "%1$@, İstediğiniz zaman iptal edin";
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "Bilinmiyor";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Abonelik durumun belirlenemiyor. Lütfen uygulamanın web sayfasına giderek daha fazla bilgiye ulaşabilirsiniz ya da uygulamayı en son sürüme güncelleyebilirsiniz.";
 /* Headline on the Premium upgrade screen. */
-"UnlockAdvancedProtection" = "Unlock advanced protection";
+"UnlockAdvancedProtection" = "Gelişmiş korumanın kilidini açın";
 /* Premium benefit list item. */
-"BreezeThrough2faWithBuiltInCodes" = "Breeze through 2FA with built-in codes";
+"BreezeThrough2faWithBuiltInCodes" = "Yerleşik kodlarla 2FA'yı kolayca geçin";
 /* Premium benefit list item. */
-"RunReportsToFindRiskyPasswords" = "Run reports to find risky passwords";
+"RunReportsToFindRiskyPasswords" = "Riskli parolaları bulmak için raporlar oluşturun";
 /* Premium benefit list item. */
-"KeepDocumentsSafeAndEncrypted" = "Keep documents safe and encrypted";
+"KeepDocumentsSafeAndEncrypted" = "Belgelerinizi güvende ve şifreli tutun";
 /* Premium benefit list item. */
-"AddATrustedEmergencyContact" = "Add a trusted emergency contact";
+"AddATrustedEmergencyContact" = "Güvenilir bir acil durum kişisi ekleyin";
 /* Premium benefit list item. */
-"IdentifyUnsecureWebsites" = "Identify unsecure websites";
+"IdentifyUnsecureWebsites" = "Güvenli olmayan web sitelerini belirleyin";
 /* Premium benefit list item. */
-"FlagAccountsWithInactive2fa" = "Flag accounts with inactive 2FA";
+"FlagAccountsWithInactive2fa" = "2FA'sı etkin olmayan hesapları işaretleyin";
 /* Premium benefit list item; "Send" is the Bitwarden Send feature name and shouldn't be translated. */
-"ShareFilesSecurelyWithAnyoneUsingSend" = "Share files securely with anyone using Send";
+"ShareFilesSecurelyWithAnyoneUsingSend" = "Send ile dosyaları herkesle güvenle paylaşın";
 /* Premium benefit list item. */
-"Receive247PrioritySupport" = "Receive 24/7 priority support";
+"Receive247PrioritySupport" = "7/24 öncelikli destek alın";
 "BuiltInAuthenticator" = "Dahili kimlik doğrulayıcı";
 "EmergencyAccess" = "Acil durum erişimi";
 "PaymentNotReceivedYet" = "Ödeme henüz alınmadı";
-"ReturnToStripeInYourBrowserToFinishYourUpgradeDescriptionLong" = "Ödemeyi bitirmek için tarayıcınızdan Stripe'a dönün";
-"SecureCheckoutDidntLoad" = "Güvenli ödeme sayfası yüklenemedi.";
+"ReturnToStripeInYourBrowserToFinishYourUpgradeDescriptionLong" = "Yükseltmeyi tamamlamak için tarayıcınızda Stripe'a dönün.";
+"SecureCheckoutDidntLoad" = "Güvenli ödeme sayfası yüklenemedi";
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "Ödeme sayfasını açarken bir sorunla karşılaştık, tekrardan deneyin.";
 "SecureFileStorage" = "Güvenli dosya depolama";
 "BreachMonitoring" = "İhlal izleme";
 "ConfirmingYourUpgrade" = "Geliştirmen onaylanıyor…";
-"OpeningCheckout" = "Ödeme açılıyor...";
+"OpeningCheckout" = "Ödeme sayfası açılıyor…";
 "UpgradePending" = "Yükseltme beklemede";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Yükseltme işlemin işleniyor. Tamamlanana kadar ücretsiz planı kullanmaya devam edeceksin. Kontrol etmek için şimdi senkronize edebilir veya devam edebilirsin; tamamlandığında otomatik olarak güncellenecektir.";
 "UpgradedToPremium" = "Premium'a yükseltildi";
@@ -1201,9 +1201,9 @@
 "YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Artık tüm gelişmiş güvenlik özelliklerine ulaşabilirsiniz. Premium pakete nelerin dahil olduğunu öğrenin.";
 "YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Artık tüm gelişmiş güvenlik özelliklerine ulaşabilirsiniz.";
 /* Footer on the Premium upgrade screen; "Stripe" is the payment processor's name and shouldn't be translated. */
-"YoullCompleteThePurchaseWithStripeSecureCheckout" = "You'll complete the purchase with Stripe secure checkout.";
+"YoullCompleteThePurchaseWithStripeSecureCheckout" = "Satın alma işlemini Stripe güvenli ödeme sayfasında tamamlayacaksınız.";
 "ContinueToStripe" = "Stripe'a devam edilsin mi?";
-"YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "Abonelik iptalini yönetmek için Stripe'a yönlendiriliceksin";
+"YoullBeTakenToStripeToManageYourSubscriptionCancellation" = "Abonelik iptalinizi yönetmek için Stripe'a yönlendirileceksiniz.";
 "UserIDCopiedToTheClipboard" = "Kullanıcı kimliği panoya kopyalandı";
 "UserID" = "Kullanıcı kimliği";
 "CopyUserID" = "Kullanıcı kimliğini kopyala";
@@ -1279,7 +1279,7 @@
 /* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
 "DoubleTapToCloseThePicker" = "Seçiciyi kapatmak için iki kere dokunun";
 /* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
-"FutureDatesUnavailable" = "Future dates unavailable";
+"FutureDatesUnavailable" = "Gelecek tarihler kullanılamaz";
 "PremiumRequiredTOTPDescriptionLong" = "Kimlik doğrulama anahtarı (TOTP) premium bir özelliktir. Mevcut paketiniz bu özelliği içermiyor.";
 /* Toast shown after a login item is saved. */
 "LoginSaved" = "Hesap kaydedildi";
@@ -1302,7 +1302,9 @@
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Kasanı sunucu ile eşleştiremiyoruz. Kasanız son değişikliklerinizi almamış olablir. Şimdi yeniden deneyebilirsiniz ya da sonra otomatik olarak kendini eşleyecektir.";
 "TextToShareRequired" = "Paylaşılacak metin (gerekli)";
 /* Header on the Authenticator export screen, shown above a description of which codes are exported. */
-"IncludedInThisReport" = "Included in this report";
-"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"IncludedInThisReport" = "Bu rapora dahil olanlar";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Yalnızca bu cihazda yerel olarak saklanan kodlar dışa aktarılacak. Eşitlenen kodlar dahil değildir.";
 "ConfirmExport" = "Dışa aktarmayı onayla";
 "ForYourSecurityDontShareOrSendDescriptionLong" = "Dışa aktarılan dosyadaki verileriniz şifrelenmemiş olacak. Bu dosyayı güvensiz yöntemlerle (örn. e-posta) göndermemeli ve saklamamalısınız. İşiniz bittikten sonra dosyayı hemen silin.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Hesap oluştur";

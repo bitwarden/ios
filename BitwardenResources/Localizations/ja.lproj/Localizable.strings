@@ -1035,7 +1035,7 @@
 "SelectAccount" = "アカウントを選択";
 /* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
 "Accounts" = "アカウント";
-"UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI 一致検出は、Bitwarden がオートフィルの候補をどのように識別するかを制御します。";
+"UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "URI 一致検出は、Bitwarden が自動入力の候補をどのように識別するかを制御します。";
 "StartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "「前方一致」は上級者向けオプションであり、認証情報を露出させるリスクが高まります。";
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "「正規表現」は上級者向けオプションであり、誤って使用すると認証情報を露出させるリスクが高まります。";
 "StartsWithAdvanced" = "前方一致 (上級者向け)";
@@ -1079,7 +1079,7 @@
 "OrganizationNotFound" = "組織が見つかりません。";
 "ItemsTransferred" = "アイテムを移行しました";
 "ArchiveIsEmpty" = "アーカイブは空です";
-"ArchiveEmptyDescriptionLong" = "検索結果やオートフィルの候補に表示したくないが、いつか必要になるかもしれないアイテムをアーカイブに保管します。";
+"ArchiveEmptyDescriptionLong" = "検索結果や自動入力の候補には表示させたくないが、いつか必要になるかもしれないアイテムをアーカイブに保存しておきましょう。";
 "ArchiveItem" = "アイテムをアーカイブ";
 "OnceArchivedThisItemWillBeExcludedDescriptionLong" = "アーカイブすると、このアイテムは検索結果と自動入力の候補から除外されます。";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "アイテムのアーカイブはプレミアム機能です。現在のプランではこの機能にはアクセスできません。";
@@ -1306,3 +1306,5 @@
 "OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "このデバイスにローカル保存されているコードのみをエクスポートします。同期されたコードは含まれません。";
 "ConfirmExport" = "エクスポートの確認";
 "ForYourSecurityDontShareOrSendDescriptionLong" = "このエクスポートデータは暗号化されていない形式の保管庫データを含んでいます。メールなどのセキュリティ保護されていない方法で共有したり保管したりしないでください。使用した後はすぐに削除してください。";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "ログイン情報の作成";

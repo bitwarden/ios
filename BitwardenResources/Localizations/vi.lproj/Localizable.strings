@@ -1306,3 +1306,5 @@
 "OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
 "ConfirmExport" = "Xác nhận xuất";
 "ForYourSecurityDontShareOrSendDescriptionLong" = "Vì lý do bảo mật, bạn không nên chia sẻ hay gửi tệp này qua các kênh không an toàn (như email), và hãy xóa nó ngay sau khi bạn dùng xong.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Create login";
