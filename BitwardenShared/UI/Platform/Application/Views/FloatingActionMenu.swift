@@ -54,17 +54,20 @@ struct FloatingActionMenu<Content: View>: View {
 
 #if DEBUG
 #Preview {
-    VStack {
-        FloatingActionMenu(image: SharedAsset.Icons.plus32.swiftUIImage) {
-            Button("Item 1") {}
-            Button("Item 2") {}
-            Button("Item 3") {}
+    VStack {}
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
+        .overlay(alignment: .bottomTrailing) {
+            FloatingActionMenu(image: SharedAsset.Icons.plus32.swiftUIImage) {
+                Button("Item 1") {}
+                Button("Item 2") {}
+                Button("Item 3") {}
 
-            Divider()
+                Divider()
 
-            Button("Other Item") {}
+                Button("Other Item") {}
+            }
+            .padding([.trailing, .bottom], 16)
         }
-    }
-    .padding()
 }
 #endif

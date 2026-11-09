@@ -32,11 +32,12 @@ struct FloatingActionButton: View {
 
 #if DEBUG
 #Preview {
-    VStack {
-        FloatingActionButton(
-            image: SharedAsset.Icons.pencil32.swiftUIImage,
-        ) {}
-    }
-    .padding()
+    VStack {}
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
+        .overlay(alignment: .bottomTrailing) {
+            FloatingActionButton(image: SharedAsset.Icons.plus32.swiftUIImage) {}
+                .padding([.trailing, .bottom], 16)
+        }
 }
 #endif
