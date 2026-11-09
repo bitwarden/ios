@@ -9,7 +9,7 @@ import Foundation
 extension BitwardenSdk.Policy {
     /// Converts an iOS `Policy` to a `BitwardenSdk.Policy`.
     ///
-    /// Returns `nil` when the iOS policy type has no SDK equivalent (e.g., `.unknown`).
+    /// Returns `nil` when the iOS policy type has no SDK equivalent (i.e., `.unknown`).
     ///
     init?(_ policy: BitwardenShared.Policy) {
         guard let sdkType = BitwardenSdk.PolicyType(policy.type) else { return nil }
@@ -70,13 +70,20 @@ extension BitwardenSdk.OrganizationUserPolicyContext {
 extension BitwardenSdk.PolicyType {
     /// Converts an iOS `PolicyType` to the SDK's `BitwardenSdk.PolicyType`.
     ///
-    /// Returns `nil` for iOS-only cases (e.g., `.unknown`) with no SDK equivalent.
+    /// Returns `nil` for `.unknown`, which has no SDK equivalent.
     ///
     init?(_ type: PolicyType) {
         switch type {
         case .activateAutofill: self = .activateAutofill
+        case .automaticAppLogIn: self = .automaticAppLogIn
+        case .automaticUserConfirmation: self = .automaticUserConfirmation
+        case .autotypeDefaultSetting: self = .autotypeDefaultSetting
+        case .autotypeGaPolicy: self = .autotypeGaPolicy
+        case .blockClaimedDomainAccountCreation: self = .blockClaimedDomainAccountCreation
         case .disablePersonalVaultExport: self = .disablePersonalVaultExport
         case .disableSend: self = .disableSend
+        case .fillAssist: self = .fillAssist
+        case .freeFamiliesSponsorship: self = .freeFamiliesSponsorship
         case .masterPassword: self = .masterPassword
         case .maximumVaultTimeout: self = .maximumVaultTimeout
         case .onlyOrg: self = .singleOrg
@@ -91,6 +98,7 @@ extension BitwardenSdk.PolicyType {
         case .sendOptions: self = .sendOptions
         case .twoFactorAuthentication: self = .twoFactorAuthentication
         case .unknown: return nil
+        case .uriMatchDefaults: self = .uriMatchDefaults
         }
     }
 }
@@ -98,16 +106,22 @@ extension BitwardenSdk.PolicyType {
 extension PolicyType {
     /// Converts an SDK `BitwardenSdk.PolicyType` to the iOS `PolicyType`.
     ///
-    /// SDK-only cases with no iOS equivalent map to `.unknown`.
-    ///
     init(_ sdkType: BitwardenSdk.PolicyType) {
         switch sdkType {
         case .activateAutofill: self = .activateAutofill
+        case .automaticAppLogIn: self = .automaticAppLogIn
+        case .automaticUserConfirmation: self = .automaticUserConfirmation
+        case .autotypeDefaultSetting: self = .autotypeDefaultSetting
+        case .autotypeGaPolicy: self = .autotypeGaPolicy
+        case .blockClaimedDomainAccountCreation: self = .blockClaimedDomainAccountCreation
         case .disablePersonalVaultExport: self = .disablePersonalVaultExport
         case .disableSend: self = .disableSend
+        case .fillAssist: self = .fillAssist
+        case .freeFamiliesSponsorship: self = .freeFamiliesSponsorship
         case .masterPassword: self = .masterPassword
         case .maximumVaultTimeout: self = .maximumVaultTimeout
         case .organizationDataOwnership: self = .personalOwnership
+        case .organizationUserNotification: self = .organizationUserNotification
         case .passwordGenerator: self = .passwordGenerator
         case .removeUnlockWithPin: self = .removeUnlockWithPin
         case .requireSso: self = .requireSSO
@@ -117,15 +131,7 @@ extension PolicyType {
         case .sendOptions: self = .sendOptions
         case .singleOrg: self = .onlyOrg
         case .twoFactorAuthentication: self = .twoFactorAuthentication
-        case .automaticAppLogIn,
-             .automaticUserConfirmation,
-             .autotypeDefaultSetting,
-             .autotypeGaPolicy,
-             .blockClaimedDomainAccountCreation,
-             .fillAssist,
-             .freeFamiliesSponsorship,
-             .organizationUserNotification,
-             .uriMatchDefaults: self = .unknown
+        case .uriMatchDefaults: self = .uriMatchDefaults
         }
     }
 }
