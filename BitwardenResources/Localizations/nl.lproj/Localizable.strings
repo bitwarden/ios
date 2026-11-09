@@ -1306,3 +1306,5 @@
 "OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Alleen lokaal opgeslagen codes op dit apparaat worden geëxporteerd. Gesynchroniseerde codes worden niet meegenomen.";
 "ConfirmExport" = "Export bevestigen";
 "ForYourSecurityDontShareOrSendDescriptionLong" = "Deze export bevat jouw kluisgegevens in een niet-versleutelde opmaak. Je moet het geëxporteerde bestand niet opslaan of verzenden over onbeveiligde kanalen (zoals e-mail). Verwijder het exportbestand direct na gebruik.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Login aanmaken";

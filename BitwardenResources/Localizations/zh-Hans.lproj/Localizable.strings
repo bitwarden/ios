@@ -301,7 +301,7 @@
 "AutofillTurnOn1" = "1. 前往 iOS 的「设置」App";
 "AutofillTurnOn2" = "2. 点击「密码」";
 "AutofillTurnOn3" = "3. 点击「自动填充密码」";
-"AutofillTurnOn4" = "4. 启用自动填充";
+"AutofillTurnOn4" = "4. 开启自动填充";
 "AutofillTurnOn5" = "5. 选择「Bitwarden」";
 "PasswordAutofill" = "密码自动填充";
 "BitwardenAutofillAlert2" = "向您的密码库中添加新登录的最简单方法，就是使用 Bitwarden 密码自动填充扩展。转到「设置」界面进一步了解 Bitwarden 密码自动填充扩展的使用。";
@@ -610,7 +610,7 @@
 "RequestAdminApproval" = "请求管理员批准";
 "ApproveWithMasterPassword" = "使用主密码批准";
 "TurnOffUsingPublicDevice" = "不允许使用公共设备";
-"TurnOnFillAssist" = "启用填充辅助";
+"TurnOnFillAssist" = "开启填充辅助";
 "TurnOnFillAssistDescriptionLong" = "填充辅助通过使用站点特定的规则，提高在受支持站点上的自动填充的准确性。";
 "RememberThisDevice" = "记住此设备";
 "Passkey" = "通行密钥";
@@ -742,11 +742,11 @@
 "FromYourDeviceSettingsToggleOnAutoFillPasswordsAndPasskeys" = "在您的设备设置中，**打开自动填充密码和通行密钥**。";
 "ToggleOffICloudToMakeBitwardenYourDefaultAutoFillSource" = "**关闭 iCloud 钥匙串**使 Bitwarden 成为默认的自动填充源。";
 "ToggleOnBitwardenToUseYourSavedPasswordsToLogIntoYourAccounts" = "**打开 Bitwarden** 使用已保存的密码登录您的账户。";
-"TurnOnAutoFill" = "启用自动填充";
+"TurnOnAutoFill" = "开启自动填充";
 "UseAutoFillToLogIntoYourAccountsWithASingleTap" = "使用自动填充，只需点击一下即可登录您的账户。";
 "NeedHelpCheckOutAutofillHelp" = "需要帮助吗？查看 **[自动填充帮助](%1$@)**";
-"TurnOnLater" = "稍后启用";
-"TurnOnAutoFillLaterQuestion" = "稍后启用自动填充吗？";
+"TurnOnLater" = "稍后开启";
+"TurnOnAutoFillLaterQuestion" = "稍后开启自动填充吗？";
 "YouCanReturnToCompleteThisStepAnytimeInSettings" = "您可以随时回到「设置」中完成此步骤。";
 "ContinueToBitwarden" = "前往 Bitwarden";
 "BackToSettings" = "返回设置";
@@ -901,7 +901,7 @@
 "EnableFlightRecorder" = "启用 Flight Recorder";
 "ExperiencingAnIssue" = "遇到问题了吗？";
 "EnableTemporaryLoggingDescriptionLong" = "启用临时日志记录，以在本地收集和检查日志。启用后，可能会记录应用程序状态和网络调用，但绝不会记录敏感的密码库信息。";
-"ToGetStartedSetALoggingDurationDescriptionLong" = "要开始使用，请设置日志记录持续时间，以便您在复现问题时捕获相关活动。日志记录将在该时间段后自动停用。";
+"ToGetStartedSetALoggingDurationDescriptionLong" = "要开始使用，请设置日志记录持续时间，以便您在复现问题时捕获相关活动。日志记录将在该时间段后自动关闭。";
 "LoggingDuration" = "日志记录持续时间";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "日志将在 30 天后自动删除。只有当您分享它时，Bitwarden 才能访问您的日志数据。";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "要了解哪些内容会被记录、哪些不会被记录，请访问 **[Bitwarden 帮助中心](%1$@)**。";
@@ -1123,7 +1123,7 @@
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "由于 App 需要重新验证身份，您的请求被中断。请重试。";
 "AutofillWithBitwardenDescriptionLong" = "当您登录到 App 和网站时，Bitwarden 可以建议要使用的密码和其他凭据。";
 "LearnMoreAboutAutofill" = "进一步了解自动填充";
-"TurnOnNow" = "立即启用";
+"TurnOnNow" = "立即开启";
 "AcceptTransfer" = "接受转移";
 "YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "您的密码和密码提示不能一样。请选择一个不同的提示。";
 "Plan" = "方案";
@@ -1306,3 +1306,5 @@
 "OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "仅会导出此设备上本地存储的代码。不包括已同步的代码。";
 "ConfirmExport" = "确认导出";
 "ForYourSecurityDontShareOrSendDescriptionLong" = "为了您的安全，请不要通过不安全的渠道（例如电子邮件）分享或发送此文件，并在使用完后将其删除。";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "创建登录";

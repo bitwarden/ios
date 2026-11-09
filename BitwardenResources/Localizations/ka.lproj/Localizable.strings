@@ -1306,3 +1306,5 @@
 "OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
 "ConfirmExport" = "ექსპორტის დადასტურება";
 "ForYourSecurityDontShareOrSendDescriptionLong" = "თქვენი უსაფრთხოებისთვის, არ გააზიაროთ ან გაგზავნოთ ეს ფაილი არაუსაფრთხო არხებით (მაგ. ელ. ფოსტა) და წაშალეთ იგი გამოყენების შემდეგ.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Create login";

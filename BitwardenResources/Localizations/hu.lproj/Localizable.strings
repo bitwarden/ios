@@ -1306,3 +1306,5 @@
 "OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Csak az ezen az eszközön helyileg tárolt kódok kerülnek exportálásra. A szinkronizált kódok nem szerepelnek benne.";
 "ConfirmExport" = "Exportálás megerősítése";
 "ForYourSecurityDontShareOrSendDescriptionLong" = "Az exportált széfadatok titkosítatlan formátumban kerülnek elmentésre. Ne tároljuk sehol, illetve ne küldjük el senkinek a fájlt nem biztonságos felületeken (például email). Használat után azonnal töröljük.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Bejelentkezés létrehozása";

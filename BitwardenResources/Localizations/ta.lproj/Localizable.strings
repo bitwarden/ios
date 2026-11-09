@@ -1307,3 +1307,5 @@
 "OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
 "ConfirmExport" = "ஏற்றுமதியை உறுதிப்படுத்து";
 "ForYourSecurityDontShareOrSendDescriptionLong" = "இவ்வேற்றுமதி உம் பெட்டக தரவை மறையாக்கப்படா வடிவில் கொண்டுள்ளது. சேமிக்கவோ பாதுகாப்பற்ற தடங்களில் (மின்னஞ்சல் போன்றவை) அனுப்பவோ கூடாது. பயன்படுத்தியவுடன் அழித்துவிடவும்.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Create login";

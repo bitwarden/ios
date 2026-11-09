@@ -1307,3 +1307,5 @@
 "OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
 "ConfirmExport" = "تأیید برون ریزی";
 "ForYourSecurityDontShareOrSendDescriptionLong" = "برای امنیت خود، این پرونده را از طریق کانال‌های ناامن (مانند ایمیل) به اشتراک نگذارید یا ارسال نکنید و پس از اتمام کار، آن را حذف کنید.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Create login";

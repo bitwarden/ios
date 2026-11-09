@@ -758,10 +758,10 @@
 "TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "El cofre protegeix més que només les teves contrasenyes. Emmagatzema inicis de sessió segurs, identificacions, targetes i notes de manera segura aquí.";
 "SendSensitiveInformationSafely" = "Envieu informació confidencial, de manera segura";
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "Comparteix fitxers i dades de manera segura amb qualsevol persona, en qualsevol plataforma. La teua informació romandrà xifrada de principi a fi i alhora limitarà l'exposició.";
-"AddLogin" = "Afig inici de sessió";
+"AddLogin" = "Afegeix inici de sessió";
 "AddCard" = "Afig una targeta";
 "AddIdentity" = "Afig identitat";
-"AddNote" = "Afig nota";
+"AddNote" = "Afegeix nota";
 "AddSSHKey" = "Afig clau SSH";
 "AddBankAccount" = "Afig compte bancari";
 "AddLicense" = "Afig llicència";
@@ -1306,3 +1306,5 @@
 "OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
 "ConfirmExport" = "Confirma l'exportació";
 "ForYourSecurityDontShareOrSendDescriptionLong" = "Aquesta exportació conté les dades de la vostra caixa forta en un format no xifrat. No hauríeu d'emmagatzemar o enviar el fitxer exportat a través de canals no segurs (com ara el correu electrònic). Elimineu-lo immediatament després d'haver acabat d'usar-lo.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Create login";

@@ -1306,3 +1306,5 @@
 "OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Будут экспортированы только коды, сохраненные локально на этом устройстве. Синхронизированные коды не включены.";
 "ConfirmExport" = "Подтвердить экспорт";
 "ForYourSecurityDontShareOrSendDescriptionLong" = "В целях безопасности не передавайте и не отправляйте этот файл по незащищенным каналам (например, по электронной почте) и удалите его после использования.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Создать логин";
