@@ -564,6 +564,27 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         waitFor(vaultRepository.fetchSyncCalled)
     }
 
+    /// `perform(_:)` with `.streamSyncComplete` lets a tap on an empty Archive group navigate to it
+    /// once a sync reveals that the user has Premium.
+    @MainActor
+    func test_perform_streamSyncComplete_archiveGroupNavigatesAfterPremiumGranted() async throws {
+        stateService.doesActiveAccountHavePremiumResult = true
+        let archiveItem = VaultListItem(id: "Archive", hasPremium: true, itemType: .group(.archive, 0))
+        let processor = try XCTUnwrap(subject)
+
+        let task = Task {
+            await processor.perform(.streamSyncComplete)
+        }
+        defer { task.cancel() }
+        syncService.syncCompleteSubject.send(())
+        try await waitForAsync { processor.state.hasPremium }
+
+        await subject.perform(.itemPressed(archiveItem))
+
+        XCTAssertEqual(coordinator.routes.last, .group(.archive, filter: .allVaults))
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
     /// `perform(_:)` with `.streamSyncComplete` reloads the item types the user can create
     /// whenever a sync completes, so feature-flag or policy changes picked up by the sync are
     /// reflected without needing the screen to reappear.
@@ -603,6 +624,24 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         waitFor(subject.state.shouldShowPremiumUpgradeActionCard == true)
         XCTAssertTrue(subject.state.shouldShowPremiumUpgradeActionCard)
+    }
+
+    /// `perform(_:)` with `.streamSyncComplete` updates whether the user has Premium whenever a
+    /// sync completes.
+    @MainActor
+    func test_perform_streamSyncComplete_updatesHasPremium() throws {
+        subject.state.hasPremium = false
+        stateService.doesActiveAccountHavePremiumResult = true
+        let processor = try XCTUnwrap(subject)
+
+        let task = Task {
+            await processor.perform(.streamSyncComplete)
+        }
+        defer { task.cancel() }
+        syncService.syncCompleteSubject.send(())
+
+        waitFor(subject.state.hasPremium)
+        XCTAssertTrue(subject.state.hasPremium)
     }
 
     /// Loading the item types the user can create discards a stale result from an older,

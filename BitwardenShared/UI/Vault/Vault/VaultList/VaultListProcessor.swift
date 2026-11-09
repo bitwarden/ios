@@ -859,6 +859,7 @@ extension VaultListProcessor {
         for await _ in services.syncService.syncCompletePublisher() {
             await loadItemTypesUserCanCreate()
             await refreshPremiumActionCards()
+            state.hasPremium = await services.stateService.doesActiveAccountHavePremium()
         }
     }
 
