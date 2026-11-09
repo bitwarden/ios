@@ -18,9 +18,7 @@ struct MoveToOrganizationView: View {
     var body: some View {
         content
             .navigationBar(
-                title: store.state.isVfo1FoundationFeatureFlagEnabled
-                    ? Localizations.move
-                    : Localizations.moveToOrganization,
+                title: Localizations.move,
                 titleDisplayMode: .inline,
             )
             .scrollView()
@@ -31,15 +29,8 @@ struct MoveToOrganizationView: View {
                 }
 
                 ToolbarItem(placement: .topBarTrailing) {
-                    if store.state.isVfo1FoundationFeatureFlagEnabled {
-                        confirmToolbarButton(accessibilityIdentifier: "MoveButton", label: Localizations.move) {
-                            await store.perform(.moveCipher)
-                        }
-                    } else {
-                        primaryActionToolbarButton(Localizations.move) {
-                            await store.perform(.moveCipher)
-                        }
-                        .accessibilityIdentifier("MoveButton")
+                    confirmToolbarButton(accessibilityIdentifier: "MoveButton", label: Localizations.move) {
+                        await store.perform(.moveCipher)
                     }
                 }
             }
@@ -50,7 +41,7 @@ struct MoveToOrganizationView: View {
     /// The section containing the collections for the organizations.
     private var collectionsSections: some View {
         SectionView(
-            store.state.isVfo1FoundationFeatureFlagEnabled ? Localizations.sharedFolders : Localizations.collections,
+            Localizations.sharedFolders,
             contentSpacing: 8,
         ) {
             ContentBlock {
@@ -73,16 +64,12 @@ struct MoveToOrganizationView: View {
     /// The content displayed in the view.
     @ViewBuilder private var content: some View {
         if store.state.ownershipOptions.isEmpty {
-            Text(
-                store.state.isVfo1FoundationFeatureFlagEnabled
-                    ? Localizations.noVaultsToList
-                    : Localizations.noOrgsToList,
-            )
-            .styleGuide(.body)
-            .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
-            .multilineTextAlignment(.center)
-            .padding(16)
-            .frame(maxWidth: .infinity)
+            Text(Localizations.noVaultsToList)
+                .styleGuide(.body)
+                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
+                .multilineTextAlignment(.center)
+                .padding(16)
+                .frame(maxWidth: .infinity)
         } else {
             VStack(spacing: 16) {
                 organizationSection
@@ -96,12 +83,8 @@ struct MoveToOrganizationView: View {
     @ViewBuilder private var organizationSection: some View {
         if let owner = store.state.owner {
             BitwardenMenuField(
-                title: store.state.isVfo1FoundationFeatureFlagEnabled
-                    ? Localizations.vault
-                    : Localizations.organization,
-                footer: store.state.isVfo1FoundationFeatureFlagEnabled
-                    ? Localizations.chooseAVaultThatYouWishToMoveThisItemToDescriptionLong
-                    : Localizations.moveToOrgDesc,
+                title: Localizations.vault,
+                footer: Localizations.chooseAVaultThatYouWishToMoveThisItemToDescriptionLong,
                 accessibilityIdentifier: "OrganizationListDropdown",
                 options: store.state.ownershipOptions,
                 selection: store.binding(
@@ -149,35 +132,6 @@ struct MoveToOrganizationView: View {
                                 organizationId: "1",
                             ),
                         ],
-                        organizationId: "1",
-                        ownershipOptions: [.organization(id: "1", name: "Organization")],
-                    ),
-                ),
-            ),
-        )
-    }
-}
-
-#Preview("Organizations - VFO1") {
-    NavigationView {
-        MoveToOrganizationView(
-            store: Store(
-                processor: StateProcessor(
-                    state: MoveToOrganizationState(
-                        cipher: .fixture(),
-                        collections: [
-                            .fixture(
-                                id: "1",
-                                name: "Design",
-                                organizationId: "1",
-                            ),
-                            .fixture(
-                                id: "2",
-                                name: "Engineering",
-                                organizationId: "1",
-                            ),
-                        ],
-                        isVfo1FoundationFeatureFlagEnabled: true,
                         organizationId: "1",
                         ownershipOptions: [.organization(id: "1", name: "Organization")],
                     ),

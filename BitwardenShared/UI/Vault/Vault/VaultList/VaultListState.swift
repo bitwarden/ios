@@ -34,9 +34,6 @@ struct VaultListState: Equatable {
     /// Whether the policy is enforced to disable personal vault ownership.
     var isPersonalOwnershipDisabled: Bool = false
 
-    /// Whether the `vfo1-foundation` feature flag is enabled.
-    var isVfo1FoundationFeatureFlagEnabled = false
-
     /// List of available item type for creation.
     var itemTypesUserCanCreate: [CipherType] = []
 

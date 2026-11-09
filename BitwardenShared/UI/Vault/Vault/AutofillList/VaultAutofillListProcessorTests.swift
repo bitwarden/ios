@@ -170,14 +170,6 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.password)))
     }
 
-    /// `perform(_:)` with `.loadData` loads the vfo1-foundation feature flag.
-    @MainActor
-    func test_perform_loadData_featureFlags_vfo1Foundation() async {
-        configService.featureFlagsBool[.vfo1Foundation] = true
-        await subject.perform(.loadData)
-        XCTAssertTrue(subject.state.isVfo1FoundationFeatureFlagEnabled)
-    }
-
     /// `perform(_:)` with `.loadData` loads the profile switcher state.
     @MainActor
     func test_perform_loadData_profileSwitcher() async {

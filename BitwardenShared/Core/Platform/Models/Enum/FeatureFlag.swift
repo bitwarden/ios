@@ -76,9 +76,6 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// `sendOptions` policies when active.
     static let sendControls = FeatureFlag(rawValue: "pm-31885-send-controls")
 
-    /// Flag for the VFO1 terminology-alignment foundation work (vault/organization renames).
-    static let vfo1Foundation = FeatureFlag(rawValue: "vfo1-foundation")
-
     public static var allCases: [FeatureFlag] {
         [
             .accountEncryptionV2JITPassword,
@@ -100,7 +97,6 @@ extension FeatureFlag: @retroactive CaseIterable {
             .premiumUpgradePath,
             .sdkManagedPinUnlock,
             .sendControls,
-            .vfo1Foundation,
         ]
     }
 }

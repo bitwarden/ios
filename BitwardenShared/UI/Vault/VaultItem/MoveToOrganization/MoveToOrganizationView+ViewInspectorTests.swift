@@ -40,44 +40,17 @@ class MoveToOrganizationViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
     }
 
-    /// Tapping the move button dispatches the `.moveCipher` action when the `vfo1-foundation`
-    /// feature flag is disabled.
+    /// Tapping the move button dispatches the `.moveCipher` action.
     @MainActor
-    func test_moveButton_tap_vfo1FoundationDisabled() async throws {
-        let button = try subject.inspect().find(asyncButton: Localizations.move)
-        try await button.tap()
-        XCTAssertEqual(processor.effects.last, .moveCipher)
-    }
-
-    /// Tapping the move button dispatches the `.moveCipher` action when the `vfo1-foundation`
-    /// feature flag is enabled.
-    @MainActor
-    func test_moveButton_tap_vfo1FoundationEnabled() async throws {
-        processor.state.isVfo1FoundationFeatureFlagEnabled = true
-
+    func test_moveButton_tap() async throws {
         let button = try subject.inspect().find(asyncButtonWithAccessibilityIdentifier: "MoveButton")
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .moveCipher)
     }
 
-    /// Updating the organization menu owner dispatches the `.ownerChanged()` action when the
-    /// `vfo1-foundation` feature flag is disabled.
+    /// Updating the organization menu owner dispatches the `.ownerChanged()` action.
     @MainActor
-    func test_organizationMenu_ownerChanged_vfo1FoundationDisabled() throws {
-        processor.state.ownershipOptions = [.organization(id: "1", name: "Organization")]
-        processor.state.owner = CipherOwner.organization(id: "1", name: "Organization")
-
-        let owner = CipherOwner.organization(id: "2", name: "Bitwarden")
-        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.organization)
-        try menuField.select(newValue: owner)
-        XCTAssertEqual(processor.dispatchedActions.last, .ownerChanged(owner))
-    }
-
-    /// Updating the organization menu owner dispatches the `.ownerChanged()` action when the
-    /// `vfo1-foundation` feature flag is enabled.
-    @MainActor
-    func test_organizationMenu_ownerChanged_vfo1FoundationEnabled() throws {
-        processor.state.isVfo1FoundationFeatureFlagEnabled = true
+    func test_organizationMenu_ownerChanged() throws {
         processor.state.ownershipOptions = [.organization(id: "1", name: "Organization")]
         processor.state.owner = CipherOwner.organization(id: "1", name: "Organization")
 

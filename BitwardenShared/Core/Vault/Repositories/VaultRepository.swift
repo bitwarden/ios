@@ -610,10 +610,7 @@ extension DefaultVaultRepository: VaultRepository {
             }
 
         if includePersonal {
-            let email = try await stateService.getActiveAccount().profile.email
-            let isVfo1FoundationEnabled: Bool = await configService.getFeatureFlag(.vfo1Foundation)
-            let personalDisplayName = isVfo1FoundationEnabled ? Localizations.myVault : email
-            let personalOwner = CipherOwner.personal(displayName: personalDisplayName)
+            let personalOwner = CipherOwner.personal(displayName: Localizations.myVault)
             return [personalOwner] + organizationOwners
         } else {
             return organizationOwners
