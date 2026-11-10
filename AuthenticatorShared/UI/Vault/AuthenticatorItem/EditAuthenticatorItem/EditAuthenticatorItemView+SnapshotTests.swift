@@ -45,11 +45,11 @@ class EditAuthenticatorItemViewTests: BitwardenTestCase {
 
     /// Test a snapshot of the ItemListView previews.
     func disabletest_snapshot_EditAuthenticatorItemView_previews() {
-        for preview in EditAuthenticatorItemView_Previews._allPreviews {
-            assertSnapshots(
-                of: preview.content,
-                as: ["\(preview.displayName ?? "")": .portrait(heightMultiple: 1.25)],
-            )
-        }
+//        for preview in EditAuthenticatorItemView_Previews._allPreviews {
+//            assertSnapshots(
+//                of: preview.content,
+//                as: ["\(preview.displayName ?? "")": .portrait(heightMultiple: 1.25)],
+//            )
+//        }
     }
 }

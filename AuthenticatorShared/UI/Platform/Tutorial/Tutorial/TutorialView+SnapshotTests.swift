@@ -38,17 +38,17 @@ class TutorialViewTests: BitwardenTestCase {
 
     /// Test a snapshot of the ItemListView previews.
     func disabletest_snapshot_TutorialView_previews() {
-        for preview in TutorialView_Previews._allPreviews {
-            assertSnapshots(
-                of: preview.content,
-                as: [
-                    .defaultPortrait,
-                    .defaultPortraitDark,
-                    .defaultLandscape,
-                    .defaultPortraitAX5,
-                    .defaultLandscapeAX5,
-                ],
-            )
-        }
+//        for preview in TutorialView_Previews._allPreviews {
+//            assertSnapshots(
+//                of: preview.content,
+//                as: [
+//                    .defaultPortrait,
+//                    .defaultPortraitDark,
+//                    .defaultLandscape,
+//                    .defaultPortraitAX5,
+//                    .defaultLandscapeAX5,
+//                ],
+//            )
+//        }
     }
 }

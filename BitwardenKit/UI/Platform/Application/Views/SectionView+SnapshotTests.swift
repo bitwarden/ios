@@ -9,11 +9,11 @@ class SectionViewTests: BitwardenTestCase {
 
     /// Test a snapshot of the sectionView.
     func disabletest_snapshot_sectionView() {
-        for preview in SectionView_Previews._allPreviews {
-            assertSnapshots(
-                of: preview.content,
-                as: [.defaultPortrait],
-            )
-        }
+//        for preview in SectionView_Previews._allPreviews {
+//            assertSnapshots(
+//                of: preview.content,
+//                as: [.defaultPortrait],
+//            )
+//        }
     }
 }

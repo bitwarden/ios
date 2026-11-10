@@ -38,15 +38,15 @@ class ScanCodeViewTests: BitwardenTestCase {
 
     /// Test a snapshot of the ProfileSwitcherView previews.
     func disabletest_snapshot_scanCodeView_previews() {
-        for preview in ScanCodeView_Previews._allPreviews {
-            assertSnapshots(
-                of: preview.content,
-                as: [
-                    .defaultPortrait,
-                    .defaultLandscape,
-                    .defaultPortraitAX5,
-                ],
-            )
-        }
+//        for preview in ScanCodeView_Previews._allPreviews {
+//            assertSnapshots(
+//                of: preview.content,
+//                as: [
+//                    .defaultPortrait,
+//                    .defaultLandscape,
+//                    .defaultPortraitAX5,
+//                ],
+//            )
+//        }
     }
 }

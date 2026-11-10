@@ -38,17 +38,17 @@ class VaultUnlockViewTests: BitwardenTestCase {
 
     /// Test a snapshot of the ItemListView previews.
     func disabletest_snapshot_VaultUnlockView_previews() {
-        for preview in VaultUnlockView_Previews._allPreviews {
-            assertSnapshots(
-                of: preview.content,
-                as: [
-                    .defaultPortrait,
-                    .defaultPortraitDark,
-                    .defaultPortraitAX5,
-                    .defaultLandscape,
-                    .defaultLandscapeAX5,
-                ],
-            )
-        }
+//        for preview in VaultUnlockView_Previews._allPreviews {
+//            assertSnapshots(
+//                of: preview.content,
+//                as: [
+//                    .defaultPortrait,
+//                    .defaultPortraitDark,
+//                    .defaultPortraitAX5,
+//                    .defaultLandscape,
+//                    .defaultLandscapeAX5,
+//                ],
+//            )
+//        }
     }
 }

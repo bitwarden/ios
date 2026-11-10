@@ -413,16 +413,16 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// Test a snapshot of the AddEditView previews.
     func disabletest_snapshot_previews_addEditItemView() {
-        for preview in AddEditItemView_Previews._allPreviews {
-            assertSnapshots(
-                of: preview.content,
-                as: [
-                    .tallPortrait,
-                    .tallPortraitAX5(heightMultiple: 5),
-                    .defaultPortraitDark,
-                ],
-            )
-        }
+//        for preview in AddEditItemView_Previews._allPreviews {
+//            assertSnapshots(
+//                of: preview.content,
+//                as: [
+//                    .tallPortrait,
+//                    .tallPortraitAX5(heightMultiple: 5),
+//                    .defaultPortraitDark,
+//                ],
+//            )
+//        }
     }
 
     /// Snapshots the previews for SSH key type.

@@ -36,83 +36,83 @@ class ManualEntryViewTests: BitwardenTestCase {
 
     /// Test a snapshot of the `ManualEntryView` empty state.
     func disabletest_snapshot_manualEntryView_empty() {
-        assertSnapshot(
-            of: ManualEntryView_Previews.empty,
-            as: .defaultPortrait,
-        )
+//        assertSnapshot(
+//            of: ManualEntryView_Previews.empty,
+//            as: .defaultPortrait,
+//        )
     }
 
     /// Test a snapshot of the `ManualEntryView` empty state.
     func disabletest_snapshot_manualEntryView_empty_landscape() {
-        assertSnapshot(
-            of: ManualEntryView_Previews.empty,
-            as: .defaultLandscape,
-        )
+//        assertSnapshot(
+//            of: ManualEntryView_Previews.empty,
+//            as: .defaultLandscape,
+//        )
     }
 
     /// Test a snapshot of the `ManualEntryView` in dark mode.
     func disabletest_snapshot_manualEntryView_text_dark() {
-        assertSnapshot(
-            of: ManualEntryView_Previews.textAdded,
-            as: .defaultPortraitDark,
-        )
+//        assertSnapshot(
+//            of: ManualEntryView_Previews.textAdded,
+//            as: .defaultPortraitDark,
+//        )
     }
 
     /// Test a snapshot of the `ManualEntryView` with large text.
     func disabletest_snapshot_manualEntryView_text_largeText() {
-        assertSnapshot(
-            of: ManualEntryView_Previews.textAdded,
-            as: .tallPortraitAX5(heightMultiple: 1.75),
-        )
+//        assertSnapshot(
+//            of: ManualEntryView_Previews.textAdded,
+//            as: .tallPortraitAX5(heightMultiple: 1.75),
+//        )
     }
 
     /// Test a snapshot of the `ManualEntryView` in light mode.
     func disabletest_snapshot_manualEntryView_text_light() {
-        assertSnapshot(
-            of: ManualEntryView_Previews.textAdded,
-            as: .defaultPortrait,
-        )
+//        assertSnapshot(
+//            of: ManualEntryView_Previews.textAdded,
+//            as: .defaultPortrait,
+//        )
     }
 
     /// Test a snapshot of the `ManualEntryView` in dark mode with the
     /// password manager sync flag active.
     func disabletest_snapshot_manualEntryView_text_dark_syncActive() {
-        assertSnapshot(
-            of: ManualEntryView_Previews.syncActiveNoDefault,
-            as: .defaultPortraitDark,
-        )
+//        assertSnapshot(
+//            of: ManualEntryView_Previews.syncActiveNoDefault,
+//            as: .defaultPortraitDark,
+//        )
     }
 
     /// Test a snapshot of the `ManualEntryView` with large text with the
     /// password manager sync flag active.
     func disabletest_snapshot_manualEntryView_text_largeText_syncActive() {
-        assertSnapshot(
-            of: ManualEntryView_Previews.syncActiveNoDefault,
-            as: .tallPortraitAX5(heightMultiple: 1.75),
-        )
+//        assertSnapshot(
+//            of: ManualEntryView_Previews.syncActiveNoDefault,
+//            as: .tallPortraitAX5(heightMultiple: 1.75),
+//        )
     }
 
     /// Test a snapshot of the `ManualEntryView` in light mode with the
     /// password manager sync flag active.
     func disabletest_snapshot_manualEntryView_text_light_syncActive() {
-        assertSnapshot(
-            of: ManualEntryView_Previews.syncActiveNoDefault,
-            as: .defaultPortrait,
-        )
+//        assertSnapshot(
+//            of: ManualEntryView_Previews.syncActiveNoDefault,
+//            as: .defaultPortrait,
+//        )
     }
 
     /// Test a snapshot of the `ManualEntryView` previews.
     func disabletest_snapshot_manualEntryView_previews() {
-        for preview in ManualEntryView_Previews._allPreviews {
-            let name = preview.displayName ?? "Unknown"
-            assertSnapshots(
-                of: preview.content,
-                as: [
-                    "\(name)-portrait": .defaultPortrait,
-                    "\(name)-portraitDark": .defaultPortraitDark,
-                    "\(name)-portraitAX5": .defaultPortraitAX5,
-                ],
-            )
-        }
+//        for preview in ManualEntryView_Previews._allPreviews {
+//            let name = preview.displayName ?? "Unknown"
+//            assertSnapshots(
+//                of: preview.content,
+//                as: [
+//                    "\(name)-portrait": .defaultPortrait,
+//                    "\(name)-portraitDark": .defaultPortraitDark,
+//                    "\(name)-portraitAX5": .defaultPortraitAX5,
+//                ],
+//            )
+//        }
     }
 }
