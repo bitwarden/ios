@@ -41,13 +41,15 @@ fi
 #   - Files under BitwardenResources/Fonts/
 #   - Files under *.lproj/ folders except */en.lproj/
 #   - File */public_suffix_list.dat
+#   - Snapshot test reference images (*/__Snapshots__/*.png)
 FILTERED_FILES=()
 for file in "${FILE_ARRAY[@]}"; do
     if [[ "$file" == *.xcassets/* ]] || \
        [[ "$file" =~ AppIcon-[^/]*\.icon/ ]] || \
        [[ "$file" == BitwardenResources/Fonts/* ]] || \
        [[ "$file" == *.lproj/* && "$file" != */en.lproj/* ]] || \
-       [[ "$file" == */public_suffix_list.dat ]]; then
+       [[ "$file" == */public_suffix_list.dat ]] || \
+       [[ "$file" == */__Snapshots__/*.png ]]; then
         continue
     fi
     FILTERED_FILES+=("$file")
