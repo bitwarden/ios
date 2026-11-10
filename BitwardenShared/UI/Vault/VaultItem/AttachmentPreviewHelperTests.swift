@@ -45,7 +45,7 @@ struct AttachmentPreviewHelperTests {
         let attachment = AttachmentView.fixture(fileName: "photo.png", size: "11000000", sizeName: "big")
         let cipher = CipherView.loginFixture()
 
-        await subject.showPreview(for: attachment, cipher: cipher)
+        await subject.showPreview(for: attachment, cipher: cipher) {}
 
         #expect(coordinator.alertShown.isEmpty)
         #expect(vaultRepository.downloadAttachmentAttachment == nil)
@@ -53,6 +53,7 @@ struct AttachmentPreviewHelperTests {
             Issue.record("Expected a navigation to .attachmentPreview")
             return
         }
+
         #expect(state.attachment == attachment)
         #expect(state.cipher == cipher)
         #expect(state.content == .fileTooLarge)
@@ -66,7 +67,7 @@ struct AttachmentPreviewHelperTests {
         let attachment = AttachmentView.fixture(fileName: "photo.png", size: "11000000", sizeName: nil)
         let cipher = CipherView.loginFixture()
 
-        await subject.showPreview(for: attachment, cipher: cipher)
+        await subject.showPreview(for: attachment, cipher: cipher) {}
 
         #expect(vaultRepository.downloadAttachmentAttachment == nil)
         guard case let .attachmentPreview(state) = coordinator.routes.last else {
@@ -83,7 +84,7 @@ struct AttachmentPreviewHelperTests {
         let cipher = CipherView.loginFixture()
         vaultRepository.downloadAttachmentResult = try .success(writeTemporaryImage())
 
-        await subject.showPreview(for: attachment, cipher: cipher)
+        await subject.showPreview(for: attachment, cipher: cipher) {}
 
         #expect(coordinator.alertShown.isEmpty)
         #expect(vaultRepository.downloadAttachmentAttachment == attachment)
@@ -98,7 +99,7 @@ struct AttachmentPreviewHelperTests {
         let temporaryUrl = try writeTemporaryImage()
         vaultRepository.downloadAttachmentResult = .success(temporaryUrl)
 
-        await subject.showPreview(for: attachment, cipher: cipher)
+        await subject.showPreview(for: attachment, cipher: cipher) {}
 
         guard case let .attachmentPreview(state) = coordinator.routes.last else {
             Issue.record("Expected a navigation to .attachmentPreview")
@@ -125,7 +126,7 @@ struct AttachmentPreviewHelperTests {
         let temporaryUrl = try writeTemporaryFile(data: Data("not an image".utf8))
         vaultRepository.downloadAttachmentResult = .success(temporaryUrl)
 
-        await subject.showPreview(for: attachment, cipher: cipher)
+        await subject.showPreview(for: attachment, cipher: cipher) {}
 
         guard case let .attachmentPreview(state) = coordinator.routes.last else {
             Issue.record("Expected a navigation to .attachmentPreview")
@@ -144,7 +145,7 @@ struct AttachmentPreviewHelperTests {
         let temporaryUrl = try writeTemporaryGif(frameCount: 3)
         vaultRepository.downloadAttachmentResult = .success(temporaryUrl)
 
-        await subject.showPreview(for: attachment, cipher: cipher)
+        await subject.showPreview(for: attachment, cipher: cipher) {}
 
         guard case let .attachmentPreview(state) = coordinator.routes.last else {
             Issue.record("Expected a navigation to .attachmentPreview")
@@ -166,7 +167,7 @@ struct AttachmentPreviewHelperTests {
         let cipher = CipherView.loginFixture()
         vaultRepository.downloadAttachmentResult = try .success(writeTemporaryGif(frameCount: 1))
 
-        await subject.showPreview(for: attachment, cipher: cipher)
+        await subject.showPreview(for: attachment, cipher: cipher) {}
 
         guard case let .attachmentPreview(state) = coordinator.routes.last else {
             Issue.record("Expected a navigation to .attachmentPreview")
@@ -186,7 +187,7 @@ struct AttachmentPreviewHelperTests {
         let cipher = CipherView.loginFixture()
         vaultRepository.downloadAttachmentResult = try .success(writeTemporaryGif(frameCount: 3))
 
-        await subject.showPreview(for: attachment, cipher: cipher)
+        await subject.showPreview(for: attachment, cipher: cipher) {}
 
         guard case let .attachmentPreview(state) = coordinator.routes.last else {
             Issue.record("Expected a navigation to .attachmentPreview")
@@ -212,7 +213,7 @@ struct AttachmentPreviewHelperTests {
         let temporaryUrl = try writeTemporaryFile(data: data)
         vaultRepository.downloadAttachmentResult = .success(temporaryUrl)
 
-        await subject.showPreview(for: attachment, cipher: cipher)
+        await subject.showPreview(for: attachment, cipher: cipher) {}
 
         guard case let .attachmentPreview(state) = coordinator.routes.last else {
             Issue.record("Expected a navigation to .attachmentPreview")
@@ -230,7 +231,7 @@ struct AttachmentPreviewHelperTests {
         let attachment = AttachmentView.fixture(fileName: "statement.pdf", size: "10", sizeName: "small")
         let cipher = CipherView.loginFixture()
 
-        await subject.showPreview(for: attachment, cipher: cipher)
+        await subject.showPreview(for: attachment, cipher: cipher) {}
 
         guard case let .attachmentPreview(state) = coordinator.routes.last else {
             Issue.record("Expected a navigation to .attachmentPreview")
@@ -244,6 +245,21 @@ struct AttachmentPreviewHelperTests {
         #expect(coordinator.loadingOverlaysShown.isEmpty)
     }
 
+    /// `showPreview(for:cipher:handleNavigateToPremiumUpgrade:)` shows the Premium-required alert for a
+    /// non-image attachment when the active account lacks Premium, rather than the unsupported state.
+    @Test
+    func showPreview_nonImage_noPremium() async throws {
+        vaultRepository.doesActiveAccountHavePremiumResult = false
+        let attachment = AttachmentView.fixture(fileName: "statement.pdf", size: "10", sizeName: "small")
+        let cipher = CipherView.loginFixture()
+
+        await subject.showPreview(for: attachment, cipher: cipher) {}
+
+        #expect(coordinator.alertShown.last == .attachmentPreviewUnavailable(action: {}))
+        #expect(coordinator.routes.isEmpty)
+        #expect(vaultRepository.downloadAttachmentAttachment == nil)
+    }
+
     /// `showPreview(for:cipher:)` doesn't ask for confirmation before showing a large non-image
     /// attachment, since it isn't downloaded when it's previewed.
     @Test
@@ -251,7 +267,7 @@ struct AttachmentPreviewHelperTests {
         let attachment = AttachmentView.fixture(fileName: "archive.zip", size: "11000000", sizeName: "big")
         let cipher = CipherView.loginFixture()
 
-        await subject.showPreview(for: attachment, cipher: cipher)
+        await subject.showPreview(for: attachment, cipher: cipher) {}
 
         #expect(coordinator.alertShown.isEmpty)
         #expect(vaultRepository.downloadAttachmentAttachment == nil)
@@ -262,6 +278,34 @@ struct AttachmentPreviewHelperTests {
         #expect(state.content == .unsupportedFileType(fileExtension: "zip"))
     }
 
+    /// `showPreview(for:cipher:)` navigates to the preview screen with `.unsupportedFileType`
+    /// content, carrying the file's extension, for common non-image file types of any size
+    /// without downloading them. A file name without an extension has an empty file extension.
+    @Test(arguments: [
+        ("statement.pdf", "10", "pdf"),
+        ("clip.mp4", "10", "mp4"),
+        ("clip.mp4", "52428800", "mp4"),
+        ("clip.MP4", "10", "MP4"),
+        ("song.mp3", "10", "mp3"),
+        ("notes.txt", "10", "txt"),
+        ("README", "10", ""),
+    ])
+    func showPreview_nonImage_fileExtensions(fileName: String, size: String, fileExtension: String) async throws {
+        let attachment = AttachmentView.fixture(fileName: fileName, size: size, sizeName: "size")
+        let cipher = CipherView.loginFixture()
+
+        await subject.showPreview(for: attachment, cipher: cipher) {}
+
+        #expect(coordinator.alertShown.isEmpty)
+        #expect(vaultRepository.downloadAttachmentAttachment == nil)
+        guard case let .attachmentPreview(state) = coordinator.routes.last else {
+            Issue.record("Expected a navigation to .attachmentPreview")
+            return
+        }
+        #expect(state.content == .unsupportedFileType(fileExtension: fileExtension))
+        #expect(state.temporaryUrl == nil)
+    }
+
     /// `showPreview(for:cipher:)` shows the existing blocking alert and doesn't navigate when the
     /// download returns no url.
     @Test
@@ -270,7 +314,7 @@ struct AttachmentPreviewHelperTests {
         let cipher = CipherView.loginFixture()
         vaultRepository.downloadAttachmentResult = .success(nil)
 
-        await subject.showPreview(for: attachment, cipher: cipher)
+        await subject.showPreview(for: attachment, cipher: cipher) {}
 
         #expect(coordinator.alertShown.last == .defaultAlert(title: Localizations.unableToDownloadFile))
         #expect(coordinator.routes.isEmpty)
@@ -284,7 +328,7 @@ struct AttachmentPreviewHelperTests {
         let cipher = CipherView.loginFixture()
         vaultRepository.downloadAttachmentResult = .failure(BitwardenTestError.example)
 
-        await subject.showPreview(for: attachment, cipher: cipher)
+        await subject.showPreview(for: attachment, cipher: cipher) {}
 
         #expect(coordinator.alertShown.last == .defaultAlert(title: Localizations.unableToDownloadFile))
         #expect(coordinator.routes.isEmpty)

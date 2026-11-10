@@ -139,6 +139,48 @@ struct VaultItemActionHelperTests {
         #expect(!completionCalled)
     }
 
+    /// `showAttachments(cipher:handleNavigateToPremiumUpgrade:)` shows the attachments unavailable
+    /// alert and doesn't navigate when the user does not have Premium.
+    @Test
+    func showAttachments_noPremium() async throws {
+        var navigatedToPremiumUpgrade = false
+        let cipher = CipherView.loginFixture(id: "123")
+
+        vaultRepository.doesActiveAccountHavePremiumResult = false
+
+        await subject.showAttachments(
+            cipher: cipher,
+            handleNavigateToPremiumUpgrade: { navigatedToPremiumUpgrade = true },
+        )
+
+        let alert = try #require(coordinator.alertShown.last)
+        #expect(alert.title == Localizations.premiumSubscriptionRequired)
+        #expect(alert.message == Localizations.attachmentsAreAPremiumFeatureDescriptionLong)
+        #expect(coordinator.routes.isEmpty)
+
+        try await alert.tapAction(title: Localizations.upgradeToPremium)
+        #expect(navigatedToPremiumUpgrade)
+    }
+
+    /// `showAttachments(cipher:handleNavigateToPremiumUpgrade:)` navigates to the attachments view
+    /// when the user has Premium.
+    @Test
+    func showAttachments_premium() async {
+        var navigatedToPremiumUpgrade = false
+        let cipher = CipherView.loginFixture(id: "123")
+
+        vaultRepository.doesActiveAccountHavePremiumResult = true
+
+        await subject.showAttachments(
+            cipher: cipher,
+            handleNavigateToPremiumUpgrade: { navigatedToPremiumUpgrade = true },
+        )
+
+        #expect(coordinator.routes.last == .attachments(cipher))
+        #expect(coordinator.alertShown.isEmpty)
+        #expect(!navigatedToPremiumUpgrade)
+    }
+
     /// `unarchive(cipher:completionHandler:)` shows the confirmation alert and unarchives
     /// the cipher when the user confirms.
     @Test
