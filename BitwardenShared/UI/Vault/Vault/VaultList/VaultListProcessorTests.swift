@@ -570,14 +570,13 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     func test_perform_streamSyncComplete_archiveGroupNavigatesAfterPremiumGranted() async throws {
         stateService.doesActiveAccountHavePremiumResult = true
         let archiveItem = VaultListItem(id: "Archive", hasPremium: true, itemType: .group(.archive, 0))
-        let processor = try XCTUnwrap(subject)
 
-        let task = Task {
-            await processor.perform(.streamSyncComplete)
+        let task = Task { [subject = self.subject] in
+            await subject?.perform(.streamSyncComplete)
         }
         defer { task.cancel() }
         syncService.syncCompleteSubject.send(())
-        try await waitForAsync { processor.state.hasPremium }
+        try await waitForAsync { self.subject.state.hasPremium }
 
         await subject.perform(.itemPressed(archiveItem))
 
@@ -629,13 +628,12 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// `perform(_:)` with `.streamSyncComplete` updates whether the user has Premium whenever a
     /// sync completes.
     @MainActor
-    func test_perform_streamSyncComplete_updatesHasPremium() throws {
+    func test_perform_streamSyncComplete_updatesHasPremium() {
         subject.state.hasPremium = false
         stateService.doesActiveAccountHavePremiumResult = true
-        let processor = try XCTUnwrap(subject)
 
-        let task = Task {
-            await processor.perform(.streamSyncComplete)
+        let task = Task { [subject = self.subject] in
+            await subject?.perform(.streamSyncComplete)
         }
         defer { task.cancel() }
         syncService.syncCompleteSubject.send(())
