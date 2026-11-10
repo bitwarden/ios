@@ -9,7 +9,7 @@ class AddEditCardItemViewTests: BitwardenTestCase {
 
     /// Test preview snapshots of the `AddEditCardItemView`.
     ///
-    func test_snapshot_addEditCardItemView() {
+    func disabletest_snapshot_addEditCardItemView() {
 //        for preview in AddEditCardItemView_Previews._allPreviews {
 //            assertSnapshots(
 //                of: preview.content,

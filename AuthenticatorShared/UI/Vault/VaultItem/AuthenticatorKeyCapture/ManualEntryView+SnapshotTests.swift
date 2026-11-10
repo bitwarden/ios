@@ -35,7 +35,7 @@ class ManualEntryViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// Test a snapshot of the `ManualEntryView` empty state.
-    func test_snapshot_manualEntryView_empty() {
+    func disabletest_snapshot_manualEntryView_empty() {
 //        assertSnapshot(
 //            of: ManualEntryView_Previews.empty,
 //            as: .defaultPortrait,
@@ -43,7 +43,7 @@ class ManualEntryViewTests: BitwardenTestCase {
     }
 
     /// Test a snapshot of the `ManualEntryView` empty state.
-    func test_snapshot_manualEntryView_empty_landscape() {
+    func disabletest_snapshot_manualEntryView_empty_landscape() {
 //        assertSnapshot(
 //            of: ManualEntryView_Previews.empty,
 //            as: .defaultLandscape,
@@ -51,7 +51,7 @@ class ManualEntryViewTests: BitwardenTestCase {
     }
 
     /// Test a snapshot of the `ManualEntryView` in dark mode.
-    func test_snapshot_manualEntryView_text_dark() {
+    func disabletest_snapshot_manualEntryView_text_dark() {
 //        assertSnapshot(
 //            of: ManualEntryView_Previews.textAdded,
 //            as: .defaultPortraitDark,
@@ -59,7 +59,7 @@ class ManualEntryViewTests: BitwardenTestCase {
     }
 
     /// Test a snapshot of the `ManualEntryView` with large text.
-    func test_snapshot_manualEntryView_text_largeText() {
+    func disabletest_snapshot_manualEntryView_text_largeText() {
 //        assertSnapshot(
 //            of: ManualEntryView_Previews.textAdded,
 //            as: .tallPortraitAX5(heightMultiple: 1.75),
@@ -67,7 +67,7 @@ class ManualEntryViewTests: BitwardenTestCase {
     }
 
     /// Test a snapshot of the `ManualEntryView` in light mode.
-    func test_snapshot_manualEntryView_text_light() {
+    func disabletest_snapshot_manualEntryView_text_light() {
 //        assertSnapshot(
 //            of: ManualEntryView_Previews.textAdded,
 //            as: .defaultPortrait,
@@ -76,7 +76,7 @@ class ManualEntryViewTests: BitwardenTestCase {
 
     /// Test a snapshot of the `ManualEntryView` in dark mode with the
     /// password manager sync flag active.
-    func test_snapshot_manualEntryView_text_dark_syncActive() {
+    func disabletest_snapshot_manualEntryView_text_dark_syncActive() {
 //        assertSnapshot(
 //            of: ManualEntryView_Previews.syncActiveNoDefault,
 //            as: .defaultPortraitDark,
@@ -85,7 +85,7 @@ class ManualEntryViewTests: BitwardenTestCase {
 
     /// Test a snapshot of the `ManualEntryView` with large text with the
     /// password manager sync flag active.
-    func test_snapshot_manualEntryView_text_largeText_syncActive() {
+    func disabletest_snapshot_manualEntryView_text_largeText_syncActive() {
 //        assertSnapshot(
 //            of: ManualEntryView_Previews.syncActiveNoDefault,
 //            as: .tallPortraitAX5(heightMultiple: 1.75),
@@ -94,7 +94,7 @@ class ManualEntryViewTests: BitwardenTestCase {
 
     /// Test a snapshot of the `ManualEntryView` in light mode with the
     /// password manager sync flag active.
-    func test_snapshot_manualEntryView_text_light_syncActive() {
+    func disabletest_snapshot_manualEntryView_text_light_syncActive() {
 //        assertSnapshot(
 //            of: ManualEntryView_Previews.syncActiveNoDefault,
 //            as: .defaultPortrait,
@@ -102,7 +102,7 @@ class ManualEntryViewTests: BitwardenTestCase {
     }
 
     /// Test a snapshot of the `ManualEntryView` previews.
-    func test_snapshot_manualEntryView_previews() {
+    func disabletest_snapshot_manualEntryView_previews() {
 //        for preview in ManualEntryView_Previews._allPreviews {
 //            let name = preview.displayName ?? "Unknown"
 //            assertSnapshots(

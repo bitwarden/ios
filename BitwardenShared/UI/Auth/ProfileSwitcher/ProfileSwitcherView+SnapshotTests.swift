@@ -156,7 +156,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
     }
 
     /// Test a snapshot of the ProfileSwitcherView previews.
-    func test_snapshot_profileSwitcherView_previews() {
+    func disabletest_snapshot_profileSwitcherView_previews() {
 //        for preview in ProfileSwitcherView_Previews._allPreviews {
 //            assertSnapshots(
 //                of: preview.content,

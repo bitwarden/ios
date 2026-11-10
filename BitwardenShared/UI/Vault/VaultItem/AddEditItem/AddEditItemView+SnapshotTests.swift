@@ -412,7 +412,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// Test a snapshot of the AddEditView previews.
-    func test_snapshot_previews_addEditItemView() {
+    func disabletest_snapshot_previews_addEditItemView() {
 //        for preview in AddEditItemView_Previews._allPreviews {
 //            assertSnapshots(
 //                of: preview.content,

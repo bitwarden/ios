@@ -53,7 +53,7 @@ class ItemListViewTests: BitwardenTestCase {
     }
 
     /// Test a snapshot of the ItemListView previews.
-    func test_snapshot_ItemListView_previews() {
+    func disabletest_snapshot_ItemListView_previews() {
 //        for preview in ItemListView_Previews._allPreviews {
 //            let name = preview.displayName ?? "Unknown"
 //            assertSnapshots(

@@ -290,7 +290,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// Snapshots the previews for card types.
     @MainActor
-    func test_snapshot_previews_card() {
+    func disabletest_snapshot_previews_card() {
 //        assertSnapshot(
 //            of: ViewItemView_Previews.cardPreview,
 //            as: .defaultPortrait,
@@ -299,7 +299,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// Snapshots the previews for card types.
     @MainActor
-    func test_snapshot_previews_card_dark() {
+    func disabletest_snapshot_previews_card_dark() {
 //        assertSnapshot(
 //            of: ViewItemView_Previews.cardPreview,
 //            as: .defaultPortraitDark,
@@ -308,7 +308,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// Snapshots the previews for card types.
     @MainActor
-    func test_snapshot_previews_card_largeText() {
+    func disabletest_snapshot_previews_card_largeText() {
 //        assertSnapshot(
 //            of: ViewItemView_Previews.cardPreview,
 //            as: .tallPortraitAX5(heightMultiple: 3),
@@ -317,7 +317,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// Snapshots the previews for login types.
     @MainActor
-    func test_snapshot_previews_login() {
+    func disabletest_snapshot_previews_login() {
 //        assertSnapshot(
 //            of: ViewItemView_Previews.loginPreview,
 //            as: .tallPortrait,
@@ -326,7 +326,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// Snapshots the previews for login types.
     @MainActor
-    func test_snapshot_previews_login_dark() {
+    func disabletest_snapshot_previews_login_dark() {
 //        assertSnapshot(
 //            of: ViewItemView_Previews.loginPreview,
 //            as: .portraitDark(heightMultiple: 2),
@@ -335,7 +335,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// Snapshots the previews for login types.
     @MainActor
-    func test_snapshot_previews_login_largeText() {
+    func disabletest_snapshot_previews_login_largeText() {
 //        assertSnapshot(
 //            of: ViewItemView_Previews.loginPreview,
 //            as: .tallPortraitAX5(heightMultiple: 4),
@@ -344,7 +344,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// Snapshots the previews for secure note types.
     @MainActor
-    func test_snapshot_previews_secureNote() {
+    func disabletest_snapshot_previews_secureNote() {
 //        assertSnapshot(
 //            of: ViewItemView_Previews.secureNotePreview,
 //            as: .defaultPortrait,
@@ -353,7 +353,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// Snapshots the previews for login types.
     @MainActor
-    func test_snapshot_previews_sshKey() {
+    func disabletest_snapshot_previews_sshKey() {
 //        assertSnapshot(
 //            of: ViewItemView_Previews.sshKeyPreview,
 //            as: .tallPortrait,
