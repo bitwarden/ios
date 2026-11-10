@@ -625,17 +625,23 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertTrue(subject.state.shouldShowPremiumUpgradeActionCard)
     }
 
-    /// `perform(_:)` with `.streamSyncComplete` updates whether the user has Premium whenever a
-    /// sync completes.
+    /// `perform(_:)` with `.streamSyncComplete` updates whether the user has Premium each time a
+    /// sync completes, not only when the stream starts.
     @MainActor
     func test_perform_streamSyncComplete_updatesHasPremium() {
         subject.state.hasPremium = false
-        stateService.doesActiveAccountHavePremiumResult = true
+        stateService.doesActiveAccountHavePremiumResult = false
 
         let task = Task { [subject = self.subject] in
             await subject?.perform(.streamSyncComplete)
         }
         defer { task.cancel() }
+        // The sync-complete subject replays on subscribe, so wait for that emission to be handled
+        // before sending a real one.
+        waitFor(stateService.doesActiveAccountHavePremiumCalled)
+
+        stateService.doesActiveAccountHavePremiumCalled = false
+        stateService.doesActiveAccountHavePremiumResult = true
         syncService.syncCompleteSubject.send(())
 
         waitFor(subject.state.hasPremium)
