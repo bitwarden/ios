@@ -99,6 +99,20 @@ public protocol VaultRepository: AnyObject {
         cipher: CipherView,
     ) async throws -> URL?
 
+    /// Returns an existing, non-deleted login in the active account's vault that has a URI equal
+    /// to `uri` and the same username and password, if one exists.
+    ///
+    /// Errors are logged and `nil` is returned, since failing to find a duplicate shouldn't prevent
+    /// the caller from saving the login.
+    ///
+    /// - Parameters:
+    ///   - uri: The URI the login must contain.
+    ///   - username: The username the login must have. An empty username matches a login without one.
+    ///   - password: The password the login must have.
+    /// - Returns: The matching login, or `nil` if there's no match.
+    ///
+    func existingLogin(matchingUri uri: String, username: String, password: String) async -> CipherView?
+
     /// Attempt to fetch a cipher with the given id.
     ///
     /// - Parameter id: The id of the cipher to find.
@@ -453,6 +467,49 @@ class DefaultVaultRepository {
 
     // MARK: Private
 
+    /// Returns an existing, non-deleted login with a URI equal to `uri` and the same username and
+    /// password, if one exists.
+    ///
+    /// - Parameters:
+    ///   - uri: The URI the login must contain.
+    ///   - username: The username the login must have. An empty username matches a login without one.
+    ///   - password: The password the login must have.
+    /// - Returns: The matching login, or `nil` if there's no match.
+    ///
+    private func findExistingLogin(
+        matchingUri uri: String,
+        username: String,
+        password: String,
+    ) async throws -> CipherView? {
+        // Filter on the encrypted ciphers first so only active logins are decrypted.
+        let logins = try await cipherService.fetchAllCiphers().filter { cipher in
+            cipher.type == .login && cipher.deletedDate == nil
+        }
+        guard !logins.isEmpty else { return nil }
+
+        // Use the lightweight list views to narrow down candidates before fully decrypting any cipher.
+        let candidateIds = try await clientService.vault().ciphers()
+            .decryptListWithFailures(ciphers: logins)
+            .successes
+            .compactMap { cipherListView -> String? in
+                guard let login = cipherListView.type.loginListView,
+                      (login.username ?? "") == username,
+                      login.uris?.contains(where: { $0.uri == uri }) == true else {
+                    return nil
+                }
+                return cipherListView.id
+            }
+
+        for cipherId in candidateIds {
+            guard let cipherView = try await fetchCipher(withId: cipherId),
+                  cipherView.login?.password == password else {
+                continue
+            }
+            return cipherView
+        }
+        return nil
+    }
+
     /// Downloads, re-encrypts, and re-uploads an attachment without an attachment key so that it
     /// can be shared to an organization.
     ///
@@ -695,6 +752,15 @@ extension DefaultVaultRepository: VaultRepository {
 
         // Return the temporary location where the downloaded data is located.
         return temporaryUrl
+    }
+
+    func existingLogin(matchingUri uri: String, username: String, password: String) async -> CipherView? {
+        do {
+            return try await findExistingLogin(matchingUri: uri, username: username, password: password)
+        } catch {
+            errorReporter.log(error: error)
+            return nil
+        }
     }
 
     func fetchOrganization(withId id: String) async throws -> Organization? {

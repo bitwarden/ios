@@ -48,6 +48,11 @@ class MockVaultRepository: VaultRepository { // swiftlint:disable:this type_body
     var downloadAttachmentAttachment: AttachmentView?
     var downloadAttachmentResult: Result<URL?, Error> = .success(nil)
 
+    var existingLoginPassword: String?
+    var existingLoginResult: CipherView?
+    var existingLoginUri: String?
+    var existingLoginUsername: String?
+
     var fetchCipherId: String?
     var fetchCipherResult: Result<CipherView?, Error> = .success(nil)
 
@@ -219,6 +224,13 @@ class MockVaultRepository: VaultRepository { // swiftlint:disable:this type_body
     func downloadAttachment(_ attachment: AttachmentView, cipher _: CipherView) async throws -> URL? {
         downloadAttachmentAttachment = attachment
         return try downloadAttachmentResult.get()
+    }
+
+    func existingLogin(matchingUri uri: String, username: String, password: String) async -> CipherView? {
+        existingLoginPassword = password
+        existingLoginUri = uri
+        existingLoginUsername = username
+        return existingLoginResult
     }
 
     func fetchCipher(withId id: String) async throws -> CipherView? {
