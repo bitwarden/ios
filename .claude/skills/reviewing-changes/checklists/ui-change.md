@@ -28,7 +28,7 @@ UI change reviews are **design-focused** — verify UDF compliance, accessibilit
   - `.defaultPortrait` (light mode)
   - `.defaultPortraitDark` (dark mode)
   - `.defaultPortraitAX5` (large dynamic type)
-- Snapshot test functions prefixed with `disabletest_` (snapshots currently disabled globally)
+- Reference images for new or changed snapshots committed under `__Snapshots__/`
 - Simulator matches `.test-simulator-device-name` and `.test-simulator-ios-version`
 
 **5. Style:**

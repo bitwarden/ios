@@ -60,7 +60,7 @@ xcodebuild test \
 
 CI runs all `-Default` test plans on PRs to `main`, commits to `main`, and release branches. Test execution order is randomized (`randomExecutionOrder: true`).
 
-**Snapshot tests are currently disabled.** Do not run or re-record them. If you encounter a snapshot test, prefix the function name with `disable` (e.g., `disabletest_snapshot_defaultState`).
+**Snapshot tests** run in the `-Default` plans and in the dedicated `-Snapshot` plans (`Bitwarden-Snapshot`, `Authenticator-Snapshot`, `BitwardenKit-Snapshot`). Reference images live in `__Snapshots__/<TestFileName>/` next to each `+SnapshotTests.swift` file. When a reference image is missing, the test records one and fails; run it again to confirm it passes, then commit the new `.png`. Only record on the simulator from the config files above — images recorded on any other device or OS will fail in CI.
 
 ## Lint, Format, Spell Check
 
@@ -110,7 +110,7 @@ mint run swiftgen config run --config swiftgen-bwth.yml  # Test Harness
 |---------|-------|-----|
 | `.xcodeproj` not found | Files are gitignored | Run `./Scripts/bootstrap.sh` |
 | `MockXxx` not found | Sourcery not run | Add `// sourcery: AutoMockable`, run Sourcery or build |
-| Snapshot test runs | Snapshots are currently disabled | Prefix function name with `disable` (e.g., `disabletest_snapshot_defaultState`) |
+| Snapshot test fails with an image diff | Wrong simulator, or the view changed | Confirm the simulator matches the config files; if the change is intended, delete the reference `.png`, re-run to record, review the new image, and commit it |
 | Extension crash on unlock | Argon2id KDF > 64 MB | Check `maxArgon2IdMemoryBeforeExtensionCrashing` in `Constants.swift` |
 | SwiftLint TODO warning | Missing JIRA ticket | `// TODO: PM-12345 - description` |
 

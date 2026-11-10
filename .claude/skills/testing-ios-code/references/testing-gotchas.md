@@ -3,23 +3,13 @@
 Non-obvious, iOS/Bitwarden-specific facts that cause test failures.
 Only pre-populated with confirmed codebase-specific behaviour.
 
-## Snapshot Tests Are Globally Disabled (XCTest)
+## Snapshot Tests Record on First Run (XCTest)
 
-In XCTest files, snapshot test function names must be prefixed with `disabletest_` (not `test_`).
-The full prefix is `disabletest_`, not just `disable`.
+When a snapshot test has no reference image in `__Snapshots__/<TestFileName>/`, it records one and **fails**. Run it a second time to confirm it passes, review the image, and commit the `.png` alongside the test.
 
-```swift
-// ✅ Correct
-func disabletest_snapshot_empty() { ... }
+The `__Snapshots__` folder name comes from the test file name, so renaming or moving a `+SnapshotTests.swift` file orphans its images — move the `__Snapshots__/<OldName>/` folder with it.
 
-// ❌ Wrong — will run as a test and fail
-func test_snapshot_empty() { ... }
-
-// ❌ Wrong prefix — won't be recognized
-func disable_snapshot_empty() { ... }
-```
-
-> **Swift Testing note**: Snapshot tests currently remain XCTest-based (they depend on `SnapshotTesting` + `BitwardenTestCase`). As Swift Testing adoption grows, disabling may shift to traits (e.g., `.disabled()`). For now, always use XCTest with `disabletest_` prefix for snapshot tests.
+> **Swift Testing note**: Snapshot tests remain XCTest-based (they depend on `SnapshotTesting` + `BitwardenTestCase`).
 
 ## Simulator Requirements
 
