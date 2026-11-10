@@ -1,6 +1,5 @@
 import BitwardenKit
 import BitwardenKitMocks
-import BitwardenResources
 import TestHelpers
 import XCTest
 
@@ -10,34 +9,21 @@ import XCTest
 class SettingsProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var billingService: MockBillingService!
-    var configService: MockConfigService!
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var delegate: MockSettingsProcessorDelegate!
     var errorReporter: MockErrorReporter!
-    var premiumUpgradeHelper: MockPremiumUpgradeHelper!
     var subject: SettingsProcessor!
     var stateService: MockStateService!
-    var storefrontService: MockStorefrontService!
-    var vaultRepository: MockVaultRepository!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
 
-        billingService = MockBillingService()
-        billingService.isSelfHostedReturnValue = false
-        billingService.shouldShowUpgradedToPremiumActionCardReturnValue = false
-        configService = MockConfigService()
         coordinator = MockCoordinator()
         delegate = MockSettingsProcessorDelegate()
         errorReporter = MockErrorReporter()
-        premiumUpgradeHelper = MockPremiumUpgradeHelper()
         stateService = MockStateService()
-        storefrontService = MockStorefrontService()
-        storefrontService.isUSStorefrontReturnValue = true
-        vaultRepository = MockVaultRepository()
 
         setUpSubject()
     }
@@ -45,16 +31,11 @@ class SettingsProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
-        billingService = nil
-        configService = nil
         coordinator = nil
         delegate = nil
         errorReporter = nil
-        premiumUpgradeHelper = nil
         subject = nil
         stateService = nil
-        storefrontService = nil
-        vaultRepository = nil
     }
 
     @MainActor
@@ -63,16 +44,11 @@ class SettingsProcessorTests: BitwardenTestCase {
             coordinator: coordinator.asAnyCoordinator(),
             delegate: delegate,
             services: ServiceContainer.withMocks(
-                billingService: billingService,
-                configService: configService,
                 errorReporter: errorReporter,
                 stateService: stateService,
-                storefrontService: storefrontService,
-                vaultRepository: vaultRepository,
             ),
             state: SettingsState(presentationMode: presentationMode),
         )
-        subject.premiumUpgradeHelper = premiumUpgradeHelper
     }
 
     // MARK: Tests
@@ -174,87 +150,6 @@ class SettingsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .other)
     }
 
-    /// `perform(.planPressed)` navigates to the Premium plan screen for a Premium user
-    /// without showing a loading overlay.
-    @MainActor
-    func test_perform_planPressed_hasPremium() async {
-        subject.state.hasPremium = true
-
-        await subject.perform(.planPressed)
-
-        XCTAssertEqual(coordinator.routes.last, .premiumPlan(nil))
-        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
-    }
-
-    /// `perform(.planPressed)` shows a loading overlay and navigates to the Premium plan screen
-    /// when the user has a canceled subscription.
-    @MainActor
-    func test_perform_planPressed_canceledSubscription() async {
-        subject.state.hasPremium = false
-        let subscription = PremiumSubscription.fixture(status: .canceled)
-        billingService.getSubscriptionReturnValue = subscription
-
-        await subject.perform(.planPressed)
-
-        XCTAssertEqual(coordinator.routes.last, .premiumPlan(subscription))
-        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.loading)])
-    }
-
-    /// `perform(.planPressed)` shows a loading overlay and navigates to the Premium plan screen
-    /// when the user has a past due subscription.
-    @MainActor
-    func test_perform_planPressed_pastDueSubscription() async {
-        subject.state.hasPremium = false
-        let subscription = PremiumSubscription.fixture(status: .pastDue)
-        billingService.getSubscriptionReturnValue = subscription
-
-        await subject.perform(.planPressed)
-
-        XCTAssertEqual(coordinator.routes.last, .premiumPlan(subscription))
-        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.loading)])
-    }
-
-    /// `perform(.planPressed)` shows a loading overlay and navigates to the Premium upgrade screen
-    /// when the subscription fetch returns a 404 (free user with no subscription).
-    @MainActor
-    func test_perform_planPressed_freeUser_noSubscription() async {
-        subject.state.hasPremium = false
-        billingService.getSubscriptionThrowableError = GetSubscriptionRequestError.noSubscription
-
-        await subject.perform(.planPressed)
-
-        XCTAssertTrue(premiumUpgradeHelper.startInAppPremiumUpgradeCalled)
-        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.loading)])
-        XCTAssertFalse(errorReporter.errors.contains { $0 is GetSubscriptionRequestError })
-    }
-
-    /// `perform(.planPressed)` shows a loading overlay and shows an error alert
-    /// when the subscription fetch fails with a non-404 error.
-    @MainActor
-    func test_perform_planPressed_freeUser_subscriptionFetchError() async {
-        subject.state.hasPremium = false
-        billingService.getSubscriptionThrowableError = BitwardenTestError.example
-
-        await subject.perform(.planPressed)
-
-        XCTAssertEqual(coordinator.errorAlertsShown.count, 1)
-        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.loading)])
-        XCTAssertTrue(errorReporter.errors.contains { $0 as? BitwardenTestError == .example })
-    }
-
-    /// `perform(.planPressed)` shows a loading overlay and navigates to the Premium upgrade screen
-    /// when subscription status is active.
-    @MainActor
-    func test_perform_planPressed_activeSubscription() async {
-        subject.state.hasPremium = false
-        billingService.getSubscriptionReturnValue = .fixture(status: .active)
-
-        await subject.perform(.planPressed)
-
-        XCTAssertTrue(premiumUpgradeHelper.startInAppPremiumUpgradeCalled)
-        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.loading)])
-    }
-
     /// Receiving `.vaultPressed` navigates to the vault settings screen.
     @MainActor
     func test_receive_vaultPressed() {
@@ -270,52 +165,6 @@ class SettingsProcessorTests: BitwardenTestCase {
         await subject.perform(.appeared)
         XCTAssertFalse(subject.state.hasPremium)
         XCTAssertFalse(subject.state.showPlanRow)
-    }
-
-    /// `perform(.appeared)` sets `shouldShowUpgradedToPremiumActionCard` to `true` when the
-    /// billing service returns `true`.
-    @MainActor
-    func test_perform_appeared_setsShowUpgradedToPremiumActionCard_true() async {
-        billingService.shouldShowUpgradedToPremiumActionCardReturnValue = true
-
-        await subject.perform(.appeared)
-
-        XCTAssertTrue(subject.state.shouldShowUpgradedToPremiumActionCard)
-    }
-
-    /// `perform(.appeared)` sets `shouldShowUpgradedToPremiumActionCard` to `false` when the
-    /// billing service returns `false`.
-    @MainActor
-    func test_perform_appeared_setsShowUpgradedToPremiumActionCard_false() async {
-        billingService.shouldShowUpgradedToPremiumActionCardReturnValue = false
-
-        await subject.perform(.appeared)
-
-        XCTAssertFalse(subject.state.shouldShowUpgradedToPremiumActionCard)
-    }
-
-    /// `perform(.dismissUpgradedToPremiumActionCard)` hides the card and persists the dismissal.
-    @MainActor
-    func test_perform_dismissUpgradedToPremiumActionCard() async {
-        subject.state.shouldShowUpgradedToPremiumActionCard = true
-
-        await subject.perform(.dismissUpgradedToPremiumActionCard)
-
-        XCTAssertFalse(subject.state.shouldShowUpgradedToPremiumActionCard)
-        XCTAssertEqual(billingService.setUpgradedToPremiumActionCardDismissedCallsCount, 1)
-    }
-
-    /// `receive(.learnMoreAboutPremium)` opens the learn more URL, hides the card, and persists
-    /// the dismissal.
-    @MainActor
-    func test_receive_learnMoreAboutPremium() {
-        subject.state.shouldShowUpgradedToPremiumActionCard = true
-        subject.receive(.learnMoreAboutPremium)
-
-        XCTAssertEqual(subject.state.url, ExternalLinksConstants.learnMoreAboutPremium)
-        XCTAssertFalse(subject.state.shouldShowUpgradedToPremiumActionCard)
-        waitFor { billingService.setUpgradedToPremiumActionCardDismissedCallsCount == 1 }
-        XCTAssertEqual(billingService.setUpgradedToPremiumActionCardDismissedCallsCount, 1)
     }
 
     /// `receive(.clearUrl)` clears the URL from state.
