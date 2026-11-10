@@ -46,7 +46,7 @@ class AttachmentsViewTests: BitwardenTestCase {
 
     /// The empty view renders correctly in dark mode.
     @MainActor
-    func disabletest_snapshot_attachments_empty() {
+    func test_snapshot_attachments_empty() {
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [
@@ -59,7 +59,7 @@ class AttachmentsViewTests: BitwardenTestCase {
 
     /// The view with a selected attachment renders correctly.
     @MainActor
-    func disabletest_snapshot_attachments_selected() {
+    func test_snapshot_attachments_selected() {
         processor.state.fileName = "photo.jpg"
         assertSnapshots(
             of: subject.navStackWrapped,
@@ -73,7 +73,7 @@ class AttachmentsViewTests: BitwardenTestCase {
 
     /// The view with several attachments renders correctly in dark mode.
     @MainActor
-    func disabletest_snapshot_attachments_several() {
+    func test_snapshot_attachments_several() {
         processor.state.cipher = cipherWithAttachments
         assertSnapshots(
             of: subject.navStackWrapped,

@@ -35,7 +35,7 @@ class PasswordAutoFillViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// The legacy view renders correctly.
-    func disabletest_snapshot_view_render() {
+    func test_snapshot_view_render() {
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [
@@ -48,7 +48,7 @@ class PasswordAutoFillViewTests: BitwardenTestCase {
 
     /// The view renders correctly with the mode set to onboarding.
     @MainActor
-    func disabletest_snapshot_view_renders_withOnboardingMode() {
+    func test_snapshot_view_renders_withOnboardingMode() {
         processor.state.mode = .onboarding
 
         assertSnapshots(
@@ -64,7 +64,7 @@ class PasswordAutoFillViewTests: BitwardenTestCase {
 
     /// The view renders correctly with mode set to settings.
     @MainActor
-    func disabletest_snapshot_view_renders_withSettingsMode() {
+    func test_snapshot_view_renders_withSettingsMode() {
         processor.state.mode = .settings
 
         assertSnapshots(

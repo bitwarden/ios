@@ -38,7 +38,7 @@ class MasterPasswordGeneratorViewTests: BitwardenTestCase {
 
     /// The master password generator view renders correctly.
     @MainActor
-    func disabletest_snapshot_masterPasswordGenerator() {
+    func test_snapshot_masterPasswordGenerator() {
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [

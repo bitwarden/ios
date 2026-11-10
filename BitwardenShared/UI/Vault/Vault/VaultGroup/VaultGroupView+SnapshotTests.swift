@@ -44,68 +44,68 @@ class VaultGroupViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     @MainActor
-    func disabletest_snapshot_empty_login() {
+    func test_snapshot_empty_login() {
         processor.state.loadingState = .data([])
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
-    func disabletest_snapshot_empty_card() {
+    func test_snapshot_empty_card() {
         processor.state.group = .card
         processor.state.loadingState = .data([])
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
-    func disabletest_snapshot_empty_identity() {
+    func test_snapshot_empty_identity() {
         processor.state.group = .identity
         processor.state.loadingState = .data([])
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
-    func disabletest_snapshot_empty_note() {
+    func test_snapshot_empty_note() {
         processor.state.group = .secureNote
         processor.state.loadingState = .data([])
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
-    func disabletest_snapshot_emptyCollection() {
+    func test_snapshot_emptyCollection() {
         processor.state.group = .collection(id: "id", name: "name", organizationId: "12345")
         processor.state.loadingState = .data([])
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
-    func disabletest_snapshot_emptyFolder() {
+    func test_snapshot_emptyFolder() {
         processor.state.group = .folder(id: "id", name: "name")
         processor.state.loadingState = .data([])
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
-    func disabletest_snapshot_emptySSHKey() {
+    func test_snapshot_emptySSHKey() {
         processor.state.group = .sshKey
         processor.state.loadingState = .data([])
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
-    func disabletest_snapshot_emptyTrash() {
+    func test_snapshot_emptyTrash() {
         processor.state.group = .trash
         processor.state.loadingState = .data([])
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
-    func disabletest_snapshot_loading() {
+    func test_snapshot_loading() {
         processor.state.loadingState = .loading(nil)
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
-    func disabletest_snapshot_multipleItems() { // swiftlint:disable:this function_body_length
+    func test_snapshot_multipleItems() { // swiftlint:disable:this function_body_length
         processor.state.loadingState = .data(
             [
                 VaultListSection(
@@ -160,7 +160,7 @@ class VaultGroupViewTests: BitwardenTestCase {
     }
 
     @MainActor
-    func disabletest_snapshot_oneItem() {
+    func test_snapshot_oneItem() {
         processor.state.loadingState = .data(
             [
                 VaultListSection(
@@ -179,7 +179,7 @@ class VaultGroupViewTests: BitwardenTestCase {
     }
 
     @MainActor
-    func disabletest_snapshot_oneArchivedItem_premium() {
+    func test_snapshot_oneArchivedItem_premium() {
         processor.state.hasPremium = true
         processor.state.group = .archive
         processor.state.loadingState = .data(
@@ -201,7 +201,7 @@ class VaultGroupViewTests: BitwardenTestCase {
     }
 
     @MainActor
-    func disabletest_snapshot_oneArchivedItem_noPremium() {
+    func test_snapshot_oneArchivedItem_noPremium() {
         processor.state.hasPremium = false
         processor.state.group = .archive
         processor.state.loadingState = .data(
@@ -223,7 +223,7 @@ class VaultGroupViewTests: BitwardenTestCase {
     }
 
     @MainActor
-    func disabletest_snapshot_search_oneItem() {
+    func test_snapshot_search_oneItem() {
         processor.state.isSearching = true
         processor.state.searchResults = [
             .fixture(cipherListView: .fixture(
@@ -235,7 +235,7 @@ class VaultGroupViewTests: BitwardenTestCase {
     }
 
     @MainActor
-    func disabletest_snapshot_search_oneTOTPItem() {
+    func test_snapshot_search_oneTOTPItem() {
         timeProvider.timeConfig = .mockTime(
             .init(
                 year: 2023,

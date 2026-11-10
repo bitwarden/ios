@@ -39,7 +39,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
 
     /// The empty view renders correctly.
     @MainActor
-    func disabletest_snapshot_vaultAutofillList_empty() {
+    func test_snapshot_vaultAutofillList_empty() {
         let account = ProfileSwitcherItem.anneAccount
         processor.state.loadingState = .data([])
         processor.state.profileSwitcherState.accounts = [account]
@@ -52,7 +52,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
 
     /// The empty view renders correctly when creating Fido2 credential.
     @MainActor
-    func disabletest_snapshot_vaultAutofillList_emptyFido2Creation() {
+    func test_snapshot_vaultAutofillList_emptyFido2Creation() {
         let account = ProfileSwitcherItem.anneAccount
         processor.state.profileSwitcherState.accounts = [account]
         processor.state.profileSwitcherState.activeAccountId = account.userId
@@ -68,7 +68,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
 
     /// The populated view renders correctly.
     @MainActor
-    func disabletest_snapshot_vaultAutofillList_populated() {
+    func test_snapshot_vaultAutofillList_populated() {
         let account = ProfileSwitcherItem.anneAccount
         processor.state.profileSwitcherState.accounts = [account]
         processor.state.profileSwitcherState.activeAccountId = account.userId
@@ -118,7 +118,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
 
     /// The populated view renders correctly when mixing passwords and Fido2 credentials on Fido2 creation context.
     @MainActor
-    func disabletest_snapshot_vaultAutofillList_fido2Creation() { // swiftlint:disable:this function_body_length
+    func test_snapshot_vaultAutofillList_fido2Creation() { // swiftlint:disable:this function_body_length
         let account = ProfileSwitcherItem.anneAccount
         processor.state.profileSwitcherState.accounts = [account]
         processor.state.profileSwitcherState.activeAccountId = account.userId
@@ -194,7 +194,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
 
     /// The populated view renders correctly when mixing passwords and Fido2 credentials on multiple sections.
     @MainActor
-    func disabletest_snapshot_vaultAutofillList_populatedWithFido2_multipleSections() { // swiftlint:disable:this function_body_length
+    func test_snapshot_vaultAutofillList_populatedWithFido2_multipleSections() { // swiftlint:disable:this function_body_length
         // swiftlint:disable:previous line_length
         let account = ProfileSwitcherItem.anneAccount
         processor.state.profileSwitcherState.accounts = [account]
@@ -273,7 +273,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
 
     /// The populated view renders correctly when autofilling text to insert.
     @MainActor
-    func disabletest_snapshot_vaultAutofillList_populatedWhenAutofillingTextToInsert() {
+    func test_snapshot_vaultAutofillList_populatedWhenAutofillingTextToInsert() {
         // swiftlint:disable:previous function_body_length
 
         let account = ProfileSwitcherItem.anneAccount
@@ -336,7 +336,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
 
     /// The populated view renders correctly when autofilling text to insert when filtering by group.
     @MainActor
-    func disabletest_snapshot_vaultAutofillList_populatedWhenAutofillingTextToInsertWithGroup() {
+    func test_snapshot_vaultAutofillList_populatedWhenAutofillingTextToInsertWithGroup() {
         // swiftlint:disable:previous function_body_length
         let account = ProfileSwitcherItem.anneAccount
         processor.state.profileSwitcherState.accounts = [account]
@@ -393,7 +393,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
 
     /// The populated view renders correctly when registering and excluded credentials has been found.
     @MainActor
-    func disabletest_snapshot_vaultAutofillList_populatedWhenRegisteringExcludedCredentialFound() {
+    func test_snapshot_vaultAutofillList_populatedWhenRegisteringExcludedCredentialFound() {
         let account = ProfileSwitcherItem.anneAccount
         processor.state.profileSwitcherState.accounts = [account]
         processor.state.profileSwitcherState.activeAccountId = account.userId
@@ -425,7 +425,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
 
     /// The view renders correctly when searching a term with populated results.
     @MainActor
-    func disabletest_snapshot_vaultAutofillList_searching_populated() {
+    func test_snapshot_vaultAutofillList_searching_populated() {
         processor.state.searchText = "Bitwarden"
         processor.state.ciphersForSearch = [
             VaultListSection(
@@ -451,7 +451,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
 
     /// The view renders correctly when searching a term with no results.
     @MainActor
-    func disabletest_snapshot_vaultAutofillList_searching_noResults() {
+    func test_snapshot_vaultAutofillList_searching_noResults() {
         processor.state.searchText = "Bitwarden"
         processor.state.showNoResults = true
 

@@ -34,7 +34,7 @@ class CheckEmailViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// Tests the view renders correctly.
-    func disabletest_snapshot_empty() {
+    func test_snapshot_empty() {
         assertSnapshots(
             of: subject,
             as: [

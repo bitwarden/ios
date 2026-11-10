@@ -29,7 +29,7 @@ final class TOTPCodeDisplayTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Snapshot: current code only, no next code, normal timer color.
-    func disabletest_snapshot_TOTPCodeDisplay_currentCodeOnly() {
+    func test_snapshot_TOTPCodeDisplay_currentCodeOnly() {
         let subject = TOTPCodeDisplay(
             currentCode: TOTPCodeModel(
                 code: "123456",
@@ -51,7 +51,7 @@ final class TOTPCodeDisplayTests: BitwardenTestCase {
     }
 
     /// Snapshot: next code visible — within `nextTOTPCodePreviewThreshold` and setting enabled.
-    func disabletest_snapshot_TOTPCodeDisplay_nextCode_visible() {
+    func test_snapshot_TOTPCodeDisplay_nextCode_visible() {
         timeProvider = MockTimeProvider(
             .mockTime(Date(year: 2023, month: 12, day: 31, hour: 0, minute: 0, second: 22)),
         )
@@ -80,7 +80,7 @@ final class TOTPCodeDisplayTests: BitwardenTestCase {
     }
 
     /// Snapshot: next code suppressed — within threshold but setting disabled.
-    func disabletest_snapshot_TOTPCodeDisplay_nextCode_settingOff() {
+    func test_snapshot_TOTPCodeDisplay_nextCode_settingOff() {
         timeProvider = MockTimeProvider(
             .mockTime(Date(year: 2023, month: 12, day: 31, hour: 0, minute: 0, second: 22)),
         )
@@ -109,7 +109,7 @@ final class TOTPCodeDisplayTests: BitwardenTestCase {
     }
 
     /// Snapshot: urgent timer color — within `totpUrgentCountdownThreshold`, next code also visible.
-    func disabletest_snapshot_TOTPCodeDisplay_urgentColor() {
+    func test_snapshot_TOTPCodeDisplay_urgentColor() {
         timeProvider = MockTimeProvider(
             .mockTime(Date(year: 2023, month: 12, day: 31, hour: 0, minute: 0, second: 25)),
         )

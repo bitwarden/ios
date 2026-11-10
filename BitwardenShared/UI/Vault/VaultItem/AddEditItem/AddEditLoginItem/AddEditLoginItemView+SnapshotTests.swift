@@ -8,7 +8,7 @@ class AddEditLoginItemViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// Test a snapshot of the addLoginItemView.
-    func disabletest_snapshot_addEditLoginItemView() {
+    func test_snapshot_addEditLoginItemView() {
 //        for preview in AddEditLoginItemView_Previews._allPreviews {
 //            assertSnapshots(
 //                of: preview.content,

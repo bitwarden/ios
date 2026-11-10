@@ -23,42 +23,42 @@ class DateFieldPickerSnapshotTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Test a snapshot of the collapsed empty field in light mode.
-    func disabletest_snapshot_collapsedEmpty_lightMode() {
+    func test_snapshot_collapsedEmpty_lightMode() {
         subject = DateFieldPicker(title: "Date of birth", date: .constant(nil))
 
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// Test a snapshot of the collapsed empty field in dark mode.
-    func disabletest_snapshot_collapsedEmpty_darkMode() {
+    func test_snapshot_collapsedEmpty_darkMode() {
         subject = DateFieldPicker(title: "Date of birth", date: .constant(nil))
 
         assertSnapshot(of: subject, as: .defaultPortraitDark)
     }
 
     /// Test a snapshot of the collapsed empty field with large dynamic type.
-    func disabletest_snapshot_collapsedEmpty_largeDynamicType() {
+    func test_snapshot_collapsedEmpty_largeDynamicType() {
         subject = DateFieldPicker(title: "Date of birth", date: .constant(nil))
 
         assertSnapshot(of: subject, as: .defaultPortraitAX5)
     }
 
     /// Test a snapshot of a collapsed field with a selected date in light mode.
-    func disabletest_snapshot_collapsedSelected_lightMode() {
+    func test_snapshot_collapsedSelected_lightMode() {
         subject = DateFieldPicker(title: "Expiration date", date: .constant(date))
 
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// Test a snapshot of a collapsed field with a selected date in dark mode.
-    func disabletest_snapshot_collapsedSelected_darkMode() {
+    func test_snapshot_collapsedSelected_darkMode() {
         subject = DateFieldPicker(title: "Expiration date", date: .constant(date))
 
         assertSnapshot(of: subject, as: .defaultPortraitDark)
     }
 
     /// Test a snapshot of a collapsed field with a footer in light mode.
-    func disabletest_snapshot_withFooter_lightMode() {
+    func test_snapshot_withFooter_lightMode() {
         subject = DateFieldPicker(
             title: "Expiration date",
             date: .constant(date),

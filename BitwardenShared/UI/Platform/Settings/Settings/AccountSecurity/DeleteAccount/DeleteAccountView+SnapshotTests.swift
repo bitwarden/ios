@@ -32,13 +32,13 @@ class DeleteAccountViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// The view renders correctly.
-    func disabletest_snapshot() {
+    func test_snapshot() {
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// The view renders correctly.
     @MainActor
-    func disabletest_preventUserFromDeletingAccount() {
+    func test_preventUserFromDeletingAccount() {
         processor.state.shouldPreventUserFromDeletingAccount = true
         assertSnapshot(of: subject, as: .defaultPortrait)
     }

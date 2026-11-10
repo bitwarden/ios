@@ -20,7 +20,7 @@ class SettingsPickerFieldTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Test a snapshot of the picker field in light mode without footer.
-    func disabletest_snapshot_lightMode_noFooter() {
+    func test_snapshot_lightMode_noFooter() {
         subject = SettingsPickerField(
             title: "Title",
             customTimeoutValue: "1:00",
@@ -32,7 +32,7 @@ class SettingsPickerFieldTests: BitwardenTestCase {
     }
 
     /// Test a snapshot of the picker field in dark mode without footer.
-    func disabletest_snapshot_darkMode_noFooter() {
+    func test_snapshot_darkMode_noFooter() {
         subject = SettingsPickerField(
             title: "Title",
             customTimeoutValue: "1:00",
@@ -44,7 +44,7 @@ class SettingsPickerFieldTests: BitwardenTestCase {
     }
 
     /// Test a snapshot of the picker field with large dynamic type without footer.
-    func disabletest_snapshot_largeDynamicType_noFooter() {
+    func test_snapshot_largeDynamicType_noFooter() {
         subject = SettingsPickerField(
             title: "Title",
             customTimeoutValue: "1:00",
@@ -56,7 +56,7 @@ class SettingsPickerFieldTests: BitwardenTestCase {
     }
 
     /// Test a snapshot of the picker field in light mode with footer.
-    func disabletest_snapshot_lightMode_withFooter() {
+    func test_snapshot_lightMode_withFooter() {
         subject = SettingsPickerField(
             title: "Title",
             footer: "Your organization has set the default session timeout to 1 hour.",
@@ -69,7 +69,7 @@ class SettingsPickerFieldTests: BitwardenTestCase {
     }
 
     /// Test a snapshot of the picker field in dark mode with footer.
-    func disabletest_snapshot_darkMode_withFooter() {
+    func test_snapshot_darkMode_withFooter() {
         subject = SettingsPickerField(
             title: "Title",
             footer: "Your organization has set the default session timeout to 1 hour.",
@@ -82,7 +82,7 @@ class SettingsPickerFieldTests: BitwardenTestCase {
     }
 
     /// Test a snapshot of the picker field with large dynamic type with footer.
-    func disabletest_snapshot_largeDynamicType_withFooter() {
+    func test_snapshot_largeDynamicType_withFooter() {
         subject = SettingsPickerField(
             title: "Title",
             footer: "Your organization has set the default session timeout to 1 hour.",
@@ -95,7 +95,7 @@ class SettingsPickerFieldTests: BitwardenTestCase {
     }
 
     /// Test a snapshot of the picker field with an empty title.
-    func disabletest_snapshot_lightMode_emptyTitle() {
+    func test_snapshot_lightMode_emptyTitle() {
         subject = SettingsPickerField(
             title: "",
             footer: "Your organization has set the default session timeout to 1 hour and 30 minutes.",

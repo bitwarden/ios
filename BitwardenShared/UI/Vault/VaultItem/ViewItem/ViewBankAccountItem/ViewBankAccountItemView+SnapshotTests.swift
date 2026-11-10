@@ -33,13 +33,13 @@ class ViewBankAccountItemViewTests: BitwardenTestCase {
 
     /// The empty bank account view renders correctly.
     @MainActor
-    func disabletest_snapshot_empty() {
+    func test_snapshot_empty() {
         assertSnapshots(of: subject.navStackWrapped, as: [.defaultPortrait])
     }
 
     /// The populated bank account view renders correctly with the sensitive fields hidden.
     @MainActor
-    func disabletest_snapshot_populated() {
+    func test_snapshot_populated() {
         processor.state = populatedState()
         assertSnapshots(
             of: subject.navStackWrapped,
@@ -49,7 +49,7 @@ class ViewBankAccountItemViewTests: BitwardenTestCase {
 
     /// The populated bank account view renders correctly with the sensitive fields revealed.
     @MainActor
-    func disabletest_snapshot_sensitiveFieldsVisible() {
+    func test_snapshot_sensitiveFieldsVisible() {
         var state = populatedState()
         state.isAccountNumberVisible = true
         state.isIbanVisible = true

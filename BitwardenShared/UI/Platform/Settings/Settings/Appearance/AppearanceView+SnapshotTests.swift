@@ -36,7 +36,7 @@ class AppearanceViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// Tests the view renders correctly.
-    func disabletest_snapshot_viewRender() {
+    func test_snapshot_viewRender() {
         assertSnapshots(
             of: subject,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],

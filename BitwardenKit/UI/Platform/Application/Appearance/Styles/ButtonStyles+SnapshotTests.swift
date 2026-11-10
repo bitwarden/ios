@@ -92,7 +92,7 @@ final class ButtonStylesTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Render a snapshot of the app's button styles.
-    func disabletest_snapshot_buttonStyles() {
+    func test_snapshot_buttonStyles() {
         let subject = ButtonStyles()
         assertSnapshot(of: subject, as: .fixedSize(width: 1000, height: 300))
     }

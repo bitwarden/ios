@@ -37,7 +37,7 @@ class ScanCodeViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// Test a snapshot of the ProfileSwitcherView previews.
-    func disabletest_snapshot_scanCodeView_previews() {
+    func test_snapshot_scanCodeView_previews() {
 //        for preview in ScanCodeView_Previews._allPreviews {
 //            assertSnapshots(
 //                of: preview.content,

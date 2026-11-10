@@ -34,7 +34,7 @@ class MoveToOrganizationViewTests: BitwardenTestCase {
     // MARK: Previews
 
     /// The empty view renders correctly.
-    func disabletest_snapshot_moveToOrganization_empty() {
+    func test_snapshot_moveToOrganization_empty() {
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
@@ -43,7 +43,7 @@ class MoveToOrganizationViewTests: BitwardenTestCase {
 
     /// The collections view renders correctly.
     @MainActor
-    func disabletest_snapshot_moveToOrganization_collections() {
+    func test_snapshot_moveToOrganization_collections() {
         processor.state.collections = [
             .fixture(id: "1", name: "Design", organizationId: "1"),
             .fixture(id: "2", name: "Engineering", organizationId: "1"),

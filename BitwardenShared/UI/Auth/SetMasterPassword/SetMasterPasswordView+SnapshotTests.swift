@@ -33,7 +33,7 @@ class SetMasterPasswordViewTests: BitwardenTestCase {
 
     /// A snapshot of the view with all filled values fields.
     @MainActor
-    func disabletest_snapshot_setPassword_filled() {
+    func test_snapshot_setPassword_filled() {
         processor.state.masterPassword = "password123"
         processor.state.masterPasswordRetype = "password123"
         processor.state.masterPasswordHint = "hint hint"
@@ -50,7 +50,7 @@ class SetMasterPasswordViewTests: BitwardenTestCase {
 
     /// A snapshot of the view for privilege elevation.
     @MainActor
-    func disabletest_snapshot_setPassword_privilege_elevation() {
+    func test_snapshot_setPassword_privilege_elevation() {
         processor.state.isPrivilegeElevation = true
         processor.state.masterPassword = "password123"
         processor.state.masterPasswordRetype = "password123"

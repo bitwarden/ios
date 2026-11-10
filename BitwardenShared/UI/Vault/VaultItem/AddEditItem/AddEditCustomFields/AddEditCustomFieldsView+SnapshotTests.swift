@@ -41,7 +41,7 @@ class AddEditCustomFieldsViewTests: BitwardenTestCase {
 
     /// The view with all types of custom fields renders correctly.
     @MainActor
-    func disabletest_snapshot_allFields() {
+    func test_snapshot_allFields() {
 //        for preview in AddEditCustomFieldsView_Previews._allPreviews {
 //            assertSnapshots(
 //                of: preview.content,

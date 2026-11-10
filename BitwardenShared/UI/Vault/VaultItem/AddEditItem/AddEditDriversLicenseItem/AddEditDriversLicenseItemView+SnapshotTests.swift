@@ -37,7 +37,7 @@ class AddEditDriversLicenseItemViewTests: BitwardenTestCase {
 
     /// The empty add/edit license view renders correctly.
     @MainActor
-    func disabletest_snapshot_empty() {
+    func test_snapshot_empty() {
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 1.75)],
@@ -46,14 +46,14 @@ class AddEditDriversLicenseItemViewTests: BitwardenTestCase {
 
     /// The populated add/edit license view renders correctly, with the license number hidden.
     @MainActor
-    func disabletest_snapshot_populated() {
+    func test_snapshot_populated() {
         processor.state = populatedState()
         assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
     }
 
     /// The populated add/edit license view renders correctly with the license number revealed.
     @MainActor
-    func disabletest_snapshot_licenseNumberVisible() {
+    func test_snapshot_licenseNumberVisible() {
         var state = populatedState()
         state.isLicenseNumberVisible = true
         processor.state = state

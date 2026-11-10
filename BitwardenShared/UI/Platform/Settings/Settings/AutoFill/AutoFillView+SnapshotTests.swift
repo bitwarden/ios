@@ -35,7 +35,7 @@ class AutoFillViewTests: BitwardenTestCase {
 
     /// The view renders correctly with the autofill action card is displayed.
     @MainActor
-    func disabletest_snapshot_actionCardAutofill() async {
+    func test_snapshot_actionCardAutofill() async {
         processor.state.badgeState = .fixture(autofillSetupProgress: .setUpLater)
         assertSnapshots(
             of: subject,
@@ -45,7 +45,7 @@ class AutoFillViewTests: BitwardenTestCase {
 
     /// The view renders correctly with the autofill regular expression selected
     @MainActor
-    func disabletest_snapshot_regularExpressionUriMatchType() async {
+    func test_snapshot_regularExpressionUriMatchType() async {
         processor.state.defaultUriMatchType = UriMatchType.regularExpression
         assertSnapshots(
             of: subject,
@@ -55,7 +55,7 @@ class AutoFillViewTests: BitwardenTestCase {
 
     /// The view renders correctly with the autofill starts with selected
     @MainActor
-    func disabletest_snapshot_startsWithUriMatchType() async {
+    func test_snapshot_startsWithUriMatchType() async {
         processor.state.defaultUriMatchType = UriMatchType.startsWith
         assertSnapshots(
             of: subject,
@@ -65,7 +65,7 @@ class AutoFillViewTests: BitwardenTestCase {
 
     /// The view renders correctly.
     @MainActor
-    func disabletest_view_render() {
+    func test_view_render() {
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 }

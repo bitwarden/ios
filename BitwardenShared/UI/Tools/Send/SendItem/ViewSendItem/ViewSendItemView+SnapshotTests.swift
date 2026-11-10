@@ -34,7 +34,7 @@ class ViewSendItemViewTests: BitwardenTestCase {
 
     /// The view send view for a file send renders correctly.
     @MainActor
-    func disabletest_snapshot_viewSend_file() {
+    func test_snapshot_viewSend_file() {
         processor.state = ViewSendItemState(
             sendView: .fixture(
                 name: "My text send",
@@ -52,7 +52,7 @@ class ViewSendItemViewTests: BitwardenTestCase {
 
     /// The view send view for a text send renders correctly.
     @MainActor
-    func disabletest_snapshot_viewSend_text() {
+    func test_snapshot_viewSend_text() {
         processor.state = ViewSendItemState(
             sendView: .fixture(
                 name: "My text send",
@@ -69,7 +69,7 @@ class ViewSendItemViewTests: BitwardenTestCase {
 
     /// The view send view with additional options expanded renders correctly.
     @MainActor
-    func disabletest_snapshot_viewSend_additionalOptionsExpanded() {
+    func test_snapshot_viewSend_additionalOptionsExpanded() {
         processor.state = ViewSendItemState(
             isAdditionalOptionsExpanded: true,
             sendView: .fixture(
@@ -89,7 +89,7 @@ class ViewSendItemViewTests: BitwardenTestCase {
     /// The view send view for a disabled file send renders correctly, with the send-link section
     /// and edit FAB hidden and no "Make a copy" action.
     @MainActor
-    func disabletest_snapshot_viewSend_disabledFileSend() {
+    func test_snapshot_viewSend_disabledFileSend() {
         processor.state = ViewSendItemState(
             sendView: .fixture(
                 type: .file,
@@ -107,7 +107,7 @@ class ViewSendItemViewTests: BitwardenTestCase {
     /// The view send view for a disabled text send whose type is restricted by policy renders
     /// correctly, with the send-link section and edit FAB hidden.
     @MainActor
-    func disabletest_snapshot_viewSend_disabledTextSend_typeRestricted() {
+    func test_snapshot_viewSend_disabledTextSend_typeRestricted() {
         var state = ViewSendItemState(
             sendView: .fixture(name: "My text send", text: .fixture(text: "Some text to send"), disabled: true),
             shareURL: URL(string: "send.bitwarden.com/39ngaol3"),
@@ -123,7 +123,7 @@ class ViewSendItemViewTests: BitwardenTestCase {
     /// The view send view for a disabled text send whose type isn't restricted by policy renders
     /// correctly, with the "Make a copy" action shown in the banner.
     @MainActor
-    func disabletest_snapshot_viewSend_disabledTextSend_makeACopy() {
+    func test_snapshot_viewSend_disabledTextSend_makeACopy() {
         processor.state = ViewSendItemState(
             sendView: .fixture(name: "My text send", text: .fixture(text: "Some text to send"), disabled: true),
             shareURL: URL(string: "send.bitwarden.com/39ngaol3"),

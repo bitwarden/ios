@@ -36,7 +36,7 @@ class DeviceManagementViewTests: BitwardenTestCase {
 
     /// The empty view renders correctly.
     @MainActor
-    func disabletest_snapshot_empty() {
+    func test_snapshot_empty() {
         processor.state.loadingState = .data([])
         assertSnapshots(of: subject.navStackWrapped, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
@@ -44,7 +44,7 @@ class DeviceManagementViewTests: BitwardenTestCase {
     /// The view with devices renders correctly, covering the current session, pending request,
     /// and trusted (not current) variants.
     @MainActor
-    func disabletest_snapshot_devices() {
+    func test_snapshot_devices() {
         processor.state.loadingState = .data([
             .fixture(id: "1", isCurrentSession: true),
             .fixture(id: "2", isTrusted: false, pendingRequest: .fixture()),

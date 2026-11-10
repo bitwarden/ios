@@ -38,7 +38,7 @@ class AboutViewTests: BitwardenTestCase {
 
     /// The default view renders correctly.
     @MainActor
-    func disabletest_snapshot_default() {
+    func test_snapshot_default() {
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 }

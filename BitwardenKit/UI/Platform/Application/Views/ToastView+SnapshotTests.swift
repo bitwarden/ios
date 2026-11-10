@@ -9,7 +9,7 @@ final class ToastViewTests: BitwardenTestCase {
 
     /// The toasts render correctly.
     @MainActor
-    func disabletest_snapshot_toasts() {
+    func test_snapshot_toasts() {
         let subject = VStack {
             ToastView(toast: .constant(Toast(title: "Toast!")))
 

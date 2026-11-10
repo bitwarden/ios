@@ -35,7 +35,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
 
     /// The view renders correctly with the vault unlock action card is displayed.
     @MainActor
-    func disabletest_snapshot_actionCardVaultUnlock() async {
+    func test_snapshot_actionCardVaultUnlock() async {
         processor.state.badgeState = .fixture(vaultUnlockSetupProgress: .setUpLater)
         assertSnapshots(
             of: subject,
@@ -45,7 +45,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
 
     /// The view renders correctly when biometrics are available.
     @MainActor
-    func disabletest_snapshot_biometricsDisabled_touchID() {
+    func test_snapshot_biometricsDisabled_touchID() {
         let subject = AccountSecurityView(
             store: Store(
                 processor: StateProcessor(
@@ -64,7 +64,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
 
     /// The view renders correctly when biometrics are available.
     @MainActor
-    func disabletest_snapshot_biometricsEnabled_faceID() {
+    func test_snapshot_biometricsEnabled_faceID() {
         let subject = AccountSecurityView(
             store: Store(
                 processor: StateProcessor(
@@ -83,7 +83,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
 
     /// The view renders correctly when showing the custom session timeout field.
     @MainActor
-    func disabletest_snapshot_customSessionTimeoutField() {
+    func test_snapshot_customSessionTimeoutField() {
         let subject = AccountSecurityView(
             store: Store(
                 processor: StateProcessor(
@@ -96,7 +96,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
 
     /// The view renders correctly when the user doesn't have a master password.
     @MainActor
-    func disabletest_snapshot_noMasterPassword() {
+    func test_snapshot_noMasterPassword() {
         let subject = AccountSecurityView(
             store: Store(
                 processor: StateProcessor(
@@ -112,7 +112,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
 
     /// The view renders correctly when the remove unlock with pin policy is enabled.
     @MainActor
-    func disabletest_snapshot_removeUnlockPinPolicyEnabled() {
+    func test_snapshot_removeUnlockPinPolicyEnabled() {
         let subject = AccountSecurityView(
             store: Store(
                 processor: StateProcessor(
@@ -131,7 +131,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
 
     /// The view renders correctly when the timeout policy is enabled.
     @MainActor
-    func disabletest_snapshot_timeoutPolicy() {
+    func test_snapshot_timeoutPolicy() {
         let subject = AccountSecurityView(
             store: Store(
                 processor: StateProcessor(
@@ -150,7 +150,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
 
     /// The view renders correctly when the timeout policy with an action is enabled.
     @MainActor
-    func disabletest_snapshot_timeoutPolicyWithAction() {
+    func test_snapshot_timeoutPolicyWithAction() {
         let subject = AccountSecurityView(
             store: Store(
                 processor: StateProcessor(
@@ -171,7 +171,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
 
     /// The view renders correctly.
     @MainActor
-    func disabletest_view_render() {
+    func test_view_render() {
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 }

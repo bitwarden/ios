@@ -9,7 +9,7 @@ class ViewCardItemViewTests: BitwardenTestCase {
 
     /// Test preview snapshots of the empty state `ViewCardItemView`.
     ///
-    func disabletest_snapshot_viewCardItemView_empty() {
+    func test_snapshot_viewCardItemView_empty() {
 //        assertSnapshots(
 //            of: ViewCardItemView_Previews.emptyPreview,
 //            as: [
@@ -20,7 +20,7 @@ class ViewCardItemViewTests: BitwardenTestCase {
 
     /// Test preview snapshots of the full visibility state `ViewCardItemView`.
     ///
-    func disabletest_snapshot_viewCardItemView_full() {
+    func test_snapshot_viewCardItemView_full() {
 //        assertSnapshots(
 //            of: ViewCardItemView_Previews.fullPreview,
 //            as: [
@@ -31,7 +31,7 @@ class ViewCardItemViewTests: BitwardenTestCase {
 
     /// Test preview snapshots of the full visibility state `ViewCardItemView` in dark mode.
     ///
-    func disabletest_snapshot_viewCardItemView_full_dark() {
+    func test_snapshot_viewCardItemView_full_dark() {
 //        assertSnapshots(
 //            of: ViewCardItemView_Previews.fullPreview,
 //            as: [
@@ -42,7 +42,7 @@ class ViewCardItemViewTests: BitwardenTestCase {
 
     /// Test preview snapshots of the `ViewCardItemView` with a large font.
     ///
-    func disabletest_snapshot_viewCardItemView_full_largeFont() {
+    func test_snapshot_viewCardItemView_full_largeFont() {
 //        assertSnapshots(
 //            of: ViewCardItemView_Previews.fullPreview,
 //            as: [
@@ -53,7 +53,7 @@ class ViewCardItemViewTests: BitwardenTestCase {
 
     /// Test preview snapshots of the `ViewCardItemView` with a hidden number & code.
     ///
-    func disabletest_snapshot_viewCardItemView_hiddenCode() {
+    func test_snapshot_viewCardItemView_hiddenCode() {
 //        assertSnapshots(
 //            of: ViewCardItemView_Previews.hiddenCodePreview,
 //            as: [
@@ -64,7 +64,7 @@ class ViewCardItemViewTests: BitwardenTestCase {
 
     /// Test preview snapshots of the `ViewCardItemView` with no expiration data.
     ///
-    func disabletest_snapshot_viewCardItemView_noExpirationState() {
+    func test_snapshot_viewCardItemView_noExpirationState() {
 //        assertSnapshots(
 //            of: ViewCardItemView_Previews.noExpiration,
 //            as: [
@@ -75,7 +75,7 @@ class ViewCardItemViewTests: BitwardenTestCase {
 
     /// Test preview snapshots of the `ViewCardItemView` with partial expiration data.
     ///
-    func disabletest_snapshot_viewCardItemView_partialExpirationState() {
+    func test_snapshot_viewCardItemView_partialExpirationState() {
 //        assertSnapshots(
 //            of: ViewCardItemView_Previews.yearOnlyExpiration,
 //            as: [

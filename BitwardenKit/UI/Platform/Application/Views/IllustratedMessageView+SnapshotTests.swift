@@ -11,7 +11,7 @@ class IllustratedMessageViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Test snapshots of the largeTextTintedIcon style.
-    func disabletest_snapshot_largeTextTintedIcon() {
+    func test_snapshot_largeTextTintedIcon() {
         let subject = IllustratedMessageView(
             image: SharedAsset.Icons.plus24,
             style: .largeTextTintedIcon,
@@ -28,7 +28,7 @@ class IllustratedMessageViewTests: BitwardenTestCase {
     }
 
     /// Test snapshots of the mediumImage style.
-    func disabletest_snapshot_mediumImage() {
+    func test_snapshot_mediumImage() {
         let subject = IllustratedMessageView(
             image: SharedAsset.Icons.unlocked24,
             style: .mediumImage,
@@ -45,7 +45,7 @@ class IllustratedMessageViewTests: BitwardenTestCase {
     }
 
     /// Test snapshots of the mediumImage style with a button.
-    func disabletest_snapshot_mediumImage_withButton() {
+    func test_snapshot_mediumImage_withButton() {
         let subject = IllustratedMessageView(
             image: SharedAsset.Icons.unlocked24,
             style: .mediumImage,
@@ -68,7 +68,7 @@ class IllustratedMessageViewTests: BitwardenTestCase {
     }
 
     /// Test snapshots of the smallImage style.
-    func disabletest_snapshot_smallImage() {
+    func test_snapshot_smallImage() {
         let subject = IllustratedMessageView(
             image: SharedAsset.Icons.unlocked24,
             style: .smallImage,

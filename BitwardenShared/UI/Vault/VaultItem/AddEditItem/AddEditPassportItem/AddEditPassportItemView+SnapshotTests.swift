@@ -37,7 +37,7 @@ class AddEditPassportItemViewTests: BitwardenTestCase {
 
     /// The empty add/edit passport view renders correctly.
     @MainActor
-    func disabletest_snapshot_empty() {
+    func test_snapshot_empty() {
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 1.75)],
@@ -46,14 +46,14 @@ class AddEditPassportItemViewTests: BitwardenTestCase {
 
     /// The populated add/edit passport view renders correctly, with the hidden fields masked.
     @MainActor
-    func disabletest_snapshot_populated() {
+    func test_snapshot_populated() {
         processor.state = populatedState()
         assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
     }
 
     /// The populated add/edit passport view renders correctly with the hidden fields revealed.
     @MainActor
-    func disabletest_snapshot_hiddenFieldsVisible() {
+    func test_snapshot_hiddenFieldsVisible() {
         var state = populatedState()
         state.isPassportNumberVisible = true
         state.isNationalIdentificationNumberVisible = true

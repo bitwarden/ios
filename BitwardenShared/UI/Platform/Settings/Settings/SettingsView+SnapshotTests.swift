@@ -36,20 +36,20 @@ class SettingsViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// Tests the view renders correctly.
-    func disabletest_snapshot_viewRender() {
+    func test_snapshot_viewRender() {
         assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
     }
 
     /// Tests the view renders correctly for the pre-login mode.
     @MainActor
-    func disabletest_snapshot_viewRender_preLogin() {
+    func test_snapshot_viewRender_preLogin() {
         processor.state.presentationMode = .preLogin
         assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
     }
 
     /// Tests the view renders correctly with badges.
     @MainActor
-    func disabletest_snapshot_settingsView_badges() {
+    func test_snapshot_settingsView_badges() {
         processor.state.badgeState = .fixture(
             autofillSetupProgress: .setUpLater,
             importLoginsSetupProgress: .setUpLater,
@@ -63,7 +63,7 @@ class SettingsViewTests: BitwardenTestCase {
 
     /// Tests the view renders correctly with the plan row visible.
     @MainActor
-    func disabletest_snapshot_viewRender_withPlanRow() {
+    func test_snapshot_viewRender_withPlanRow() {
         processor.state.showPlanRow = true
         assertSnapshots(
             of: subject.navStackWrapped,

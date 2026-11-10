@@ -39,7 +39,7 @@ class SettingsViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tests the view renders correctly.
-    func disabletest_snapshot_viewRender() {
+    func test_snapshot_viewRender() {
         assertSnapshots(
             of: subject,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
@@ -48,7 +48,7 @@ class SettingsViewTests: BitwardenTestCase {
 
     /// Tests the view renders correctly.
     @MainActor
-    func disabletest_snapshot_viewRenderWithBiometricsAvailable() {
+    func test_snapshot_viewRenderWithBiometricsAvailable() {
         processor.state.biometricUnlockStatus = .available(.faceID, enabled: false)
         assertSnapshots(
             of: subject,
@@ -58,7 +58,7 @@ class SettingsViewTests: BitwardenTestCase {
 
     /// Tests the view renders correctly with `shouldShowDefaultSaveOption` set to `true`.
     @MainActor
-    func disabletest_snapshot_viewRenderWithDefaultSaveOption() {
+    func test_snapshot_viewRenderWithDefaultSaveOption() {
         processor.state.shouldShowDefaultSaveOption = true
         assertSnapshots(
             of: subject,

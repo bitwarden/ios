@@ -43,7 +43,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     // MARK: Snapshots
 
     @MainActor
-    func disabletest_snapshot_loading() {
+    func test_snapshot_loading() {
         processor.state.loadingState = .loading(nil)
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
@@ -194,19 +194,19 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     @MainActor
-    func disabletest_snapshot_identity_withAllValues() {
+    func test_snapshot_identity_withAllValues() {
         processor.state.loadingState = .data(identityState())
         assertSnapshot(of: subject, as: .portrait(heightMultiple: 1.5))
     }
 
     @MainActor
-    func disabletest_snapshot_identity_withAllValues_largeText() {
+    func test_snapshot_identity_withAllValues_largeText() {
         processor.state.loadingState = .data(identityState())
         assertSnapshot(of: subject, as: .tallPortraitAX5(heightMultiple: 4))
     }
 
     @MainActor
-    func disabletest_snapshot_login_disabledViewPassword() {
+    func test_snapshot_login_disabledViewPassword() {
         processor.state.loadingState = .data(
             loginState(
                 canViewPassword: false,
@@ -218,7 +218,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     @MainActor
-    func disabletest_snapshot_login_empty() {
+    func test_snapshot_login_empty() {
         let loginState = CipherItemState(
             existing: .fixture(
                 favorite: true,
@@ -232,40 +232,40 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     @MainActor
-    func disabletest_snapshot_login_withAllValues() {
+    func test_snapshot_login_withAllValues() {
         processor.state.loadingState = .data(loginState(isFavorite: true))
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
     @MainActor
-    func disabletest_snapshot_login_withAllValues_noPremium() {
+    func test_snapshot_login_withAllValues_noPremium() {
         let loginState = loginState(hasPremium: false)
         processor.state.loadingState = .data(loginState)
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
     @MainActor
-    func disabletest_snapshot_login_withAllValues_noPremium_largeText() {
+    func test_snapshot_login_withAllValues_noPremium_largeText() {
         let loginState = loginState(hasPremium: false)
         processor.state.loadingState = .data(loginState)
         assertSnapshot(of: subject, as: .tallPortraitAX5(heightMultiple: 5))
     }
 
     @MainActor
-    func disabletest_snapshot_login_withAllValues_largeText() {
+    func test_snapshot_login_withAllValues_largeText() {
         processor.state.loadingState = .data(loginState())
         assertSnapshot(of: subject, as: .tallPortraitAX5(heightMultiple: 5))
     }
 
     @MainActor
-    func disabletest_snapshot_login_withAllValues_exceptTotp_noPremium() {
+    func test_snapshot_login_withAllValues_exceptTotp_noPremium() {
         let loginState = loginState(hasPremium: false, hasTotp: false)
         processor.state.loadingState = .data(loginState)
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
     @MainActor
-    func disabletest_snapshot_login_withAllValuesExceptOrganization() {
+    func test_snapshot_login_withAllValuesExceptOrganization() {
         var state = loginState(collectionIds: [])
         state.organizationId = nil
         state.organizationName = nil
@@ -276,21 +276,21 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     @MainActor
-    func disabletest_snapshot_login_withAllValuesShowMore() {
+    func test_snapshot_login_withAllValuesShowMore() {
         let state = loginState(isFavorite: true)
         processor.state.loadingState = .data(state)
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
     @MainActor
-    func disabletest_snapshot_login_withAllValuesArchived() {
+    func test_snapshot_login_withAllValuesArchived() {
         processor.state.loadingState = .data(loginState(archivedDate: .now, isFavorite: true))
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
     /// Snapshots the previews for card types.
     @MainActor
-    func disabletest_snapshot_previews_card() {
+    func test_snapshot_previews_card() {
 //        assertSnapshot(
 //            of: ViewItemView_Previews.cardPreview,
 //            as: .defaultPortrait,
@@ -299,7 +299,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// Snapshots the previews for card types.
     @MainActor
-    func disabletest_snapshot_previews_card_dark() {
+    func test_snapshot_previews_card_dark() {
 //        assertSnapshot(
 //            of: ViewItemView_Previews.cardPreview,
 //            as: .defaultPortraitDark,
@@ -308,7 +308,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// Snapshots the previews for card types.
     @MainActor
-    func disabletest_snapshot_previews_card_largeText() {
+    func test_snapshot_previews_card_largeText() {
 //        assertSnapshot(
 //            of: ViewItemView_Previews.cardPreview,
 //            as: .tallPortraitAX5(heightMultiple: 3),
@@ -317,7 +317,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// Snapshots the previews for login types.
     @MainActor
-    func disabletest_snapshot_previews_login() {
+    func test_snapshot_previews_login() {
 //        assertSnapshot(
 //            of: ViewItemView_Previews.loginPreview,
 //            as: .tallPortrait,
@@ -326,7 +326,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// Snapshots the previews for login types.
     @MainActor
-    func disabletest_snapshot_previews_login_dark() {
+    func test_snapshot_previews_login_dark() {
 //        assertSnapshot(
 //            of: ViewItemView_Previews.loginPreview,
 //            as: .portraitDark(heightMultiple: 2),
@@ -335,7 +335,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// Snapshots the previews for login types.
     @MainActor
-    func disabletest_snapshot_previews_login_largeText() {
+    func test_snapshot_previews_login_largeText() {
 //        assertSnapshot(
 //            of: ViewItemView_Previews.loginPreview,
 //            as: .tallPortraitAX5(heightMultiple: 4),
@@ -344,7 +344,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// Snapshots the previews for secure note types.
     @MainActor
-    func disabletest_snapshot_previews_secureNote() {
+    func test_snapshot_previews_secureNote() {
 //        assertSnapshot(
 //            of: ViewItemView_Previews.secureNotePreview,
 //            as: .defaultPortrait,
@@ -353,7 +353,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// Snapshots the previews for login types.
     @MainActor
-    func disabletest_snapshot_previews_sshKey() {
+    func test_snapshot_previews_sshKey() {
 //        assertSnapshot(
 //            of: ViewItemView_Previews.sshKeyPreview,
 //            as: .tallPortrait,
@@ -362,7 +362,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// Snapshots the previews for SSH key type.
     @MainActor
-    func disabletest_snapshot_sshKey() {
+    func test_snapshot_sshKey() {
         processor.state.loadingState =
             .data(
                 sshKeyCipherItemState(
@@ -378,7 +378,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// Snapshots the previews for SSH key type when private key is visible.
     @MainActor
-    func disabletest_snapshot_sshKeyPrivateKeyVisible() {
+    func test_snapshot_sshKeyPrivateKeyVisible() {
         processor.state.loadingState =
             .data(
                 sshKeyCipherItemState(
@@ -394,7 +394,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// Snapshots the previews for SSH key type when `canViewPrivateKey` is `false`.
     @MainActor
-    func disabletest_snapshot_sshKeyCantViewPrivateKey() {
+    func test_snapshot_sshKeyCantViewPrivateKey() {
         processor.state.loadingState =
             .data(
                 sshKeyCipherItemState(

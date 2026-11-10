@@ -35,34 +35,34 @@ class PremiumUpgradeViewSnapshotTests: BitwardenTestCase {
 
     /// Check the snapshot for the default state.
     @MainActor
-    func disabletest_snapshot_default() {
+    func test_snapshot_default() {
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
     /// Check the snapshot for the default state in landscape. The layout stays vertical
     /// (hero illustration above the headline and benefits) in both orientations.
     @MainActor
-    func disabletest_snapshot_default_landscape() {
+    func test_snapshot_default_landscape() {
         assertSnapshots(of: subject, as: [.defaultLandscape])
     }
 
     /// Check the snapshot when the view is in a loading state.
     @MainActor
-    func disabletest_snapshot_loading() {
+    func test_snapshot_loading() {
         processor.state.isLoading = true
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
     /// Check the snapshot for the self-hosted state with banner visible.
     @MainActor
-    func disabletest_snapshot_selfHosted() {
+    func test_snapshot_selfHosted() {
         processor.state.isSelfHosted = true
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
     /// Check the snapshot for the self-hosted state with banner dismissed.
     @MainActor
-    func disabletest_snapshot_selfHosted_bannerDismissed() {
+    func test_snapshot_selfHosted_bannerDismissed() {
         processor.state.isSelfHosted = true
         processor.state.isBannerDismissed = true
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])

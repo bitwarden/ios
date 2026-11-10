@@ -105,13 +105,13 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     // MARK: Snapshots
 
     @MainActor
-    func disabletest_snapshot_loading() {
+    func test_snapshot_loading() {
         processor.state.loadingState = .loading(nil)
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
-    func disabletest_snapshot_errorState() {
+    func test_snapshot_errorState() {
         processor.state.loadingState = .error(
             errorMessage: Localizations.weCouldntSyncYourVaultWithTheServerDescriptionLong,
         )
@@ -119,7 +119,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     @MainActor
-    func disabletest_snapshot_empty() {
+    func test_snapshot_empty() {
         processor.state.profileSwitcherState.isVisible = false
         processor.state.loadingState = .data([])
 
@@ -127,21 +127,21 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     @MainActor
-    func disabletest_snapshot_emptyImportLogins() {
+    func test_snapshot_emptyImportLogins() {
         processor.state.importLoginsSetupProgress = .incomplete
         processor.state.loadingState = .data([])
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
     @MainActor
-    func disabletest_snapshot_emptySubscriptionAttention() {
+    func test_snapshot_emptySubscriptionAttention() {
         processor.state.loadingState = .data([])
         processor.state.shouldShowSubscriptionAttentionCard = true
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
     @MainActor
-    func disabletest_snapshot_myVault() {
+    func test_snapshot_myVault() {
         processor.state.loadingState = .data(VaultListViewTests.defaultVaultData)
         assertSnapshots(
             of: subject,
@@ -150,7 +150,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     @MainActor
-    func disabletest_snapshot_myVaultUpgradedToPremium() {
+    func test_snapshot_myVaultUpgradedToPremium() {
         processor.state.shouldShowUpgradedToPremiumActionCard = true
         processor.state.loadingState = .data(VaultListViewTests.defaultVaultData)
         assertSnapshots(
@@ -160,7 +160,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     @MainActor
-    func disabletest_snapshot_myVaultUpgradeToPremium() {
+    func test_snapshot_myVaultUpgradeToPremium() {
         processor.state.shouldShowPremiumUpgradeActionCard = true
         processor.state.loadingState = .data(VaultListViewTests.defaultVaultData)
         assertSnapshots(
@@ -170,7 +170,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     @MainActor
-    func disabletest_snapshot_myVaultArchiveOnboarding() {
+    func test_snapshot_myVaultArchiveOnboarding() {
         processor.state.shouldShowArchiveOnboardingActionCard = true
         processor.state.loadingState = .data(VaultListViewTests.defaultVaultData)
         assertSnapshots(
@@ -180,7 +180,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     @MainActor
-    func disabletest_snapshot_myVaultSubscriptionAttention() {
+    func test_snapshot_myVaultSubscriptionAttention() {
         processor.state.shouldShowSubscriptionAttentionCard = true
         processor.state.loadingState = .data(VaultListViewTests.defaultVaultData)
         assertSnapshots(
@@ -190,7 +190,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     @MainActor
-    func disabletest_snapshot_myVaultCollections() {
+    func test_snapshot_myVaultCollections() {
         processor.state.loadingState = .data([
             VaultListSection(
                 id: "Collections",
@@ -229,7 +229,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     @MainActor
-    func disabletest_snapshot_withSearchResult() {
+    func test_snapshot_withSearchResult() {
         processor.state.searchText = "Exam"
         processor.state.searchResults = [
             .fixture(cipherListView: .fixture(
@@ -241,7 +241,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     @MainActor
-    func disabletest_snapshot_withMultipleSearchResults() {
+    func test_snapshot_withMultipleSearchResults() {
         processor.state.searchText = "Exam"
         processor.state.searchResults = [
             .fixture(cipherListView: .fixture(
@@ -269,14 +269,14 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     @MainActor
-    func disabletest_snapshot_withoutSearchResult() {
+    func test_snapshot_withoutSearchResult() {
         processor.state.searchText = "Exam"
         processor.state.searchResults = []
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
-    func disabletest_snapshot_empty_singleAccountProfileSwitcher() {
+    func test_snapshot_empty_singleAccountProfileSwitcher() {
         processor.state.profileSwitcherState.isVisible = true
         processor.state.loadingState = .data([])
 
@@ -284,14 +284,14 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     @MainActor
-    func disabletest_snapshot_profileSwitcherMultiAccount() {
+    func test_snapshot_profileSwitcherMultiAccount() {
         processor.state.loadingState = .data([])
         processor.state.profileSwitcherState = .dualAccounts
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark])
     }
 
     @MainActor
-    func disabletest_snapshot_flightRecorderToastBanner() {
+    func test_snapshot_flightRecorderToastBanner() {
         processor.state.loadingState = .data([])
         processor.state.flightRecorderToastBanner.activeLog = FlightRecorderData.LogMetadata(
             duration: .twentyFourHours,
@@ -301,7 +301,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     @MainActor
-    func disabletest_snapshot_myVaultSubscriptionAttentionWithArchive() {
+    func test_snapshot_myVaultSubscriptionAttentionWithArchive() {
         processor.state.shouldShowArchiveOnboardingActionCard = true
         processor.state.loadingState = .data(VaultListViewTests.defaultVaultData)
         processor.state.shouldShowSubscriptionAttentionCard = true
@@ -309,7 +309,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     @MainActor
-    func disabletest_snapshot_orgBanner_descriptionOnly() {
+    func test_snapshot_orgBanner_descriptionOnly() {
         processor.state.loadingState = .data([])
         processor.state.organizationUserNotificationBannerData = .fixture(
             buttonText: nil,
@@ -320,14 +320,14 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     @MainActor
-    func disabletest_snapshot_orgBanner_emptyVault() {
+    func test_snapshot_orgBanner_emptyVault() {
         processor.state.loadingState = .data([])
         processor.state.organizationUserNotificationBannerData = .fixture()
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
     @MainActor
-    func disabletest_snapshot_orgBanner_populatedVault() {
+    func test_snapshot_orgBanner_populatedVault() {
         processor.state.loadingState = .data(VaultListViewTests.defaultVaultData)
         processor.state.organizationUserNotificationBannerData = .fixture()
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])

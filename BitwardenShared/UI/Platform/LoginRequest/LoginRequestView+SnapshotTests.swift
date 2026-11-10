@@ -38,7 +38,7 @@ class LoginRequestViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// The default view renders correctly.
-    func disabletest_snapshot() {
+    func test_snapshot() {
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [

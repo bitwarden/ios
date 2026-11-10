@@ -45,7 +45,7 @@ class DebugMenuViewTests: BitwardenTestCase {
 
     /// Check the snapshot when feature flags are enabled and disabled.
     @MainActor
-    func disabletest_snapshot_debugMenuWithFeatureFlags() {
+    func test_snapshot_debugMenuWithFeatureFlags() {
         processor.state.featureFlags = [
             .init(feature: .testFeatureFlag, isEnabled: true),
         ]

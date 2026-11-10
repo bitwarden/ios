@@ -33,7 +33,7 @@ class PreventAccountLockViewTests: BitwardenTestCase {
 
     /// The prevent account lock view renders correctly.
     @MainActor
-    func disabletest_snapshot_preventAccountLock() {
+    func test_snapshot_preventAccountLock() {
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 2), .defaultLandscape],

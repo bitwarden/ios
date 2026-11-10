@@ -34,7 +34,7 @@ class ExportItemsViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// The empty view renders correctly.
-    func disabletest_snapshot_empty() {
+    func test_snapshot_empty() {
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 }

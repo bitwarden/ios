@@ -35,7 +35,7 @@ class VaultSettingsViewTests: BitwardenTestCase {
 
     /// The view renders correctly with the import logins action card displayed.
     @MainActor
-    func disabletest_snapshot_actionCardImportLogins() async {
+    func test_snapshot_actionCardImportLogins() async {
         processor.state.badgeState = .fixture(importLoginsSetupProgress: .setUpLater)
         assertSnapshots(
             of: subject,
@@ -45,7 +45,7 @@ class VaultSettingsViewTests: BitwardenTestCase {
 
     /// The default view renders correctly.
     @MainActor
-    func disabletest_snapshot_default() {
+    func test_snapshot_default() {
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 }
