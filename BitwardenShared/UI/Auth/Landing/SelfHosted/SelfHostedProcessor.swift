@@ -1,5 +1,6 @@
 import BitwardenKit
 import BitwardenResources
+import BitwardenSdk
 import Foundation
 
 /// A delegate of `SelfHostedProcessor` that is notified when the user saves their environment settings.
@@ -20,6 +21,7 @@ final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedActio
     // MARK: Types
 
     typealias Services = HasClientCertificateService
+        & HasClientSettingsValidator
         & HasErrorReporter
 
     // MARK: Private Properties
@@ -251,8 +253,36 @@ final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedActio
             notifications: nil,
             webVault: URL(string: state.webVaultServerUrl)?.sanitized,
         )
+        do {
+            try await services.clientSettingsValidator.validateSettings(urls: urls)
+        } catch {
+            await showValidationAlert(for: error)
+            return
+        }
         await delegate?.didSaveEnvironment(urls: urls)
         coordinator.navigate(to: .dismissPresented)
+    }
+
+    /// Presents the alert for an error from validating the settings before saving them.
+    ///
+    /// - Parameter error: The error thrown by the `ClientSettingsValidator`.
+    ///
+    private func showValidationAlert(for error: Error) async {
+        let message: String
+        switch error {
+        case BitwardenSdk.BitwardenError.ValidateClientSettings(.ApiUrl),
+             BitwardenSdk.BitwardenError.ValidateClientSettings(.IdentityUrl):
+            message = Localizations.environmentPageUrlsError
+        case BitwardenSdk.BitwardenError.ValidateClientSettings(.ClientCertificate):
+            message = Localizations.theCertificateCantBeUsedForClientAuthentication
+        case let certificateError as ClientCertificateError:
+            message = certificateError.localizedDescription
+        default:
+            services.errorReporter.log(error: error)
+            await coordinator.showErrorAlert(error: error)
+            return
+        }
+        coordinator.showAlert(Alert.defaultAlert(title: Localizations.anErrorHasOccurred, message: message))
     }
 
     /// Removes the currently stored client certificate and clears the associated state.
