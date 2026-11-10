@@ -38,6 +38,9 @@ struct AttachmentsView: View {
                 await store.perform(.save)
             }
         }
+        .task {
+            await store.perform(.appeared)
+        }
         .onChange(of: store.state.url) { newValue in
             guard let url = newValue else { return }
             openURL(url)
@@ -77,28 +80,20 @@ struct AttachmentsView: View {
         }
     }
 
-    /// The currently chosen file to add. The name can be edited, and the file's extension is shown in
-    /// gray directly after it. The extension can't be changed.
+    /// The currently chosen file to add. When the mobile attachment updates feature is enabled, the
+    /// name can be edited.
     @ViewBuilder private var chosenFile: some View {
-        if store.state.fileName != nil {
-            BitwardenField(title: Localizations.fileName) {
-                HStack(spacing: 0) {
-                    fileNameStemField
-
-                    Text(store.state.fileNameExtension)
+        if let fileName = store.state.fileName {
+            if store.state.isMobileAttachmentUpdatesEnabled {
+                editableFileName
+            } else {
+                BitwardenField {
+                    Text(fileName)
                         .styleGuide(.body)
-                        .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
-                        .lineLimit(1)
-                        .fixedSize()
+                        .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                 }
-                .frame(maxWidth: .infinity, minHeight: 28, alignment: .leading)
-                // Make the whole row, including the extension and the empty space after it, focus the field.
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    isFileNameFocused = true
-                }
+                .contentBlock()
             }
-            .contentBlock()
         }
     }
 
@@ -115,6 +110,29 @@ struct AttachmentsView: View {
                 }
             }
         }
+    }
+
+    /// The chosen file's name, which can be edited. The file's extension is shown in gray directly
+    /// after it and can't be changed.
+    private var editableFileName: some View {
+        BitwardenField(title: Localizations.fileName) {
+            HStack(spacing: 0) {
+                fileNameStemField
+
+                Text(store.state.fileNameExtension)
+                    .styleGuide(.body)
+                    .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
+                    .lineLimit(1)
+                    .fixedSize()
+            }
+            .frame(maxWidth: .infinity, minHeight: 28, alignment: .leading)
+            // Make the whole row, including the extension and the empty space after it, focus the field.
+            .contentShape(Rectangle())
+            .onTapGesture {
+                isFileNameFocused = true
+            }
+        }
+        .contentBlock()
     }
 
     /// The text field for editing the file name without its extension.
@@ -232,6 +250,7 @@ struct AttachmentsView: View {
             state: AttachmentsState(
                 fileName: "photo.jpg",
                 fileNameExtension: ".jpg",
+                isMobileAttachmentUpdatesEnabled: true,
             ),
         )))
     }
@@ -243,6 +262,7 @@ struct AttachmentsView: View {
             state: AttachmentsState(
                 fileName: "IMG_20261012_123456_a_very_long_camera_file_name_that_keeps_going_and_going.jpeg",
                 fileNameExtension: ".jpeg",
+                isMobileAttachmentUpdatesEnabled: true,
             ),
         )))
     }

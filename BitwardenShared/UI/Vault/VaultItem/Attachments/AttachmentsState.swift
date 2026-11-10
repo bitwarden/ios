@@ -29,6 +29,10 @@ struct AttachmentsState: Equatable, Sendable {
     /// Whether the user has access to Premium features.
     var hasPremium = false
 
+    /// Whether the mobile attachment updates feature flag is enabled, which allows the user to rename
+    /// the chosen file before it's uploaded.
+    var isMobileAttachmentUpdatesEnabled = false
+
     /// A toast message to show in the view.
     var toast: Toast?
 
