@@ -214,5 +214,10 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
         state.showPlanRow = isPlanRowAvailable
             && !hasPremiumFromOrganizationOnly
             && !hasPremiumWithoutSubscription
+        let isPlanBadgeDismissed = await services.billingService.isPlanBadgeDismissed()
+        state.showPlanBadge = state.showPlanRow
+            && !hasPremium
+            && hasPersonalSubscription != true
+            && !isPlanBadgeDismissed
     }
 }
