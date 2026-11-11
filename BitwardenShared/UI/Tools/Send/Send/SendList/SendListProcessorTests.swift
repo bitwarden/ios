@@ -15,6 +15,7 @@ import XCTest
 class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var billingRepository: MockBillingRepository!
     var billingService: MockBillingService!
     var coordinator: MockCoordinator<SendRoute, Void>!
     var errorReporter: MockErrorReporter!
@@ -28,6 +29,8 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     override func setUp() {
         super.setUp()
 
+        billingRepository = MockBillingRepository()
+        billingRepository.isInAppUpgradeAvailableReturnValue = false
         billingService = MockBillingService()
         billingService.shouldShowUpgradedToPremiumActionCardReturnValue = false
         coordinator = MockCoordinator()
@@ -41,6 +44,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject = SendListProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                billingRepository: billingRepository,
                 billingService: billingService,
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
@@ -56,6 +60,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     override func tearDown() {
         super.tearDown()
 
+        billingRepository = nil
         coordinator = nil
         errorReporter = nil
         policyService = nil
@@ -84,7 +89,20 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.state.type = .file
         await subject.perform(.addItemPressed(.file))
 
-        XCTAssertEqual(coordinator.alertShown, [.fileSendPremiumRequired {}])
+        XCTAssertEqual(coordinator.alertShown, [.fileSendPremiumRequired(isInAppUpgradeAvailable: false) {}])
+        XCTAssertTrue(coordinator.routes.isEmpty)
+    }
+
+    /// `perform(_:)` with `.addItemPressed` shows a Premium required alert with an "Explore Premium"
+    /// action if attempting to add a file send, the user doesn't have Premium, and the in-app upgrade is available.
+    @MainActor
+    func test_perform_addItemPressed_fileType_withoutPremium_inAppUpgradeAvailable() async throws {
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        sendRepository.doesActivateAccountHavePremiumResult = false
+        subject.state.type = .file
+        await subject.perform(.addItemPressed(.file))
+
+        XCTAssertEqual(coordinator.alertShown, [.fileSendPremiumRequired(isInAppUpgradeAvailable: true) {}])
         XCTAssertTrue(coordinator.routes.isEmpty)
     }
 
