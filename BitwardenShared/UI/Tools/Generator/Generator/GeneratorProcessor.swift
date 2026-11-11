@@ -41,6 +41,12 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     /// A flag set once the initial generator options have been loaded.
     private(set) var didLoadGeneratorOptions = false
 
+    /// Whether the generator is set to generate a forwarded email alias. Generating one creates an
+    /// alias with the user's forwarding service, so it's only done when the user requests it.
+    private var isForwardedEmailUsernameGenerator: Bool {
+        state.generatorType == .username && state.usernameState.usernameGeneratorType == .forwardedEmail
+    }
+
     /// The key path of the currently focused text field.
     private var focusedKeyPath: KeyPath<GeneratorState, String>?
 
@@ -89,7 +95,11 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         switch effect {
         case .appeared:
             await reloadGeneratorOptions()
-            await generateValue(shouldSavePassword: true)
+            if isForwardedEmailUsernameGenerator {
+                state.generatedValue = Constants.defaultGeneratedUsername
+            } else {
+                await generateValue(shouldSavePassword: true)
+            }
             await checkLearnGeneratorActionCardEligibility()
             state.shouldShowUpgradedToPremiumActionCard = await services.billingService
                 .shouldShowUpgradedToPremiumActionCard()
@@ -128,6 +138,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         case let .emailTypeChanged(emailType):
             state.usernameState.updateEmailType(emailType)
         case .fillGeneratedValue:
+            guard state.hasGeneratedValue else { break }
             coordinator.navigate(
                 to: .complete(
                     type: state.generatorType,
@@ -197,11 +208,16 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         }
 
         if let generateValueBehavior {
+            let isRefreshRequested = action == .refreshGeneratedValue
             generateValueTask?.cancel()
             generateValueTask = Task {
                 switch generateValueBehavior {
                 case let .generateNewValue(shouldSave):
-                    await generateValue(shouldSavePassword: shouldSave)
+                    if isForwardedEmailUsernameGenerator, !isRefreshRequested {
+                        state.generatedValue = Constants.defaultGeneratedUsername
+                    } else {
+                        await generateValue(shouldSavePassword: shouldSave)
+                    }
                 case .saveExistingValue:
                     await saveExistingGeneratedValue()
                 }

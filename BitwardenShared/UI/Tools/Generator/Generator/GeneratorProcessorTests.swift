@@ -437,6 +437,26 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertTrue(generatorRepository.getPasswordGenerationOptionsCalled)
     }
 
+    /// `perform(_:)` with `.appeared` doesn't generate a forwarded email alias, since doing so
+    /// creates an alias with the user's forwarding service, and shows the placeholder instead.
+    @MainActor
+    func test_perform_appeared_forwardedEmail_doesNotGenerateValue() async {
+        generatorRepository.getUsernameGenerationOptionsResult = .success(UsernameGenerationOptions(
+            anonAddyApiAccessToken: "TOKEN",
+            anonAddyDomainName: "bitwarden.com",
+            serviceType: .addyIO,
+            type: .forwardedEmail,
+        ))
+        setUpSubject()
+        subject.state.generatorType = .username
+
+        await subject.perform(.appeared)
+
+        XCTAssertEqual(subject.state.usernameState.usernameGeneratorType, .forwardedEmail)
+        XCTAssertNil(generatorRepository.usernameGeneratorRequest)
+        XCTAssertEqual(subject.state.generatedValue, Constants.defaultGeneratedUsername)
+    }
+
     /// `perform(_:)` with `.appeared` logs an error when `loadGeneratorOptions` throws an error.
     @MainActor
     func test_perform_appear_reloadGeneratorOptions_logsError() {
@@ -655,6 +675,19 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(reviewPromptService.userActions, [.copiedOrInsertedGeneratedValue])
     }
 
+    /// `receive(_:)` with `.fillGeneratedValue` doesn't fill the placeholder username, which is shown
+    /// for a forwarded email until the user generates an alias.
+    @MainActor
+    func test_receive_fillGeneratedValue_placeholderUsername() {
+        subject.state.generatorType = .username
+        subject.state.usernameState.usernameGeneratorType = .forwardedEmail
+        subject.state.generatedValue = Constants.defaultGeneratedUsername
+
+        subject.receive(.fillGeneratedValue)
+
+        XCTAssertTrue(coordinator.routes.isEmpty)
+    }
+
     /// `receive(_:)` with `.generatorTypeChanged` updates the state's generator type value.
     @MainActor
     func test_receive_generatorTypeChanged() {
@@ -798,6 +831,49 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         XCTAssertEqual(subject.state.generatedValue, "USERNAME")
         XCTAssertFalse(generatorRepository.addPasswordHistoryCalled)
+    }
+
+    /// `receive(_:)` with `.refreshGeneratedValue` generates a new forwarded email alias, since the
+    /// user explicitly requested it.
+    @MainActor
+    func test_receive_refreshGeneratedValue_forwardedEmail() {
+        subject.state.generatorType = .username
+        subject.state.usernameState.usernameGeneratorType = .forwardedEmail
+        subject.state.usernameState.forwardedEmailService = .addyIO
+        subject.state.usernameState.addyIOAPIAccessToken = "TOKEN"
+        subject.state.usernameState.addyIODomainName = "bitwarden.com"
+
+        subject.receive(.refreshGeneratedValue)
+
+        waitFor { subject.state.generatedValue == "USERNAME" }
+
+        guard case .forwarded = generatorRepository.usernameGeneratorRequest else {
+            XCTFail("Expected a forwarded username generator request.")
+            return
+        }
+        XCTAssertEqual(subject.state.generatedValue, "USERNAME")
+    }
+
+    /// `receive(_:)` with `.generatorTypeChanged` to username doesn't generate a forwarded email
+    /// alias, but still saves the generator options.
+    @MainActor
+    func test_receive_generatorTypeChanged_forwardedEmail_doesNotGenerateValue() {
+        generatorRepository.getUsernameGenerationOptionsResult = .success(UsernameGenerationOptions(
+            anonAddyApiAccessToken: "TOKEN",
+            anonAddyDomainName: "bitwarden.com",
+            serviceType: .addyIO,
+            type: .forwardedEmail,
+        ))
+        setUpSubject()
+        waitFor(subject.didLoadGeneratorOptions)
+        subject.state.generatedValue = "PASSWORD"
+        XCTAssertEqual(subject.state.generatorType, .password)
+
+        subject.receive(.generatorTypeChanged(.username))
+
+        waitFor { generatorRepository.usernameGenerationOptions.type == .forwardedEmail }
+        XCTAssertNil(generatorRepository.usernameGeneratorRequest)
+        XCTAssertEqual(subject.state.generatedValue, Constants.defaultGeneratedUsername)
     }
 
     /// `receive(_:)` with `.showPasswordHistory` asks the coordinator to show the password history.
