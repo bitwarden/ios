@@ -53,14 +53,9 @@ class MoveToOrganizationViewTests: BitwardenTestCase {
     /// feature flag is enabled.
     @MainActor
     func test_moveButton_tap_vfo1FoundationEnabled() async throws {
-        guard #unavailable(iOS 26) else {
-            // TODO: PM-26079 Remove when toolbar AsyncButton is used.
-            throw XCTSkip("Remove this when the toolbar move button gets updated to use AsyncButton.")
-        }
-
         processor.state.isVfo1FoundationFeatureFlagEnabled = true
 
-        let button = try subject.inspect().find(asyncButton: Localizations.move)
+        let button = try subject.inspect().find(asyncButtonWithAccessibilityIdentifier: "MoveButton")
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .moveCipher)
     }

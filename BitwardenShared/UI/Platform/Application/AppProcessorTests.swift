@@ -1501,6 +1501,13 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
+    /// `onFetchSyncSucceeded(userId:)` triggers a subscription status refresh on every sync.
+    func test_onFetchSyncSucceeded_refreshesSubscriptionStatus() async {
+        await subject.onFetchSyncSucceeded(userId: "1")
+
+        XCTAssertTrue(billingService.refreshSubscriptionStatusCalled)
+    }
+
     /// `onFetchSyncSucceeded(userId:)` doesn't do anything when
     /// `setHasPerformedSyncAfterLogin(hasBeenPerformed:, userId:)` throws.
     func test_onFetchSyncSucceeded_setHasPerformedSyncAfterLoginThrows() async throws {
@@ -1523,13 +1530,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         XCTAssertTrue(authRepository.clearPinsCalled)
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
-    }
-
-    /// `onFetchSyncSucceeded(userId:)` triggers a subscription attention card refresh on every sync.
-    func test_onFetchSyncSucceeded_refreshesSubscriptionAttentionCard() async {
-        await subject.onFetchSyncSucceeded(userId: "1")
-
-        XCTAssertTrue(billingService.refreshSubscriptionAttentionCardCalled)
     }
 
     /// `onFetchSyncSucceeded(userId:)` completes a pending Premium upgrade for the account that
