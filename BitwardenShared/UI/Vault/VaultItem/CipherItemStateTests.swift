@@ -341,31 +341,15 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(subject.canMoveToOrganization)
     }
 
-    /// `collectionAccessibilityLabel(_:)` reads "Collection, <name>" when the `vfo1-foundation`
-    /// feature flag is disabled.
-    func test_collectionAccessibilityLabel_vfo1FoundationDisabled() {
+    /// `collectionAccessibilityLabel(_:)` reads "Shared folder, <name>".
+    func test_collectionAccessibilityLabel() {
         let subject = CipherItemState(hasPremium: false)
-        XCTAssertEqual(subject.collectionAccessibilityLabel("Marketing"), Localizations.collectionX("Marketing"))
-    }
-
-    /// `collectionAccessibilityLabel(_:)` reads "Shared folder, <name>" when the `vfo1-foundation`
-    /// feature flag is enabled.
-    func test_collectionAccessibilityLabel_vfo1FoundationEnabled() {
-        var subject = CipherItemState(hasPremium: false)
-        subject.isVfo1FoundationFeatureFlagEnabled = true
         XCTAssertEqual(subject.collectionAccessibilityLabel("Marketing"), Localizations.sharedFolderX("Marketing"))
     }
 
-    /// `collectionIcon` is the collections icon when the `vfo1-foundation` feature flag is disabled.
-    func test_collectionIcon_vfo1FoundationDisabled() {
+    /// `collectionIcon` is the shared folder icon.
+    func test_collectionIcon() {
         let subject = CipherItemState(hasPremium: false)
-        XCTAssertEqual(subject.collectionIcon.name, SharedAsset.Icons.collections16.name)
-    }
-
-    /// `collectionIcon` is the shared folder icon when the `vfo1-foundation` feature flag is enabled.
-    func test_collectionIcon_vfo1FoundationEnabled() {
-        var subject = CipherItemState(hasPremium: false)
-        subject.isVfo1FoundationFeatureFlagEnabled = true
         XCTAssertEqual(subject.collectionIcon.name, SharedAsset.Icons.sharedFolder16.name)
     }
 
@@ -376,38 +360,17 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertNil(subject.folderAccessibilityLabel)
     }
 
-    /// `folderAccessibilityLabel` announces "Folder, <name>" when the `vfo1-foundation` feature
-    /// flag is disabled.
-    func test_folderAccessibilityLabel_vfo1FoundationDisabled() {
+    /// `folderAccessibilityLabel` announces "My folder, <name>".
+    func test_folderAccessibilityLabel() {
         var subject = CipherItemState(addItem: .login, hasPremium: false)
         subject.folderName = "Finances"
-        subject.isVfo1FoundationFeatureFlagEnabled = false
-
-        XCTAssertEqual(subject.folderAccessibilityLabel, Localizations.folderX("Finances"))
-    }
-
-    /// `folderAccessibilityLabel` announces "My folder, <name>" when the `vfo1-foundation`
-    /// feature flag is enabled.
-    func test_folderAccessibilityLabel_vfo1FoundationEnabled() {
-        var subject = CipherItemState(addItem: .login, hasPremium: false)
-        subject.folderName = "Finances"
-        subject.isVfo1FoundationFeatureFlagEnabled = true
 
         XCTAssertEqual(subject.folderAccessibilityLabel, Localizations.myFolderX("Finances"))
     }
 
-    /// `folderTitle` is "Folder" when the `vfo1-foundation` feature flag is disabled.
-    func test_folderTitle_vfo1FoundationDisabled() {
-        var subject = CipherItemState(addItem: .login, hasPremium: false)
-        subject.isVfo1FoundationFeatureFlagEnabled = false
-
-        XCTAssertEqual(subject.folderTitle, Localizations.folder)
-    }
-
-    /// `folderTitle` is "My folder" when the `vfo1-foundation` feature flag is enabled.
-    func test_folderTitle_vfo1FoundationEnabled() {
-        var subject = CipherItemState(addItem: .login, hasPremium: false)
-        subject.isVfo1FoundationFeatureFlagEnabled = true
+    /// `folderTitle` is "My folder".
+    func test_folderTitle() {
+        let subject = CipherItemState(addItem: .login, hasPremium: false)
 
         XCTAssertEqual(subject.folderTitle, Localizations.myFolder)
     }
@@ -587,20 +550,9 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(subjectSSHKey.navigationTitle, Localizations.addSSHKey)
     }
 
-    /// `noFolderAccessibilityLabel` announces "Folder, No Folder" when the `vfo1-foundation`
-    /// feature flag is disabled.
-    func test_noFolderAccessibilityLabel_vfo1FoundationDisabled() {
-        var subject = CipherItemState(addItem: .login, hasPremium: false)
-        subject.isVfo1FoundationFeatureFlagEnabled = false
-
-        XCTAssertEqual(subject.noFolderAccessibilityLabel, Localizations.folderX(Localizations.folderNone))
-    }
-
-    /// `noFolderAccessibilityLabel` announces "My folder, No Folder" when the `vfo1-foundation`
-    /// feature flag is enabled.
-    func test_noFolderAccessibilityLabel_vfo1FoundationEnabled() {
-        var subject = CipherItemState(addItem: .login, hasPremium: false)
-        subject.isVfo1FoundationFeatureFlagEnabled = true
+    /// `noFolderAccessibilityLabel` announces "My folder, No Folder".
+    func test_noFolderAccessibilityLabel() {
+        let subject = CipherItemState(addItem: .login, hasPremium: false)
 
         XCTAssertEqual(subject.noFolderAccessibilityLabel, Localizations.myFolderX(Localizations.folderNone))
     }
@@ -611,20 +563,10 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertNil(subject.organizationAccessibilityLabel)
     }
 
-    /// `organizationAccessibilityLabel` reads "Owner, <name>" when the `vfo1-foundation`
-    /// feature flag is disabled.
-    func test_organizationAccessibilityLabel_vfo1FoundationDisabled() {
+    /// `organizationAccessibilityLabel` reads "Vault, <name>".
+    func test_organizationAccessibilityLabel() {
         var subject = CipherItemState(hasPremium: false)
         subject.organizationName = "Organization"
-        XCTAssertEqual(subject.organizationAccessibilityLabel, Localizations.ownerX("Organization"))
-    }
-
-    /// `organizationAccessibilityLabel` reads "Vault, <name>" when the `vfo1-foundation`
-    /// feature flag is enabled.
-    func test_organizationAccessibilityLabel_vfo1FoundationEnabled() {
-        var subject = CipherItemState(hasPremium: false)
-        subject.organizationName = "Organization"
-        subject.isVfo1FoundationFeatureFlagEnabled = true
         XCTAssertEqual(subject.organizationAccessibilityLabel, Localizations.vaultX("Organization"))
     }
 
@@ -652,16 +594,9 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(subject.collectionIds, ["1"])
     }
 
-    /// `ownerFieldTitle` reads "Owner" when the `vfo1-foundation` feature flag is disabled.
-    func test_ownerFieldTitle_vfo1FoundationDisabled() {
+    /// `ownerFieldTitle` reads "Vault".
+    func test_ownerFieldTitle() {
         let subject = CipherItemState(hasPremium: false)
-        XCTAssertEqual(subject.ownerFieldTitle, Localizations.owner)
-    }
-
-    /// `ownerFieldTitle` reads "Vault" when the `vfo1-foundation` feature flag is enabled.
-    func test_ownerFieldTitle_vfo1FoundationEnabled() {
-        var subject = CipherItemState(hasPremium: false)
-        subject.isVfo1FoundationFeatureFlagEnabled = true
         XCTAssertEqual(subject.ownerFieldTitle, Localizations.vault)
     }
 

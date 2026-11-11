@@ -266,7 +266,6 @@ private struct SearchableVaultListView: View {
                         iconBaseURL: state.iconBaseURL,
                         hasPremium: state.hasPremium,
                         isFromExtension: false,
-                        isVfo1FoundationFeatureFlagEnabled: state.isVfo1FoundationFeatureFlagEnabled,
                         item: item,
                         hasDivider: !isLastInSection,
                         showWebIcons: state.showWebIcons,

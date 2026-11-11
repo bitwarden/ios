@@ -131,7 +131,6 @@ struct AddEditItemView: View {
                             isMoveToOrganizationEnabled: store.state.canMoveToOrganization,
                             isRestoreEnabled: false,
                             isUnarchiveEnabled: store.state.canBeUnarchived,
-                            isVfo1FoundationFeatureFlagEnabled: store.state.isVfo1FoundationFeatureFlagEnabled,
                             store: store.child(
                                 state: { _ in },
                                 mapAction: { .morePressed($0) },

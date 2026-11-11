@@ -31,7 +31,6 @@ class VaultItemManagementMenuViewTests: BitwardenTestCase {
             isMoveToOrganizationEnabled: true,
             isRestoreEnabled: true,
             isUnarchiveEnabled: false,
-            isVfo1FoundationFeatureFlagEnabled: false,
             store: store,
         )
     }
@@ -68,30 +67,9 @@ class VaultItemManagementMenuViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .clone)
     }
 
-    /// Tapping the collections option dispatches the `.editCollections` action when the
-    /// `vfo1-foundation` feature flag is disabled.
+    /// Tapping the shared folders option dispatches the `.editCollections` action.
     @MainActor
-    func test_collectionsOption_tap_vfo1FoundationDisabled() throws {
-        let button = try subject.inspect().find(button: Localizations.collections)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .editCollections)
-    }
-
-    /// Tapping the shared folders option dispatches the `.editCollections` action when the
-    /// `vfo1-foundation` feature flag is enabled.
-    @MainActor
-    func test_collectionsOption_tap_vfo1FoundationEnabled() throws {
-        subject = VaultItemManagementMenuView(
-            isArchiveEnabled: true,
-            isCloneEnabled: true,
-            isCollectionsEnabled: true,
-            isDeleteEnabled: true,
-            isMoveToOrganizationEnabled: true,
-            isRestoreEnabled: true,
-            isUnarchiveEnabled: false,
-            isVfo1FoundationFeatureFlagEnabled: true,
-            store: Store(processor: processor),
-        )
+    func test_collectionsOption_tap() throws {
         let button = try subject.inspect().find(button: Localizations.sharedFolders)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .editCollections)
@@ -105,30 +83,9 @@ class VaultItemManagementMenuViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.effects.last, .deleteItem)
     }
 
-    /// Tapping the move to organization option dispatches the `.moveToOrganization` action when
-    /// the `vfo1-foundation` feature flag is disabled.
+    /// Tapping the move to organization option dispatches the `.moveToOrganization` action.
     @MainActor
-    func test_moveToOrgOption_tap_vfo1FoundationDisabled() throws {
-        let button = try subject.inspect().find(button: Localizations.moveToOrganization)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .moveToOrganization)
-    }
-
-    /// Tapping the move to organization option dispatches the `.moveToOrganization` action when
-    /// the `vfo1-foundation` feature flag is enabled.
-    @MainActor
-    func test_moveToOrgOption_tap_vfo1FoundationEnabled() throws {
-        subject = VaultItemManagementMenuView(
-            isArchiveEnabled: true,
-            isCloneEnabled: true,
-            isCollectionsEnabled: true,
-            isDeleteEnabled: true,
-            isMoveToOrganizationEnabled: true,
-            isRestoreEnabled: true,
-            isUnarchiveEnabled: false,
-            isVfo1FoundationFeatureFlagEnabled: true,
-            store: Store(processor: processor),
-        )
+    func test_moveToOrgOption_tap() throws {
         let button = try subject.inspect().find(button: Localizations.move)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .moveToOrganization)

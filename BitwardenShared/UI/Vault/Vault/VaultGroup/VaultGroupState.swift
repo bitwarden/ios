@@ -86,9 +86,6 @@ struct VaultGroupState: Equatable, Sendable {
     /// Is the view searching.
     var isSearching: Bool = false
 
-    /// Whether the `vfo1-foundation` feature flag is enabled.
-    var isVfo1FoundationFeatureFlagEnabled = false
-
     /// The current loading state.
     var loadingState: LoadingState<[VaultListSection]> = .loading(nil)
 
@@ -102,9 +99,7 @@ struct VaultGroupState: Equatable, Sendable {
         case .card:
             Localizations.thereAreNoCardsInYourVault
         case .collection:
-            isVfo1FoundationFeatureFlagEnabled
-                ? Localizations.thereAreNoItemsInThisSharedFolder
-                : Localizations.noItemsCollection
+            Localizations.thereAreNoItemsInThisSharedFolder
         case .folder:
             Localizations.noItemsFolder
         case .identity:

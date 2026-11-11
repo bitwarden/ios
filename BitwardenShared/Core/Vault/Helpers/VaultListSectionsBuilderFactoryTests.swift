@@ -11,7 +11,6 @@ class VaultListSectionsBuilderFactoryTests: BitwardenTestCase {
 
     var clientService: MockClientService!
     var collectionHelper: MockCollectionHelper!
-    var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
     var subject: VaultListSectionsBuilderFactory!
 
@@ -22,12 +21,10 @@ class VaultListSectionsBuilderFactoryTests: BitwardenTestCase {
 
         clientService = MockClientService()
         collectionHelper = MockCollectionHelper()
-        configService = MockConfigService()
         errorReporter = MockErrorReporter()
         subject = DefaultVaultListSectionsBuilderFactory(
             clientService: clientService,
             collectionHelper: collectionHelper,
-            configService: configService,
             errorReporter: errorReporter,
             stateService: MockStateService(),
         )
@@ -38,7 +35,6 @@ class VaultListSectionsBuilderFactoryTests: BitwardenTestCase {
 
         clientService = nil
         collectionHelper = nil
-        configService = nil
         errorReporter = nil
         subject = nil
     }

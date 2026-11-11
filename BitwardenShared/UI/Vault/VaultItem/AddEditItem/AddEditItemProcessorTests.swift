@@ -733,14 +733,6 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.cardItemState.cardScannerEnabled)
     }
 
-    /// `perform(_:)` with `.appeared` loads the vfo1-foundation feature flag.
-    @MainActor
-    func test_perform_appeared_featureFlags_vfo1Foundation() async {
-        configService.featureFlagsBool[.vfo1Foundation] = true
-        await subject.perform(.appeared)
-        XCTAssertTrue(subject.state.isVfo1FoundationFeatureFlagEnabled)
-    }
-
     /// `perform(_:)` with `.appeared` doesn't show the password autofill alert if it has already been shown.
     @MainActor
     func test_perform_appeared_showPasswordAutofill_alreadyShown() async {
@@ -1411,32 +1403,11 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.errorAlertsShown as? [EncryptError], [EncryptError()])
     }
 
-    /// `perform(_:)` with `.savePressed` shows an error if an organization but no collections have been selected,
-    /// when the `vfo1-foundation` feature flag is disabled.
+    /// `perform(_:)` with `.savePressed` shows an error if an organization but no collections have been selected.
     @MainActor
-    func test_perform_savePressed_noCollection_vfo1FoundationDisabled() async throws {
+    func test_perform_savePressed_noCollection() async throws {
         subject.state.name = "Organization Item"
         subject.state.owner = CipherOwner.organization(id: "123", name: "Organization")
-
-        await subject.perform(.savePressed)
-
-        let alert = try XCTUnwrap(coordinator.alertShown.first)
-        XCTAssertEqual(
-            alert,
-            Alert.defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                message: Localizations.selectOneCollection,
-            ),
-        )
-    }
-
-    /// `perform(_:)` with `.savePressed` shows an error if an organization but no collections have been selected,
-    /// when the `vfo1-foundation` feature flag is enabled.
-    @MainActor
-    func test_perform_savePressed_noCollection_vfo1FoundationEnabled() async throws {
-        subject.state.name = "Organization Item"
-        subject.state.owner = CipherOwner.organization(id: "123", name: "Organization")
-        subject.state.isVfo1FoundationFeatureFlagEnabled = true
 
         await subject.perform(.savePressed)
 

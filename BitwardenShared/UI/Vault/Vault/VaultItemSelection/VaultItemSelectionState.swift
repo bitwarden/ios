@@ -15,9 +15,6 @@ struct VaultItemSelectionState: Equatable {
     /// Whether the active account has Premium, used to gate the Copy TOTP accessibility action.
     var hasPremium: Bool = false
 
-    /// Whether the `vfo1-foundation` feature flag is enabled.
-    var isVfo1FoundationFeatureFlagEnabled = false
-
     /// The user's current account profile state and alternative accounts.
     var profileSwitcherState: ProfileSwitcherState = .empty(shouldAlwaysHideAddAccount: true)
 

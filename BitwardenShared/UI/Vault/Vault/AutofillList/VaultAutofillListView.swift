@@ -344,7 +344,6 @@ private struct VaultAutofillListSearchableView: View {
                     VaultListItemRowState(
                         iconBaseURL: state.iconBaseURL,
                         isFromExtension: true,
-                        isVfo1FoundationFeatureFlagEnabled: state.isVfo1FoundationFeatureFlagEnabled,
                         item: item,
                         hasDivider: !isLastInSection,
                         showTotpCopyButton: false,

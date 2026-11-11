@@ -24,7 +24,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     var billingRepository: MockBillingRepository!
     var billingService: MockBillingService!
     var changeKdfService: MockChangeKdfService!
-    var configService: MockConfigService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
@@ -68,7 +67,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         billingService.shouldShowUpgradedToPremiumActionCardReturnValue = false
         errorReporter = MockErrorReporter()
         changeKdfService = MockChangeKdfService()
-        configService = MockConfigService()
         coordinator = MockCoordinator()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
@@ -98,7 +96,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             billingRepository: billingRepository,
             billingService: billingService,
             changeKdfService: changeKdfService,
-            configService: configService,
             errorReporter: errorReporter,
             eventService: eventService,
             flightRecorder: flightRecorder,
@@ -132,7 +129,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         billingRepository = nil
         billingService = nil
         changeKdfService = nil
-        configService = nil
         coordinator = nil
         environmentService = nil
         errorReporter = nil
@@ -326,14 +322,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         )
         XCTAssertEqual(subject.state.vaultFilterType, .allVaults)
         XCTAssertTrue(searchProcessorMediatorFactory.makeCalled)
-    }
-
-    /// `perform(_:)` with `.appeared` loads the vfo1-foundation feature flag.
-    @MainActor
-    func test_perform_appeared_featureFlags_vfo1Foundation() async {
-        configService.featureFlagsBool[.vfo1Foundation] = true
-        await subject.perform(.appeared)
-        XCTAssertTrue(subject.state.isVfo1FoundationFeatureFlagEnabled)
     }
 
     /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.

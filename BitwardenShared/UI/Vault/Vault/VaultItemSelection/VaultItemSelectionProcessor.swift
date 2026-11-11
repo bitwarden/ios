@@ -17,7 +17,6 @@ class VaultItemSelectionProcessor: StateProcessor<
     typealias Services = HasAuthRepository
         & HasBillingRepository
         & HasBillingService
-        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasEventService
@@ -105,7 +104,6 @@ class VaultItemSelectionProcessor: StateProcessor<
                 },
             )
         case .loadData:
-            state.isVfo1FoundationFeatureFlagEnabled = await services.configService.getFeatureFlag(.vfo1Foundation)
             state.hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
             await refreshProfileState()
         case let .morePressed(item):
