@@ -103,8 +103,7 @@ public protocol VaultRepository: AnyObject {
     /// `uri` and that has the same username and password, if one exists. Deleted and archived logins
     /// are ignored.
     ///
-    /// Only the first AutoFill URI is considered because it's the URI the login's credential identity
-    /// is registered under, so a match is guaranteed to be offered by the system for `uri`.
+    /// Only the login's first AutoFill URI is matched.
     ///
     /// Errors are logged and `nil` is returned, since failing to find a duplicate shouldn't prevent
     /// the caller from saving the login.
@@ -498,11 +497,15 @@ class DefaultVaultRepository {
             .successes
             .compactMap { cipherListView -> String? in
                 // Match the first AutoFill URI, using the same rules as `CredentialIdentityFactory`.
+                // It's the only URI the login's credential identity is registered under, so a match is
+                // guaranteed to be offered by the system for `uri`.
                 let firstAutofillUri = cipherListView.type.loginListView?.uris?
                     .first { $0.match != .never && $0.uri.isEmptyOrNil == false }?
                     .uri
+                // Usernames and passwords are compared byte for byte, since `String` equality treats
+                // canonically equivalent Unicode (e.g. "é" and "e" + combining accent) as equal.
                 guard let login = cipherListView.type.loginListView,
-                      (login.username ?? "") == username,
+                      (login.username ?? "").utf8.elementsEqual(username.utf8),
                       firstAutofillUri == uri else {
                     return nil
                 }
@@ -511,7 +514,8 @@ class DefaultVaultRepository {
 
         for cipherId in candidateIds {
             guard let cipherView = try await fetchCipher(withId: cipherId),
-                  cipherView.login?.password == password else {
+                  let existingPassword = cipherView.login?.password,
+                  existingPassword.utf8.elementsEqual(password.utf8) else {
                 continue
             }
             return cipherView

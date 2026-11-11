@@ -60,6 +60,35 @@ struct AddEditItemProcessorSavePasswordCredentialTests {
         #expect(reviewPromptService.userActions == [.addedNewItem])
     }
 
+    /// `perform(_:)` with `.savePressed` in the save-password-credential extension flow doesn't
+    /// complete the save password request until the added login's identities are in the identity
+    /// store, so the extension isn't torn down before the identity store is updated.
+    @Test
+    @available(iOS 17.0, *)
+    func perform_savePressed_savePasswordCredential_waitsForUpsert() async throws {
+        let (appExtensionDelegate, subject) = makeSubject()
+
+        subject.state.name = "example.com"
+        subject.state.loginState.username = "user@example.com"
+        subject.state.loginState.password = "s3cr3t"
+        appExtensionDelegate.extensionMode = .savePasswordCredential(
+            MockSavePasswordRequestProxy(),
+            userInteraction: true,
+        )
+        autofillCredentialService.upsertCredentialsInStoreSuspends = true
+        vaultRepository.addCipherResult = .success(.fixture(id: "new-cipher-id"))
+
+        let task = Task { await subject.perform(.savePressed) }
+
+        try await waitForAsync { autofillCredentialService.upsertCredentialsInStoreContinuation != nil }
+        #expect(!appExtensionDelegate.completeSavePasswordRequestCalled)
+
+        autofillCredentialService.resumeUpsertCredentialsInStore()
+        await task.value
+
+        #expect(appExtensionDelegate.completeSavePasswordRequestCalled)
+    }
+
     /// `perform(_:)` with `.savePressed` outside the save-password-credential flow adds the cipher
     /// without updating the identity store or completing a save password request.
     @Test

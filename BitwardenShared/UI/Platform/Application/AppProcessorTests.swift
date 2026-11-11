@@ -1056,6 +1056,38 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(autofillCredentialService.upsertCredentialsInStoreCipherIds, ["existing-cipher-id"])
     }
 
+    /// `savePasswordCredential(username:password:uri:name:)` doesn't return until the added login's
+    /// identities are in the identity store, since the extension completes the save request as soon
+    /// as it returns.
+    @available(iOS 26.2, *)
+    @MainActor
+    func test_savePasswordCredential_waitsForUpsert() async throws {
+        vaultRepository.addCipherResult = .success(.fixture(id: "new-cipher-id"))
+        autofillCredentialService.upsertCredentialsInStoreSuspends = true
+
+        var didReturn = false
+        let task = Task {
+            try await subject.savePasswordCredential(
+                username: "user",
+                password: "pass",
+                uri: "https://example.com",
+                name: nil,
+            )
+            didReturn = true
+        }
+
+        try await waitForAsync { [weak self] in
+            self?.autofillCredentialService.upsertCredentialsInStoreContinuation != nil
+        }
+        XCTAssertFalse(didReturn)
+
+        autofillCredentialService.resumeUpsertCredentialsInStore()
+        try await task.value
+
+        XCTAssertTrue(didReturn)
+        XCTAssertEqual(autofillCredentialService.upsertCredentialsInStoreCipherIds, ["new-cipher-id"])
+    }
+
     /// `savePasswordCredential(username:password:uri:name:)` derives the cipher name from the URI host
     /// when name is nil.
     @available(iOS 26.2, *)

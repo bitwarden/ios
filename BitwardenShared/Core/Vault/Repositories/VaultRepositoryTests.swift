@@ -924,6 +924,45 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertNil(result)
     }
 
+    /// `existingLogin(matchingUri:username:password:)` doesn't match a login whose password is
+    /// canonically equivalent but byte-distinct, since a site may treat them as different passwords.
+    func test_existingLogin_canonicallyEquivalentPassword() async {
+        prepareExistingLoginCiphers([
+            .fixture(
+                id: "1",
+                login: .fixture(password: "\u{00E9}", uris: [.fixture(uri: "https://example.com")], username: "user"),
+            ),
+        ])
+
+        let result = await subject.existingLogin(
+            matchingUri: "https://example.com",
+            username: "user",
+            password: "e\u{0301}",
+        )
+
+        XCTAssertNil(result)
+    }
+
+    /// `existingLogin(matchingUri:username:password:)` doesn't match a login whose username is
+    /// canonically equivalent but byte-distinct.
+    func test_existingLogin_canonicallyEquivalentUsername() async {
+        prepareExistingLoginCiphers([
+            .fixture(
+                id: "1",
+                login: .fixture(password: "pass", uris: [.fixture(uri: "https://example.com")], username: "\u{00E9}"),
+            ),
+        ])
+
+        let result = await subject.existingLogin(
+            matchingUri: "https://example.com",
+            username: "e\u{0301}",
+            password: "pass",
+        )
+
+        XCTAssertNil(result)
+        XCTAssertNil(cipherService.fetchCipherId)
+    }
+
     /// `existingLogin(matchingUri:username:password:)` logs the error and returns `nil` when fetching
     /// the ciphers fails.
     func test_existingLogin_fetchError() async {
