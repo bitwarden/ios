@@ -34,27 +34,30 @@ class ManualEntryViewTests: BitwardenTestCase {
 
     // MARK: Snapshots
 
-    /// Test a snapshot of the ProfileSwitcherView empty state.
-    func disabletest_snapshot_manualEntryView_empty() {
-//        assertSnapshots(
-//            of: ManualEntryView_Previews.empty,
-//            as: [
-//                .defaultPortrait,
-//                .defaultLandscape,
-//                .defaultPortraitDark,
-//            ],
-//        )
+    /// Test a snapshot of the `ManualEntryView` empty state.
+    @MainActor
+    func test_snapshot_manualEntryView_empty() {
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [
+                .defaultPortrait,
+                .defaultLandscape,
+                .defaultPortraitDark,
+            ],
+        )
     }
 
-    /// Test a snapshot of the ProfileSwitcherView in with text added.
-    func disabletest_snapshot_manualEntryView_text() {
-//        assertSnapshots(
-//            of: ManualEntryView_Previews.textAdded,
-//            as: [
-//                .defaultPortrait,
-//                .defaultPortraitDark,
-//                .tallPortraitAX5(heightMultiple: 1.75),
-//            ],
-//        )
+    /// Test a snapshot of the `ManualEntryView` with text added.
+    @MainActor
+    func test_snapshot_manualEntryView_text() {
+        processor.state.authenticatorKey = "manualEntry"
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [
+                .defaultPortrait,
+                .defaultPortraitDark,
+                .tallPortraitAX5(heightMultiple: 1.75),
+            ],
+        )
     }
 }

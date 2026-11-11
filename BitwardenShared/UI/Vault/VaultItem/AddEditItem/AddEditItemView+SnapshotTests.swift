@@ -411,18 +411,83 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         assertSnapshot(of: subject.navStackWrapped, as: .tallPortraitAX5())
     }
 
-    /// Test a snapshot of the AddEditView previews.
-    func disabletest_snapshot_previews_addEditItemView() {
-//        for preview in AddEditItemView_Previews._allPreviews {
-//            assertSnapshots(
-//                of: preview.content,
-//                as: [
-//                    .tallPortrait,
-//                    .tallPortraitAX5(heightMultiple: 5),
-//                    .defaultPortraitDark,
-//                ],
-//            )
-//        }
+    /// Tests the snapshot for adding a new card.
+    @MainActor
+    func test_snapshot_add_card() {
+        processor.state = CipherItemState(addItem: .card, hasPremium: true)
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [
+                .tallPortrait,
+                .tallPortraitAX5(heightMultiple: 5),
+                .defaultPortraitDark,
+            ],
+        )
+    }
+
+    /// Tests the snapshot for editing an existing card.
+    @MainActor
+    func test_snapshot_edit_card() {
+        var state = editLoginState()
+        state.name = "Sample Card"
+        state.type = .card
+        state.cardItemState = CardItemState(
+            brand: .custom(.americanExpress),
+            cardholderName: "Bitwarden User",
+            cardNumber: "123456789012345",
+            cardSecurityCode: "123",
+            expirationMonth: .custom(.feb),
+            expirationYear: "3009",
+        )
+        state.folderId = "1"
+        state.folders = [
+            .custom(FolderView(id: "1", name: "Financials", revisionDate: Date(year: 2023, month: 11, day: 11))),
+        ]
+        state.isFavoriteOn = false
+        state.isMasterPasswordRePromptOn = true
+        state.owner = .personal(displayName: "security@bitwarden.com")
+        processor.state = state
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [
+                .tallPortrait,
+                .tallPortraitAX5(heightMultiple: 5),
+                .defaultPortraitDark,
+            ],
+        )
+    }
+
+    /// Tests the snapshot for editing a login with notes.
+    @MainActor
+    func test_snapshot_edit_login_notes() {
+        var state = editLoginState()
+        state.notes = "This is a nice note"
+        processor.state = state
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [
+                .tallPortrait,
+                .tallPortraitAX5(heightMultiple: 5),
+                .defaultPortraitDark,
+            ],
+        )
+    }
+
+    /// Tests the snapshot for editing a login after an authenticator key is added.
+    @MainActor
+    func test_snapshot_edit_login_keyAdded() {
+        var state = editLoginState()
+        state.loginState.totpState = .init("JBSWY3DPEHPK3PXP")
+        state.toast = Toast(title: "Authenticator key added.")
+        processor.state = state
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [
+                .tallPortrait,
+                .tallPortraitAX5(heightMultiple: 5),
+                .defaultPortraitDark,
+            ],
+        )
     }
 
     /// Snapshots the previews for SSH key type.
@@ -487,6 +552,34 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             publicKey: "ssh-ed25519 AAAAA/asdjfoiwejrpo23323j23ASdfas",
             keyFingerprint: "SHA-256:2qwer233ADJOIq1adfweqe21321qw",
         )
+        return state
+    }
+
+    /// Returns the state for editing an existing login item.
+    @MainActor
+    private func editLoginState() -> CipherItemState {
+        var state = CipherItemState(
+            existing: .fixture(
+                favorite: true,
+                login: .fixture(
+                    fido2Credentials: [
+                        .fixture(
+                            creationDate: Date(timeIntervalSince1970: 1_710_494_110),
+                        ),
+                    ],
+                    password: "changerdanger",
+                    uris: [
+                        .fixture(uri: "yahoo.com"),
+                        .fixture(uri: "account.yahoo.com"),
+                    ],
+                    username: "EddyEddity",
+                ),
+                name: "Edit Em",
+                type: .login,
+            ),
+            hasPremium: true,
+        )!
+        state.ownershipOptions = [.personal(displayName: "user@bitwarden.com")]
         return state
     }
 } // swiftlint:disable:this file_length

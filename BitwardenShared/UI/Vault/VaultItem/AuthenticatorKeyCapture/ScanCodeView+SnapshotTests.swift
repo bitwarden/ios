@@ -36,17 +36,16 @@ class ScanCodeViewTests: BitwardenTestCase {
 
     // MARK: Snapshots
 
-    /// Test a snapshot of the ProfileSwitcherView previews.
-    func disabletest_snapshot_scanCodeView_previews() {
-//        for preview in ScanCodeView_Previews._allPreviews {
-//            assertSnapshots(
-//                of: preview.content,
-//                as: [
-//                    .defaultPortrait,
-//                    .defaultLandscape,
-//                    .defaultPortraitAX5,
-//                ],
-//            )
-//        }
+    /// Test a snapshot of the scan code view.
+    @MainActor
+    func test_snapshot_scanCodeView() {
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [
+                .defaultPortrait,
+                .defaultLandscape,
+                .defaultPortraitAX5,
+            ],
+        )
     }
 }

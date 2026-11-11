@@ -155,13 +155,17 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
-    /// Test a snapshot of the ProfileSwitcherView previews.
-    func disabletest_snapshot_profileSwitcherView_previews() {
-//        for preview in ProfileSwitcherView_Previews._allPreviews {
-//            assertSnapshots(
-//                of: preview.content,
-//                as: [.defaultPortrait],
-//            )
-//        }
+    /// Test a snapshot of the ProfileSwitcherView with two accounts.
+    @MainActor
+    func test_snapshot_dualAccounts() {
+        processor.state = .dualAccounts
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    /// Test a snapshot of the ProfileSwitcherView with fewer than the maximum number of accounts.
+    @MainActor
+    func test_snapshot_subMaximumAccounts() {
+        processor.state = .subMaximumAccounts
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 }

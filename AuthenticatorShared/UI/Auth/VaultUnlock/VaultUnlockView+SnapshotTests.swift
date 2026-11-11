@@ -36,19 +36,51 @@ class VaultUnlockViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// Test a snapshot of the ItemListView previews.
-    func disabletest_snapshot_VaultUnlockView_previews() {
-//        for preview in VaultUnlockView_Previews._allPreviews {
-//            assertSnapshots(
-//                of: preview.content,
-//                as: [
-//                    .defaultPortrait,
-//                    .defaultPortraitDark,
-//                    .defaultPortraitAX5,
-//                    .defaultLandscape,
-//                    .defaultLandscapeAX5,
-//                ],
-//            )
-//        }
+    /// Test a snapshot of the view when biometric unlock is available but not enabled.
+    @MainActor
+    func test_snapshot_biometricsNotEnabled() {
+        processor.state.biometricUnlockStatus = .available(.faceID, enabled: false)
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [
+                .defaultPortrait,
+                .defaultPortraitDark,
+                .defaultPortraitAX5,
+                .defaultLandscape,
+                .defaultLandscapeAX5,
+            ],
+        )
+    }
+
+    /// Test a snapshot of the view with the Face ID unlock button.
+    @MainActor
+    func test_snapshot_faceID() {
+        processor.state.biometricUnlockStatus = .available(.faceID, enabled: true)
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [
+                .defaultPortrait,
+                .defaultPortraitDark,
+                .defaultPortraitAX5,
+                .defaultLandscape,
+                .defaultLandscapeAX5,
+            ],
+        )
+    }
+
+    /// Test a snapshot of the view with the Touch ID unlock button.
+    @MainActor
+    func test_snapshot_touchID() {
+        processor.state.biometricUnlockStatus = .available(.touchID, enabled: true)
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [
+                .defaultPortrait,
+                .defaultPortraitDark,
+                .defaultPortraitAX5,
+                .defaultLandscape,
+                .defaultLandscapeAX5,
+            ],
+        )
     }
 }
