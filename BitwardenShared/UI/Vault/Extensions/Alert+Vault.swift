@@ -40,12 +40,18 @@ extension Alert {
     /// Returns an alert for when attachments are unavailable.
     ///
     /// - Parameters:
+    ///   - isInAppUpgradeAvailable: Whether the in-app Premium upgrade is available, which
+    ///     determines the title of the upgrade action.
     ///   - action: A closure to execute on upgrading to Premium.
     /// - Returns: The alert when attachments are unavailable.
     static func attachmentsUnavailable(
+        isInAppUpgradeAvailable: Bool,
         action: @escaping () async -> Void,
     ) -> Alert {
-        let preferredAction = AlertAction(title: Localizations.upgradeToPremium, style: .default) { _ in
+        let preferredAction = AlertAction(
+            title: premiumUpgradeActionTitle(isInAppUpgradeAvailable: isInAppUpgradeAvailable),
+            style: .default,
+        ) { _ in
             await action()
         }
         let alert = Alert(
@@ -448,12 +454,18 @@ extension Alert {
     /// codes, with an option to upgrade.
     ///
     /// - Parameters:
+    ///   - isInAppUpgradeAvailable: Whether the in-app Premium upgrade is available, which
+    ///     determines the title of the upgrade action.
     ///   - action: A closure to execute on upgrading to Premium.
     /// - Returns: The alert shown when a non-Premium user taps the TOTP premium required field.
     static func totpPremiumRequired(
+        isInAppUpgradeAvailable: Bool,
         action: @escaping () async -> Void,
     ) -> Alert {
-        let preferredAction = AlertAction(title: Localizations.upgradeToPremium, style: .default) { _ in
+        let preferredAction = AlertAction(
+            title: premiumUpgradeActionTitle(isInAppUpgradeAvailable: isInAppUpgradeAvailable),
+            style: .default,
+        ) { _ in
             await action()
         }
         let alert = Alert(
