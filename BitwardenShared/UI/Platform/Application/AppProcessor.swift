@@ -159,8 +159,8 @@ public class AppProcessor {
         )
 
         // Delete any decrypted attachments left behind by a previous session that was force quit or
-        // crashed before they could be cleared. Only the main app downloads attachments, so extensions
-        // don't need to do this.
+        // crashed before they could be cleared. Only the main app downloads attachments, and they're
+        // stored in its own container, which extensions can't access. So this only runs in the main app.
         if appContext == .mainApp {
             Task {
                 await removeDownloadedAttachments()

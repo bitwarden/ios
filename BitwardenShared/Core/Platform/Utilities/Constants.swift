@@ -11,6 +11,9 @@ extension Constants {
     /// The app review prompt delay in nanoseconds.
     static let appReviewPromptDelay: UInt64 = 3_000_000_000
 
+    /// The name of the directory that holds downloaded attachments, both at the root and for each user.
+    static let attachmentsDirectoryName = "Attachments"
+
     /// The aspect ratio of a payment card, per the ISO/IEC 7810 ID-1 (CR-80) format: 85.60 mm by
     /// 53.98 mm.
     static let cardAspectRatio = 85.6 / 53.98

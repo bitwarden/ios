@@ -2245,6 +2245,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.activeAccount = anneAccount
         let annesAttachmentUrl = try createAttachment(for: anneAccount.profile.userId)
         let beesAttachmentUrl = try createAttachment(for: beeAccount.profile.userId)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: annesAttachmentUrl.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: beesAttachmentUrl.path))
 
         _ = try await subject.setActiveAccount(userId: beeAccount.profile.userId)
 

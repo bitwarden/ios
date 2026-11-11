@@ -132,6 +132,8 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             stackNavigator?.dismiss(animated: true, completion: {
                 onDismiss?.action()
             })
+        case .dismissPresented:
+            stackNavigator?.rootViewController?.topmostViewController().dismiss(animated: true)
         case let .editCollections(cipher):
             showEditCollections(cipher: cipher, delegate: context as? EditCollectionsProcessorDelegate)
         case let .editItem(cipher, hasPremium):
