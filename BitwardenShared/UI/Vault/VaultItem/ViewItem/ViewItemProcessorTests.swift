@@ -1504,16 +1504,16 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertNil(subject.state.url)
     }
 
-    /// `.receive(_:)` with `.attachmentPressed(_)` delegates to the attachment preview helper
+    /// `.receive(_:)` with `.attachmentTapped(_)` delegates to the attachment preview helper
     /// with the attachment and cipher.
     @MainActor
-    func test_receive_attachmentPressed() throws {
+    func test_receive_attachmentTapped() throws {
         let attachment = AttachmentView.fixture(size: "11000000", sizeName: "big")
         let cipher = CipherView.fixture(attachments: [attachment])
         let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         subject.state.loadingState = .data(state)
 
-        subject.receive(.attachmentPressed(attachment))
+        subject.receive(.attachmentTapped(attachment))
 
         waitFor(attachmentPreviewHelper.showPreviewReceivedArguments != nil)
         XCTAssertEqual(attachmentPreviewHelper.showPreviewReceivedArguments?.attachment, attachment)

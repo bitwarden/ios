@@ -308,6 +308,26 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertTrue(didRun)
     }
 
+    /// `navigate(to:)` with `.dismissPresented` dismisses only the topmost presented view, leaving
+    /// the view it was presented over (e.g. the attachment preview over the attachments screen).
+    @MainActor
+    func test_navigate_dismissPresented_dismissesOnlyTopmostView() {
+        let rootViewController = MockUIViewController()
+        let attachmentsViewController = MockUIViewController()
+        let previewViewController = MockUIViewController()
+        rootViewController.present(attachmentsViewController, animated: false)
+        attachmentsViewController.present(previewViewController, animated: false)
+        stackNavigator.rootViewController = rootViewController
+
+        subject.navigate(to: .dismissPresented)
+
+        XCTAssertTrue(previewViewController.dismissCalled)
+        XCTAssertTrue(previewViewController.dismissAnimated)
+        XCTAssertFalse(attachmentsViewController.dismissCalled)
+        XCTAssertFalse(rootViewController.dismissCalled)
+        XCTAssertTrue(stackNavigator.actions.isEmpty)
+    }
+
     /// `navigate(to:)` with `.editItem()` with a malformed cipher fails to trigger the show edit flow.
     @MainActor
     func test_navigateTo_editItem_newCipher() throws {
