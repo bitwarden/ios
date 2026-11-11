@@ -292,6 +292,27 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         #expect(result.cancelAt != nil)
     }
 
+    /// `isPlanBadgeDismissed()` returns the dismissed value read from the state service.
+    @Test(arguments: [false, true])
+    func isPlanBadgeDismissed(dismissed: Bool) async {
+        billingStateService.getPlanBadgeDismissedReturnValue = dismissed
+
+        let result = await subject.isPlanBadgeDismissed()
+
+        #expect(result == dismissed)
+    }
+
+    /// `isPlanBadgeDismissed()` logs the error and returns `false` when the state read throws.
+    @Test
+    func isPlanBadgeDismissed_error() async {
+        billingStateService.getPlanBadgeDismissedThrowableError = StateServiceError.noActiveAccount
+
+        let result = await subject.isPlanBadgeDismissed()
+
+        #expect(result == false)
+        #expect(errorReporter.errors as? [StateServiceError] == [.noActiveAccount])
+    }
+
     /// `premiumCheckoutCanceled()` publishes `.canceled`.
     @Test
     func premiumCheckoutCanceled() async throws {
@@ -459,5 +480,24 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         let result = await subject.isSelfHosted()
 
         #expect(result == false)
+    }
+
+    /// `setPlanBadgeDismissed()` records the Plan badge as dismissed.
+    @Test
+    func setPlanBadgeDismissed() async {
+        await subject.setPlanBadgeDismissed()
+
+        #expect(billingStateService.setPlanBadgeDismissedReceivedArguments?.dismissed == true)
+        #expect(billingStateService.setPlanBadgeDismissedReceivedArguments?.userId == nil)
+    }
+
+    /// `setPlanBadgeDismissed()` logs the error when the state write throws.
+    @Test
+    func setPlanBadgeDismissed_error() async {
+        billingStateService.setPlanBadgeDismissedThrowableError = StateServiceError.noActiveAccount
+
+        await subject.setPlanBadgeDismissed()
+
+        #expect(errorReporter.errors as? [StateServiceError] == [.noActiveAccount])
     }
 }
