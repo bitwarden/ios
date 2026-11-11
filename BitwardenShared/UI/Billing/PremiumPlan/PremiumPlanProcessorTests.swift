@@ -53,6 +53,16 @@ struct PremiumPlanProcessorTests {
         #expect(subject.state.loadingState == .loading(nil))
     }
 
+    /// `perform(_:)` with `.appeared` marks the Plan badge as dismissed.
+    @Test
+    func perform_appeared_dismissesPlanBadge() async {
+        billingService.getPremiumPlanThrowableError = CancellationError()
+
+        await subject.perform(.appeared)
+
+        #expect(billingService.setPlanBadgeDismissedCallsCount == 1)
+    }
+
     /// `perform(_:)` with `.appeared` sets the error state and logs on failure.
     @Test
     func perform_appeared_failure() async {

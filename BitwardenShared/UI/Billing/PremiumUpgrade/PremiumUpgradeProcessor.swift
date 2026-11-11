@@ -73,6 +73,7 @@ final class PremiumUpgradeProcessor: StateProcessor<
     override func perform(_ effect: PremiumUpgradeEffect) async {
         switch effect {
         case .appeared:
+            await services.billingService.setPlanBadgeDismissed()
             state.isSelfHosted = await services.billingService.isSelfHosted()
             if !state.isSelfHosted {
                 await fetchPremiumPrice()
