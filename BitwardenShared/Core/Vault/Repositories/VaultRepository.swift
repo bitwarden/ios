@@ -99,8 +99,12 @@ public protocol VaultRepository: AnyObject {
         cipher: CipherView,
     ) async throws -> URL?
 
-    /// Returns an existing, non-deleted login in the active account's vault that has a URI equal
-    /// to `uri` and the same username and password, if one exists.
+    /// Returns an existing login in the active account's vault whose first AutoFill URI is equal to
+    /// `uri` and that has the same username and password, if one exists. Deleted and archived logins
+    /// are ignored.
+    ///
+    /// Only the first AutoFill URI is considered because it's the URI the login's credential identity
+    /// is registered under, so a match is guaranteed to be offered by the system for `uri`.
     ///
     /// Errors are logged and `nil` is returned, since failing to find a duplicate shouldn't prevent
     /// the caller from saving the login.
@@ -467,8 +471,8 @@ class DefaultVaultRepository {
 
     // MARK: Private
 
-    /// Returns an existing, non-deleted login with a URI equal to `uri` and the same username and
-    /// password, if one exists.
+    /// Returns an existing, non-hidden login whose first AutoFill URI is equal to `uri` and that has
+    /// the same username and password, if one exists.
     ///
     /// - Parameters:
     ///   - uri: The URI the login must contain.
@@ -481,9 +485,10 @@ class DefaultVaultRepository {
         username: String,
         password: String,
     ) async throws -> CipherView? {
-        // Filter on the encrypted ciphers first so only active logins are decrypted.
+        // Filter on the encrypted ciphers first so only active logins are decrypted. Deleted and
+        // archived logins are excluded, matching the identities synced to the identity store.
         let logins = try await cipherService.fetchAllCiphers().filter { cipher in
-            cipher.type == .login && cipher.deletedDate == nil
+            cipher.type == .login && !cipher.isHidden
         }
         guard !logins.isEmpty else { return nil }
 
@@ -492,9 +497,13 @@ class DefaultVaultRepository {
             .decryptListWithFailures(ciphers: logins)
             .successes
             .compactMap { cipherListView -> String? in
+                // Match the first AutoFill URI, using the same rules as `CredentialIdentityFactory`.
+                let firstAutofillUri = cipherListView.type.loginListView?.uris?
+                    .first { $0.match != .never && $0.uri.isEmptyOrNil == false }?
+                    .uri
                 guard let login = cipherListView.type.loginListView,
                       (login.username ?? "") == username,
-                      login.uris?.contains(where: { $0.uri == uri }) == true else {
+                      firstAutofillUri == uri else {
                     return nil
                 }
                 return cipherListView.id

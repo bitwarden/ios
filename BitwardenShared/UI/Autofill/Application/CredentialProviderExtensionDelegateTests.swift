@@ -125,7 +125,3 @@ class CredentialProviderExtensionDelegateTests: BitwardenTestCase {
         XCTAssertNil(subject.rpID)
     }
 }
-
-// MARK: - Mocks
-
-private class MockSavePasswordRequestProxy: SavePasswordRequestProxy {}

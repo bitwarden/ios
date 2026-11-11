@@ -807,8 +807,14 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(result, CipherView(cipher: match))
     }
 
-    /// `existingLogin(matchingUri:username:password:)` ignores deleted logins and non-login ciphers.
-    func test_existingLogin_ignoresDeletedAndNonLogins() async {
+    /// `existingLogin(matchingUri:username:password:)` ignores archived and deleted logins and
+    /// non-login ciphers.
+    func test_existingLogin_ignoresHiddenAndNonLogins() async {
+        let archived = Cipher.fixture(
+            archivedDate: Date(),
+            id: "3",
+            login: .fixture(password: "pass", uris: [.fixture(uri: "https://example.com")], username: "user"),
+        )
         let deleted = Cipher.fixture(
             deletedDate: Date(),
             id: "1",
@@ -819,7 +825,57 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             login: .fixture(password: "pass", uris: [.fixture(uri: "https://example.com")], username: "user"),
             type: .secureNote,
         )
-        prepareExistingLoginCiphers([deleted, secureNote])
+        prepareExistingLoginCiphers([archived, deleted, secureNote])
+
+        let result = await subject.existingLogin(
+            matchingUri: "https://example.com",
+            username: "user",
+            password: "pass",
+        )
+
+        XCTAssertNil(result)
+        XCTAssertNil(cipherService.fetchCipherId)
+    }
+
+    /// `existingLogin(matchingUri:username:password:)` skips URIs that are never used for AutoFill
+    /// when finding a login's first AutoFill URI.
+    func test_existingLogin_matchesFirstAutofillUri() async {
+        let match = Cipher.fixture(
+            id: "1",
+            login: .fixture(
+                password: "pass",
+                uris: [
+                    .fixture(uri: "https://never.com", match: .never),
+                    .fixture(uri: ""),
+                    .fixture(uri: "https://example.com"),
+                ],
+                username: "user",
+            ),
+        )
+        prepareExistingLoginCiphers([match])
+
+        let result = await subject.existingLogin(
+            matchingUri: "https://example.com",
+            username: "user",
+            password: "pass",
+        )
+
+        XCTAssertEqual(result, CipherView(cipher: match))
+    }
+
+    /// `existingLogin(matchingUri:username:password:)` doesn't match a login where the URI isn't the
+    /// first AutoFill URI, since its credential identity is only registered for the first one.
+    func test_existingLogin_notFirstAutofillUri() async {
+        prepareExistingLoginCiphers([
+            .fixture(
+                id: "1",
+                login: .fixture(
+                    password: "pass",
+                    uris: [.fixture(uri: "https://other.com"), .fixture(uri: "https://example.com")],
+                    username: "user",
+                ),
+            ),
+        ])
 
         let result = await subject.existingLogin(
             matchingUri: "https://example.com",

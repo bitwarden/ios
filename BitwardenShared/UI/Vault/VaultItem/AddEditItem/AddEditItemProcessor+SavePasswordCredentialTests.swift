@@ -146,7 +146,3 @@ struct AddEditItemProcessorSavePasswordCredentialTests {
         return (appExtensionDelegate, subject)
     }
 }
-
-// MARK: - MockSavePasswordRequestProxy
-
-private class MockSavePasswordRequestProxy: SavePasswordRequestProxy {}

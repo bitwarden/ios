@@ -361,27 +361,6 @@ extension CredentialProviderViewController {
 
     // MARK: Private methods
 
-    /// Completes a save-password request without showing the add item screen if the vault already
-    /// has an identical login. Otherwise the add item screen stays up for the user to save the login.
-    ///
-    /// - Parameter savePasswordRequest: The save-password request being handled.
-    ///
-    @available(iOSApplicationExtension 26.2, *)
-    private func completeSavePasswordRequestIfLoginExists(_ savePasswordRequest: ASSavePasswordRequest) {
-        guard let appProcessor else { return }
-
-        Task {
-            guard await appProcessor.registerExistingPasswordCredential(
-                username: savePasswordRequest.credential.user,
-                password: savePasswordRequest.credential.password,
-                uri: savePasswordRequest.serviceIdentifier.normalizedURI,
-            ) else {
-                return
-            }
-            extensionContext.completeSavePasswordRequest(completionHandler: nil)
-        }
-    }
-
     /// Generates a password for the requesting app using the developer-specified rules in the request.
     ///
     /// - Parameter request: The generate-password request containing developer-specified rules.
@@ -483,12 +462,6 @@ extension CredentialProviderViewController: AppExtensionDelegate {
                 return
             }
             provideOTPCredentialWithUserInteraction(for: asOneTimeCodeIdentity)
-        case let .savePasswordCredential(savePasswordRequest, userInteraction: true):
-            guard #available(iOSApplicationExtension 26.2, *),
-                  let asSavePasswordRequest = savePasswordRequest as? ASSavePasswordRequest else {
-                return
-            }
-            completeSavePasswordRequestIfLoginExists(asSavePasswordRequest)
         default:
             return
         }
@@ -579,6 +552,23 @@ extension CredentialProviderViewController: CredentialProviderExtensionDelegate 
     func completeSavePasswordRequest() {
         guard #available(iOSApplicationExtension 26.2, *) else { return }
         extensionContext.completeSavePasswordRequest(completionHandler: nil)
+    }
+
+    func completeSavePasswordRequestIfLoginExists() async -> Bool {
+        guard #available(iOSApplicationExtension 26.2, *),
+              case let .savePasswordCredential(request, _) = context?.extensionMode,
+              let savePasswordRequest = request as? ASSavePasswordRequest,
+              let appProcessor,
+              await appProcessor.registerExistingPasswordCredential(
+                  username: savePasswordRequest.credential.user,
+                  password: savePasswordRequest.credential.password,
+                  uri: savePasswordRequest.serviceIdentifier.normalizedURI,
+              ) else {
+            return false
+        }
+
+        extensionContext.completeSavePasswordRequest(completionHandler: nil)
+        return true
     }
 
     @available(iOSApplicationExtension 17.0, *)
