@@ -1931,7 +1931,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         await subject.perform(.itemPressed(archiveItem))
 
-        XCTAssertEqual(coordinator.alertShown.last, .archiveUnavailable(action: {}))
+        XCTAssertEqual(coordinator.alertShown.last, .archiveUnavailable(isInAppUpgradeAvailable: false, action: {}))
         XCTAssertTrue(coordinator.routes.isEmpty)
     }
 
@@ -1952,6 +1952,20 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         try await waitForAsync { self.premiumUpgradeHelper.navigateToPremiumUpgradeCalled }
 
         XCTAssertTrue(premiumUpgradeHelper.navigateToPremiumUpgradeCalled)
+    }
+
+    /// `perform(_:)` with `.itemPressed` shows the archive unavailable alert with the "Explore Premium"
+    /// action when the in-app upgrade is available.
+    @MainActor
+    func test_perform_itemPressed_archiveGroup_noPremium_noItems_inAppUpgradeAvailable() async {
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        subject.state.hasPremium = false
+        let archiveItem = VaultListItem(id: "Archive", hasPremium: false, itemType: .group(.archive, 0))
+
+        await subject.perform(.itemPressed(archiveItem))
+
+        XCTAssertEqual(coordinator.alertShown.last, .archiveUnavailable(isInAppUpgradeAvailable: true, action: {}))
+        XCTAssertTrue(coordinator.routes.isEmpty)
     }
 
     /// `perform(_:)` with `.itemPressed` navigates to archive when user has Premium.

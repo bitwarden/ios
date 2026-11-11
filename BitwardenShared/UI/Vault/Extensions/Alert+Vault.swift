@@ -11,12 +11,18 @@ extension Alert {
     /// Returns an alert for when archive is unavailable.
     ///
     /// - Parameters:
+    ///   - isInAppUpgradeAvailable: Whether the in-app Premium upgrade is available, which
+    ///     determines the title of the upgrade action.
     ///   - action: A closure to execute on upgrading to Premium.
     /// - Returns: The alert when archive is unavailable.
     static func archiveUnavailable(
+        isInAppUpgradeAvailable: Bool,
         action: @escaping () async -> Void,
     ) -> Alert {
-        let preferredAction = AlertAction(title: Localizations.upgradeToPremium, style: .default) { _ in
+        let preferredAction = AlertAction(
+            title: premiumUpgradeActionTitle(isInAppUpgradeAvailable: isInAppUpgradeAvailable),
+            style: .default,
+        ) { _ in
             await action()
         }
         let alert = Alert(
@@ -494,5 +500,16 @@ extension Alert {
                 ),
             ],
         )
+    }
+
+    // MARK: Private Methods
+
+    /// Returns the title for the action that sends the user to upgrade to Premium.
+    ///
+    /// - Parameters:
+    ///   - isInAppUpgradeAvailable: Whether the in-app Premium upgrade is available.
+    /// - Returns: "Explore Premium" when the in-app upgrade is available, otherwise "Upgrade to Premium".
+    private static func premiumUpgradeActionTitle(isInAppUpgradeAvailable: Bool) -> String {
+        isInAppUpgradeAvailable ? Localizations.explorePremium : Localizations.upgradeToPremium
     }
 }
