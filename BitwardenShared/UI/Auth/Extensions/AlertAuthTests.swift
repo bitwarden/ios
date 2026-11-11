@@ -247,6 +247,48 @@ class AlertAuthTests: BitwardenTestCase { // swiftlint:disable:this type_body_le
         XCTAssertTrue(submitAction.isEnabled)
     }
 
+    /// `enterPINCode(completion:settingUp:)` keeps the "Submit" button disabled when setting up a PIN
+    /// that contains non-numeric characters, and enables it for a numeric PIN of the minimum length.
+    @MainActor
+    func test_enterPINCode_settingUp_disablesSubmitButtonForNonNumericPin() async throws {
+        let alert = Alert.enterPINCode(settingUp: true) { _ in }
+        let controller = alert.createAlertController()
+
+        let uiTextField = try XCTUnwrap(controller.textFields?.first)
+        let submitAction = try XCTUnwrap(
+            controller.actions.first(where: { $0.title == Localizations.submit }),
+        )
+
+        uiTextField.text = "abcd"
+        alert.alertTextFields.first?.textChanged(in: uiTextField)
+        XCTAssertFalse(submitAction.isEnabled)
+
+        uiTextField.text = "12a4"
+        alert.alertTextFields.first?.textChanged(in: uiTextField)
+        XCTAssertFalse(submitAction.isEnabled)
+
+        uiTextField.text = "1234"
+        alert.alertTextFields.first?.textChanged(in: uiTextField)
+        XCTAssertTrue(submitAction.isEnabled)
+    }
+
+    /// `enterPINCode(completion:settingUp:)` enables the "Submit" button when verifying a PIN
+    /// that contains non-numeric characters, so users with an existing alphanumeric PIN can still verify.
+    @MainActor
+    func test_enterPINCode_verifying_enablesSubmitButtonForNonNumericPin() async throws {
+        let alert = Alert.enterPINCode(settingUp: false) { _ in }
+        let controller = alert.createAlertController()
+
+        let uiTextField = try XCTUnwrap(controller.textFields?.first)
+        let submitAction = try XCTUnwrap(
+            controller.actions.first(where: { $0.title == Localizations.submit }),
+        )
+
+        uiTextField.text = "abcd"
+        alert.alertTextFields.first?.textChanged(in: uiTextField)
+        XCTAssertTrue(submitAction.isEnabled)
+    }
+
     /// `enterPINCode(completion:settingUp:)` constructs an `Alert`
     /// with the correct title, message, Submit and Cancel buttons when verifying it.
     func test_enterPINCodeAlert_when_verifying() {
@@ -392,4 +434,4 @@ class AlertAuthTests: BitwardenTestCase { // swiftlint:disable:this type_body_le
         XCTAssertEqual(subject.alertActions.count, 1)
         XCTAssertEqual(subject.alertActions[0].title, Localizations.ok)
     }
-}
+} // swiftlint:disable:this file_length
