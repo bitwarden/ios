@@ -57,12 +57,14 @@ struct FileManagerExtensionsTests {
 
     /// `removeAllAttachments(rootUrl:applicationSupportUrl:)` does nothing when there are no attachments.
     @Test
-    func removeAllAttachments_withoutAttachments_doesNotThrow() throws {
-        try fileManager.removeAllAttachments(
-            rootUrl: fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true),
-            applicationSupportUrl: fileManager.temporaryDirectory
-                .appendingPathComponent(UUID().uuidString, isDirectory: true),
-        )
+    func removeAllAttachments_withoutAttachments_doesNotThrow() {
+        #expect(throws: Never.self) {
+            try fileManager.removeAllAttachments(
+                rootUrl: fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true),
+                applicationSupportUrl: fileManager.temporaryDirectory
+                    .appendingPathComponent(UUID().uuidString, isDirectory: true),
+            )
+        }
     }
 
     /// `removeAttachments(for:)` deletes the attachments of the user and leaves other users' attachments.
@@ -82,16 +84,20 @@ struct FileManagerExtensionsTests {
 
     /// `removeAttachments(for:)` does nothing when the user has no attachments.
     @Test
-    func removeAttachments_withoutAttachments_doesNotThrow() throws {
-        try fileManager.removeAttachments(for: UUID().uuidString)
+    func removeAttachments_withoutAttachments_doesNotThrow() {
+        #expect(throws: Never.self) {
+            try fileManager.removeAttachments(for: UUID().uuidString)
+        }
     }
 
     /// `removeLegacyAttachments(applicationSupportUrl:)` does nothing when the directory doesn't exist.
     @Test
-    func removeLegacyAttachments_missingDirectory_doesNotThrow() throws {
+    func removeLegacyAttachments_missingDirectory_doesNotThrow() {
         let missingUrl = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
 
-        try fileManager.removeLegacyAttachments(applicationSupportUrl: missingUrl)
+        #expect(throws: Never.self) {
+            try fileManager.removeLegacyAttachments(applicationSupportUrl: missingUrl)
+        }
     }
 
     /// `removeLegacyAttachments(applicationSupportUrl:)` deletes the attachments that older versions

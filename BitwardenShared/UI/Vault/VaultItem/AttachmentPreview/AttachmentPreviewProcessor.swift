@@ -73,7 +73,9 @@ class AttachmentPreviewProcessor: StateProcessor<
     override func receive(_ action: AttachmentPreviewAction) {
         switch action {
         case .dismissPressed:
-            coordinator.navigate(to: .dismiss())
+            // The preview may be presented over another modal (e.g. the attachments screen), so
+            // only dismiss the preview itself.
+            coordinator.navigate(to: .dismissPresented)
         }
     }
 

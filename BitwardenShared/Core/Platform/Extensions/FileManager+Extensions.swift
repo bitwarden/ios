@@ -1,16 +1,14 @@
+import BitwardenKit
 import Foundation
 
 extension FileManager {
-    /// The name of the directory that holds downloaded attachments, both at the root and for each user.
-    private static let attachmentsDirectoryName = "Attachments"
-
     /// Returns the URL of the directory that holds the attachments downloaded by all users. Attachments
     /// are decrypted into the temporary directory so that the system can clear them.
     ///
     /// - Returns: The URL of the directory that holds the attachments for all users.
     ///
     func attachmentsRootUrl() -> URL {
-        temporaryDirectory.appendingPathComponent(Self.attachmentsDirectoryName, isDirectory: true)
+        temporaryDirectory.appendingPathComponent(Constants.attachmentsDirectoryName, isDirectory: true)
     }
 
     /// Returns a URL for saving attachments for a user.
@@ -105,7 +103,7 @@ extension FileManager {
             options: [.skipsHiddenFiles],
         )
         try removeItems(at: userDirectories.map { userDirectory in
-            userDirectory.appendingPathComponent(Self.attachmentsDirectoryName, isDirectory: true)
+            userDirectory.appendingPathComponent(Constants.attachmentsDirectoryName, isDirectory: true)
         })
     }
 

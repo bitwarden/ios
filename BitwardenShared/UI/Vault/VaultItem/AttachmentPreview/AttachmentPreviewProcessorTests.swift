@@ -41,11 +41,12 @@ struct AttachmentPreviewProcessorTests {
 
     // MARK: Tests
 
-    /// `receive(_:)` with `.dismissPressed` navigates to `.dismiss()`.
+    /// `receive(_:)` with `.dismissPressed` navigates to `.dismissPresented`, so that only the
+    /// preview is dismissed.
     @Test
     func receive_dismissPressed() {
         subject.receive(.dismissPressed)
-        #expect(coordinator.routes.last == .dismiss())
+        #expect(coordinator.routes.last == .dismissPresented)
     }
 
     /// `perform(_:)` with `.downloadPressed` navigates to `.saveFile(temporaryUrl:)` with the

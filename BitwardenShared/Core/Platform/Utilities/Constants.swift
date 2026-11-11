@@ -11,6 +11,9 @@ extension Constants {
     /// The app review prompt delay in nanoseconds.
     static let appReviewPromptDelay: UInt64 = 3_000_000_000
 
+    /// The name of the directory that holds downloaded attachments, both at the root and for each user.
+    static let attachmentsDirectoryName = "Attachments"
+
     /// The size of the slice to decrypt ciphers in batch using the SDK.
     static let decryptCiphersBatchSize: Int = 100
 

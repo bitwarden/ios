@@ -478,12 +478,12 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                 attachmentRowLabel(attachment)
                     .contentShape(Rectangle())
                     .onTapGesture {
-                        store.send(.attachmentPressed(attachment))
+                        store.send(.attachmentTapped(attachment))
                     }
                     .accessibilityElement(children: .combine)
                     .accessibilityAddTraits(.isButton)
                     .accessibilityAction {
-                        store.send(.attachmentPressed(attachment))
+                        store.send(.attachmentTapped(attachment))
                     }
 
                 Button {

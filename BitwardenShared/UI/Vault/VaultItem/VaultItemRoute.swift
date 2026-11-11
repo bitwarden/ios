@@ -54,6 +54,10 @@ enum VaultItemRoute: Equatable, Hashable {
     ///
     case dismiss(_ action: DismissAction? = nil)
 
+    /// A route to dismiss only the topmost presented screen, leaving any screens it was presented
+    /// over in place.
+    case dismissPresented
+
     /// A route to edit the collections of a cipher.
     case editCollections(CipherView)
 
