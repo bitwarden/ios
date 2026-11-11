@@ -145,6 +145,7 @@ struct SettingsView: View {
     private var planRow: some View {
         SettingsListItem(
             Localizations.plan,
+            badgeValue: store.state.planBadgeValue,
             icon: SharedAsset.Icons.card24,
         ) {
             Task { await store.perform(.planPressed) }

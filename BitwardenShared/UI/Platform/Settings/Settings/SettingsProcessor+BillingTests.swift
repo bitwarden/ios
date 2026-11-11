@@ -29,6 +29,7 @@ struct SettingsProcessorBillingTests {
 
     init() {
         billingService = MockBillingService()
+        billingService.isPlanBadgeDismissedReturnValue = false
         billingService.isSelfHostedReturnValue = false
         billingService.shouldShowUpgradedToPremiumActionCardReturnValue = false
         configService = MockConfigService()
@@ -303,6 +304,83 @@ struct SettingsProcessorBillingTests {
         try await waitForAsync { billingService.setUpgradedToPremiumActionCardDismissedCallsCount == 1 }
         #expect(billingService.setUpgradedToPremiumActionCardDismissedCallsCount == 1)
     }
+}
+
+// MARK: - SettingsProcessorBillingTests + Plan Badge
+
+@MainActor
+extension SettingsProcessorBillingTests {
+    // MARK: Tests - perform(.appeared) — plan badge
+
+    /// `perform(_:)` with `.appeared` sets `showPlanBadge` across the combinations of the Plan row
+    /// visibility, Premium ownership, personal subscription, and badge dismissal.
+    @Test(arguments: [
+        PlanBadgeTestCase(
+            expectedShowPlanBadge: true,
+            hasPersonalSubscription: nil,
+            hasPremium: false,
+            isDismissed: false,
+            isRowShown: true,
+        ),
+        PlanBadgeTestCase(
+            expectedShowPlanBadge: true,
+            hasPersonalSubscription: false,
+            hasPremium: false,
+            isDismissed: false,
+            isRowShown: true,
+        ),
+        PlanBadgeTestCase(
+            expectedShowPlanBadge: false,
+            hasPersonalSubscription: true,
+            hasPremium: false,
+            isDismissed: false,
+            isRowShown: true,
+        ),
+        PlanBadgeTestCase(
+            expectedShowPlanBadge: false,
+            hasPersonalSubscription: nil,
+            hasPremium: true,
+            isDismissed: false,
+            isRowShown: true,
+        ),
+        PlanBadgeTestCase(
+            expectedShowPlanBadge: false,
+            hasPersonalSubscription: nil,
+            hasPremium: false,
+            isDismissed: true,
+            isRowShown: true,
+        ),
+        PlanBadgeTestCase(
+            expectedShowPlanBadge: false,
+            hasPersonalSubscription: nil,
+            hasPremium: false,
+            isDismissed: false,
+            isRowShown: false,
+        ),
+    ])
+    func perform_appeared_planBadge(testCase: PlanBadgeTestCase) async {
+        billingService.hasPersonalSubscriptionReturnValue = testCase.hasPersonalSubscription
+        billingService.isPlanBadgeDismissedReturnValue = testCase.isDismissed
+        configService.featureFlagsBool[.premiumUpgradePath] = testCase.isRowShown
+        stateService.doesActiveAccountHavePremiumPersonallyResult = testCase.hasPremium
+        vaultRepository.doesActiveAccountHavePremiumResult = testCase.hasPremium
+
+        await subject.perform(.appeared)
+
+        #expect(subject.state.showPlanRow == testCase.isRowShown)
+        #expect(subject.state.showPlanBadge == testCase.expectedShowPlanBadge)
+    }
+}
+
+// MARK: - PlanBadgeTestCase
+
+/// Input/output data for the `perform_appeared_planBadge` parameterized test.
+struct PlanBadgeTestCase: Sendable {
+    let expectedShowPlanBadge: Bool
+    let hasPersonalSubscription: Bool?
+    let hasPremium: Bool
+    let isDismissed: Bool
+    let isRowShown: Bool
 }
 
 // MARK: - PlanRowTestCase

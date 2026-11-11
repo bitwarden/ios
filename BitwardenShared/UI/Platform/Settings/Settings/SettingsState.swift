@@ -18,6 +18,9 @@ struct SettingsState: Equatable {
     /// Whether the "Upgraded to Premium" action card should be shown.
     var shouldShowUpgradedToPremiumActionCard: Bool = false
 
+    /// Whether the badge on the Premium plan row should be shown.
+    var showPlanBadge = false
+
     /// Whether the Premium plan row should be shown.
     var showPlanRow = false
 
@@ -36,6 +39,11 @@ struct SettingsState: Equatable {
     var autofillBadgeValue: String? {
         let isComplete = badgeState?.autofillSetupProgress?.isComplete ?? true
         return isComplete ? nil : "1"
+    }
+
+    /// The badge value for the plan row.
+    var planBadgeValue: String? {
+        showPlanBadge ? "1" : nil
     }
 
     /// The badge value for the vault row.
