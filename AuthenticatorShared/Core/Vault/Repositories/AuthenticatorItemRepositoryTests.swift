@@ -713,6 +713,33 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertEqual(foundItems, [expected.last!])
     }
 
+    /// `searchItemListPublisher()` matches an otpauth item with no issuer by its account name,
+    /// which is the name the list displays for it.
+    func test_searchItemListPublisher_otpAuthNoIssuer_matchesAccountName() async throws {
+        let items = [
+            AuthenticatorItem.fixture(
+                id: "1",
+                name: "myaccount",
+                totpKey: "otpauth://totp/myaccount?secret=JBSWY3DPEHPK3PXP",
+                username: nil,
+            ),
+            AuthenticatorItem.fixture(id: "2", name: "Other"),
+        ]
+        let codeModel = TOTPCodeModel(
+            code: "123456",
+            codeGenerationDate: timeProvider.presentTime,
+            period: 30,
+        )
+        totpService.getTotpCodeResult = .success(codeModel)
+
+        authItemService.authenticatorItemsSubject.send(items)
+
+        var iterator = try await subject.searchItemListPublisher(searchText: "myacc").makeAsyncIterator()
+        let foundItems = try await iterator.next()
+
+        XCTAssertEqual(foundItems?.map(\.id), ["1"])
+    }
+
     // MARK: - Private functions
 
     /// Convenience method to create an `ItemListItem` from an `AuthenticatorItem` using our test fixtures.
