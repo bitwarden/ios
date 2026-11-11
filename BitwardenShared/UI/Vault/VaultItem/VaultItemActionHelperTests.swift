@@ -7,6 +7,7 @@ import TestHelpers
 import Testing
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - VaultItemActionHelperTests
 
@@ -14,6 +15,7 @@ import Testing
 struct VaultItemActionHelperTests {
     // MARK: Properties
 
+    let billingRepository: MockBillingRepository
     let coordinator: MockCoordinator<VaultItemRoute, VaultItemEvent>
     let errorReporter: MockErrorReporter
     let vaultRepository: MockVaultRepository
@@ -22,12 +24,14 @@ struct VaultItemActionHelperTests {
     // MARK: Initialization
 
     init() {
+        billingRepository = MockBillingRepository()
         coordinator = MockCoordinator<VaultItemRoute, VaultItemEvent>()
         errorReporter = MockErrorReporter()
         vaultRepository = MockVaultRepository()
         subject = DefaultVaultItemActionHelper(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                billingRepository: billingRepository,
                 errorReporter: errorReporter,
                 vaultRepository: vaultRepository,
             ),
@@ -37,13 +41,15 @@ struct VaultItemActionHelperTests {
     // MARK: Tests
 
     /// `archive(cipher:handleNavigateToPremiumUpgrade:completionHandler:)` shows the archive
-    /// unavailable alert when the user does not have Premium.
-    @Test
-    func archive_noPremium() async throws {
+    /// unavailable alert, titled by whether the in-app upgrade is available, when the user does not
+    /// have Premium.
+    @Test(arguments: [(true, Localizations.explorePremium), (false, Localizations.upgradeToPremium)])
+    func archive_noPremium(isInAppUpgradeAvailable: Bool, expectedTitle: String) async throws {
         var navigatedToPremiumUpgrade = false
         var completionCalled = false
         let cipher = CipherView.loginFixture(id: "123")
 
+        billingRepository.isInAppUpgradeAvailableReturnValue = isInAppUpgradeAvailable
         vaultRepository.doesActiveAccountHavePremiumResult = false
 
         await subject.archive(
@@ -58,7 +64,7 @@ struct VaultItemActionHelperTests {
         #expect(vaultRepository.archiveCipher.isEmpty)
         #expect(!completionCalled)
 
-        try await alert.tapAction(title: Localizations.upgradeToPremium)
+        try await alert.tapAction(title: expectedTitle)
         #expect(navigatedToPremiumUpgrade)
     }
 
