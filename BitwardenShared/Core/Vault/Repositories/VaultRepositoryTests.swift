@@ -1472,6 +1472,25 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(cipherService.shareCipherWithServerEncryptedFor, "1")
     }
 
+    /// `shareCipher()` shares the cipher returned after a cipher key is added, so the share uses the
+    /// cipher's updated revision date rather than the stale one from before the key was added.
+    func test_shareCipher_cipherKeyAdded_usesUpdatedCipher() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+
+        let originalRevisionDate = Date(year: 2024, month: 1, day: 1)
+        let updatedRevisionDate = Date(year: 2024, month: 1, day: 2)
+        let cipher = CipherView.fixture(id: "1", key: nil, revisionDate: originalRevisionDate)
+        let updatedCipher = CipherView.fixture(id: "1", key: "newKey", revisionDate: updatedRevisionDate)
+        cipherEncryptionMediator.updateCipherKeyIfNeededClosure = { _ in updatedCipher }
+        clientCiphers.moveToOrganizationReturnValue = updatedCipher
+
+        try await subject.shareCipher(cipher, newOrganizationId: "5", newCollectionIds: ["6", "7"])
+
+        XCTAssertEqual(cipherEncryptionMediator.updateCipherKeyIfNeededReceivedCipherView, cipher)
+        XCTAssertEqual(clientCiphers.moveToOrganizationReceivedArguments?.cipher, updatedCipher)
+        XCTAssertEqual(cipherService.shareCipherWithServerCiphers.last?.revisionDate, updatedRevisionDate)
+    }
+
     /// `shareCipher()` migrates any attachments without an attachment key.
     func test_shareCipher_attachmentMigration() async throws { // swiftlint:disable:this function_body_length
         let account = Account.fixtureAccountLogin()

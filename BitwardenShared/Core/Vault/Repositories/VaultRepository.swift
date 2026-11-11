@@ -855,8 +855,7 @@ extension DefaultVaultRepository: VaultRepository {
 
     func shareCipher(_ cipherView: CipherView, newOrganizationId: String, newCollectionIds: [String]) async throws {
         // Ensure the cipher has a cipher key.
-        let encryptedCipher = try await cipherEncryptionMediator.encryptAndUpdateCipher(cipherView)
-        var cipherView = try await clientService.vault().ciphers().decrypt(cipher: encryptedCipher)
+        var cipherView = try await cipherEncryptionMediator.updateCipherKeyIfNeeded(cipherView)
 
         if let attachments = cipherView.attachments {
             for attachment in attachments where attachment.key == nil {
