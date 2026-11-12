@@ -337,9 +337,6 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     /// The service to get server-specified configuration
     private let configService: ConfigService
 
-    /// The store which makes credential identities available to the system for AutoFill suggestions.
-    private let credentialIdentityStore: CredentialIdentityStore
-
     /// The service used by the application to manage the environment settings.
     private let environmentService: EnvironmentService
 
@@ -420,8 +417,6 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     ///   - authAPIService: The API service used to make calls related to the auth process.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - configService: The service to get server-specified configuration.
-    ///   - credentialIdentityStore: The store which makes credential identities available to the
-    ///     system for AutoFill suggestions.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - keychainRepository: The repository used to manages keychain items.
@@ -436,7 +431,6 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         authAPIService: AuthAPIService,
         clientService: ClientService,
         configService: ConfigService,
-        credentialIdentityStore: CredentialIdentityStore = SafeCredentialIdentityStore(),
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         keychainRepository: KeychainRepository,
@@ -450,7 +444,6 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         self.authAPIService = authAPIService
         self.clientService = clientService
         self.configService = configService
-        self.credentialIdentityStore = credentialIdentityStore
         self.environmentService = environmentService
         self.errorReporter = errorReporter
         self.keychainRepository = keychainRepository
@@ -733,10 +726,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
         if isNewAccount {
             do {
-                let isAutofillEnabled = await credentialIdentityStore.isAutofillEnabled()
-                try await stateService.setAccountSetupAutofill(isAutofillEnabled ? .complete : .incomplete)
                 try await stateService.setAccountSetupImportLogins(.incomplete)
-                try await stateService.setAccountSetupVaultUnlock(.incomplete)
             } catch {
                 errorReporter.log(error: error)
             }
@@ -1062,6 +1052,8 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             let account = try Account(identityTokenResponseModel: identityTokenResponse, environmentURLs: urls)
             try await saveAccount(account, identityTokenResponse: identityTokenResponse)
 
+            await markAccountSetupOnboardingPendingIfNeeded(userId: account.profile.userId)
+
             // Get the config so it gets updated for this particular user.
             await configService.getConfig(forceRefresh: true, isPreAuth: false)
 
@@ -1133,6 +1125,22 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         }
 
         return try await .masterPassword(stateService.getActiveAccount())
+    }
+
+    /// Marks account setup onboarding as pending if this is the first login for the account on this
+    /// device, so the onboarding steps are evaluated once the user completes authentication. A failure
+    /// here is logged but doesn't prevent the user from logging in.
+    ///
+    /// - Parameter userId: The user ID of the account that logged in.
+    ///
+    private func markAccountSetupOnboardingPendingIfNeeded(userId: String) async {
+        do {
+            if try await stateService.getPendingAccountSetupOnboarding(userId: userId) == nil {
+                try await stateService.setPendingAccountSetupOnboarding(true, userId: userId)
+            }
+        } catch {
+            errorReporter.log(error: error)
+        }
     }
 
     /// Resolves which callback an auth connector session should match, based on the connector flow,
