@@ -103,8 +103,6 @@ public protocol VaultRepository: AnyObject {
     /// `uri` and that has the same username and password, if one exists. Deleted and archived logins
     /// are ignored.
     ///
-    /// Only the login's first AutoFill URI is matched.
-    ///
     /// Errors are logged and `nil` is returned, since failing to find a duplicate shouldn't prevent
     /// the caller from saving the login.
     ///
@@ -470,14 +468,8 @@ class DefaultVaultRepository {
 
     // MARK: Private
 
-    /// Returns an existing, non-hidden login whose first AutoFill URI is equal to `uri` and that has
-    /// the same username and password, if one exists.
-    ///
-    /// - Parameters:
-    ///   - uri: The URI the login must contain.
-    ///   - username: The username the login must have. An empty username matches a login without one.
-    ///   - password: The password the login must have.
-    /// - Returns: The matching login, or `nil` if there's no match.
+    /// The throwing implementation of `existingLogin(matchingUri:username:password:)`, which logs
+    /// the errors.
     ///
     private func findExistingLogin(
         matchingUri uri: String,
