@@ -58,7 +58,7 @@ final class KeychainRepositoryServerCommunicationConfigTests: BitwardenTestCase 
 
         XCTAssertEqual(result, ServerCommunicationConfig(bootstrap: .direct))
         XCTAssertEqual(
-            keychainServiceFacade.getValueReceivedItem?.unformattedKey,
+            keychainServiceFacade.getValueReceivedArguments?.item.unformattedKey,
             BitwardenKeychainItem.serverCommunicationConfig(hostname: "example.com").unformattedKey,
         )
     }
