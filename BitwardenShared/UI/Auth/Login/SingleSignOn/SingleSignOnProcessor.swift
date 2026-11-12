@@ -182,7 +182,6 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
             )
             coordinator.hideLoadingOverlay()
             await coordinator.handleEvent(.didCompleteAuth)
-            coordinator.navigate(to: .dismiss)
         } catch {
             await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
