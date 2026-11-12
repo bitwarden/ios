@@ -122,6 +122,10 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// A delegate used to communicate with the app extension.
     private weak var appExtensionDelegate: AppExtensionDelegate?
 
+    /// The task that applies a card number scanned without an expiration date once
+    /// `Constants.cardScanExpiryGracePeriod` elapses, or `nil` when no such scan is pending.
+    private(set) var cardScanGracePeriodTask: Task<Void, Never>?
+
     /// The `Coordinator` that handles navigation.
     private var coordinator: AnyCoordinator<VaultItemRoute, VaultItemEvent>
 
@@ -331,8 +335,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     // MARK: Private Methods
 
     /// Applies a parsed card scan result to the item state, dismissing the scanner on success.
-    /// Requires a card number; the expiration month and year are applied only when the scan found
-    /// them, so a card with no printed expiration date leaves those fields empty.
+    /// Requires a card number. The expiration fields are cleared and then set only from what the
+    /// scan found, so a card with no printed expiration date leaves them empty.
     ///
     /// - Parameters:
     ///   - state: The item state to update.
@@ -344,6 +348,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         state.cardItemState.shouldFocusCardholderNameAfterScan = true
         state.cardItemState.cardNumber = number
         state.cardItemState.brand = .custom(CardComponent.Brand.detect(from: number))
+        state.cardItemState.expirationMonth = .default
+        state.cardItemState.expirationYear = ""
         if let month = data.expirationMonth,
            let cardMonth = CardComponent.Month(rawValue: month) {
             state.cardItemState.expirationMonth = .custom(cardMonth)
@@ -598,6 +604,41 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         }
     }
 
+    /// Handles a parsed card scan result. A result with an expiration date is applied at once. One
+    /// with only a card number is applied after `Constants.cardScanExpiryGracePeriod`, so an
+    /// expiration date recognized in a later frame is not lost.
+    ///
+    /// - Parameters:
+    ///   - state: The item state to update.
+    ///   - data: The parsed card data returned by the card text parser.
+    private func handleCardScanResult(_ state: inout AddEditItemState, data: ScannedCardData) {
+        guard state.cardItemState.isCardScannerPresented, data.cardNumber != nil else { return }
+
+        guard data.expirationMonth == nil, data.expirationYear == nil else {
+            cardScanGracePeriodTask?.cancel()
+            cardScanGracePeriodTask = nil
+            applyCardScanResult(&state, data: data)
+            return
+        }
+
+        // Keep a running grace period rather than restarting it, since OCR updates arrive
+        // continuously and would otherwise postpone it indefinitely.
+        guard cardScanGracePeriodTask == nil else { return }
+        cardScanGracePeriodTask = Task { [weak self] in
+            do {
+                try await Task.sleep(forSeconds: UI.duration(Constants.cardScanExpiryGracePeriod), tolerance: 0)
+            } catch {
+                // Cancelled because the scanner was dismissed or an expiration date was found.
+                return
+            }
+            // A cancellation that lands after the sleep finishes doesn't throw, so check again.
+            guard let self, !Task.isCancelled else { return }
+            cardScanGracePeriodTask = nil
+            guard self.state.cardItemState.isCardScannerPresented else { return }
+            applyCardScanResult(&self.state, data: data)
+        }
+    }
+
     /// Receives an `AddEditCardItem` action from the `AddEditCardView` view's store, and updates
     /// the `AddEditCardState`.
     ///
@@ -613,10 +654,12 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         case let .cardNumberChanged(number):
             state.cardItemState.cardNumber = number.filter(\.isNumber)
         case .cardScannerDismissed:
+            cardScanGracePeriodTask?.cancel()
+            cardScanGracePeriodTask = nil
             state.cardItemState.isCardScannerPresented = false
             state.cardItemState.shouldFocusCardholderNameAfterScan = false
         case let .cardScannerLinesUpdated(lines):
-            applyCardScanResult(&state, data: services.cardTextParser.parseCard(lines: lines))
+            handleCardScanResult(&state, data: services.cardTextParser.parseCard(lines: lines))
         case let .cardSecurityCodeChanged(code):
             state.cardItemState.cardSecurityCode = code
         case let .expirationMonthChanged(month):

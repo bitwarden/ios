@@ -1,6 +1,3 @@
-import BitwardenKit
-import BitwardenKitMocks
-import Foundation
 import Testing
 
 @testable import BitwardenShared
@@ -12,14 +9,10 @@ struct CardTextParserTests {
 
     let subject: DefaultCardTextParser
 
-    /// A fixed present time, so the parser's plausible expiration year range stays stable. Mid-year,
-    /// so the calendar year is 2025 in every time zone.
-    let timeProvider = MockTimeProvider(.mockTime(Date(timeIntervalSince1970: 1_751_328_000)))
-
     // MARK: Setup
 
     init() {
-        subject = DefaultCardTextParser(timeProvider: timeProvider)
+        subject = DefaultCardTextParser()
     }
 
     // MARK: Tests – Card Number
@@ -96,13 +89,26 @@ struct CardTextParserTests {
         #expect(result.expirationYear == nil)
     }
 
-    /// `parseCard(lines:)` rejects an expiry whose year falls outside the plausible range, and a
-    /// three digit run that is not a year at all.
-    @Test(arguments: [["03/999"], ["03/9999"], ["01/20"], ["12/99"]])
-    func parseCard_rejectsImplausibleExpiryYear(lines: [String]) {
-        let result = subject.parseCard(lines: lines)
+    /// `parseCard(lines:)` rejects an expiry with a three digit year, which is OCR noise rather
+    /// than a year.
+    @Test
+    func parseCard_rejectsThreeDigitExpiryYear() {
+        let result = subject.parseCard(lines: ["03/999"])
         #expect(result.expirationMonth == nil)
         #expect(result.expirationYear == nil)
+    }
+
+    /// `parseCard(lines:)` reads an expiry that has already passed, so an expired card can still be
+    /// saved to the vault.
+    @Test(arguments: zip(
+        [["01/20"], ["12/2019"]],
+        [(1, "2020"), (12, "2019")],
+    ))
+    func parseCard_extractsPastExpiry(lines: [String], expected: (Int, String)) {
+        let (expectedMonth, expectedYear) = expected
+        let result = subject.parseCard(lines: lines)
+        #expect(result.expirationMonth == expectedMonth)
+        #expect(result.expirationYear == expectedYear)
     }
 
     /// `parseCard(lines:)` still reads an expiry printed alongside its label, which is how a card

@@ -15,11 +15,9 @@ extension Constants {
     /// 53.98 mm.
     static let cardAspectRatio = 85.6 / 53.98
 
-    /// The number of years after the current year that a scanned card expiration year may be.
-    static let cardScanMaxExpiryYearsAhead = 20
-
-    /// The number of years before the current year that a scanned card expiration year may be.
-    static let cardScanMaxExpiryYearsPast = 1
+    /// How long, in seconds, the card scanner keeps scanning for an expiration date after finding a
+    /// card number without one.
+    static let cardScanExpiryGracePeriod: TimeInterval = 1
 
     /// How much taller the card scanner's capture region is than an exactly proportioned card, to
     /// allow for a card held at an angle or off center.
