@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "authenticator-light.pdf",
+      "filename" : "authenticator-app.pdf",
       "idiom" : "universal"
     },
     {
@@ -11,7 +11,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "authenticator-dark.pdf",
+      "filename" : "authenticator-app-dark.pdf",
       "idiom" : "universal"
     }
   ],

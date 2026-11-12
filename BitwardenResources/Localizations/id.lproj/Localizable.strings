@@ -8,8 +8,12 @@
 "Copy" = "Salin";
 "CopyLicenseNumber" = "Salin nomor lisensi";
 "CopyPassportNumber" = "Salin nomor paspor";
+"CopyPassphrase" = "Salin passphrase";
 "CopyPassword" = "Salin sandi";
 "CopyUsername" = "Salin nama pengguna";
+"UseThisPassphrase" = "Gunakan passphrase ini";
+"UseThisPassword" = "Gunakan kata sandi ini";
+"UseThisUsername" = "Gunakan username ini";
 "Delete" = "Hapus";
 "DeleteAll" = "Hapus semua";
 "Deleting" = "Menghapus…";
@@ -129,7 +133,6 @@
 "PasswordOverrideAlert" = "Anda yakin ingin menimpa sandi saat ini?";
 "PushNotificationAlert" = "Bitwarden menjaga brankas Anda tetap tersinkron otomatis menggunakan notifikasi push. Untuk pengalaman terbaik, pilih \"Izinkan\" pada popup berikut saat diminta mengizinkan notifikasi push.";
 "Security" = "Keamanan";
-"Select" = "Pilih";
 "ItemUpdated" = "Item disimpan";
 "Submitting" = "Mengirim…";
 "Syncing" = "Menyinkronkan…";
@@ -182,7 +185,6 @@
 "CopyTotp" = "Salin TOTP";
 "CopyTotpAutomaticallyDescription" = "Jika login memiliki kunci autentikator, salin kode verifikasi TOTP ke papan klip saat Anda mengisi otomatis login.";
 "CopyTotpAutomatically" = "Salin TOTP secara otomatis";
-"PremiumRequired" = "Keanggotaan premium diperlukan untuk menggunakan fitur ini.";
 "AttachementAdded" = "Lampiran ditambahkan";
 "AttachmentDeleted" = "Lampiran dihapus";
 "ChooseFile" = "Pilih Berkas";
@@ -223,7 +225,6 @@
 "August" = "Agustus";
 "Brand" = "Merek";
 "CardholderName" = "Nama Pemilik Kartu";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "Kami menemukan beberapa kecocokan. Pilih yang benar.";
 "CityTown" = "Kota / Kabupaten";
 "Company" = "Perusahaan";
 "Country" = "Negara";
@@ -309,6 +310,7 @@
 "NoEmailAddressesEntered" = "Tidak ada alamat email yang dimasukkan";
 "EnterAtLeastOneValidEmailToShareSend" = "Masukkan setidaknya satu alamat email valid untuk membagikan Kirim ini.";
 "OneOrMoreEmailAddressesIncorrect" = "Satu atau lebih alamat email salah. Mohon periksa dan coba lagi.";
+"OnlyIncludeTheFollowingDomainsDescriptionLong" = "Hanya sertakan domain berikut: %1$@. Harap periksa dan coba lagi.";
 "Cards" = "Kartu";
 "Identities" = "Identitas";
 "Logins" = "Login";
@@ -444,11 +446,20 @@
 "NewSendCreated" = "Send baru telah dibuat.";
 "Custom" = "Khusus";
 "SendDisabledWarning" = "Karena kebijakan perusahaan, Anda hanya dapat menghapus Send yang sudah ada.";
+"ThisDateIsEnforcedByYourOrganization" = "Tanggal ini diberlakukan oleh organisasi Anda";
 "AboutSend" = "Tentang Send";
 "HideEmail" = "Sembunyikan alamat email saya dari penerima";
 "SendOptionsPolicyInEffect" = "Satu atau lebih kebijakan orgnanisasi mempengaruhi pilihan Send Anda.";
 "SendFilePremiumRequired" = "Akun gratis dibatasi hanya untuk berbagi teks. Keanggotaan premium diperlukan untuk menggunakan berkas dengan Kirim.";
-"SendFileEmailVerificationRequired" = "Anda harus memverifikasi email untuk menggunakan berkas dengan Kirim. Anda dapat memverifikasi email Anda di brankas web.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Karena kebijakan enterprise, Anda hanya dapat membuat Send Berkas.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Karena kebijakan enterprise, Anda hanya dapat membuat Send Teks.";
+"OrganizationPolicyRestriction" = "Batasan kebijakan organisasi";
+"TextSendsAreNotAllowedDescriptionLong" = "Send teks tidak diizinkan untuk organisasi Anda dan Send ini akan kedaluwarsa secara otomatis pada tanggal penghapusan yang ditentukan.";
+"ThisSendIsNotCompliantDescriptionLong" = "Send ini tidak mematuhi kebijakan Send organisasi Anda dan akan kedaluwarsa secara otomatis pada tanggal penghapusan yang ditentukan.";
+"ToEditThisSendMakeACopyDescriptionLong" = "Untuk mengedit Send ini, buat salinan. Jika Send ini boleh kedaluwarsa pada tanggal penghapusan yang ditentukan, tidak ada tindakan yang diperlukan.";
+"MakeACopy" = "Buat salinan";
 "PasswordPrompt" = "Pengingat ulang sandi utama";
 "PasswordConfirmation" = "Konfirmasi sandi utama";
 "PasswordConfirmationDesc" = "Tindakan ini dilindungi, untuk melanjutkan harap masukkan ulang sandi utama Anda untuk memverifikasi identitas Anda.";
@@ -490,6 +501,8 @@
 "SpecialCharacters" = "Karakter spesial (!@#$%^&*)";
 "PasswordIsVisibleTapToHide" = "Kata sandi terlihat, ketuk untuk menyembunyikannya.";
 "PasswordIsNotVisibleTapToShow" = "Sandi tidak terlihat, ketuk untuk menampilkannya.";
+"FieldValueIsVisibleTapToHide" = "%1$@ terlihat, ketuk untuk menyembunyikan.";
+"FieldValueIsNotVisibleTapToShow" = "%1$@ tidak terlihat, ketuk untuk menampilkan.";
 "FilterByVault" = "Saring item berdasarkan brankas";
 "AllVaults" = "Semua brankas";
 "Vaults" = "Brankas";
@@ -648,7 +661,6 @@
 "SetUpAutofill" = "Siapkan isi otomatis";
 "AppInfo" = "Info apl";
 "Browse" = "Telusuri";
-"SelectCardholderName" = "Pilih nama pemegang kartu";
 "SelectLanguage" = "Pilih bahasa";
 "ContinueToCompleteWebAuthnVerification" = "Lanjutkan untuk menyelesaikan verifikasi WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Terjadi kesalahan saat memulai autentikasi dua faktor WebAuthn";
@@ -667,7 +679,6 @@
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Dengan melanjutkan, Anda menyetujui **[Ketentuan Layanan](%1$@)** dan **[Kebijakan Privasi](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Dapatkan saran, pengumuman, dan peluang riset dari Bitwarden di kotak masuk Anda. **[Berhenti berlangganan](%1$@)** kapan saja.";
 "UserVerificationForPasskey" = "Verifikasi pengguna untuk kunci sandi";
-"NewItem" = "Item baru";
 "ExploreTheGenerator" = "Jelajahi pembuat sandi";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Pelajari lebih lanjut tentang membuat kredensial login yang aman dengan tur panduan.";
 "ExportVaultFilePwProtectInfo" = "Ekspor file ini akan dilindungi sandi dan memerlukan sandi file untuk mendekripsi.";
@@ -872,7 +883,7 @@
 "AddWebsite" = "Tambah situs web";
 "CannotDeleteAccount" = "Tidak dapat menghapus item";
 "CannotDeleteAccountDescriptionLong" = "Tindakan ini tidak dapat diselesaikan karena akun Anda dimiliki oleh organisasi. Hubungi administrator organisasi Anda untuk detail lebih lanjut.";
-"AddItem" = "Tambah Item";
+"AddItem" = "Tambahkan item";
 "SetUpAuthenticatorKey" = "Siapkan kunci autentikator";
 "ItemDetails" = "Rincian item";
 "CardDetails" = "Rincian kartu";
@@ -881,6 +892,10 @@
 "Identification" = "Identifikasi";
 "Owner" = "Pemilik";
 "VerifyYourIdentity" = "Verifikasikan identitas Anda";
+"ThisOperationIsNotAllowedOnThisAccount" = "Operasi ini tidak diizinkan pada akun ini";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "Terjadi kesalahan saat mencoba mengunci pengguna saat ini";
+"LockAllAccounts" = "Kunci semua akun";
+"AllAccountsHaveBeenLocked" = "Semua akun telah dikunci";
 "ShareErrorDetails" = "Bagikan detail error";
 "FlightRecorder" = "Kotak hitam";
 "EnableFlightRecorder" = "Aktifkan kotak hitam";
@@ -900,7 +915,7 @@
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Folder bersama, %1$@";
 "FolderX" = "Folder, %1$@";
-"MyFolderX" = "My folder, %1$@";
+"MyFolderX" = "Folder saya, %1$@";
 "ItemXOfY" = "Item %1$@ dari %2$@";
 "ViewRecordedLogs" = "Tampilkan catatan log";
 "RecordedLogs" = "Catatan log";
@@ -909,7 +924,13 @@
 "ExpiresOnXDate" = "Kedaluwarsa pada %1$@";
 "ExpiresTomorrow" = "Kedaluwarsa besok";
 "DateRangeXToY" = "%1$@ hingga %2$@";
+"LogOutAllAccounts" = "Keluar dari semua akun";
+"AllAccountsHaveBeenLoggedOut" = "Semua akun telah keluar";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "Terjadi kesalahan saat mencoba keluar dari semua akun";
 "SelfHostServerURL" = "URL server yang dihosting mandiri";
+"OpenGenerator" = "Buka generator";
+"OpenPasswordGenerator" = "Buka password generator";
+"GeneratePassphrase" = "Buat passphrase";
 "AllowUniversalClipboard" = "Izinkan Papan Klip Universal";
 "UseUniversalClipboardToCopyDescriptionLong" = "Gunakan Papan Klip Universal untuk menyalin di sini dan tempel di perangkat lain dengan Apple ID yang sama.";
 "RemoveMasterPasswordConfirmDomain" = "Sandi utama tidak lagi diperlukan bagi anggota organisasi berikut. Harap konfirmasi domain di bawah ini dengan administrator organisasi Anda.";
@@ -929,6 +950,7 @@
 "GoToSettings" = "Buka setelan";
 "SiriAndShortcutsAccess" = "Akses Siri & Pintasan";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Aktifkan agar aplikasi dapat merespons Siri dan Pintasan menggunakan App Intents.";
+"ThereIsNoActiveAccount" = "Tidak ada akun aktif.";
 "NewFileSend" = "File Kirim baru";
 "NewTextSend" = "Teks Kirim baru";
 "EditFileSend" = "Ubah file Kirim";
@@ -960,8 +982,6 @@
 "DefaultSaveOption" = "Pilihan simpan standar";
 "DownloadTheBitwardenApp" = "Unduh aplikasi Bitwarden";
 "EnsureItsValidJsonAndTryAgain" = "Pastikan itu JSON yang valid dan coba lagi.";
-"ExportItemsConfirmationTitle" = "Konfirmasi ekspor item";
-"ExportItemsWarning" = "Ekspor ini berisi data item Anda dalam format tidak terenkripsi. Jangan menyimpan atau mengirim file ekspor melalui saluran yang tidak aman (seperti email). Hapus segera setelah selesai digunakan.";
 "FileCouldNotBeProcessed" = "File tidak dapat diproses";
 "GetVerificationCodesForAllYourAccounts" = "Dapatkan kode verifikasi untuk semua akun Anda menggunakan verifikasi 2-langkah.";
 "Help" = "Bantuan";
@@ -979,7 +999,6 @@
 "NoAskMe" = "Tidak, tanya saya";
 "NoCodes" = "Anda tidak memiliki kode untuk ditampilkan";
 "None" = "Tidak ada";
-"NoneOfTheAbove" = "Tidak ada di atas";
 "NumberOfDigits" = "Jumlah angka";
 "OtpType" = "Jenis OTP";
 "RefreshPeriod" = "Interval muat ulang";
@@ -1077,6 +1096,7 @@
 "AnyoneWithTheLink" = "Siapa saja yang punya tautannya";
 "AnyoneWithThisLinkCanViewThisSend" = "Siapa saja yang punya tautan ini dapat melihat Kirim ini.";
 "AfterSharingThisSendLinkDescriptionLong" = "Setelah membagikan tautan Kirim ini, individu perlu memverifikasi email mereka dengan kode untuk melihat Kirim ini.";
+"IndividualsWillNeedToEnterThisPasswordDescriptionLong" = "Pengguna harus memasukkan kata sandi ini untuk melihat Send ini";
 "SpecificPeople" = "Orang tertentu";
 "WhoCanView" = "Siapa yang dapat melihat";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Berbagi dengan orang tertentu adalah fitur Premium. Paket Anda saat ini tidak termasuk akses ke fitur ini.";
@@ -1254,5 +1274,37 @@
 "Server" = "Server";
 /* Accessibility label for the button that clears a field's value. %1$@ is the field's title (e.g. "Date of birth"), so the spoken label reads "Clear Date of birth". */
 "ClearFieldName" = "Hapus %1$@";
-"SelectDate" = "Pilih tanggal";
+/* Accessibility hint on a collapsed date field announcing that activating it activates the calendar picker. */
+"DoubleTapToActivateThePicker" = "Ketuk dua kali untuk mengaktifkan pemilih";
+/* Accessibility hint on an expanded date field announcing that activating it closes the calendar picker. */
+"DoubleTapToCloseThePicker" = "Ketuk dua kali untuk menutup pemilih";
+/* VoiceOver announcement posted when a date picker whose range excludes future dates, e.g. date of birth or an issue date, reports landing on today (the latest available day) while scrolling the wheel. */
+"FutureDatesUnavailable" = "Tanggal di masa mendatang tidak tersedia";
 "PremiumRequiredTOTPDescriptionLong" = "Kunci Authenticator (TOTP) adalah fitur Premium. Paket Anda saat ini tidak mencakup akses ke fitur ini.";
+/* Toast shown after a login item is saved. */
+"LoginSaved" = "Login disimpan";
+/* Toast shown after a card item is saved. */
+"CardSaved" = "Kartu disimpan";
+/* Toast shown after an identity item is saved. */
+"IdentitySaved" = "Identitas disimpan";
+/* Toast shown after a secure note item is saved. */
+"SecureNoteSaved" = "Catatan aman disimpan";
+/* Toast shown after an SSH key item is saved. */
+"SSHKeySaved" = "Kunci SSH disimpan";
+/* Toast shown after a bank account item is saved. */
+"BankAccountSaved" = "Akun bank disimpan";
+/* Toast shown after a driver's license item is saved. */
+"LicenseSaved" = "Lisensi disimpan";
+/* Toast shown after a passport item is saved. */
+"PassportSaved" = "Paspor disimpan";
+"NotNow" = "Lain kali";
+"SyncUnsuccessful" = "Sinkronisasi gagal";
+"WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Kami tidak dapat menyinkronkan brankas Anda dengan server. Brankas Anda mungkin tidak mencerminkan perubahan terbaru Anda. Anda dapat mencoba lagi sekarang atau akan disinkronkan secara otomatis nanti.";
+"TextToShareRequired" = "Teks untuk dibagikan (wajib)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Disertakan dalam laporan ini";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Hanya kode yang disimpan secara lokal di perangkat ini yang akan diekspor. Kode yang disinkronkan tidak disertakan.";
+"ConfirmExport" = "Konfirmasi ekspor";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "Ekspor ini berisi data vault Anda dalam format yang tidak dienkripsi. Anda tidak boleh menyimpan atau mengirim file yang diekspor melalui saluran yang tidak aman (seperti emel). Hapus segera setelah Anda selesai menggunakannya.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Buat login";

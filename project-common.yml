@@ -2,7 +2,7 @@ options:
   createIntermediateGroups: true
   deploymentTarget:
     iOS: 15.0
-    watchOS: 8.0
+    watchOS: 9.0
   groupSortPosition: top
   usesTabs: false
   indentWidth: 4
@@ -14,16 +14,16 @@ include:
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: b7e7be7e7f5adde3cafcb27d79fac80a53c5c3c8 # 3.0.0-7742-9794da5
+    revision: e8dfdbaecc482655f824495e115645a23d500575 # 4.0.0-9536-8d6a671
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
     exactVersion: 12.14.0
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing
-    exactVersion: 1.19.2
+    exactVersion: 1.19.4
   ViewInspector:
     url: https://github.com/nalexn/ViewInspector
-    exactVersion: 0.10.3
+    exactVersion: 0.10.5
 targetTemplates:
   # Adds common include/excludes for app and framework targets.
   CommonTarget:
@@ -53,11 +53,15 @@ targetTemplates:
           - "**/Fixtures/*"
           - "**/Mocks/*"
   # Adds common include/excludes for snapshot test targets.
+  # Snapshot tests are currently disabled, so their files are kept in the project but not compiled.
   SnapshotTestTarget:
     sources:
       - path: ${sourcesPath}
         includes:
           - "**/*SnapshotTests.*"
+        buildPhase: none
+      - path: ${sourcesPath}
+        includes:
           - "**/TestHelpers/*"
   # Adds the Sourcery pre-build script.
   SourceryTarget:

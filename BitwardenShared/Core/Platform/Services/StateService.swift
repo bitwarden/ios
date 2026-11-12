@@ -10,7 +10,7 @@ import Foundation
 
 /// A protocol for a `StateService` which manages the state of the accounts in the app.
 ///
-protocol StateService: AnyObject, BillingStateService, DebugStateService {
+protocol StateService: AnyObject, DebugStateService {
     /// The language option currently selected for the app.
     var appLanguage: LanguageOption { get set }
 
@@ -23,9 +23,12 @@ protocol StateService: AnyObject, BillingStateService, DebugStateService {
     ///
     func addAccount(_ account: Account) async
 
-    /// Clears the pins stored on device and in memory.
+    /// Clears the pins stored on device and in memory for a user.
     ///
-    func clearPins() async throws
+    /// - Parameter userId: The user ID of the user whose pins should be cleared. Defaults to the
+    ///     active user if `nil`.
+    ///
+    func clearPins(userId: String?) async throws
 
     /// Deletes the current active account.
     ///
@@ -38,18 +41,23 @@ protocol StateService: AnyObject, BillingStateService, DebugStateService {
     ///
     func didAccountSwitchInExtension() async throws -> Bool
 
-    /// Returns whether the active user account has access to Premium features.
+    /// Returns whether an account has access to Premium features, either personally or via an
+    /// enabled organization that grants it.
     ///
-    /// - Returns: Whether the active account has access to Premium features.
+    /// - Parameters:
+    ///   - userId: The user ID of the account to check. Defaults to the active account if `nil`.
+    /// - Returns: Whether the account has access to Premium features.
     ///
-    func doesActiveAccountHavePremium() async -> Bool
+    func doesAccountHavePremium(userId: String?) async -> Bool
 
-    /// Returns whether the active user account has Premium personally (i.e. Premium that the user
-    /// purchased themselves), as opposed to Premium granted by an organization.
+    /// Returns whether an account has Premium personally (i.e. Premium that the user purchased
+    /// themselves), as opposed to Premium granted by an organization.
     ///
-    /// - Returns: Whether the active account has Premium personally.
+    /// - Parameters:
+    ///   - userId: The user ID of the account to check. Defaults to the active account if `nil`.
+    /// - Returns: Whether the account has Premium personally.
     ///
-    func doesActiveAccountHavePremiumPersonally() async -> Bool
+    func doesAccountHavePremiumPersonally(userId: String?) async -> Bool
 
     /// Gets the access token's expiration date for an account.
     ///
@@ -65,12 +73,12 @@ protocol StateService: AnyObject, BillingStateService, DebugStateService {
     ///
     func getAccount(userId: String?) async throws -> Account
 
-    /// Gets the account encryptions keys for an account.
+    /// Gets the cryptographic state for an account.
     ///
     /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
-    /// - Returns: The account encryption keys.
+    /// - Returns: The account's cryptographic state.
     ///
-    func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys
+    func getAccountCryptographicState(userId: String?) async throws -> WrappedAccountCryptographicState
 
     /// Gets whether the user has unlocked their account in the current session interactively.
     /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
@@ -324,14 +332,6 @@ protocol StateService: AnyObject, BillingStateService, DebugStateService {
     ///
     func getPreAuthEnvironmentURLs() async -> EnvironmentURLData?
 
-    /// Gets whether the Premium upgrade banner has been dismissed.
-    ///
-    /// - Parameter userId: The user ID associated with the Premium upgrade banner dismissed value.
-    ///   Defaults to the active account if `nil`.
-    /// - Returns: Whether the Premium upgrade banner has been dismissed.
-    ///
-    func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool
-
     /// Gets the environment URLs for a given email during account creation.
     ///
     /// - Parameter email: The email used to start the account creation.
@@ -418,6 +418,13 @@ protocol StateService: AnyObject, BillingStateService, DebugStateService {
     ///
     func getUsesKeyConnector(userId: String?) async throws -> Bool
 
+    /// Gets the V2 upgrade token for an account.
+    ///
+    /// - Parameter userId: The user ID of the account.
+    /// - Returns: The V2 upgrade token, if one is available.
+    ///
+    func getV2UpgradeToken(userId: String) async -> V2UpgradeToken?
+
     /// Whether the user is authenticated.
     ///
     /// - Parameter userId: The user ID to check if they are authenticated.
@@ -472,13 +479,16 @@ protocol StateService: AnyObject, BillingStateService, DebugStateService {
     ///
     func setAccessTokenExpirationDate(_ expirationDate: Date?, userId: String) async
 
-    /// Sets the account encryption keys for an account.
+    /// Sets the cryptographic state for an account.
     ///
     /// - Parameters:
-    ///   - encryptionKeys: The account encryption keys.
+    ///   - cryptographicState: The account's cryptographic state.
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
-    func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws
+    func setAccountCryptographicState(
+        _ cryptographicState: WrappedAccountCryptographicState,
+        userId: String?,
+    ) async throws
 
     /// Sets whether the user has unlocked their account in the current session  interactively.
     /// - Parameters:
@@ -568,15 +578,6 @@ protocol StateService: AnyObject, BillingStateService, DebugStateService {
     /// - Parameter shown: Whether the archive onboarding has been shown.
     ///
     func setArchiveOnboardingShown(_ shown: Bool) async
-
-    /// Sets whether the Premium upgrade banner has been dismissed.
-    ///
-    /// - Parameters:
-    ///   - dismissed: Whether the Premium upgrade banner has been dismissed.
-    ///   - userId: The user ID associated with the Premium upgrade banner dismissed value.
-    ///     Defaults to the active account if `nil`.
-    ///
-    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws
 
     /// Sets the clear clipboard value for an account.
     ///
@@ -848,6 +849,14 @@ protocol StateService: AnyObject, BillingStateService, DebugStateService {
     ///
     func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String?) async throws
 
+    /// Sets the V2 upgrade token for an account.
+    ///
+    /// - Parameters:
+    ///   - token: The V2 upgrade token, or `nil` to clear it.
+    ///   - userId: The user ID of the account.
+    ///
+    func setV2UpgradeToken(_ token: V2UpgradeToken?, userId: String) async
+
     /// Updates the profile information for a user.
     ///
     /// - Parameters:
@@ -918,6 +927,30 @@ extension StateService {
         await setPendingAppIntentActions(actions: actions)
     }
 
+    /// Clears the pins stored on device and in memory for the active user.
+    ///
+    func clearPins() async throws {
+        try await clearPins(userId: nil)
+    }
+
+    /// Returns whether the active account has access to Premium features, either personally or via
+    /// an enabled organization that grants it.
+    ///
+    /// - Returns: Whether the active account has access to Premium features.
+    ///
+    func doesActiveAccountHavePremium() async -> Bool {
+        await doesAccountHavePremium(userId: nil)
+    }
+
+    /// Returns whether the active account has Premium personally (i.e. Premium that the user
+    /// purchased themselves), as opposed to Premium granted by an organization.
+    ///
+    /// - Returns: Whether the active account has Premium personally.
+    ///
+    func doesActiveAccountHavePremiumPersonally() async -> Bool {
+        await doesAccountHavePremiumPersonally(userId: nil)
+    }
+
     /// Gets the access token's expiration date for the active account.
     ///
     /// - Returns: The user's access token expiration date.
@@ -926,12 +959,12 @@ extension StateService {
         try await getAccessTokenExpirationDate(userId: getActiveAccountId())
     }
 
-    /// Gets the account encryptions keys for the active account.
+    /// Gets the cryptographic state for the active account.
     ///
-    /// - Returns: The account encryption keys.
+    /// - Returns: The active account's cryptographic state.
     ///
-    func getAccountEncryptionKeys() async throws -> AccountEncryptionKeys {
-        try await getAccountEncryptionKeys(userId: nil)
+    func getAccountCryptographicState() async throws -> WrappedAccountCryptographicState {
+        try await getAccountCryptographicState(userId: nil)
     }
 
     /// Gets whether the user has unlocked their account in the current session  interactively.
@@ -1130,14 +1163,6 @@ extension StateService {
         try await getPasswordGenerationOptions(userId: nil)
     }
 
-    /// Gets whether the Premium upgrade banner has been dismissed for the active account.
-    ///
-    /// - Returns: Whether the Premium upgrade banner has been dismissed.
-    ///
-    func getPremiumUpgradeBannerDismissed() async throws -> Bool {
-        try await getPremiumUpgradeBannerDismissed(userId: nil)
-    }
-
     /// Gets whether Siri & Shortcuts access is enabled for the active account.
     /// - Returns: Whether Siri & Shortcuts access is enabled.
     func getSiriAndShortcutsAccess() async throws -> Bool {
@@ -1233,12 +1258,12 @@ extension StateService {
         try await setAccessTokenExpirationDate(expirationDate, userId: getActiveAccountId())
     }
 
-    /// Sets the account encryption keys for the active account.
+    /// Sets the cryptographic state for the active account.
     ///
-    /// - Parameter encryptionKeys: The account encryption keys.
+    /// - Parameter cryptographicState: The account's cryptographic state.
     ///
-    func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys) async throws {
-        try await setAccountEncryptionKeys(encryptionKeys, userId: nil)
+    func setAccountCryptographicState(_ cryptographicState: WrappedAccountCryptographicState) async throws {
+        try await setAccountCryptographicState(cryptographicState, userId: nil)
     }
 
     /// Sets whether the user has unlocked their account in the current session  interactively.
@@ -1410,14 +1435,6 @@ extension StateService {
     ///
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?) async throws {
         try await setPasswordGenerationOptions(options, userId: nil)
-    }
-
-    /// Sets whether the Premium upgrade banner has been dismissed for the active account.
-    ///
-    /// - Parameter dismissed: Whether the Premium upgrade banner has been dismissed.
-    ///
-    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool) async throws {
-        try await setPremiumUpgradeBannerDismissed(dismissed, userId: nil)
     }
 
     /// Sets the app rehydration state for the active account.
@@ -1617,8 +1634,8 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         state.activeUserId = account.profile.userId
     }
 
-    func clearPins() async throws {
-        let userId = try getActiveAccountUserId()
+    func clearPins(userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
         accountVolatileData[userId]?.pinProtectedUserKey = nil
         appSettingsStore.setEncryptedPin(nil, userId: userId)
         appSettingsStore.setPinProtectedUserKey(key: nil, userId: userId)
@@ -1641,16 +1658,17 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         }
     }
 
-    func doesActiveAccountHavePremium() async -> Bool {
+    func doesAccountHavePremium(userId: String?) async -> Bool {
         do {
-            let account = try await getActiveAccount()
+            let userId = try userId ?? getActiveAccountUserId()
+            let account = try getAccount(userId: userId)
             let hasPremiumPersonally = account.profile.hasPremiumPersonally ?? false
             guard !hasPremiumPersonally else {
                 return true
             }
 
             let organizations = try await dataStore
-                .fetchAllOrganizations(userId: account.profile.userId)
+                .fetchAllOrganizations(userId: userId)
                 .filter { $0.enabled && $0.usersGetPremium }
             return !organizations.isEmpty
         } catch {
@@ -1659,9 +1677,10 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         }
     }
 
-    func doesActiveAccountHavePremiumPersonally() async -> Bool {
+    func doesAccountHavePremiumPersonally(userId: String?) async -> Bool {
         do {
-            let account = try await getActiveAccount()
+            let userId = try userId ?? getActiveAccountUserId()
+            let account = try getAccount(userId: userId)
             return account.profile.hasPremiumPersonally ?? false
         } catch {
             errorReporter.log(error: error)
@@ -1685,15 +1704,12 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         return account
     }
 
-    func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys {
+    func getAccountCryptographicState(userId: String?) async throws -> WrappedAccountCryptographicState {
         let userId = try userId ?? getActiveAccountUserId()
         guard let cryptographicState = appSettingsStore.accountCryptographicState(userId: userId) else {
             throw StateServiceError.noAccountCryptographicState
         }
-        return AccountEncryptionKeys(
-            cryptographicState: cryptographicState,
-            encryptedUserKey: appSettingsStore.encryptedUserKey(userId: userId),
-        )
+        return cryptographicState
     }
 
     func getAccountHasBeenUnlockedInteractively(userId: String?) async throws -> Bool {
@@ -1752,11 +1768,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
 
     func getArchiveOnboardingShown() async -> Bool {
         appSettingsStore.archiveOnboardingShown
-    }
-
-    func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool {
-        let userId = try userId ?? getActiveAccountUserId()
-        return appSettingsStore.premiumUpgradeBannerDismissed(userId: userId)
     }
 
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
@@ -1992,11 +2003,16 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.setAccountCryptographicState(nil, userId: knownUserId)
         appSettingsStore.setDefaultUriMatchType(nil, userId: knownUserId)
         appSettingsStore.setDisableAutoTotpCopy(nil, userId: knownUserId)
-        appSettingsStore.setEncryptedUserKey(key: nil, userId: knownUserId)
         appSettingsStore.setHasPerformedSyncAfterLogin(nil, userId: knownUserId)
         appSettingsStore.setLastSyncTime(nil, userId: knownUserId)
         appSettingsStore.setMasterPasswordHash(nil, userId: knownUserId)
         appSettingsStore.setPasswordGenerationOptions(nil, userId: knownUserId)
+        appSettingsStore.setUserKeyId(nil, userId: knownUserId)
+        appSettingsStore.setV2UpgradeToken(nil, userId: knownUserId)
+
+        if userInitiated {
+            appSettingsStore.setPreviousPersonalPremium(nil, userId: knownUserId)
+        }
 
         // Reset the organization user notification banner dismissal so the banner can reappear on the next
         // login. A user-initiated (hard) logout always clears it; a soft logout (e.g. a vault-timeout logout)
@@ -2042,10 +2058,12 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         }
     }
 
-    func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
+    func setAccountCryptographicState(
+        _ cryptographicState: WrappedAccountCryptographicState,
+        userId: String?,
+    ) async throws {
         let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setAccountCryptographicState(encryptionKeys.cryptographicState, userId: userId)
-        appSettingsStore.setEncryptedUserKey(key: encryptionKeys.encryptedUserKey, userId: userId)
+        appSettingsStore.setAccountCryptographicState(cryptographicState, userId: userId)
     }
 
     func setAccountHasBeenUnlockedInteractively(userId: String?, value: Bool) async throws {
@@ -2132,11 +2150,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
 
     func setArchiveOnboardingShown(_ shown: Bool) async {
         appSettingsStore.archiveOnboardingShown = shown
-    }
-
-    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setPremiumUpgradeBannerDismissed(dismissed, userId: userId)
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
@@ -2523,14 +2536,17 @@ struct AccountVolatileData {
 extension DefaultStateService: BillingStateService {
     // MARK: Premium Upgrade Banner
 
-    func isPremiumUpgradeBannerDismissed() async -> Bool {
-        do {
-            return try await getPremiumUpgradeBannerDismissed()
-        } catch {
-            errorReporter.log(error: error)
-            return false
-        }
+    func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.premiumUpgradeBannerDismissed(userId: userId)
     }
+
+    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setPremiumUpgradeBannerDismissed(dismissed, userId: userId)
+    }
+
+    // MARK: Premium Upgrade Eligibility
 
     func isPremiumUpgradeEligible() async -> Bool {
         guard await !doesActiveAccountHavePremium() else { return false }
@@ -2539,6 +2555,42 @@ extension DefaultStateService: BillingStateService {
         guard let account = try? await getActiveAccount(),
               let creationDate = account.profile.creationDate else { return false }
         return timeProvider.timeSince(creationDate) >= Constants.premiumUpgradeBannerAccountAge
+    }
+
+    // MARK: Premium Upgrade Pending
+
+    func getPremiumUpgradePending(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.premiumUpgradePending(userId: userId)
+    }
+
+    func setPremiumUpgradePending(_ pending: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setPremiumUpgradePending(pending, userId: userId)
+    }
+
+    // MARK: Previous Personal Premium
+
+    func getPreviousPersonalPremium(userId: String?) async throws -> Bool? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.previousPersonalPremium(userId: userId)
+    }
+
+    func setPreviousPersonalPremium(_ previousPersonalPremium: Bool?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setPreviousPersonalPremium(previousPersonalPremium, userId: userId)
+    }
+
+    // MARK: Subscription
+
+    func getHasPersonalSubscription(userId: String?) async throws -> Bool? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.hasPersonalSubscription(userId: userId)
+    }
+
+    func setHasPersonalSubscription(_ hasPersonalSubscription: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setHasPersonalSubscription(hasPersonalSubscription, userId: userId)
     }
 
     // MARK: Subscription Attention Card
@@ -2555,13 +2607,13 @@ extension DefaultStateService: BillingStateService {
 
     // MARK: Upgraded to Premium Card
 
-    func getUpgradedToPremiumActionCardVisible() async throws -> Bool {
-        let userId = try getActiveAccountUserId()
+    func getUpgradedToPremiumActionCardVisible(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.upgradedToPremiumActionCardVisible(userId: userId)
     }
 
-    func setUpgradedToPremiumActionCardVisible(_ visible: Bool) async throws {
-        let userId = try getActiveAccountUserId()
+    func setUpgradedToPremiumActionCardVisible(_ visible: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setUpgradedToPremiumActionCardVisible(visible, userId: userId)
     }
 }
@@ -2635,9 +2687,7 @@ extension DefaultStateService {
 
     func clearMasterPasswordUnlockForActiveAccount() async throws {
         let userId = try getActiveAccountUserId()
-        try updateAccountProfile(userId: userId) { profile in
-            profile.userDecryptionOptions?.masterPasswordUnlock = nil
-        }
+        await clearAccountMasterPasswordUnlockData(userId: userId)
     }
 }
 
@@ -2727,5 +2777,149 @@ extension DefaultStateService: AutofillStateService {
 
     func setLastRequestToTurnOnCredentialProvider(_ date: Date?) async {
         appSettingsStore.setLastRequestToTurnOnCredentialProvider(date)
+    }
+}
+
+// MARK: SdkStateBridgeStateService
+
+extension DefaultStateService: SdkStateBridgeStateService {
+    // MARK: Account Cryptographic State
+
+    func getAccountCryptographicState(userId: String) async -> WrappedAccountCryptographicState? {
+        appSettingsStore.accountCryptographicState(userId: userId)
+    }
+
+    func setAccountCryptographicState(_ state: WrappedAccountCryptographicState?, userId: String) async {
+        appSettingsStore.setAccountCryptographicState(state, userId: userId)
+    }
+
+    // MARK: Encrypted Pin
+
+    func setEncryptedPin(_ encryptedPin: String?, userId: String) async {
+        appSettingsStore.setEncryptedPin(encryptedPin, userId: userId)
+    }
+
+    // MARK: Ephemeral Pin Envelope
+
+    func getEphemeralPinEnvelope(userId: String) async -> String? {
+        accountVolatileData[userId]?.pinProtectedUserKey
+    }
+
+    func setEphemeralPinEnvelope(_ envelope: String?, userId: String) async {
+        accountVolatileData[userId, default: AccountVolatileData()].pinProtectedUserKey = envelope
+    }
+
+    // MARK: Kdf Config
+
+    func clearKdfConfig(userId: String) async {
+        do {
+            try updateAccountProfile(userId: userId) { profile in
+                profile.kdfType = nil
+                profile.kdfIterations = nil
+                profile.kdfMemory = nil
+                profile.kdfParallelism = nil
+            }
+        } catch {
+            errorReporter.log(error: error)
+        }
+    }
+
+    func getKdfConfig(userId: String) async -> BitwardenSdk.Kdf? {
+        do {
+            let profile = try getAccount(userId: userId).profile
+            guard let kdfType = profile.kdfType, let kdfIterations = profile.kdfIterations else {
+                return nil
+            }
+            return KdfConfig(
+                kdfType: kdfType,
+                iterations: kdfIterations,
+                memory: profile.kdfMemory,
+                parallelism: profile.kdfParallelism,
+            ).sdkKdf
+        } catch {
+            errorReporter.log(error: error)
+            return nil
+        }
+    }
+
+    func setKdfConfig(_ kdf: BitwardenSdk.Kdf, userId: String) async {
+        do {
+            try await setAccountKdf(KdfConfig(kdf: kdf), userId: userId)
+        } catch {
+            errorReporter.log(error: error)
+        }
+    }
+
+    // MARK: Master Password Unlock Data
+
+    func clearAccountMasterPasswordUnlockData(userId: String) async {
+        do {
+            try updateAccountProfile(userId: userId) { profile in
+                profile.userDecryptionOptions?.masterPasswordUnlock = nil
+            }
+        } catch {
+            errorReporter.log(error: error)
+        }
+    }
+
+    func getAccountMasterPasswordUnlock(userId: String) async -> MasterPasswordUnlockData? {
+        do {
+            let account = try getAccount(userId: userId)
+            guard let responseModel = account.profile.userDecryptionOptions?.masterPasswordUnlock else {
+                return nil
+            }
+            return MasterPasswordUnlockData(responseModel: responseModel)
+        } catch {
+            errorReporter.log(error: error)
+            return nil
+        }
+    }
+
+    // MARK: Persistent Pin Envelope
+
+    func getPersistentPinEnvelope(userId: String) async -> String? {
+        appSettingsStore.pinProtectedUserKeyEnvelope(userId: userId)
+    }
+
+    func setPersistentPinEnvelope(_ envelope: String?, userId: String) async {
+        appSettingsStore.setPinProtectedUserKeyEnvelope(key: envelope, userId: userId)
+
+        // Remove any legacy pin protected user key, mirroring `setPinKeys`/`clearPins`.
+        appSettingsStore.setPinProtectedUserKey(key: nil, userId: userId)
+    }
+
+    // MARK: User Key Id
+
+    func getUserKeyId(userId: String) async -> String? {
+        appSettingsStore.userKeyId(userId: userId)
+    }
+
+    func setUserKeyId(_ keyId: String?, userId: String) async {
+        appSettingsStore.setUserKeyId(keyId, userId: userId)
+    }
+
+    // MARK: V2 Encrypted Migrations Grace Period Start
+
+    func getV2EncryptedMigrationsGracePeriodStart(
+        userId: String,
+    ) async -> V2EncryptedMigrationsGracePeriodStart? {
+        appSettingsStore.v2EncryptedMigrationsGracePeriodStart(userId: userId)
+    }
+
+    func setV2EncryptedMigrationsGracePeriodStart(
+        _ date: V2EncryptedMigrationsGracePeriodStart?,
+        userId: String,
+    ) async {
+        appSettingsStore.setV2EncryptedMigrationsGracePeriodStart(date, userId: userId)
+    }
+
+    // MARK: V2 Upgrade Token
+
+    func getV2UpgradeToken(userId: String) async -> V2UpgradeToken? {
+        appSettingsStore.v2UpgradeToken(userId: userId)
+    }
+
+    func setV2UpgradeToken(_ token: V2UpgradeToken?, userId: String) async {
+        appSettingsStore.setV2UpgradeToken(token, userId: userId)
     }
 }

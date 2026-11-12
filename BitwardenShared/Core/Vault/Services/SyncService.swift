@@ -78,6 +78,12 @@ protocol SyncService: AnyObject {
     /// - Returns: The organization ID if migration is needed, or `nil` if not.
     ///
     func organizationIdRequiringVaultMigration() async throws -> String?
+
+    /// A publisher for when a sync completes successfully.
+    ///
+    /// Emits after all sync data has been persisted.
+    ///
+    func syncCompletePublisher() -> AsyncPublisher<AnyPublisher<Void, Never>>
 }
 
 extension SyncService {
@@ -200,6 +206,9 @@ class DefaultSyncService: SyncService {
     /// The API service used to perform sync API requests.
     private let syncAPIService: SyncAPIService
 
+    /// The subject tracking when a sync completes successfully.
+    private let syncCompleteSubject = CurrentValueSubject<Void, Never>(())
+
     /// A delegate of the `SyncService` that is notified if a user's security stamp changes.
     weak var delegate: SyncServiceDelegate?
 
@@ -301,6 +310,10 @@ class DefaultSyncService: SyncService {
         }
 
         return organizationId
+    }
+
+    func syncCompletePublisher() -> AsyncPublisher<AnyPublisher<Void, Never>> {
+        syncCompleteSubject.eraseToAnyPublisher().values
     }
 
     // MARK: Private
@@ -458,14 +471,14 @@ extension DefaultSyncService {
         if let masterPasswordUnlock = response.userDecryption?.masterPasswordUnlock {
             await stateService.setAccountMasterPasswordUnlock(masterPasswordUnlock, userId: userId)
         }
+        await stateService.setV2UpgradeToken(response.userDecryption?.v2UpgradeToken, userId: userId)
 
         try await cipherService.replaceCiphers(response.ciphers, userId: userId)
         try await collectionService.replaceCollections(response.collections, userId: userId)
         try await folderService.replaceFolders(response.folders, userId: userId)
         try await sendService.replaceSends(response.sends, userId: userId)
         try await settingsService.replaceEquivalentDomains(response.domains, userId: userId)
-        try await policyService.replacePolicies(response.policies, userId: userId)
-        try await policyService.replacePoliciesNew(response.policiesNew ?? [], userId: userId)
+        try await policyService.replacePolicies(response.effectivePolicies, userId: userId)
         try await stateService.setLastSyncTime(timeProvider.presentTime, userId: userId)
         try await stateService.setLastSyncMonotonicTime(timeProvider.monotonicTime, userId: userId)
         try await checkVaultTimeoutPolicy()
@@ -482,6 +495,7 @@ extension DefaultSyncService {
         }
 
         await delegate?.onFetchSyncSucceeded(userId: userId)
+        syncCompleteSubject.send(())
     }
 
     func deleteCipher(data: SyncCipherNotification) async throws {
@@ -644,8 +658,8 @@ extension DefaultSyncService {
         await stateService.updateProfile(from: profile, userId: userId)
         try await stateService.setUsesKeyConnector(profile.usesKeyConnector, userId: userId)
 
-        if let accountEncryptionKeys = AccountEncryptionKeys(responseModel: profile) {
-            try await stateService.setAccountEncryptionKeys(accountEncryptionKeys, userId: userId)
+        if let cryptographicState = WrappedAccountCryptographicState(responseModel: profile) {
+            try await stateService.setAccountCryptographicState(cryptographicState, userId: userId)
         }
     }
 } // swiftlint:disable:this file_length

@@ -85,7 +85,8 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     if store.state.mode == .edit {
                         optionsToolbarMenu {
                             if !store.state.isSendDisabled {
-                                if store.state.originalSendView?.hasPassword ?? false {
+                                if store.state.originalSendView?.hasPassword ?? false,
+                                   !store.state.isAccessTypeEnforcedByPolicy {
                                     AsyncButton(Localizations.removePassword) {
                                         await store.perform(.removePassword)
                                     }
@@ -186,6 +187,9 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         ContentBlock(dividerLeadingPadding: 16) {
             BitwardenMenuField(
                 title: Localizations.deletionDate,
+                footer: store.state.isDeletionDateEnforcedByPolicy
+                    ? Localizations.thisDateIsEnforcedByYourOrganization
+                    : Localizations.deletionDateInfo,
                 accessibilityIdentifier: "SendDeletionOptionsPicker",
                 options: store.state.availableDeletionDateTypes,
                 selection: store.binding(
@@ -193,12 +197,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     send: AddEditSendItemAction.deletionDateChanged,
                 ),
             )
-
-            Text(Localizations.deletionDateInfo)
-                .styleGuide(.footnote)
-                .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+            .disabled(store.state.isDeletionDateEnforcedByPolicy)
         }
     }
 
@@ -324,9 +323,12 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
 
     /// The "Who can view" section for access type selection.
     @ViewBuilder private var whoCanView: some View {
-        ContentBlock(dividerLeadingPadding: 16) {
+        ContentBlock(dividerLeadingPadding: 0) {
+            // When the access type is enforced by policy, the menu shows the enforced selection but
+            // is disabled so the user can't change it.
             BitwardenMenuField(
                 title: Localizations.whoCanView,
+                footer: store.state.whoCanViewFooter,
                 accessibilityIdentifier: "SendAccessTypePicker",
                 options: SendAccessType.allCases,
                 selection: store.binding(
@@ -334,6 +336,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     send: AddEditSendItemAction.accessTypeChanged,
                 ),
             )
+            .disabled(store.state.isAccessTypeEnforcedByPolicy)
 
             whoCanViewContent
         }
@@ -344,62 +347,59 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     @ViewBuilder private var whoCanViewContent: some View {
         switch store.state.accessType {
         case .anyoneWithLink:
-            Text(Localizations.anyoneWithThisLinkCanViewThisSend)
-                .styleGuide(.footnote)
-                .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+            EmptyView()
         case .specificPeople:
-            VStack(alignment: .leading, spacing: 0) {
-                Text(Localizations.afterSharingThisSendLinkDescriptionLong)
-                    .styleGuide(.footnote)
-                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-
-                recipientEmailsList
-            }
+            recipientEmailsList
         case .anyoneWithPassword:
-            BitwardenTextField(
-                title: Localizations.password,
-                text: store.binding(
-                    get: \.password,
-                    send: AddEditSendItemAction.passwordChanged,
-                ),
-                accessibilityIdentifier: "SendPasswordEntry",
-                isPasswordVisible: store.binding(
-                    get: \.isPasswordVisible,
-                    send: AddEditSendItemAction.passwordVisibleChanged,
-                ),
-            ) {
-                AccessoryButton(
-                    asset: SharedAsset.Icons.generate24,
-                    accessibilityLabel: Localizations.generatePassword,
+            if store.state.isPasswordFieldDisabled {
+                // An existing Send's password can't be viewed or changed, so show a masked
+                // placeholder to indicate that the Send is protected by a password.
+                BitwardenTextField(
+                    title: Localizations.password,
+                    text: .constant(String(repeating: "•", count: Constants.hiddenPasswordLength)),
+                    accessibilityIdentifier: "SendPasswordEntry",
+                    canViewPassword: false,
+                )
+                .disabled(true)
+            } else {
+                BitwardenTextField(
+                    title: Localizations.password,
+                    text: store.binding(
+                        get: \.password,
+                        send: AddEditSendItemAction.passwordChanged,
+                    ),
+                    accessibilityIdentifier: "SendPasswordEntry",
+                    isPasswordVisible: store.binding(
+                        get: \.isPasswordVisible,
+                        send: AddEditSendItemAction.passwordVisibleChanged,
+                    ),
                 ) {
-                    store.send(.generatePasswordPressed)
-                }
-                .accessibilityIdentifier("GenerateSendPasswordButton")
-
-                if !store.state.password.isEmpty {
                     AccessoryButton(
-                        asset: SharedAsset.Icons.copy24,
-                        accessibilityLabel: Localizations.copyPassword,
+                        asset: SharedAsset.Icons.generate24,
+                        accessibilityLabel: Localizations.generatePassword,
                     ) {
-                        await store.perform(.copyPasswordPressed)
+                        store.send(.generatePasswordPressed)
                     }
-                    .accessibilityIdentifier("CopySendPasswordButton")
+                    .accessibilityIdentifier("GenerateSendPasswordButton")
+
+                    if !store.state.password.isEmpty {
+                        AccessoryButton(
+                            asset: SharedAsset.Icons.copy24,
+                            accessibilityLabel: Localizations.copyPassword,
+                        ) {
+                            await store.perform(.copyPasswordPressed)
+                        }
+                        .accessibilityIdentifier("CopySendPasswordButton")
+                    }
                 }
+                .textFieldConfiguration(.password)
             }
-            .textFieldConfiguration(.password)
         }
     }
 
     /// The list of recipient emails for "Specific people" access type.
     @ViewBuilder private var recipientEmailsList: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Divider()
-                .padding(.leading, 16)
-
             ForEach(store.state.recipientEmails.indices, id: \.self) { index in
                 BitwardenTextField(
                     title: Localizations.email,
@@ -411,6 +411,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         send: { .recipientEmailChanged(index: index, value: $0) },
                     ),
                     accessibilityIdentifier: "SendRecipientEmailEntry",
+                    focus: .field($focusedRecipientEmailIndex, equals: index),
                 ) {
                     if store.state.shouldShowTrashIcon(for: index) {
                         Button {
@@ -423,7 +424,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         .accessibilityIdentifier("RemoveRecipientEmailButton")
                     }
                 }
-                .focused($focusedRecipientEmailIndex, equals: index)
                 .textFieldConfiguration(.email)
                 .accessibilityIdentifier("EmailRecipientCell")
 
@@ -446,7 +446,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     /// The attributes for a text type send.
     @ViewBuilder private var textSendAttributes: some View {
         BitwardenTextView(
-            title: Localizations.textToShare,
+            title: Localizations.textToShareRequired,
             text: store.binding(
                 get: \.text,
                 send: AddEditSendItemAction.textChanged,

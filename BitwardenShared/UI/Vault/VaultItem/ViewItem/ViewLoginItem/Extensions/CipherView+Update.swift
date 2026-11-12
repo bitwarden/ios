@@ -226,34 +226,36 @@ extension CipherView {
         var loginState = addEditState.loginState
 
         // Update the password updated date and the password history if the password has changed.
-        var passwordHistory = passwordHistory
+        var newPasswordHistory = [PasswordHistoryView]()
         let lastUsedDate = timeProvider.presentTime
         if addEditState.type == .login,
            let previousPassword = login?.password,
            addEditState.loginState.password != previousPassword {
             loginState.passwordUpdatedDate = lastUsedDate
-
-            // Update the password history list.
-            let newPasswordHistoryView = PasswordHistoryView(password: previousPassword, lastUsedDate: lastUsedDate)
-            if passwordHistory == nil {
-                passwordHistory = [newPasswordHistoryView]
-            } else {
-                passwordHistory!.append(newPasswordHistoryView)
-            }
+            newPasswordHistory.append(PasswordHistoryView(password: previousPassword, lastUsedDate: lastUsedDate))
         }
 
         // Map new fields
         let newFields = mapToCustomFieldViews(from: addEditState.customFieldsState.customFields)
 
-        passwordHistory = updatePasswordHistoryWithHiddenFields(
-            passwordHistory: passwordHistory,
+        newPasswordHistory += passwordHistoryForChangedHiddenFields(
             oldFields: fields,
             newFields: newFields,
             lastUsedDate: lastUsedDate,
         )
 
-        // Cap the size of the password history list to 5.
-        passwordHistory = passwordHistory?.suffix(5)
+        // Password history is stored newest-first. When new entries are added, sort the existing
+        // history by date so that history in either order is normalized, prepend the new entries,
+        // then cap the list so the oldest entries are dropped. The new entries are prepended rather
+        // than sorted with the existing history so they're always kept, even if an existing entry
+        // has a later date (e.g. clock skew between devices).
+        var passwordHistory = passwordHistory
+        if !newPasswordHistory.isEmpty {
+            let existingPasswordHistory = (passwordHistory ?? []).sorted { $0.lastUsedDate > $1.lastUsedDate }
+            passwordHistory = Array(
+                (newPasswordHistory + existingPasswordHistory).prefix(Constants.maxCipherPasswordHistoryCount),
+            )
+        }
 
         // Return the updated cipher.
         return CipherView(
@@ -290,19 +292,25 @@ extension CipherView {
             deletedDate: deletedDate,
             revisionDate: revisionDate,
             archivedDate: archivedDate,
+            partial: partial,
         )
     }
 
-    private func updatePasswordHistoryWithHiddenFields(
-        passwordHistory: [PasswordHistoryView]?,
+    /// Returns password history entries for any hidden fields whose values were changed or removed.
+    ///
+    /// - Parameters:
+    ///   - oldFields: The cipher's fields before the update.
+    ///   - newFields: The cipher's fields after the update.
+    ///   - lastUsedDate: The date to use for the password history entries.
+    /// - Returns: The password history entries for the changed or removed hidden fields.
+    ///
+    private func passwordHistoryForChangedHiddenFields(
         oldFields: [FieldView]?,
         newFields: [FieldView]?,
         lastUsedDate: Date,
-    ) -> [PasswordHistoryView]? {
-        guard let oldFields else {
-            return passwordHistory
-        }
-        let newPasswordHistoryFields: [PasswordHistoryView] = oldFields
+    ) -> [PasswordHistoryView] {
+        guard let oldFields else { return [] }
+        return oldFields
             .filter { field in
                 FieldType(fieldType: field.type) == FieldType.hidden &&
                     !field.name.isEmptyOrNil &&
@@ -314,13 +322,6 @@ extension CipherView {
                     lastUsedDate: lastUsedDate,
                 )
             }
-        guard !newPasswordHistoryFields.isEmpty else {
-            return passwordHistory
-        }
-        guard let passwordHistory else {
-            return newPasswordHistoryFields
-        }
-        return passwordHistory + newPasswordHistoryFields
     }
 
     /// Maps the array of `CustomFieldState` into the an array of `FieldView`.
@@ -467,6 +468,7 @@ extension CipherView {
             deletedDate: deletedDate,
             revisionDate: revisionDate,
             archivedDate: archivedDate,
+            partial: partial,
         )
     }
 }

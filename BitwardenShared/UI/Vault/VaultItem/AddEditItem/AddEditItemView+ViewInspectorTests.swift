@@ -151,17 +151,6 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     @MainActor
     func test_folderTextField_updateValue() throws {
         let folder = FolderView.fixture(name: "Folder")
-        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.folder)
-        try menuField.select(newValue: DefaultableType<FolderView>.custom(folder))
-        XCTAssertEqual(processor.dispatchedActions.last, .folderChanged(.custom(folder)))
-    }
-
-    /// Updating the folder text field dispatches the `.folderChanged()` action when the
-    /// `vfo1-foundation` feature flag is enabled.
-    @MainActor
-    func test_folderTextField_updateValue_vfo1FoundationEnabled() throws {
-        processor.state.isVfo1FoundationFeatureFlagEnabled = true
-        let folder = FolderView.fixture(name: "Folder")
         let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.myFolder)
         try menuField.select(newValue: DefaultableType<FolderView>.custom(folder))
         XCTAssertEqual(processor.dispatchedActions.last, .folderChanged(.custom(folder)))
@@ -193,10 +182,21 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
             throw XCTSkip("Unable to run test in iOS 16, keep an eye on ViewInspector to see if it gets updated.")
         }
+        processor.state.isAdditionalOptionsExpanded = true
         processor.state.isMasterPasswordRePromptOn = false
-        let toggle = try subject.inspect().find(ViewType.Toggle.self, containing: Localizations.passwordPrompt)
+        let toggle = try subject.inspect().find(toggleWithAccessibilityLabel: Localizations.passwordPrompt)
         try toggle.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .masterPasswordRePromptChanged(true))
+    }
+
+    /// The master password re-prompt info button's image has an accessibility label, which names
+    /// the custom accessibility action exposed on the toggle.
+    @MainActor
+    func test_masterPasswordRePromptToggle_infoButton_accessibility() throws {
+        processor.state.isAdditionalOptionsExpanded = true
+        XCTAssertNoThrow(try subject.inspect().find(ViewType.Image.self) { image in
+            try image.accessibilityLabel().string() == Localizations.masterPasswordRePromptHelp
+        })
     }
 
     /// Updating the name text field dispatches the `.nameChanged()` action.
@@ -282,12 +282,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// Tapping the save button performs the `.savePressed` effect when adding a new cipher.
     @MainActor
     func test_saveButton_tapAdd() async throws {
-        guard #unavailable(iOS 26) else {
-            // TODO: PM-26079 Remove when toolbar AsyncButton is used.
-            throw XCTSkip("Remove this when the toolbar save button gets updated to use AsyncButton.")
-        }
-
-        let button = try subject.inspect().find(asyncButton: Localizations.save)
+        let button = try subject.inspect().findSaveToolbarButton()
         try await button.tap()
 
         XCTAssertEqual(processor.effects.last, .savePressed)
@@ -296,13 +291,8 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// Tapping the save button performs the `.savePressed` effect when editing an existing cipher.
     @MainActor
     func test_saveButton_tapEdit() async throws {
-        guard #unavailable(iOS 26) else {
-            // TODO: PM-26079 Remove when toolbar AsyncButton is used.
-            throw XCTSkip("Remove this when the toolbar save button gets updated to use AsyncButton.")
-        }
-
         processor.state = CipherItemState(existing: .fixture(), hasPremium: false)!
-        let button = try subject.inspect().find(asyncButton: Localizations.save)
+        let button = try subject.inspect().findSaveToolbarButton()
         try await button.tap()
 
         XCTAssertEqual(processor.effects.last, .savePressed)
@@ -636,7 +626,9 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.driversLicenseItemState.isLicenseNumberVisible = false
         let button = try subject.inspect()
             .find(bitwardenTextField: Localizations.licenseNumber)
-            .find(buttonWithAccessibilityLabel: Localizations.passwordIsNotVisibleTapToShow)
+            .find(buttonWithAccessibilityLabel: Localizations.fieldValueIsNotVisibleTapToShow(
+                Localizations.licenseNumber,
+            ))
         try button.tap()
         XCTAssertEqual(
             processor.dispatchedActions.last,
@@ -652,7 +644,9 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.driversLicenseItemState.isLicenseNumberVisible = true
         let button = try subject.inspect()
             .find(bitwardenTextField: Localizations.licenseNumber)
-            .find(buttonWithAccessibilityLabel: Localizations.passwordIsVisibleTapToHide)
+            .find(buttonWithAccessibilityLabel: Localizations.fieldValueIsVisibleTapToHide(
+                Localizations.licenseNumber,
+            ))
         try button.tap()
         XCTAssertEqual(
             processor.dispatchedActions.last,

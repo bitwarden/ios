@@ -78,14 +78,12 @@ struct AvatarView: View {
     }
 }
 
-struct AvatarView_Previews: PreviewProvider {
-    static var previews: some View {
-        AvatarView(
-            UserDTO(
-                email: "asdfasdf@gmail.com",
-                id: "zxc",
-                name: "John Snow",
-            ),
-        )
-    }
+#Preview {
+    AvatarView(
+        UserDTO(
+            email: "asdfasdf@gmail.com",
+            id: "zxc",
+            name: "John Snow",
+        ),
+    )
 }

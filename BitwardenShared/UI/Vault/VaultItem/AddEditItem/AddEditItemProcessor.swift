@@ -10,18 +10,37 @@ import UIKit
 ///
 @MainActor
 protocol CipherItemOperationDelegate: AnyObject {
+    /// Called after a new cipher item has been added and the add view has finished dismissing
+    /// (i.e. after `itemAdded(type:)` returns `true` and the resulting dismissal completes).
+    /// Separate from `itemAdded(type:)` because the added item's id isn't useful until the add
+    /// view is out of the way, e.g. to navigate to the item's details.
+    ///
+    /// - Parameters:
+    ///   - id: The ID of the cipher that was added.
+    ///   - type: The type of the cipher item that was added.
+    ///
+    func didFinishAddingItem(id: String, type: CipherType)
+
     /// Called when a new cipher item has been successfully added.
     ///
+    /// - Parameter type: The type of the cipher item that was added.
     /// - Returns: A boolean indicating whether the view should be dismissed. Defaults to `true`.
     ///     If `false` is returned the delegate is responsible for dismissing the view.
     ///
-    func itemAdded() -> Bool
+    func itemAdded(type: CipherType) -> Bool
 
     /// Called when the cipher item has been successfully archived.
     func itemArchived()
 
     /// Called when the cipher item has been successfully permanently deleted.
     func itemDeleted()
+
+    /// Called when the add/edit item view is being dismissed without the item having been saved.
+    ///
+    /// - Returns: A boolean indicating whether the view should be dismissed. Defaults to `true`.
+    ///     If `false` is returned the delegate is responsible for dismissing the view.
+    ///
+    func itemDismissed() -> Bool
 
     /// Called when the cipher item has been successfully restored.
     func itemRestored()
@@ -34,18 +53,23 @@ protocol CipherItemOperationDelegate: AnyObject {
 
     /// Called when a cipher item has been successfully updated.
     ///
+    /// - Parameter type: The type of the cipher item that was updated.
     /// - Returns: A boolean indicating whether the view should be dismissed. Defaults to `true`.
     ///     If `false` is returned the delegate is responsible for dismissing the view.
     ///
-    func itemUpdated() -> Bool
+    func itemUpdated(type: CipherType) -> Bool
 }
 
 extension CipherItemOperationDelegate {
-    func itemAdded() -> Bool { true }
+    func didFinishAddingItem(id _: String, type _: CipherType) {}
+
+    func itemAdded(type _: CipherType) -> Bool { true }
 
     func itemArchived() {}
 
     func itemDeleted() {}
+
+    func itemDismissed() -> Bool { true }
 
     func itemRestored() {}
 
@@ -53,7 +77,7 @@ extension CipherItemOperationDelegate {
 
     func itemUnarchived() {}
 
-    func itemUpdated() -> Bool { true }
+    func itemUpdated(type _: CipherType) -> Bool { true }
 }
 
 // MARK: - AddEditItemProcessor
@@ -104,6 +128,10 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// The delegate that is notified when delete cipher item have occurred.
     private weak var delegate: CipherItemOperationDelegate?
 
+    /// Whether saving a new item should replace this view with the new item's view screen in the
+    /// same navigation stack, rather than dismissing.
+    private let navigatesToViewItemOnSave: Bool
+
     /// The helper used to navigate to the Premium upgrade flow.
     lazy var premiumUpgradeHelper: PremiumUpgradeHelper = DefaultPremiumUpgradeHelper(
         services: services,
@@ -128,6 +156,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     ///   - services: The services required by this processor.
     ///   - state: The initial state for the processor.
     ///   - vaultItemActionHelper: The helper to execute vault item actions.
+    ///   - navigatesToViewItemOnSave: Whether saving a new item should replace this view with the
+    ///     new item's view screen in the same navigation stack, rather than dismissing.
     ///
     init(
         appExtensionDelegate: AppExtensionDelegate?,
@@ -136,10 +166,12 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         services: Services,
         state: AddEditItemState,
         vaultItemActionHelper: VaultItemActionHelper,
+        navigatesToViewItemOnSave: Bool = false,
     ) {
         self.appExtensionDelegate = appExtensionDelegate
         self.coordinator = coordinator
         self.delegate = delegate
+        self.navigatesToViewItemOnSave = navigatesToViewItemOnSave
         self.services = services
         self.vaultItemActionHelper = vaultItemActionHelper
 
@@ -346,10 +378,12 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
 
     /// Handles dismissing the processor.
     ///
-    /// - Parameter didAddItem: `true` if a new cipher was added or `false` if the user is
-    ///     dismissing the view without saving.
+    /// - Parameters:
+    ///   - addedItemId: The ID of the cipher that was added, when `didAddItem` is `true`.
+    ///   - didAddItem: `true` if a new cipher was added or `false` if the user is dismissing the
+    ///     view without saving.
     ///
-    private func handleDismiss(didAddItem: Bool = false) {
+    private func handleDismiss(addedItemId: String? = nil, didAddItem: Bool = false) {
         if let appExtensionDelegate, appExtensionDelegate.isInAppExtensionSaveLoginFlow {
             if didAddItem, let username = state.cipher.login?.username, let password = state.cipher.login?.password {
                 appExtensionDelegate.completeAutofillRequest(username: username, password: password, fields: nil)
@@ -369,8 +403,27 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             return
         }
 
-        let shouldDismiss = delegate?.itemAdded() ?? true
-        if shouldDismiss {
+        let addedItemType = state.type
+        if didAddItem, navigatesToViewItemOnSave, let addedItemId {
+            coordinator.navigate(
+                to: .viewItem(id: addedItemId, toastTitle: addedItemType.savedToastTitle),
+                context: delegate,
+            )
+            return
+        }
+
+        let shouldDismiss = if didAddItem {
+            delegate?.itemAdded(type: addedItemType) ?? true
+        } else {
+            delegate?.itemDismissed() ?? true
+        }
+        guard shouldDismiss else { return }
+
+        if didAddItem, let addedItemId {
+            coordinator.navigate(to: .dismiss(DismissAction(action: { [delegate] in
+                delegate?.didFinishAddingItem(id: addedItemId, type: addedItemType)
+            })))
+        } else {
             coordinator.navigate(to: .dismiss())
         }
     }
@@ -504,7 +557,6 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// Loads the feature flags required for this processor.
     private func loadFeatureFlags() async {
         state.cardItemState.cardScannerEnabled = await services.configService.getFeatureFlag(.cardScanner)
-        state.isVfo1FoundationFeatureFlagEnabled = await services.configService.getFeatureFlag(.vfo1Foundation)
     }
 
     /// Updates the bank account state based on the action received.
@@ -852,9 +904,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             coordinator.showAlert(
                 .defaultAlert(
                     title: Localizations.anErrorHasOccurred,
-                    message: state.isVfo1FoundationFeatureFlagEnabled
-                        ? Localizations.youMustSelectAtLeastOneSharedFolder
-                        : Localizations.selectOneCollection,
+                    message: Localizations.youMustSelectAtLeastOneSharedFolder,
                 ),
             )
             return
@@ -910,10 +960,10 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             return
         }
 
-        try await services.vaultRepository.addCipher(state.cipher)
+        let addedCipher = try await services.vaultRepository.addCipher(state.cipher)
         coordinator.hideLoadingOverlay()
 
-        handleDismiss(didAddItem: true)
+        handleDismiss(addedItemId: addedCipher.id, didAddItem: true)
         await services.reviewPromptService.trackUserAction(.addedNewItem)
     }
 
@@ -1077,7 +1127,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     private func updateItem(cipherView: CipherView) async throws {
         try await services.vaultRepository.updateCipher(cipherView.updatedView(with: state))
         coordinator.hideLoadingOverlay()
-        let shouldDismissed = delegate?.itemUpdated() ?? true
+        let shouldDismissed = delegate?.itemUpdated(type: state.type) ?? true
         if shouldDismissed {
             coordinator.navigate(to: .dismiss())
         }
@@ -1145,6 +1195,8 @@ extension AddEditItemProcessor: GeneratorCoordinatorDelegate {
 
 extension AddEditItemProcessor: AddEditFolderDelegate {
     func folderAdded(_ folderView: FolderView) {
+        // The new folder is selected for the item, so no toast is shown to avoid it covering the
+        // folder field in the add/edit item view.
         state.folder = .custom(folderView)
     }
 
@@ -1212,7 +1264,7 @@ extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
 
 extension AddEditItemProcessor: EditCollectionsProcessorDelegate {
     func didUpdateCipher() {
-        state.toast = Toast(title: Localizations.itemUpdated)
+        state.toast = Toast(title: state.type.savedToastTitle)
     }
 }
 

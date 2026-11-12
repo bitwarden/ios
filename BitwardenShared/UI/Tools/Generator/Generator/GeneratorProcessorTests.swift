@@ -485,7 +485,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.receive(.copyGeneratedValue)
         waitFor { !reviewPromptService.userActions.isEmpty }
 
-        XCTAssertEqual(pasteboardService.copiedString, "PASSWORD")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "PASSWORD")
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.password)))
         XCTAssertEqual(reviewPromptService.userActions, [.copiedOrInsertedGeneratedValue])
     }
@@ -500,7 +500,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.receive(.copyGeneratedValue)
         waitFor { !reviewPromptService.userActions.isEmpty }
 
-        XCTAssertEqual(pasteboardService.copiedString, "PASSPHRASE")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "PASSPHRASE")
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.passphrase)))
         XCTAssertEqual(reviewPromptService.userActions, [.copiedOrInsertedGeneratedValue])
     }
@@ -515,7 +515,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.receive(.copyGeneratedValue)
         waitFor { !reviewPromptService.userActions.isEmpty }
 
-        XCTAssertEqual(pasteboardService.copiedString, "USERNAME")
+        XCTAssertEqual(pasteboardService.copyReceivedString, "USERNAME")
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.username)))
         XCTAssertEqual(reviewPromptService.userActions, [.copiedOrInsertedGeneratedValue])
     }
@@ -525,6 +525,75 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     func test_receive_dismissPressed() {
         subject.receive(.dismissPressed)
         XCTAssertEqual(coordinator.routes.last, .cancel)
+    }
+
+    /// `perform(_:)` with `.createLoginPressed` doesn't navigate if there's no generated value.
+    @MainActor
+    func test_perform_createLoginPressed_emptyValue() async {
+        subject.state.generatedValue = ""
+
+        await subject.perform(.createLoginPressed)
+
+        XCTAssertTrue(coordinator.routes.isEmpty)
+    }
+
+    /// `perform(_:)` with `.createLoginPressed` navigates to the add login route with the generated
+    /// passphrase prefilled as the password.
+    @MainActor
+    func test_perform_createLoginPressed_passphrase() async {
+        subject.state.generatorType = .passphrase
+        subject.state.generatedValue = "correct-horse-battery"
+
+        await subject.perform(.createLoginPressed)
+
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .addLogin(hasPremium: true, newCipherOptions: NewCipherOptions(password: "correct-horse-battery")),
+        )
+    }
+
+    /// `perform(_:)` with `.createLoginPressed` navigates to the add login route with the generated
+    /// password prefilled and the user's premium status.
+    @MainActor
+    func test_perform_createLoginPressed_password() async {
+        stateService.doesActiveAccountHavePremiumResult = false
+        subject.state.generatorType = .password
+        subject.state.generatedValue = "password"
+
+        await subject.perform(.createLoginPressed)
+
+        XCTAssertTrue(stateService.doesActiveAccountHavePremiumCalled)
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .addLogin(hasPremium: false, newCipherOptions: NewCipherOptions(password: "password")),
+        )
+    }
+
+    /// `perform(_:)` with `.createLoginPressed` doesn't navigate if the generated value is the
+    /// placeholder username, e.g. when a forwarded email service isn't configured.
+    @MainActor
+    func test_perform_createLoginPressed_placeholderUsername() async {
+        subject.state.generatorType = .username
+        subject.state.generatedValue = Constants.defaultGeneratedUsername
+
+        await subject.perform(.createLoginPressed)
+
+        XCTAssertTrue(coordinator.routes.isEmpty)
+    }
+
+    /// `perform(_:)` with `.createLoginPressed` navigates to the add login route with the generated
+    /// username prefilled as the username.
+    @MainActor
+    func test_perform_createLoginPressed_username() async {
+        subject.state.generatorType = .username
+        subject.state.generatedValue = "user@bitwarden.com"
+
+        await subject.perform(.createLoginPressed)
+
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .addLogin(hasPremium: true, newCipherOptions: NewCipherOptions(username: "user@bitwarden.com")),
+        )
     }
 
     /// `perform(_:)` with `.dismissNewLoginActionCard` will set `.isLearnGeneratorActionCardEligible` to
@@ -573,6 +642,17 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         subject.receive(.emailTypeChanged(.random))
         XCTAssertEqual(subject.state.usernameState.plusAddressedEmailType, .random)
+    }
+
+    /// `receive(_:)` with `.fillGeneratedValue` navigates to the `.complete` route.
+    @MainActor
+    func test_receive_fillGeneratedValue() {
+        subject.state.generatorType = .password
+        subject.state.generatedValue = "password"
+        subject.receive(.fillGeneratedValue)
+        XCTAssertEqual(coordinator.routes.last, .complete(type: .password, value: "password"))
+        waitFor(!reviewPromptService.userActions.isEmpty)
+        XCTAssertEqual(reviewPromptService.userActions, [.copiedOrInsertedGeneratedValue])
     }
 
     /// `receive(_:)` with `.generatorTypeChanged` updates the state's generator type value.
@@ -718,17 +798,6 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         XCTAssertEqual(subject.state.generatedValue, "USERNAME")
         XCTAssertFalse(generatorRepository.addPasswordHistoryCalled)
-    }
-
-    /// `receive(_:)` with `.selectButtonPressed` navigates to the `.complete` route.
-    @MainActor
-    func test_receive_selectButtonPressed() {
-        subject.state.generatorType = .password
-        subject.state.generatedValue = "password"
-        subject.receive(.selectButtonPressed)
-        XCTAssertEqual(coordinator.routes.last, .complete(type: .password, value: "password"))
-        waitFor(!reviewPromptService.userActions.isEmpty)
-        XCTAssertEqual(reviewPromptService.userActions, [.copiedOrInsertedGeneratedValue])
     }
 
     /// `receive(_:)` with `.showPasswordHistory` asks the coordinator to show the password history.

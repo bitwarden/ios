@@ -40,6 +40,24 @@ class AlertExtensionsTests: BitwardenTestCase {
         XCTAssertNil(action.handler)
     }
 
+    /// `invalidEmailAddressesForDomains(_:)` builds an `Alert` listing the allowed domains.
+    func test_invalidEmailAddressesForDomains() {
+        let subject = Alert.invalidEmailAddressesForDomains(["Acme.com", "Acme.co"])
+
+        XCTAssertEqual(subject.title, Localizations.invalidEmailAddresses)
+        XCTAssertEqual(
+            subject.message,
+            Localizations.onlyIncludeTheFollowingDomainsDescriptionLong("Acme.com, Acme.co"),
+        )
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.alertActions.count, 1)
+
+        let action = subject.alertActions[0]
+        XCTAssertEqual(action.title, Localizations.ok)
+        XCTAssertEqual(action.style, .default)
+        XCTAssertNil(action.handler)
+    }
+
     /// `noEmailAddressesEntered` builds an `Alert` with the no email addresses entered title and message.
     func test_noEmailAddressesEntered() {
         let subject = Alert.noEmailAddressesEntered

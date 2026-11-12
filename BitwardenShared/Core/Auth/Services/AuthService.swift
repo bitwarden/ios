@@ -133,6 +133,18 @@ protocol AuthService {
     ///
     func answerLoginRequest(_ request: LoginRequest, approve: Bool) async throws
 
+    /// Checks the supplied master password against any active organization Master Password
+    /// policy after the vault has been unlocked with it, setting `forcePasswordResetReason` if
+    /// the password does not satisfy the policy. Uses the policy captured during the most recent
+    /// SSO/TDE login for this email if one is cached, otherwise falls back to whatever policy
+    /// data is already available via `PolicyService`.
+    ///
+    /// - Parameters:
+    ///   - email: The email of the account that was unlocked.
+    ///   - masterPassword: The master password used to unlock the vault.
+    ///
+    func checkMasterPasswordPolicyAfterUnlock(email: String, masterPassword: String) async throws
+
     /// Check the status of the pending login request for the unauthenticated user.
     ///
     func checkPendingLoginRequest(withId id: String) async throws -> LoginRequest
@@ -355,6 +367,12 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     /// the callback the `ASWebAuthenticationSession` is configured to match.
     private var singleSignOnCallbackUrl: String { callbackUrl(for: .singleSignOn) }
 
+    /// The master password policy captured from the identity token response during an SSO/TDE
+    /// login, cached (keyed by email) until the user unlocks the vault with their master
+    /// password. Only consumed when the email matches the account being unlocked, to avoid a
+    /// stale policy from one account leaking into a later unlock for a different account.
+    private(set) var ssoMasterPasswordPolicy: (email: String, policy: MasterPasswordPolicyResponseModel?)?
+
     /// The service used by the application to manage account state.
     private let stateService: StateService
 
@@ -371,6 +389,11 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     /// The data generated when initiating a login with device request, which is used to
     /// complete the login process after the request is approved.
     private var loginWithDeviceData: AuthRequestResponse?
+
+    /// A task that clears `ssoMasterPasswordPolicy` whenever the active account changes, so a
+    /// policy cached for one account can't be left around after the user switches away without
+    /// unlocking (e.g. to another account, or to no account at all).
+    private var ssoMasterPasswordPolicyResetTask: Task<Void, Never>?
 
     // MARK: Computed Properties
 
@@ -435,6 +458,18 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         self.stateService = stateService
         self.systemDevice = systemDevice
         self.trustDeviceService = trustDeviceService
+
+        // Clear the cached SSO/TDE master password policy whenever the active account changes,
+        // so it doesn't linger if the user switches away (or logs out) without unlocking.
+        ssoMasterPasswordPolicyResetTask = Task { [weak self, stateService] in
+            for await _ in await stateService.activeAccountIdPublisher().values {
+                self?.ssoMasterPasswordPolicy = nil
+            }
+        }
+    }
+
+    deinit {
+        ssoMasterPasswordPolicyResetTask?.cancel()
     }
 
     // MARK: Methods
@@ -454,6 +489,19 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             requestApproved: approve,
         )
         _ = try await authAPIService.answerLoginRequest(loginRequest.id, requestModel: requestModel)
+    }
+
+    func checkMasterPasswordPolicyAfterUnlock(email: String, masterPassword: String) async throws {
+        let cached = ssoMasterPasswordPolicy
+        ssoMasterPasswordPolicy = nil
+        let policy = cached?.email == email ? cached?.policy : nil
+
+        try await checkMasterPasswordPolicies(
+            isPreAuth: false,
+            masterPassword: masterPassword,
+            masterPasswordPolicy: policy,
+            username: email,
+        )
     }
 
     func checkPendingLoginRequest(withId id: String) async throws -> LoginRequest {
@@ -546,10 +594,13 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
     func hashPassword(password: String, purpose: HashPurpose) async throws -> String {
         let account = try await stateService.getActiveAccount()
+        guard let masterPasswordUnlock = account.profile.userDecryptionOptions?.masterPasswordUnlock else {
+            throw AuthError.missingMasterPasswordUnlockData
+        }
         return try await clientService.auth().hashPassword(
-            email: account.profile.email,
+            email: masterPasswordUnlock.salt,
             password: password,
-            kdfParams: account.kdf.sdkKdf,
+            kdfParams: masterPasswordUnlock.kdf.sdkKdf,
             purpose: purpose,
         )
     }
@@ -643,24 +694,35 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         preAuthForcePasswordResetReason = nil
 
         // Complete the pre-login steps.
-        let response = try await accountAPIService.preLogin(email: username)
+        let hashedPassword: String
+        if await configService.getFeatureFlag(.passwordPreloginFromSdk, isPreAuth: true) {
+            let preloginResponse = try await clientService.auth(isPreAuth: true).login()
+                .getPasswordPrelogin(email: username)
 
-        // Get the identity token to log in to Bitwarden.
-        let hashedPassword = try await clientService.auth(isPreAuth: true).hashPassword(
-            email: username,
-            password: masterPassword,
-            kdfParams: response.sdkKdf,
-            purpose: .serverAuthorization,
-        )
+            // Use the SDK-returned Salt in place of the user's email when salting the master
+            // password. This value is not persisted; unlock continues to use the salt from
+            // `MasterPasswordUnlockData` (the Sync/Login response).
+            hashedPassword = try await clientService.auth(isPreAuth: true).hashPassword(
+                email: preloginResponse.salt,
+                password: masterPassword,
+                kdfParams: preloginResponse.kdf,
+                purpose: .serverAuthorization,
+            )
+        } else {
+            let response = try await accountAPIService.preLogin(email: username)
+            hashedPassword = try await clientService.auth(isPreAuth: true).hashPassword(
+                email: username,
+                password: masterPassword,
+                kdfParams: response.sdkKdf,
+                purpose: .serverAuthorization,
+            )
+        }
 
         let token = try await getIdentityTokenResponse(
             authenticationMethod: .password(username: username, password: hashedPassword),
             email: username,
             masterPassword: masterPassword,
         )
-
-        // Save the master password hash.
-        try await saveMasterPasswordHash(password: masterPassword)
 
         try await checkMasterPasswordPolicies(
             isPreAuth: false,
@@ -756,6 +818,12 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             email: email,
         )
 
+        // Cache the master password policy so it can be checked once the user unlocks the vault
+        // with their master password (covers both the direct master password unlock method and
+        // the TDE "approve with master password" flow, which is reached via the
+        // `AuthError.requireDecryptionOptions` throw below).
+        ssoMasterPasswordPolicy = (email, response.masterPasswordPolicy)
+
         return try await unlockMethod(for: response)
     }
 
@@ -779,15 +847,21 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         // Get the identity token to log in to Bitwarden.
         let response = try await getIdentityTokenResponse(email: email, request: twoFactorRequest)
 
+        // Cache the master password policy so it can be checked once the user unlocks the vault
+        // with their master password. Only applies to SSO/TDE logins that also required two-factor
+        // authentication, where the policy from the first (pre-2FA) identity token response was
+        // never captured because that attempt threw `twoFactorRequired` before reaching the
+        // caching in `loginWithSingleSignOn`. Plain password logins already have their policy
+        // checked above via `preAuthForcePasswordResetReason`, so caching it again here would
+        // just cause it to be redundantly re-checked once the vault is unlocked.
+        if case .authorizationCode = twoFactorRequest.authenticationMethod {
+            ssoMasterPasswordPolicy = (email, response.masterPasswordPolicy)
+        }
+
         // If it's assigned then we need to update the required reset password and remove the cache.
         if preAuthForcePasswordResetReason != nil {
             try await stateService.setForcePasswordResetReason(.weakMasterPasswordOnLogin)
             preAuthForcePasswordResetReason = nil
-        }
-
-        // Save the master password hash.
-        if case let .password(_, password) = twoFactorRequest.authenticationMethod {
-            try await saveMasterPasswordHash(password: password)
         }
 
         // Remove the cached request after successfully logging in.
@@ -900,20 +974,19 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         }
     }
 
-    /// Returns the Key Connector URL if it exists in the identity token response and if it can be
-    /// used to fetch the user's Key Connector key.
+    /// Returns the Key Connector URL if it exists in the identity token response's user decryption
+    /// options and if it can be used to fetch the user's Key Connector key.
     ///
     /// - Parameter response: The response received from the identity token request.
-    /// - Returns: The Key Connector URL if it exists in the response and if it can be used to
-    ///     fetch the user's Key Connector key.
+    /// - Returns: The Key Connector URL if it exists in the response's user decryption options and
+    ///     if it can be used to fetch the user's Key Connector key.
     ///
     private func keyConnectorUrlForUnlock(_ response: IdentityTokenResponseModel) -> URL? {
-        guard let keyConnectorUrl = response.keyConnectorUrl ??
-            response.userDecryptionOptions?.keyConnectorOption?.keyConnectorUrl,
-            // If the user has a master password, they haven't been migrated to key connector yet
-            // and the master password should still be used for vault unlock.
-            response.userDecryptionOptions?.hasMasterPassword == false,
-            !keyConnectorUrl.isEmpty
+        guard let keyConnectorUrl = response.userDecryptionOptions?.keyConnectorOption?.keyConnectorUrl,
+              // If the user has a master password, they haven't been migrated to key connector yet
+              // and the master password should still be used for vault unlock.
+              response.userDecryptionOptions?.hasMasterPassword == false,
+              !keyConnectorUrl.isEmpty
         else { return nil }
 
         return URL(string: keyConnectorUrl)
@@ -1021,7 +1094,6 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
                 // Form the resend email request in case the user needs to resend the verification code email.
                 resendEmailModel = .init(
-                    deviceIdentifier: appID,
                     email: email,
                     masterPasswordHash: passwordHash,
                     ssoEmail2FaSessionToken: ssoToken,
@@ -1089,9 +1161,9 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     private func saveAccount(_ account: Account, identityTokenResponse: IdentityTokenResponseModel) async throws {
         await stateService.addAccount(account)
 
-        // Save the encryption keys.
-        if let encryptionKeys = AccountEncryptionKeys(responseModel: identityTokenResponse) {
-            try await stateService.setAccountEncryptionKeys(encryptionKeys)
+        // Save the cryptographic state.
+        if let cryptographicState = WrappedAccountCryptographicState(responseModel: identityTokenResponse) {
+            try await stateService.setAccountCryptographicState(cryptographicState)
         }
 
         // Save the account tokens.
@@ -1103,16 +1175,5 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             identityTokenResponse.refreshToken,
             userId: account.profile.userId,
         )
-    }
-
-    /// Saves the user's master password hash.
-    ///
-    /// - Parameter password: The user's master password to hash and save.
-    ///
-    private func saveMasterPasswordHash(password: String) async throws {
-        try await stateService.setMasterPasswordHash(hashPassword(
-            password: password,
-            purpose: .localAuthorization,
-        ))
     }
 } // swiftlint:disable:this file_length

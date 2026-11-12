@@ -315,19 +315,7 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `navigate(to:)` with `.folders` pushes the folders view onto the stack navigator.
     @MainActor
     func test_navigateTo_folders() throws {
-        subject.navigate(to: .folders(isVfo1FoundationFeatureFlagEnabled: false))
-
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .pushed)
-        let viewController = try XCTUnwrap(action.view as? UIHostingController<FoldersView>)
-        XCTAssertEqual(viewController.navigationItem.title, Localizations.folders)
-    }
-
-    /// `navigate(to:)` with `.folders` pushes the folders view onto the stack navigator with the
-    /// "My folders" title when the `vfo1-foundation` feature flag is enabled.
-    @MainActor
-    func test_navigateTo_folders_vfo1FoundationEnabled() throws {
-        subject.navigate(to: .folders(isVfo1FoundationFeatureFlagEnabled: true))
+        subject.navigate(to: .folders)
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .pushed)
@@ -398,6 +386,18 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
         subject.navigate(to: .premiumUpgrade)
 
         XCTAssertEqual(module.billingCoordinator.routes, [.premiumUpgrade])
+    }
+
+    /// `navigate(to:)` with `.premiumUpgradeComplete` pops the Premium upgrade screen, then
+    /// presents the standalone Premium upgrade complete screen.
+    @MainActor
+    func test_navigateTo_premiumUpgradeComplete() throws {
+        subject.navigate(to: .premiumUpgradeComplete)
+
+        XCTAssertEqual(stackNavigator.actions.count, 2)
+        XCTAssertEqual(stackNavigator.actions[0].type, .popped)
+        XCTAssertEqual(stackNavigator.actions[1].type, .presented)
+        XCTAssertEqual(module.billingCoordinator.routes, [.premiumUpgradeCompleteStandalone])
     }
 
     /// `navigate(to:)` with `.selectLanguage()` presents the select language view.

@@ -54,17 +54,22 @@ extension StyleGuideFont {
         self.textStyle = textStyle
     }
 
-    /// Returns a `StyleGuideFont` that uses the DMSans font.
+    /// Returns a `StyleGuideFont` that uses the Inter font.
     ///
     /// - Parameters:
     ///   - lineHeight: The line height for this style, in px.
     ///   - size: The default font size for this style, in px.
     ///   - textStyle: The text style for the font, used to determine how the font scales with dynamic type.
-    /// - Returns: A `StyleGuideFont` that uses the DMSans font.
+    /// - Returns: A `StyleGuideFont` that uses the Inter font.
     ///
-    static func dmSans(lineHeight: CGFloat, size: CGFloat, textStyle: SwiftUI.Font.TextStyle) -> StyleGuideFont {
+    static func inter(lineHeight: CGFloat, size: CGFloat, textStyle: SwiftUI.Font.TextStyle) -> StyleGuideFont {
         FontFamily.registerAllCustomFonts()
-        return self.init(font: FontFamily.DMSans.regular, lineHeight: lineHeight, size: size, textStyle: textStyle)
+        return self.init(
+            font: FontFamily.InterVariable.regular,
+            lineHeight: lineHeight,
+            size: size,
+            textStyle: textStyle,
+        )
     }
 
     /// Returns a new `StyleGuideFont` with same properties but different font.
@@ -86,34 +91,34 @@ extension StyleGuideFont {
 
 public extension StyleGuideFont {
     /// The font for the huge title style.
-    static let hugeTitle = StyleGuideFont.dmSans(lineHeight: 41, size: 34, textStyle: .largeTitle)
+    static let hugeTitle = StyleGuideFont.inter(lineHeight: 41, size: 34, textStyle: .largeTitle)
 
     /// The font for the large title style.
-    static let largeTitle = StyleGuideFont.dmSans(lineHeight: 32, size: 26, textStyle: .largeTitle)
+    static let largeTitle = StyleGuideFont.inter(lineHeight: 32, size: 26, textStyle: .largeTitle)
 
     /// The font for the title style.
-    static let title = StyleGuideFont.dmSans(lineHeight: 28, size: 22, textStyle: .title)
+    static let title = StyleGuideFont.inter(lineHeight: 28, size: 22, textStyle: .title)
 
     /// The font for the title2 style.
-    static let title2 = StyleGuideFont.dmSans(lineHeight: 22, size: 17, textStyle: .title2)
+    static let title2 = StyleGuideFont.inter(lineHeight: 22, size: 17, textStyle: .title2)
 
     /// The font for the title3 style.
-    static let title3 = StyleGuideFont.dmSans(lineHeight: 21, size: 16, textStyle: .title3)
+    static let title3 = StyleGuideFont.inter(lineHeight: 21, size: 16, textStyle: .title3)
 
     /// The font for the headline style.
-    static let headline = StyleGuideFont.dmSans(lineHeight: 28, size: 15, textStyle: .headline)
+    static let headline = StyleGuideFont.inter(lineHeight: 28, size: 15, textStyle: .headline)
 
     /// The font for the body style.
-    static let body = StyleGuideFont.dmSans(lineHeight: 20, size: 15, textStyle: .body)
+    static let body = StyleGuideFont.inter(lineHeight: 20, size: 15, textStyle: .body)
 
     /// The font for the bold body style.
-    static let bodyBold = body.with(font: FontFamily.DMSans.bold)
+    static let bodyBold = body.with(font: FontFamily.InterVariable.bold)
 
     /// The font for the monospaced body style.
     static let bodyMonospaced = StyleGuideFont(font: .system(.body, design: .monospaced), lineHeight: 22, size: 17)
 
     /// The font for the bold semibody style.
-    static let bodySemibold = body.with(font: FontFamily.DMSans.semiBold)
+    static let bodySemibold = body.with(font: FontFamily.InterVariable.semiBold)
 
     /// The font for the small sensitive info style (e.g. fingerprint phrases).
     static let sensitiveInfoSmall = StyleGuideFont(
@@ -124,25 +129,25 @@ public extension StyleGuideFont {
     )
 
     /// The font for the callout style.
-    static let callout = StyleGuideFont.dmSans(lineHeight: 18, size: 13, textStyle: .callout)
+    static let callout = StyleGuideFont.inter(lineHeight: 18, size: 13, textStyle: .callout)
 
     /// The font for the callout semibold style.
-    static let calloutSemibold = callout.with(font: FontFamily.DMSans.semiBold)
+    static let calloutSemibold = callout.with(font: FontFamily.InterVariable.semiBold)
 
     /// The font for the subheadline style.
-    static let subheadline = StyleGuideFont.dmSans(lineHeight: 16, size: 12, textStyle: .subheadline)
+    static let subheadline = StyleGuideFont.inter(lineHeight: 16, size: 12, textStyle: .subheadline)
 
     /// The font for the subheadline semibold style.
-    static let subheadlineSemibold = subheadline.with(font: FontFamily.DMSans.semiBold)
+    static let subheadlineSemibold = subheadline.with(font: FontFamily.InterVariable.semiBold)
 
     /// The font for the footnote style.
-    static let footnote = StyleGuideFont.dmSans(lineHeight: 18, size: 12, textStyle: .footnote)
+    static let footnote = StyleGuideFont.inter(lineHeight: 18, size: 12, textStyle: .footnote)
 
     /// The font for the caption1 style.
-    static let caption1 = StyleGuideFont.dmSans(lineHeight: 18, size: 12, textStyle: .caption)
+    static let caption1 = StyleGuideFont.inter(lineHeight: 18, size: 12, textStyle: .caption)
 
     /// The font for the caption2 style.
-    static let caption2 = StyleGuideFont.dmSans(lineHeight: 13, size: 11, textStyle: .caption2)
+    static let caption2 = StyleGuideFont.inter(lineHeight: 13, size: 11, textStyle: .caption2)
 
     /// The font for the caption2 style monospaced.
     static let caption2Monospaced = StyleGuideFont(
@@ -261,219 +266,265 @@ public extension Text {
 // MARK: Previews
 
 #if DEBUG
-struct StyleGuideFont_Previews: PreviewProvider {
-    static var previews: some View {
-        HStack {
-            VStack(alignment: .trailing, spacing: 8) {
-                Text("Huge Title")
-                    .styleGuide(.hugeTitle)
-                Text("Large Title")
-                    .styleGuide(.largeTitle)
-                Text("Title")
-                    .styleGuide(.title)
-                Text("Title 2")
-                    .styleGuide(.title2)
-                Text("Title 3")
-                    .styleGuide(.title3)
-                Text("Headline")
-                    .styleGuide(.headline)
-                Text("Body")
-                    .styleGuide(.body)
-                Text("Body Monospaced")
-                    .styleGuide(.bodyMonospaced)
-                Text("Callout")
-                    .styleGuide(.callout)
-                Text("Subheadline")
-                    .styleGuide(.subheadline)
-                Text("Footnote")
-                    .styleGuide(.footnote)
-                Text("Caption 1")
-                    .styleGuide(.caption1)
-                Text("Caption 2")
-                    .styleGuide(.caption2)
-                Text("Caption 2 Monospaced")
-                    .styleGuide(.caption2Monospaced)
-            }
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Huge Title")
-                    .styleGuide(.hugeTitle, weight: .semibold)
-                Text("Large Title")
-                    .styleGuide(.largeTitle, weight: .semibold)
-                Text("Title")
-                    .styleGuide(.title, weight: .semibold)
-                Text("Title 2")
-                    .styleGuide(.title2, weight: .semibold)
-                Text("Title 3")
-                    .styleGuide(.title3, weight: .semibold)
-                Text("Headline")
-                    .styleGuide(.headline, weight: .semibold)
-                Text("Body")
-                    .styleGuide(.body, weight: .semibold)
-                Text("Body Monospaced")
-                    .styleGuide(.bodyMonospaced, weight: .semibold)
-                Text("Callout")
-                    .styleGuide(.callout, weight: .semibold)
-                Text("Subheadline")
-                    .styleGuide(.subheadline, weight: .semibold)
-                Text("Footnote")
-                    .styleGuide(.footnote, weight: .semibold)
-                Text("Caption 1")
-                    .styleGuide(.caption1, weight: .semibold)
-                Text("Caption 2")
-                    .styleGuide(.caption2, weight: .semibold)
-                Text("Caption 2 Monospaced")
-                    .styleGuide(.caption2Monospaced, weight: .semibold)
-            }
-        }
-        .background(Color(.systemGroupedBackground))
-        .previewDisplayName("Standard vs Semi Bold")
-
-        HStack {
-            VStack(alignment: .trailing, spacing: 8) {
-                Text("Huge Title")
-                    .styleGuide(.hugeTitle)
-                Text("Large Title")
-                    .styleGuide(.largeTitle)
-                Text("Title")
-                    .styleGuide(.title)
-                Text("Title 2")
-                    .styleGuide(.title2)
-                Text("Title 3")
-                    .styleGuide(.title3)
-                Text("Headline")
-                    .styleGuide(.headline)
-                Text("Body")
-                    .styleGuide(.body)
-                Text("Body Monospaced")
-                    .styleGuide(.bodyMonospaced)
-                Text("Callout")
-                    .styleGuide(.callout)
-                Text("Subheadline")
-                    .styleGuide(.subheadline)
-                Text("Footnote")
-                    .styleGuide(.footnote)
-                Text("Caption 1")
-                    .styleGuide(.caption1)
-                Text("Caption 2")
-                    .styleGuide(.caption2)
-                Text("Caption 2 Monospaced")
-                    .styleGuide(.caption2Monospaced)
-            }
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Huge Title")
-                    .styleGuide(.hugeTitle, isItalic: true)
-                Text("Large Title")
-                    .styleGuide(.largeTitle, isItalic: true)
-                Text("Title")
-                    .styleGuide(.title, isItalic: true)
-                Text("Title 2")
-                    .styleGuide(.title2, isItalic: true)
-                Text("Title 3")
-                    .styleGuide(.title3, isItalic: true)
-                Text("Headline")
-                    .styleGuide(.headline, isItalic: true)
-                Text("Body")
-                    .styleGuide(.body, isItalic: true)
-                Text("Body Monospaced")
-                    .styleGuide(.bodyMonospaced, isItalic: true)
-                Text("Callout")
-                    .styleGuide(.callout, isItalic: true)
-                Text("Subheadline")
-                    .styleGuide(.subheadline, isItalic: true)
-                Text("Footnote")
-                    .styleGuide(.footnote, isItalic: true)
-                Text("Caption 1")
-                    .styleGuide(.caption1, isItalic: true)
-                Text("Caption 2")
-                    .styleGuide(.caption2, isItalic: true)
-                Text("Caption 2 Monospaced")
-                    .styleGuide(.caption2Monospaced, isItalic: true)
-            }
-        }
-        .background(Color(.systemGroupedBackground))
-        .previewDisplayName("Standard vs Italic")
-
-        HStack {
-            VStack(alignment: .trailing, spacing: 8) {
-                Text("Huge Title")
-                    .styleGuide(.hugeTitle)
-                Text("Large Title")
-                    .styleGuide(.largeTitle)
-                Text("Title")
-                    .styleGuide(.title)
-                Text("Title 2")
-                    .styleGuide(.title2)
-                Text("Title 3")
-                    .styleGuide(.title3)
-                Text("Headline")
-                    .styleGuide(.headline)
-                Text("Body")
-                    .styleGuide(.body)
-                Text("Body Monospaced")
-                    .styleGuide(.bodyMonospaced)
-                Text("Callout")
-                    .styleGuide(.callout)
-                Text("Subheadline")
-                    .styleGuide(.subheadline)
-                Text("Footnote")
-                    .styleGuide(.footnote)
-                Text("Caption 1")
-                    .styleGuide(.caption1)
-                Text("Caption 2")
-                    .styleGuide(.caption2)
-                Text("Caption 2 Monospaced")
-                    .styleGuide(.caption2Monospaced)
-            }
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Huge Title")
-                    .styleGuide(.hugeTitle, weight: .semibold, isItalic: true)
-                Text("Large Title")
-                    .styleGuide(.largeTitle, weight: .semibold, isItalic: true)
-                Text("Title")
-                    .styleGuide(.title, weight: .semibold, isItalic: true)
-                Text("Title 2")
-                    .styleGuide(.title2, weight: .semibold, isItalic: true)
-                Text("Title 3")
-                    .styleGuide(.title3, weight: .semibold, isItalic: true)
-                Text("Headline")
-                    .styleGuide(.headline, weight: .semibold, isItalic: true)
-                Text("Body")
-                    .styleGuide(.body, weight: .semibold, isItalic: true)
-                Text("Body Monospaced")
-                    .styleGuide(.bodyMonospaced, weight: .semibold, isItalic: true)
-                Text("Callout")
-                    .styleGuide(.callout, weight: .semibold, isItalic: true)
-                Text("Subheadline")
-                    .styleGuide(.subheadline, weight: .semibold, isItalic: true)
-                Text("Footnote")
-                    .styleGuide(.footnote, weight: .semibold, isItalic: true)
-                Text("Caption 1")
-                    .styleGuide(.caption1, weight: .semibold, isItalic: true)
-                Text("Caption 2")
-                    .styleGuide(.caption2, weight: .semibold, isItalic: true)
-                Text("Caption 2 Monospaced")
-                    .styleGuide(.caption2Monospaced, weight: .semibold, isItalic: true)
-            }
-        }
-        .background(Color(.systemGroupedBackground))
-        .previewDisplayName("Standard vs Bold Italic")
-
-        VStack(alignment: .leading) {
-            Button("Sample Button", action: {})
-                .buttonStyle(.primary())
+#Preview("Standard vs Semi Bold") {
+    HStack {
+        VStack(alignment: .trailing, spacing: 8) {
+            Text("Huge Title")
+                .styleGuide(.hugeTitle)
+            Text("Large Title")
+                .styleGuide(.largeTitle)
+            Text("Title")
+                .styleGuide(.title)
+            Text("Title 2")
+                .styleGuide(.title2)
+            Text("Title 3")
+                .styleGuide(.title3)
+            Text("Headline")
+                .styleGuide(.headline)
+            Text("Body")
+                .styleGuide(.body)
+            Text("Body Monospaced")
+                .styleGuide(.bodyMonospaced)
+            Text("Callout")
                 .styleGuide(.callout)
-            Toggle("Toggle", isOn: .init(get: { true }, set: { _ in }))
-                .toggleStyle(.bitwarden)
-            Group {
-                Text(Localizations.important + ": ")
-                    .bold() +
-                    Text(Localizations.bitwardenCannotResetALostOrForgottenMasterPassword)
-            }
-            .styleGuide(.footnote)
-            .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
+            Text("Subheadline")
+                .styleGuide(.subheadline)
+            Text("Footnote")
+                .styleGuide(.footnote)
+            Text("Caption 1")
+                .styleGuide(.caption1)
+            Text("Caption 2")
+                .styleGuide(.caption2)
+            Text("Caption 2 Monospaced")
+                .styleGuide(.caption2Monospaced)
         }
-        .background(Color(.systemGroupedBackground))
-        .previewDisplayName("Views")
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Huge Title")
+                .styleGuide(.hugeTitle, weight: .semibold)
+            Text("Large Title")
+                .styleGuide(.largeTitle, weight: .semibold)
+            Text("Title")
+                .styleGuide(.title, weight: .semibold)
+            Text("Title 2")
+                .styleGuide(.title2, weight: .semibold)
+            Text("Title 3")
+                .styleGuide(.title3, weight: .semibold)
+            Text("Headline")
+                .styleGuide(.headline, weight: .semibold)
+            Text("Body")
+                .styleGuide(.body, weight: .semibold)
+            Text("Body Monospaced")
+                .styleGuide(.bodyMonospaced, weight: .semibold)
+            Text("Callout")
+                .styleGuide(.callout, weight: .semibold)
+            Text("Subheadline")
+                .styleGuide(.subheadline, weight: .semibold)
+            Text("Footnote")
+                .styleGuide(.footnote, weight: .semibold)
+            Text("Caption 1")
+                .styleGuide(.caption1, weight: .semibold)
+            Text("Caption 2")
+                .styleGuide(.caption2, weight: .semibold)
+            Text("Caption 2 Monospaced")
+                .styleGuide(.caption2Monospaced, weight: .semibold)
+        }
     }
+    .background(Color(.systemGroupedBackground))
+}
+
+#Preview("Standard vs Italic") {
+    HStack {
+        VStack(alignment: .trailing, spacing: 8) {
+            Text("Huge Title")
+                .styleGuide(.hugeTitle)
+            Text("Large Title")
+                .styleGuide(.largeTitle)
+            Text("Title")
+                .styleGuide(.title)
+            Text("Title 2")
+                .styleGuide(.title2)
+            Text("Title 3")
+                .styleGuide(.title3)
+            Text("Headline")
+                .styleGuide(.headline)
+            Text("Body")
+                .styleGuide(.body)
+            Text("Body Monospaced")
+                .styleGuide(.bodyMonospaced)
+            Text("Callout")
+                .styleGuide(.callout)
+            Text("Subheadline")
+                .styleGuide(.subheadline)
+            Text("Footnote")
+                .styleGuide(.footnote)
+            Text("Caption 1")
+                .styleGuide(.caption1)
+            Text("Caption 2")
+                .styleGuide(.caption2)
+            Text("Caption 2 Monospaced")
+                .styleGuide(.caption2Monospaced)
+        }
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Huge Title")
+                .styleGuide(.hugeTitle, isItalic: true)
+            Text("Large Title")
+                .styleGuide(.largeTitle, isItalic: true)
+            Text("Title")
+                .styleGuide(.title, isItalic: true)
+            Text("Title 2")
+                .styleGuide(.title2, isItalic: true)
+            Text("Title 3")
+                .styleGuide(.title3, isItalic: true)
+            Text("Headline")
+                .styleGuide(.headline, isItalic: true)
+            Text("Body")
+                .styleGuide(.body, isItalic: true)
+            Text("Body Monospaced")
+                .styleGuide(.bodyMonospaced, isItalic: true)
+            Text("Callout")
+                .styleGuide(.callout, isItalic: true)
+            Text("Subheadline")
+                .styleGuide(.subheadline, isItalic: true)
+            Text("Footnote")
+                .styleGuide(.footnote, isItalic: true)
+            Text("Caption 1")
+                .styleGuide(.caption1, isItalic: true)
+            Text("Caption 2")
+                .styleGuide(.caption2, isItalic: true)
+            Text("Caption 2 Monospaced")
+                .styleGuide(.caption2Monospaced, isItalic: true)
+        }
+    }
+    .background(Color(.systemGroupedBackground))
+}
+
+#Preview("Standard vs Bold Italic") {
+    HStack {
+        VStack(alignment: .trailing, spacing: 8) {
+            Text("Huge Title")
+                .styleGuide(.hugeTitle)
+            Text("Large Title")
+                .styleGuide(.largeTitle)
+            Text("Title")
+                .styleGuide(.title)
+            Text("Title 2")
+                .styleGuide(.title2)
+            Text("Title 3")
+                .styleGuide(.title3)
+            Text("Headline")
+                .styleGuide(.headline)
+            Text("Body")
+                .styleGuide(.body)
+            Text("Body Monospaced")
+                .styleGuide(.bodyMonospaced)
+            Text("Callout")
+                .styleGuide(.callout)
+            Text("Subheadline")
+                .styleGuide(.subheadline)
+            Text("Footnote")
+                .styleGuide(.footnote)
+            Text("Caption 1")
+                .styleGuide(.caption1)
+            Text("Caption 2")
+                .styleGuide(.caption2)
+            Text("Caption 2 Monospaced")
+                .styleGuide(.caption2Monospaced)
+        }
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Huge Title")
+                .styleGuide(.hugeTitle, weight: .semibold, isItalic: true)
+            Text("Large Title")
+                .styleGuide(.largeTitle, weight: .semibold, isItalic: true)
+            Text("Title")
+                .styleGuide(.title, weight: .semibold, isItalic: true)
+            Text("Title 2")
+                .styleGuide(.title2, weight: .semibold, isItalic: true)
+            Text("Title 3")
+                .styleGuide(.title3, weight: .semibold, isItalic: true)
+            Text("Headline")
+                .styleGuide(.headline, weight: .semibold, isItalic: true)
+            Text("Body")
+                .styleGuide(.body, weight: .semibold, isItalic: true)
+            Text("Body Monospaced")
+                .styleGuide(.bodyMonospaced, weight: .semibold, isItalic: true)
+            Text("Callout")
+                .styleGuide(.callout, weight: .semibold, isItalic: true)
+            Text("Subheadline")
+                .styleGuide(.subheadline, weight: .semibold, isItalic: true)
+            Text("Footnote")
+                .styleGuide(.footnote, weight: .semibold, isItalic: true)
+            Text("Caption 1")
+                .styleGuide(.caption1, weight: .semibold, isItalic: true)
+            Text("Caption 2")
+                .styleGuide(.caption2, weight: .semibold, isItalic: true)
+            Text("Caption 2 Monospaced")
+                .styleGuide(.caption2Monospaced, weight: .semibold, isItalic: true)
+        }
+    }
+    .background(Color(.systemGroupedBackground))
+}
+
+#Preview("Body Weights") {
+    HStack {
+        VStack(alignment: .trailing, spacing: 8) {
+            Text("Ultra Light")
+                .styleGuide(.body, weight: .ultraLight)
+            Text("Thin")
+                .styleGuide(.body, weight: .thin)
+            Text("Light")
+                .styleGuide(.body, weight: .light)
+            Text("Normal")
+                .styleGuide(.body, weight: .regular)
+            Text("Medium")
+                .styleGuide(.body, weight: .medium)
+            Text("Semibold")
+                .styleGuide(.body, weight: .semibold)
+            Text("Bold")
+                .styleGuide(.body, weight: .bold)
+            Text("Heavy")
+                .styleGuide(.body, weight: .heavy)
+            Text("Black")
+                .styleGuide(.body, weight: .black)
+        }
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Ultra Light Italic")
+                .styleGuide(.body, weight: .ultraLight, isItalic: true)
+            Text("Thin Italic")
+                .styleGuide(.body, weight: .thin, isItalic: true)
+            Text("Light Italic")
+                .styleGuide(.body, weight: .light, isItalic: true)
+            Text("Normal Italic")
+                .styleGuide(.body, weight: .regular, isItalic: true)
+            Text("Medium Italic")
+                .styleGuide(.body, weight: .medium, isItalic: true)
+            Text("Semibold Italic")
+                .styleGuide(.body, weight: .semibold, isItalic: true)
+            Text("Bold Italic")
+                .styleGuide(.body, weight: .bold, isItalic: true)
+            Text("Heavy Italic")
+                .styleGuide(.body, weight: .heavy, isItalic: true)
+            Text("Black Italic")
+                .styleGuide(.body, weight: .black, isItalic: true)
+        }
+    }
+    .background(Color(.systemGroupedBackground))
+}
+
+#Preview("Views") {
+    VStack(alignment: .leading) {
+        Button("Sample Button", action: {})
+            .buttonStyle(.primary())
+            .styleGuide(.callout)
+        Toggle("Toggle", isOn: .init(get: { true }, set: { _ in }))
+            .toggleStyle(.bitwarden)
+        Group {
+            Text(Localizations.important + ": ")
+                .bold() +
+                Text(Localizations.bitwardenCannotResetALostOrForgottenMasterPassword)
+        }
+        .styleGuide(.footnote)
+        .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
+    }
+    .background(Color(.systemGroupedBackground))
 }
 #endif

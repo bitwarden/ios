@@ -34,6 +34,11 @@ struct VaultUnlockState: Equatable {
     /// Whether the pin is revealed.
     var isPinRevealed = false
 
+    /// Whether the master password or PIN field should be focused. This is set once it's known
+    /// that biometric unlock won't be attempted automatically, or after a biometric unlock attempt
+    /// is cancelled or fails, so the keyboard isn't shown while biometric unlock is in progress.
+    var shouldFocusPasswordOrPinField = false
+
     /// Whether the master password or PIN field and the unlock button should be displayed.
     var shouldShowPasswordOrPinFields: Bool = true
 

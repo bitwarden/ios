@@ -92,9 +92,6 @@ protocol AddEditItemState: Sendable {
     /// Whether the cipher is read-only.
     var isReadOnly: Bool { get }
 
-    /// Whether the `vfo1-foundation` feature flag is enabled.
-    var isVfo1FoundationFeatureFlagEnabled: Bool { get set }
-
     /// The state for a login type item.
     var loginState: LoginItemState { get set }
 

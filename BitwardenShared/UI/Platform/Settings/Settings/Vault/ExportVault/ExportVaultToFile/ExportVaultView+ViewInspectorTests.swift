@@ -51,8 +51,8 @@ class ExportVaultViewTests: BitwardenTestCase {
         let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.fileFormat)
         XCTAssertTrue(menuField.isDisabled())
 
-        let textField = try subject.inspect().find(viewWithId: Localizations.masterPassword).textField()
-        XCTAssertTrue(textField.isDisabled())
+        let secureField = try subject.inspect().find(viewWithId: Localizations.masterPassword).secureField()
+        XCTAssertTrue(secureField.isDisabled())
     }
 
     /// Tapping the export vault button sends the `.exportVault` action.

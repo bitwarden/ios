@@ -32,14 +32,18 @@ class AlertSettingsTests: BitwardenTestCase {
     }
 
     /// `confirmExportItems(action:)` constructs an `Alert`
-    ///  with the title, message, and Yes and Export items buttons.
-    func test_confirmExportVault() {
+    /// with the title, message, and Export and Cancel buttons.
+    func test_confirmExportItems() {
         let subject = Alert.confirmExportItems {}
 
-        XCTAssertEqual(subject.alertActions.count, 2)
         XCTAssertEqual(subject.preferredStyle, .alert)
-        XCTAssertEqual(subject.title, Localizations.exportItemsConfirmationTitle)
-        XCTAssertEqual(subject.message, Localizations.exportItemsWarning)
+        XCTAssertEqual(subject.title, Localizations.confirmExport)
+        XCTAssertEqual(subject.message, Localizations.forYourSecurityDontShareOrSendDescriptionLong)
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions.first?.title, Localizations.export)
+        XCTAssertEqual(subject.alertActions.first?.style, .default)
+        XCTAssertEqual(subject.alertActions.last?.title, Localizations.cancel)
+        XCTAssertEqual(subject.alertActions.last?.style, .cancel)
     }
 
     /// `privacyPolicyAlert(action:)` constructs an `Alert`

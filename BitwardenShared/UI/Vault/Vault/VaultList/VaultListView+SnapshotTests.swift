@@ -113,7 +113,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     @MainActor
     func disabletest_snapshot_errorState() {
         processor.state.loadingState = .error(
-            errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs,
+            errorMessage: Localizations.weCouldntSyncYourVaultWithTheServerDescriptionLong,
         )
         assertSnapshot(of: subject, as: .defaultPortrait)
     }

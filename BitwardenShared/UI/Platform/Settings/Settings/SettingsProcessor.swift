@@ -103,6 +103,7 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             guard state.presentationMode == .tab else { return }
             let featureEnabled = await services.configService
                 .getFeatureFlag(.premiumUpgradePath, defaultValue: false)
+            let hasPersonalSubscription = await services.billingService.hasPersonalSubscription()
             let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
             let hasPremiumPersonally = await services.stateService.doesActiveAccountHavePremiumPersonally()
             let isSelfHosted = await services.billingService.isSelfHosted()
@@ -110,8 +111,14 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             state.hasPremium = hasPremium
             // Users whose Premium comes only from their organization (not purchased personally)
             // have no personal subscription to manage or upgrade, so the plan row is hidden for them.
+            // The same applies to users with personal Premium whose Stripe subscription doesn't exist.
             let hasPremiumFromOrganizationOnly = hasPremium && !hasPremiumPersonally
-            state.showPlanRow = featureEnabled && !isSelfHosted && isUSStorefront && !hasPremiumFromOrganizationOnly
+            let hasPremiumWithoutSubscription = hasPremiumPersonally && hasPersonalSubscription == false
+            state.showPlanRow = featureEnabled
+                && !isSelfHosted
+                && isUSStorefront
+                && !hasPremiumFromOrganizationOnly
+                && !hasPremiumWithoutSubscription
             state.shouldShowUpgradedToPremiumActionCard = await services.billingService
                 .shouldShowUpgradedToPremiumActionCard()
         case .dismissUpgradedToPremiumActionCard:
@@ -165,10 +172,10 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             if subscription.status.isTroubleState {
                 coordinator.navigate(to: .premiumPlan(subscription))
             } else {
-                premiumUpgradeHelper.startInAppPremiumUpgrade(onConfirmed: nil)
+                await premiumUpgradeHelper.startInAppPremiumUpgrade(onConfirmed: nil)
             }
         } catch is GetSubscriptionRequestError {
-            premiumUpgradeHelper.startInAppPremiumUpgrade(onConfirmed: nil)
+            await premiumUpgradeHelper.startInAppPremiumUpgrade(onConfirmed: nil)
         } catch {
             services.errorReporter.log(error: error)
             await coordinator.showErrorAlert(error: error)

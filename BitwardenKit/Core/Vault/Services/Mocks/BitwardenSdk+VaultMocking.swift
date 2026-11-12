@@ -63,7 +63,6 @@ public extension CipherListView {
             organizationId: cipher.organizationId,
             folderId: cipher.folderId,
             collectionIds: cipher.collectionIds,
-            key: cipher.key,
             name: cipher.name ?? "",
             subtitle: "",
             type: CipherListViewType(cipher: cipher),
@@ -81,6 +80,7 @@ public extension CipherListView {
             archivedDate: cipher.archivedDate,
             copyableFields: [],
             localData: cipher.localData.map(LocalDataView.init),
+            partial: false,
         )
     }
 }
@@ -159,6 +159,7 @@ public extension Cipher {
             revisionDate: cipherView.revisionDate,
             archivedDate: cipherView.archivedDate,
             data: nil,
+            partialData: nil,
         )
     }
 }
@@ -197,6 +198,7 @@ public extension CipherView {
             deletedDate: cipher.deletedDate,
             revisionDate: cipher.revisionDate,
             archivedDate: cipher.archivedDate,
+            partial: false,
         )
     }
 }
@@ -375,7 +377,7 @@ public extension Login {
             uris: loginView.uris?.map(LoginUri.init),
             totp: loginView.totp,
             autofillOnPageLoad: loginView.autofillOnPageLoad,
-            fido2Credentials: loginView.fido2Credentials,
+            fido2Credentials: loginView.fido2Credentials?.map(Fido2Credential.init),
         )
     }
 }
@@ -389,7 +391,7 @@ public extension LoginView {
             uris: login.uris?.map(LoginUriView.init),
             totp: login.totp,
             autofillOnPageLoad: login.autofillOnPageLoad,
-            fido2Credentials: login.fido2Credentials,
+            fido2Credentials: login.fido2Credentials?.map(Fido2CredentialView.init),
         )
     }
 }
@@ -477,6 +479,8 @@ public extension SendView {
             type: send.type,
             file: send.file.map(SendFileView.init),
             text: send.text.map(SendTextView.init),
+            // The app doesn't support v2 send items yet, so there's nothing to round-trip here.
+            data: nil,
             maxAccessCount: send.maxAccessCount,
             accessCount: send.accessCount,
             disabled: send.disabled,
@@ -522,6 +526,8 @@ public extension Send {
             type: sendView.type,
             file: sendView.file.map(SendFile.init),
             text: sendView.text.map(SendText.init),
+            // The app doesn't support v2 send items yet, so there's nothing to round-trip here.
+            data: nil,
             maxAccessCount: sendView.maxAccessCount,
             accessCount: sendView.accessCount,
             disabled: sendView.disabled,

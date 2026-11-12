@@ -92,6 +92,22 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         XCTAssertTrue(module.addEditFolderCoordinator.isStarted)
         XCTAssertEqual(module.addEditFolderCoordinator.routes, [.addEditFolder(folder: nil)])
+        XCTAssertNil(module.addEditFolderCoordinator.contexts.last as? AddEditFolderDelegate)
+    }
+
+    /// `navigate(to:)` with `.addFolder` and a context passes the context along to the add/edit
+    /// folder coordinator as the delegate.
+    @MainActor
+    func test_navigateTo_addFolder_withDelegate() throws {
+        let delegate = MockAddEditFolderDelegate()
+        subject.navigate(to: .addFolder, context: delegate)
+
+        XCTAssertTrue(module.addEditFolderCoordinator.isStarted)
+        XCTAssertEqual(module.addEditFolderCoordinator.routes, [.addEditFolder(folder: nil)])
+        XCTAssertIdentical(
+            module.addEditFolderCoordinator.contexts.last as? AddEditFolderDelegate,
+            delegate,
+        )
     }
 
     /// `navigate(to:)` with `.autofillList` replaces the stack navigator's stack with the autofill list.
@@ -411,6 +427,17 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
         XCTAssertEqual(module.billingCoordinator.routes, [.premiumUpgrade])
+    }
+
+    /// `navigate(to:)` with `.premiumUpgradeComplete` presents a standalone Premium upgrade
+    /// complete screen via the billing coordinator.
+    @MainActor
+    func test_navigateTo_premiumUpgradeComplete() throws {
+        subject.navigate(to: .premiumUpgradeComplete)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertEqual(module.billingCoordinator.routes, [.premiumUpgradeCompleteStandalone])
     }
 
     /// `navigate(to:)` with `.switchAccount(userId:, isUnlocked: isUnlocked)`calls the associated delegate method.

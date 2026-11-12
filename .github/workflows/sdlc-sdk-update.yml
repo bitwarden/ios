@@ -69,7 +69,7 @@ jobs:
           permission-contents: write
 
       - name: Check out repo
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           token: ${{ steps.app-token.outputs.token }}
           fetch-depth: 0
@@ -211,7 +211,7 @@ jobs:
             PR_TITLE_ACTION="Downgrade"
           else
             CHANGELOG=$(./Scripts/get-repo-changelog.sh "bitwarden/sdk-internal" "$_OLD_SDK_INTERNAL_REF" "$_NEW_SDK_INTERNAL_REF")
-            PR_BODY="$PR_BODY\n\n## What's Changed\n\n$CHANGELOG"
+            PR_BODY="$PR_BODY\n\n$CHANGELOG"
             PR_TITLE_ACTION="Update"
           fi
 

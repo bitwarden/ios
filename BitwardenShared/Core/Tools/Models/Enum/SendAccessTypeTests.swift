@@ -23,6 +23,16 @@ class SendAccessTypeTests: BitwardenTestCase {
         XCTAssertEqual(SendAccessType(authType: .password), .anyoneWithPassword)
     }
 
+    /// `init(whoCanAccessPolicyValue:)` maps the server's `WhoCanAccessType` to the enforced access
+    /// type, returning `nil` when the access type is unrestricted.
+    func test_init_whoCanAccessPolicyValue() {
+        XCTAssertNil(SendAccessType(whoCanAccessPolicyValue: 0))
+        XCTAssertEqual(SendAccessType(whoCanAccessPolicyValue: 1), .anyoneWithPassword)
+        XCTAssertEqual(SendAccessType(whoCanAccessPolicyValue: 2), .specificPeople)
+        XCTAssertNil(SendAccessType(whoCanAccessPolicyValue: nil))
+        XCTAssertNil(SendAccessType(whoCanAccessPolicyValue: 99))
+    }
+
     /// `localizedName` returns the correct localized string for each access type.
     func test_localizedName() {
         XCTAssertEqual(SendAccessType.anyoneWithLink.localizedName, Localizations.anyoneWithTheLink)

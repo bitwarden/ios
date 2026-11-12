@@ -617,4 +617,33 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(appSettingsStore.migrationVersion, 6)
         XCTAssertTrue(appSettingsStore.accountCryptographicStates.isEmpty)
     }
+
+    // MARK: Migration 7 (Remove Legacy masterKeyEncryptedUserKey)
+
+    /// `performMigrations()` for migration 7 removes the legacy `masterKeyEncryptedUserKey` value for each account.
+    func test_performMigrations_7() async throws {
+        appSettingsStore.state = State(
+            accounts: [
+                "1": .fixture(),
+                "2": .fixture(profile: .fixture(userId: "2")),
+            ],
+            activeUserId: "1",
+        )
+        appGroupUserDefaults.set("1:USER_KEY", forKey: "bwPreferencesStorage:masterKeyEncryptedUserKey_1")
+        appGroupUserDefaults.set("2:USER_KEY", forKey: "bwPreferencesStorage:masterKeyEncryptedUserKey_2")
+
+        try await subject.performMigration(version: 7)
+
+        XCTAssertNil(appGroupUserDefaults.string(forKey: "bwPreferencesStorage:masterKeyEncryptedUserKey_1"))
+        XCTAssertNil(appGroupUserDefaults.string(forKey: "bwPreferencesStorage:masterKeyEncryptedUserKey_2"))
+    }
+
+    /// `performMigrations()` for migration 7 handles no existing accounts.
+    func test_performMigrations_7_withNoAccounts() async throws {
+        appSettingsStore.state = nil
+
+        try await subject.performMigration(version: 7)
+
+        XCTAssertEqual(appSettingsStore.migrationVersion, 7)
+    }
 } // swiftlint:disable:this file_length

@@ -6,6 +6,10 @@ import Foundation
 /// Values describing content that can be used to pre-fill the add send screen.
 ///
 public enum AddSendContentType: Equatable, Hashable {
+    /// A copy of an existing, policy-restricted send, whose details should be pre-filled and then
+    /// adjusted to comply with the active Send Controls policy.
+    case copy(SendView)
+
     /// A file type, with the provided name and data.
     case file(fileName: String, fileData: Data)
 
@@ -64,6 +68,9 @@ public enum SendItemRoute: Equatable, Hashable {
 
     /// A route to the Premium upgrade screen.
     case premiumUpgrade
+
+    /// A route to the Premium upgrade complete screen.
+    case premiumUpgradeComplete
 
     /// A route to share the provided URL.
     ///

@@ -18,11 +18,14 @@ class MockClientService: ClientService {
     var mockPlatformIsPreAuth = false
     var mockPolicies: MockPoliciesClientProtocol
     var mockSends: MockSendClientProtocol
+    var mockUserCryptoManagement: MockUserCryptoManagementClientService
+    var mockUserCryptoManagementUserId: String?
     var mockVault: MockVaultClientService
     var platformCallCount = 0
     var platformError: Error?
     var policiesError: Error?
     var userClientArray = [String: BitwardenSdkClient]()
+    var userCryptoManagementError: Error?
 
     init(
         auth: MockAuthClientService = MockAuthClientService(),
@@ -38,6 +41,7 @@ class MockClientService: ClientService {
             mock.encryptBufferClosure = { _, buffer in buffer }
             return mock
         }(),
+        userCryptoManagement: MockUserCryptoManagementClientService = .withMocks(),
         vault: MockVaultClientService = MockVaultClientService(),
     ) {
         mockAuth = auth
@@ -47,6 +51,7 @@ class MockClientService: ClientService {
         mockPlatform = platform
         mockPolicies = policies
         mockSends = sends
+        mockUserCryptoManagement = userCryptoManagement
         mockVault = vault
     }
 
@@ -91,6 +96,12 @@ class MockClientService: ClientService {
 
     func sends(for userId: String?) -> SendClientProtocol {
         mockSends
+    }
+
+    func userCryptoManagement(for userId: String?) throws -> UserCryptoManagementClientService {
+        mockUserCryptoManagementUserId = userId
+        if let userCryptoManagementError { throw userCryptoManagementError }
+        return mockUserCryptoManagement
     }
 
     func vault(for userId: String?) -> VaultClientService {

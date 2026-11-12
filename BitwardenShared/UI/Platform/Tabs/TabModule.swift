@@ -45,6 +45,7 @@ extension DefaultAppModule: TabModule {
             policyService: services.policyService,
             rootNavigator: rootNavigator,
             settingsDelegate: settingsDelegate,
+            syncService: services.syncService,
             tabNavigator: tabNavigator,
             vaultDelegate: vaultDelegate,
             vaultRepository: vaultRepository,

@@ -423,42 +423,6 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:protectedPin_1"), pin)
     }
 
-    /// `encryptedUserKey(userId:)` returns `nil` if there isn't a previously stored value.
-    func test_encryptedUserKey_isInitiallyNil() {
-        XCTAssertNil(subject.encryptedUserKey(userId: "-1"))
-    }
-
-    /// `encryptedUserKey(userId:)` can be used to get the encrypted user key for a user.
-    func test_encryptedUserKey_withValue() {
-        subject.setEncryptedUserKey(key: "1:USER_KEY", userId: "1")
-        subject.setEncryptedUserKey(key: "2:USER_KEY", userId: "2")
-
-        XCTAssertEqual(subject.encryptedUserKey(userId: "1"), "1:USER_KEY")
-        XCTAssertEqual(subject.encryptedUserKey(userId: "2"), "2:USER_KEY")
-        XCTAssertEqual(
-            userDefaults.string(forKey: "bwPreferencesStorage:masterKeyEncryptedUserKey_1"),
-            "1:USER_KEY",
-        )
-        XCTAssertEqual(
-            userDefaults.string(forKey: "bwPreferencesStorage:masterKeyEncryptedUserKey_2"),
-            "2:USER_KEY",
-        )
-
-        subject.setEncryptedUserKey(key: "1:USER_KEY_NEW", userId: "1")
-        subject.setEncryptedUserKey(key: "2:USER_KEY_NEW", userId: "2")
-
-        XCTAssertEqual(subject.encryptedUserKey(userId: "1"), "1:USER_KEY_NEW")
-        XCTAssertEqual(subject.encryptedUserKey(userId: "2"), "2:USER_KEY_NEW")
-        XCTAssertEqual(
-            userDefaults.string(forKey: "bwPreferencesStorage:masterKeyEncryptedUserKey_1"),
-            "1:USER_KEY_NEW",
-        )
-        XCTAssertEqual(
-            userDefaults.string(forKey: "bwPreferencesStorage:masterKeyEncryptedUserKey_2"),
-            "2:USER_KEY_NEW",
-        )
-    }
-
     /// `events(userId:)` can be used to get the events for a user.
     func test_events() {
         let events = [
@@ -581,6 +545,36 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         XCTAssertFalse(subject.hasPerformedSyncAfterLogin(userId: "1"))
         XCTAssertTrue(subject.hasPerformedSyncAfterLogin(userId: "2"))
+    }
+
+    /// `hasPersonalSubscription(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_hasPersonalSubscription_isInitiallyNil() {
+        XCTAssertNil(subject.hasPersonalSubscription(userId: "1"))
+    }
+
+    /// `hasPersonalSubscription(userId:)` keeps a separate value for each user.
+    func test_hasPersonalSubscription_separatePerUser() {
+        subject.setHasPersonalSubscription(true, userId: "1")
+        subject.setHasPersonalSubscription(false, userId: "2")
+
+        XCTAssertEqual(subject.hasPersonalSubscription(userId: "1"), true)
+        XCTAssertEqual(subject.hasPersonalSubscription(userId: "2"), false)
+        XCTAssertNil(subject.hasPersonalSubscription(userId: "3"))
+    }
+
+    /// `hasPersonalSubscription(userId:)` can be used to get, set, and clear the persisted value in user defaults.
+    func test_hasPersonalSubscription_withValue() {
+        subject.setHasPersonalSubscription(true, userId: "1")
+        XCTAssertEqual(subject.hasPersonalSubscription(userId: "1"), true)
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:hasPersonalSubscription_1"), "true")
+
+        subject.setHasPersonalSubscription(false, userId: "1")
+        XCTAssertEqual(subject.hasPersonalSubscription(userId: "1"), false)
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:hasPersonalSubscription_1"), "false")
+
+        subject.setHasPersonalSubscription(nil, userId: "1")
+        XCTAssertNil(subject.hasPersonalSubscription(userId: "1"))
+        XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:hasPersonalSubscription_1"))
     }
 
     /// `isBiometricAuthenticationEnabled` returns false if there is no previous value.
@@ -1121,6 +1115,42 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:premiumUpgradeBannerDismissed_1"))
     }
 
+    /// `premiumUpgradePending(userId:)` returns `false` if there isn't a previously stored value.
+    func test_premiumUpgradePending_isInitiallyFalse() {
+        XCTAssertFalse(subject.premiumUpgradePending(userId: "1"))
+    }
+
+    /// `premiumUpgradePending(userId:)` can be used to get and set the persisted value in user defaults.
+    func test_premiumUpgradePending_withValue() {
+        subject.setPremiumUpgradePending(true, userId: "1")
+        XCTAssertTrue(subject.premiumUpgradePending(userId: "1"))
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:premiumUpgradePending_1"))
+
+        subject.setPremiumUpgradePending(false, userId: "1")
+        XCTAssertFalse(subject.premiumUpgradePending(userId: "1"))
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:premiumUpgradePending_1"))
+    }
+
+    /// `previousPersonalPremium(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_previousPersonalPremium_isInitiallyNil() {
+        XCTAssertNil(subject.previousPersonalPremium(userId: "1"))
+    }
+
+    /// `previousPersonalPremium(userId:)` can be used to get, set, and clear the persisted value in user defaults.
+    func test_previousPersonalPremium_withValue() {
+        subject.setPreviousPersonalPremium(true, userId: "1")
+        XCTAssertEqual(subject.previousPersonalPremium(userId: "1"), true)
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:previousPersonalPremium_1"), "true")
+
+        subject.setPreviousPersonalPremium(false, userId: "1")
+        XCTAssertEqual(subject.previousPersonalPremium(userId: "1"), false)
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:previousPersonalPremium_1"), "false")
+
+        subject.setPreviousPersonalPremium(nil, userId: "1")
+        XCTAssertNil(subject.previousPersonalPremium(userId: "1"))
+        XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:previousPersonalPremium_1"))
+    }
+
     /// `upgradedToPremiumActionCardVisible(userId:)` returns `false` if there isn't a previously stored value.
     func test_upgradedToPremiumActionCardVisible_isInitiallyFalse() {
         XCTAssertFalse(subject.upgradedToPremiumActionCardVisible(userId: "1"))
@@ -1421,5 +1451,78 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
             ),
             .logout,
         )
+    }
+
+    /// `userKeyId(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_userKeyId_isInitiallyNil() {
+        XCTAssertNil(subject.userKeyId(userId: "-1"))
+    }
+
+    /// `userKeyId(userId:)` can be used to get and set the user key ID for a user.
+    func test_userKeyId_withValue() {
+        subject.setUserKeyId("1:USER_KEY_ID", userId: "1")
+        subject.setUserKeyId("2:USER_KEY_ID", userId: "2")
+
+        XCTAssertEqual(subject.userKeyId(userId: "1"), "1:USER_KEY_ID")
+        XCTAssertEqual(subject.userKeyId(userId: "2"), "2:USER_KEY_ID")
+
+        XCTAssertNotNil(userDefaults.string(forKey: "bwPreferencesStorage:userKeyId_1"))
+        XCTAssertNotNil(userDefaults.string(forKey: "bwPreferencesStorage:userKeyId_2"))
+
+        subject.setUserKeyId(nil, userId: "1")
+        XCTAssertNil(subject.userKeyId(userId: "1"))
+    }
+
+    /// `v2EncryptedMigrationsGracePeriodStart(userId:)` returns `nil` if there isn't a previously
+    /// stored value.
+    func test_v2EncryptedMigrationsGracePeriodStart_isInitiallyNil() {
+        XCTAssertNil(subject.v2EncryptedMigrationsGracePeriodStart(userId: "-1"))
+    }
+
+    /// `v2EncryptedMigrationsGracePeriodStart(userId:)` can be used to get and set the V2 encrypted
+    /// migrations grace period start for a user.
+    func test_v2EncryptedMigrationsGracePeriodStart_withValue() {
+        let date1 = Date(year: 2023, month: 12, day: 1)
+        let date2 = Date(year: 2023, month: 10, day: 2)
+
+        subject.setV2EncryptedMigrationsGracePeriodStart(date1, userId: "1")
+        subject.setV2EncryptedMigrationsGracePeriodStart(date2, userId: "2")
+
+        XCTAssertEqual(subject.v2EncryptedMigrationsGracePeriodStart(userId: "1"), date1)
+        XCTAssertEqual(subject.v2EncryptedMigrationsGracePeriodStart(userId: "2"), date2)
+        XCTAssertEqual(
+            userDefaults.double(forKey: "bwPreferencesStorage:v2EncryptedMigrationsGracePeriodStart_1"),
+            1_701_388_800.0,
+        )
+        XCTAssertEqual(
+            userDefaults.double(forKey: "bwPreferencesStorage:v2EncryptedMigrationsGracePeriodStart_2"),
+            1_696_204_800.0,
+        )
+
+        subject.setV2EncryptedMigrationsGracePeriodStart(nil, userId: "1")
+        XCTAssertNil(subject.v2EncryptedMigrationsGracePeriodStart(userId: "1"))
+    }
+
+    /// `v2UpgradeToken(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_v2UpgradeToken_isInitiallyNil() {
+        XCTAssertNil(subject.v2UpgradeToken(userId: "-1"))
+    }
+
+    /// `v2UpgradeToken(userId:)` can be used to get and set the V2 upgrade token for a user.
+    func test_v2UpgradeToken_withValue() {
+        let token1 = V2UpgradeToken(wrappedUserKey1: "1:WRAPPED_USER_KEY_1", wrappedUserKey2: "1:WRAPPED_USER_KEY_2")
+        let token2 = V2UpgradeToken(wrappedUserKey1: "2:WRAPPED_USER_KEY_1", wrappedUserKey2: "2:WRAPPED_USER_KEY_2")
+
+        subject.setV2UpgradeToken(token1, userId: "1")
+        subject.setV2UpgradeToken(token2, userId: "2")
+
+        XCTAssertEqual(subject.v2UpgradeToken(userId: "1"), token1)
+        XCTAssertEqual(subject.v2UpgradeToken(userId: "2"), token2)
+
+        XCTAssertNotNil(userDefaults.string(forKey: "bwPreferencesStorage:v2UpgradeToken_1"))
+        XCTAssertNotNil(userDefaults.string(forKey: "bwPreferencesStorage:v2UpgradeToken_2"))
+
+        subject.setV2UpgradeToken(nil, userId: "1")
+        XCTAssertNil(subject.v2UpgradeToken(userId: "1"))
     }
 }

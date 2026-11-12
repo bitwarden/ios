@@ -62,7 +62,10 @@ struct ViewLoginItemView: View {
                 .accessibilityIdentifier("LoginPasswordEntry")
         } accessoryContent: {
             if store.state.canViewPassword {
-                PasswordVisibilityButton(isPasswordVisible: store.state.isPasswordVisible) {
+                PasswordVisibilityButton(
+                    accessibilityIdentifier: "ShowLoginPasswordButton",
+                    isPasswordVisible: store.state.isPasswordVisible,
+                ) {
                     store.send(.passwordVisibilityPressed)
                 }
 
@@ -150,7 +153,7 @@ struct ViewLoginItemView: View {
 
     /// The passkey row.
     ///
-    private func passkeyRow(_ fido2Credential: Fido2Credential) -> some View {
+    private func passkeyRow(_ fido2Credential: Fido2CredentialView) -> some View {
         BitwardenTextValueField(
             title: Localizations.passkey,
             value: Localizations.createdX(fido2Credential.creationDate.dateTimeDisplay),

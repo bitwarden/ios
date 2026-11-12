@@ -59,22 +59,25 @@ struct TutorialView: View {
             .animation(.default, value: store.state.page)
             .transition(.slide)
 
-            Button(store.state.continueButtonText) {
-                store.send(.continueTapped)
-            }
-            .buttonStyle(.primary())
+            VStack(spacing: 12) {
+                Button(store.state.continueButtonText) {
+                    store.send(.continueTapped)
+                }
+                .buttonStyle(.primary())
+                .accessibilityIdentifier("ContinueButton")
 
-            Button {
-                store.send(.skipTapped)
-            } label: {
-                Text(Localizations.skip)
-                    .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+                Button(Localizations.skip) {
+                    store.send(.skipTapped)
+                }
+                .buttonStyle(.secondary())
+                .accessibilityIdentifier("SkipButton")
+                .hidden(store.state.isLastPage)
             }
-            .buttonStyle(InlineButtonStyle())
-            .hidden(store.state.isLastPage)
+            .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
         }
         .padding(16)
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+        .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
     }
 
     @ViewBuilder
@@ -85,9 +88,10 @@ struct TutorialView: View {
                     .frame(height: 146)
 
                 Text(titleText)
-                    .styleGuide(.title2)
+                    .styleGuide(.title, weight: .bold)
 
                 Text(bodyText)
+                    .styleGuide(.title3)
 
                 Spacer()
             }
@@ -100,9 +104,10 @@ struct TutorialView: View {
 
                 VStack(alignment: .leading, spacing: 24) {
                     Text(titleText)
-                        .styleGuide(.title2)
+                        .styleGuide(.title, weight: .bold)
 
                     Text(bodyText)
+                        .styleGuide(.title3)
 
                     Spacer()
                 }
@@ -113,37 +118,39 @@ struct TutorialView: View {
 }
 
 #if DEBUG
-struct TutorialView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            TutorialView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: TutorialState(page: .intro),
-                    ),
+#Preview("Intro") {
+    NavigationView {
+        TutorialView(
+            store: Store(
+                processor: StateProcessor(
+                    state: TutorialState(page: .intro),
                 ),
-            )
-        }.previewDisplayName("Intro")
+            ),
+        )
+    }
+}
 
-        NavigationView {
-            TutorialView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: TutorialState(page: .qrScanner),
-                    ),
+#Preview("QR Scanner") {
+    NavigationView {
+        TutorialView(
+            store: Store(
+                processor: StateProcessor(
+                    state: TutorialState(page: .qrScanner),
                 ),
-            )
-        }.previewDisplayName("QR Scanner")
+            ),
+        )
+    }
+}
 
-        NavigationView {
-            TutorialView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: TutorialState(page: .uniqueCodes),
-                    ),
+#Preview("Unique Codes") {
+    NavigationView {
+        TutorialView(
+            store: Store(
+                processor: StateProcessor(
+                    state: TutorialState(page: .uniqueCodes),
                 ),
-            )
-        }.previewDisplayName("Unique Codes")
+            ),
+        )
     }
 }
 #endif

@@ -80,51 +80,51 @@ struct ProfileSwitcherView: View {
 // MARK: Previews
 
 #if DEBUG
-struct ProfileSwitcherView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            ProfileSwitcherView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: .singleAccount,
-                    ),
+#Preview("Single Account") {
+    NavigationView {
+        ProfileSwitcherView(
+            store: Store(
+                processor: StateProcessor(
+                    state: .singleAccount,
                 ),
-            )
-        }
-        .previewDisplayName("Single Account")
+            ),
+        )
+    }
+}
 
-        NavigationView {
-            ProfileSwitcherView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: .dualAccounts,
-                    ),
+#Preview("Dual Account") {
+    NavigationView {
+        ProfileSwitcherView(
+            store: Store(
+                processor: StateProcessor(
+                    state: .dualAccounts,
                 ),
-            )
-        }
-        .previewDisplayName("Dual Account")
+            ),
+        )
+    }
+}
 
-        NavigationView {
-            ProfileSwitcherView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: .subMaximumAccounts,
-                    ),
+#Preview("Many Accounts") {
+    NavigationView {
+        ProfileSwitcherView(
+            store: Store(
+                processor: StateProcessor(
+                    state: .subMaximumAccounts,
                 ),
-            )
-        }
-        .previewDisplayName("Many Accounts")
+            ),
+        )
+    }
+}
 
-        NavigationView {
-            ProfileSwitcherView(
-                store: Store(
-                    processor: StateProcessor(
-                        state: .maximumAccounts,
-                    ),
+#Preview("Max Accounts") {
+    NavigationView {
+        ProfileSwitcherView(
+            store: Store(
+                processor: StateProcessor(
+                    state: .maximumAccounts,
                 ),
-            )
-        }
-        .previewDisplayName("Max Accounts")
+            ),
+        )
     }
 }
 #endif

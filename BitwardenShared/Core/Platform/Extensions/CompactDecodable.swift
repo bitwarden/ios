@@ -29,6 +29,7 @@ struct CompactDecodable<T: Decodable>: Decodable {
 }
 
 extension CompactDecodable: Equatable where T: Equatable {}
+extension CompactDecodable: Sendable where T: Sendable {}
 extension CompactDecodable: Encodable where T: Encodable {
     func encode(to encoder: any Encoder) throws {
         var container = encoder.singleValueContainer()

@@ -5,6 +5,14 @@ import BitwardenSdk
 /// Actions that can be processed by a `VaultItemSelectionProcessor`.
 ///
 enum VaultItemSelectionEffect: Equatable {
+    /// A VoiceOver custom accessibility action for one of the more-options actions was activated.
+    ///
+    /// - Parameters:
+    ///   - item: The item associated with the action.
+    ///   - kind: The kind of more-options action that was activated.
+    ///
+    case accessibilityMoreOptionsActionPressed(_ item: VaultListItem, _ kind: MoreOptionsActionKind)
+
     /// Any initial data for the view should be loaded.
     case loadData
 

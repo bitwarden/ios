@@ -8,9 +8,6 @@ import Networking
 struct ResendEmailCodeRequestModel: JSONRequestBody {
     // MARK: Properties
 
-    /// The device identifier.
-    let deviceIdentifier: String
-
     /// The email to send the verification code to.
     let email: String
 

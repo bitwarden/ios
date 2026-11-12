@@ -792,6 +792,52 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertNil(stateService.loginRequest)
     }
 
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` clears the login request when
+    /// a non-default action (e.g. "Clear") is selected on a local login request banner.
+    @MainActor
+    func test_messageReceived_notificationDismissed_clearAction() async throws {
+        stateService.setIsAuthenticated()
+        stateService.loginRequest = LoginRequestNotification(id: "1", userId: "2")
+        let loginRequest = LoginRequestPushNotification(
+            id: "1",
+            timeoutInMinutes: 15,
+            userId: "2",
+        )
+        let testData = try JSONEncoder().encode(loginRequest)
+        nonisolated(unsafe) let message: [AnyHashable: Any] = [
+            "notificationData": String(data: testData, encoding: .utf8) ?? "",
+        ]
+
+        await subject.messageReceived(message, notificationDismissed: false, notificationTapped: false)
+
+        XCTAssertNil(stateService.loginRequest)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` treats a local login request
+    /// banner presented in the foreground as handled, without reporting an error or changing state.
+    @MainActor
+    func test_messageReceived_notificationPresented() async throws {
+        stateService.setIsAuthenticated()
+        stateService.loginRequest = LoginRequestNotification(id: "1", userId: "2")
+        let loginRequest = LoginRequestPushNotification(
+            id: "1",
+            timeoutInMinutes: 15,
+            userId: "2",
+        )
+        let testData = try JSONEncoder().encode(loginRequest)
+        nonisolated(unsafe) let message: [AnyHashable: Any] = [
+            "notificationData": String(data: testData, encoding: .utf8) ?? "",
+        ]
+
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
+        XCTAssertEqual(stateService.loginRequest, LoginRequestNotification(id: "1", userId: "2"))
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+        XCTAssertNil(delegate.switchAccountsAccount)
+        XCTAssertFalse(syncService.didFetchSync)
+    }
+
     /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles notifications being tapped.
     @MainActor
     func test_messageReceived_notificationTapped() async throws {

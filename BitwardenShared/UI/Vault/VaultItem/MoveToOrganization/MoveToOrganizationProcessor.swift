@@ -25,8 +25,7 @@ class MoveToOrganizationProcessor: StateProcessor<
 > {
     // MARK: Types
 
-    typealias Services = HasConfigService
-        & HasErrorReporter
+    typealias Services = HasErrorReporter
         & HasVaultRepository
 
     // MARK: Private Properties
@@ -66,7 +65,6 @@ class MoveToOrganizationProcessor: StateProcessor<
     override func perform(_ effect: MoveToOrganizationEffect) async {
         switch effect {
         case .fetchCipherOptions:
-            await loadFeatureFlags()
             await fetchCipherOptions()
         case .moveCipher:
             await moveCipher()
@@ -97,11 +95,6 @@ class MoveToOrganizationProcessor: StateProcessor<
         }
     }
 
-    /// Loads the feature flags required for this processor.
-    private func loadFeatureFlags() async {
-        state.isVfo1FoundationFeatureFlagEnabled = await services.configService.getFeatureFlag(.vfo1Foundation)
-    }
-
     /// Performs the API request to move the cipher to the organization.
     ///
     private func moveCipher() async {
@@ -111,9 +104,7 @@ class MoveToOrganizationProcessor: StateProcessor<
             coordinator.showAlert(
                 .defaultAlert(
                     title: Localizations.anErrorHasOccurred,
-                    message: state.isVfo1FoundationFeatureFlagEnabled
-                        ? Localizations.youMustSelectAtLeastOneSharedFolder
-                        : Localizations.selectOneCollection,
+                    message: Localizations.youMustSelectAtLeastOneSharedFolder,
                 ),
             )
             return

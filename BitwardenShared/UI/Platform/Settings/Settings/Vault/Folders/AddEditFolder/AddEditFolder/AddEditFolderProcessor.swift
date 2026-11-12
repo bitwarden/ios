@@ -11,10 +11,10 @@ protocol AddEditFolderDelegate: AnyObject {
     /// Called when the folder has been successfully created.
     func folderAdded(_ folderView: FolderView)
 
-    /// Called when the folder has been successfully edited.
+    /// Called when the folder has been successfully deleted.
     func folderDeleted()
 
-    /// Called when the folder has been successfully deleted.
+    /// Called when the folder has been successfully edited.
     func folderEdited()
 }
 

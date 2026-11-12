@@ -65,6 +65,9 @@ extension Constants {
     /// extension before the app should warn the user that the extension may hit its memory limit.
     static let maxArgon2IdMemoryBeforeExtensionCrashing = 64
 
+    /// The maximum number of entries stored in a cipher's password history.
+    static let maxCipherPasswordHistoryCount = 5
+
     /// The value representing 100 MB of data.
     static let maxFileSize = 104_857_600
 
@@ -191,5 +194,20 @@ extension Constants {
 
         /// The minimum interval between fill-assist manifest checks (6 hours, matching the browser implementation).
         static let updateInterval: TimeInterval = 6 * 60 * 60
+    }
+}
+
+// MARK: - Debug Launch Argument Constants
+
+extension Constants {
+    /// Launch arguments (passed as `-<name> <value>`) honored by debug builds, e.g. for UI automation.
+    ///
+    enum DebugLaunchArguments {
+        /// The path, relative to the host Mac's home directory, of the JSON file containing the
+        /// pre-auth environment URLs. Only resolvable when running in the simulator.
+        static let preAuthEnvironmentFileRelativePath = ".bitwarden/debug-environment.json"
+
+        /// The launch argument used to override the pre-auth environment base URL.
+        static let preAuthEnvironmentBaseURL = "BWPreAuthEnvironmentBaseURL"
     }
 }

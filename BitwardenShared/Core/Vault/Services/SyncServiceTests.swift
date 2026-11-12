@@ -888,7 +888,6 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                 culture: "en-US",
                 email: "user@bitwarden.com",
                 id: "c8aa1e36-4427-11ee-be56-0242ac120002",
-                key: "key",
                 organizations: [],
                 privateKey: "private key",
                 providerOrganizations: [],
@@ -897,13 +896,7 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
         XCTAssertEqual(stateService.updateProfileUserId, "1")
         XCTAssertEqual(stateService.usesKeyConnector["1"], false)
-        XCTAssertEqual(
-            stateService.accountEncryptionKeys["1"],
-            AccountEncryptionKeys(
-                cryptographicState: .v1(privateKey: "private key"),
-                encryptedUserKey: "key",
-            ),
-        )
+        XCTAssertEqual(stateService.accountCryptographicStates["1"], .v1(privateKey: "private key"))
     }
 
     /// `fetchSync()` updates the user's profile when it has account keys.
@@ -920,7 +913,6 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                 culture: "en-US",
                 email: "user@bitwarden.com",
                 id: "c8aa1e36-4427-11ee-be56-0242ac120002",
-                key: "key",
                 organizations: [],
                 privateKey: "private key",
                 providerOrganizations: [],
@@ -929,13 +921,7 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
         XCTAssertEqual(stateService.updateProfileUserId, "1")
         XCTAssertEqual(stateService.usesKeyConnector["1"], false)
-        XCTAssertEqual(
-            stateService.accountEncryptionKeys["1"],
-            AccountEncryptionKeys(
-                cryptographicState: .fixtureV2(),
-                encryptedUserKey: "key",
-            ),
-        )
+        XCTAssertEqual(stateService.accountCryptographicStates["1"], .fixtureV2())
     }
 
     /// `fetchSync()` notifies the sync service delegate if the user needs to be migrated to Key
@@ -1174,6 +1160,24 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                 salt: "user@bitwarden.com",
             ),
         )
+        XCTAssertEqual(
+            stateService.v2UpgradeTokens["1"],
+            V2UpgradeToken(wrappedUserKey1: "WRAPPED_USER_KEY_1", wrappedUserKey2: "WRAPPED_USER_KEY_2"),
+        )
+    }
+
+    /// `fetchSync()` clears the user's V2 upgrade token when the sync response doesn't include one.
+    func test_fetchSync_v2UpgradeToken_absent() async throws {
+        client.result = .httpSuccess(testData: .syncWithProfileOrganizations)
+        stateService.activeAccount = .fixture()
+        stateService.v2UpgradeTokens["1"] = V2UpgradeToken(
+            wrappedUserKey1: "OLD_WRAPPED_USER_KEY_1",
+            wrappedUserKey2: "OLD_WRAPPED_USER_KEY_2",
+        )
+
+        try await subject.fetchSync(forceSync: false)
+
+        XCTAssertNil(stateService.v2UpgradeTokens["1"])
     }
 
     /// `fetchSync()` throws an error if the request fails.
@@ -1185,6 +1189,60 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             try await subject.fetchSync(forceSync: false)
         }
         XCTAssertNil(syncServiceDelegate.onFetchSyncSucceededCalledWithuserId)
+    }
+
+    /// `fetchSync()` emits on `syncCompletePublisher()` once the sync succeeds.
+    func test_fetchSync_syncCompletePublisher_emitsOnSuccess() async throws {
+        client.result = .httpSuccess(testData: .syncWithCiphers)
+        stateService.activeAccount = .fixture()
+
+        var didSubscribe = false
+        var didEmitAfterSync = false
+        let publisherTask = Task {
+            var iterator = subject.syncCompletePublisher().makeAsyncIterator()
+            _ = await iterator.next() // The subject's initial replayed value, proving subscription is live.
+            didSubscribe = true
+            _ = await iterator.next() // The emission fired at the end of a successful `fetchSync()`.
+            didEmitAfterSync = true
+        }
+        defer { publisherTask.cancel() }
+        try await waitForAsync { didSubscribe }
+
+        try await subject.fetchSync(forceSync: false)
+
+        try await waitForAsync { didEmitAfterSync }
+    }
+
+    /// `fetchSync()` does not emit on `syncCompletePublisher()` if the request fails.
+    func test_fetchSync_syncCompletePublisher_doesNotEmitOnError() async throws {
+        client.result = .httpFailure()
+        stateService.activeAccount = .fixture()
+
+        var didSubscribe = false
+        var didEmit = false
+        let publisherTask = Task {
+            var iterator = subject.syncCompletePublisher().makeAsyncIterator()
+            _ = await iterator.next() // The subject's initial replayed value, proving subscription is live.
+            didSubscribe = true
+            _ = await iterator.next() // Should never resolve, since the sync fails.
+            didEmit = true
+        }
+        defer { publisherTask.cancel() }
+        try await waitForAsync { didSubscribe }
+
+        await assertAsyncThrows {
+            try await subject.fetchSync(forceSync: false)
+        }
+
+        // `fetchSync()` has already thrown by this point, so any `syncCompleteSubject.send(())` call
+        // it would have made already happened synchronously, within that same call, before it
+        // returned — there's no real-time event left to wait out. Yielding gives the scheduler a
+        // chance to run `publisherTask` and observe an already-buffered value, if one incorrectly
+        // exists, without an arbitrary wall-clock delay.
+        for _ in 0 ..< 5 {
+            await Task.yield()
+        }
+        XCTAssertFalse(didEmit)
     }
 
     func test_deleteCipher() async throws {
@@ -1357,42 +1415,38 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertTrue(cipherService.hasPersonalCiphersCalled)
     }
 
-    // MARK: - policiesNew independent storage tests
+    // MARK: - policiesNew fallback tests
 
-    /// `fetchSync()` stores `policiesNew` via `replacePoliciesNew` and the (empty) legacy `policies`
-    /// via `replacePolicies` independently when only `policiesNew` is present.
-    func test_fetchSync_policiesNew_newOnlyStoredInNewStore() async throws {
+    /// `fetchSync()` replaces the user's policies with `policiesNew` when only `policiesNew` is present.
+    func test_fetchSync_policiesNew_newOnly() async throws {
         client.result = .httpSuccess(testData: .syncWithPoliciesNewOnly)
         stateService.activeAccount = .fixture()
 
         try await subject.fetchSync(forceSync: true)
 
-        XCTAssertTrue(policyService.replacePoliciesPolicies.isEmpty)
-        XCTAssertEqual(policyService.replacePoliciesNewPolicies.map(\.id), ["policy-new-1"])
+        XCTAssertEqual(policyService.replacePoliciesPolicies.map(\.id), ["policy-new-1"])
     }
 
-    /// `fetchSync()` stores `policiesNew` and `policies` each in their own store when both are present.
-    func test_fetchSync_policiesNew_newAndLegacyStoredIndependently() async throws {
+    /// `fetchSync()` replaces the user's policies with `policiesNew`, ignoring the legacy `policies`,
+    /// when both are present.
+    func test_fetchSync_policiesNew_newOverridesLegacyPolicies() async throws {
         client.result = .httpSuccess(testData: .syncWithNewAndLegacyFields)
         stateService.activeAccount = .fixture()
 
         try await subject.fetchSync(forceSync: true)
 
-        XCTAssertEqual(policyService.replacePoliciesPolicies.map(\.id), ["policy-legacy-1"])
-        XCTAssertEqual(policyService.replacePoliciesNewPolicies.map(\.id), ["policy-new-1"])
+        XCTAssertEqual(policyService.replacePoliciesPolicies.map(\.id), ["policy-new-1"])
     }
 
-    /// `fetchSync()` stores the legacy `policies` via `replacePolicies` and an empty list via
-    /// `replacePoliciesNew` when `policiesNew` is absent.
-    func test_fetchSync_policiesNew_absentStoresEmptyInNewStore() async throws {
+    /// `fetchSync()` replaces the user's policies with the legacy `policies` when `policiesNew` is absent.
+    func test_fetchSync_policiesNew_absentFallsBackToLegacyPolicies() async throws {
         client.result = .httpSuccess(testData: .syncWithPolicies)
         stateService.activeAccount = .fixture()
 
         try await subject.fetchSync(forceSync: true)
 
-        XCTAssertFalse(policyService.replacePoliciesPolicies.isEmpty)
         XCTAssertEqual(policyService.replacePoliciesPolicies.first?.id, "policy-0")
-        XCTAssertTrue(policyService.replacePoliciesNewPolicies.isEmpty)
+        XCTAssertEqual(policyService.replacePoliciesPolicies.count, 4)
     }
 
     // MARK: - organizationsNew fallback tests

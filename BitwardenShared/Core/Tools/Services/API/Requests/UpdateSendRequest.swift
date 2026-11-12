@@ -40,8 +40,9 @@ struct UpdateSendRequest: Request {
         guard let id = send.id else {
             throw BitwardenError.dataError("Received a send from the API with a missing ID.")
         }
-        requestModel = SendRequestModel(
+        requestModel = try SendRequestModel(
             authType: SendAuthType(authType: send.authType),
+            data: send.data.map(SendDataModel.init),
             deletionDate: send.deletionDate,
             disabled: send.disabled,
             emails: send.emails,

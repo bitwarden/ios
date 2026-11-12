@@ -240,7 +240,7 @@ extension APIService: CipherAPIService {
     }
 
     func downloadAttachmentData(from url: URL) async throws -> URL? {
-        try await apiUnauthenticatedService.download(from: URLRequest(url: url))
+        try await fileTransferService.download(from: URLRequest(url: url))
     }
 
     func getCipher(withId id: String) async throws -> CipherDetailsResponseModel {

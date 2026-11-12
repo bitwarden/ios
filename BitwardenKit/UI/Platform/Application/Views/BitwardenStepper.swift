@@ -50,7 +50,7 @@ public struct BitwardenStepper<Label: View, Footer: View>: View {
         // This width will change as the number of digits changes (e.g. "9" to "10"), but that's
         // better than it changing for each digit (e.g. "0" to "1").
         let zeroString = String(repeating: "0", count: value.numberOfDigits)
-        let font = FontFamily.DMSans.semiBold.font(size: StyleGuideFont.body.size)
+        let font = FontFamily.InterVariable.semiBold.font(size: StyleGuideFont.body.size)
         let traitCollection = UITraitCollection(
             preferredContentSizeCategory: UIContentSizeCategory(dynamicTypeSize),
         )

@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenSdk
 import XCTest
@@ -113,6 +114,7 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
             deletedDate: cipherView.deletedDate,
             revisionDate: cipherView.revisionDate,
             archivedDate: cipherView.archivedDate,
+            partial: false,
         )
 
         let state = withLicense.driversLicenseItemState()
@@ -474,8 +476,10 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertEqual(subject, comparison)
     }
 
-    /// Tests that the update succeeds with new properties.
+    /// Tests that the update succeeds with new properties and leaves the existing password history
+    /// (including its order) unchanged when no new history entries are added.
     func test_update_login_noEdits_succeeds() throws {
+        subject = CipherView.loginFixture(passwordHistory: passwordHistoryFixture())
         let editState = try XCTUnwrap(
             CipherItemState(
                 existing: subject,
@@ -538,13 +542,13 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         let comparison = subject.updatedView(with: cipherItemState)
         let newPasswordHistory = comparison.passwordHistory
 
-        XCTAssertEqual(newPasswordHistory?.last?.password, "Old password")
+        XCTAssertEqual(newPasswordHistory?.first?.password, "Old password")
 
         cipherItemState.loginState.password = "Extra newer password"
         let secondComparison = comparison.updatedView(with: cipherItemState)
         let newerPasswordHistory = secondComparison.passwordHistory
 
-        XCTAssertEqual(newerPasswordHistory?.last?.password, "New password")
+        XCTAssertEqual(newerPasswordHistory?.first?.password, "New password")
     }
 
     /// Tests that the update succeeds when a hidden field change modifies the password history.
@@ -564,7 +568,7 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         let comparison = subject.updatedView(with: cipherItemState)
         let newPasswordHistory = comparison.passwordHistory
 
-        XCTAssertEqual(newPasswordHistory?.last?.password, "Name: 1")
+        XCTAssertEqual(newPasswordHistory?.first?.password, "Name: 1")
 
         cipherItemState.customFieldsState.customFields = [
             CustomFieldState(fieldView: .fixture(value: "3")),
@@ -573,7 +577,7 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         let secondComparison = comparison.updatedView(with: cipherItemState)
         let newerPasswordHistory = secondComparison.passwordHistory
 
-        XCTAssertEqual(newerPasswordHistory?.last?.password, "Name: 2")
+        XCTAssertEqual(newerPasswordHistory?.first?.password, "Name: 2")
     }
 
     /// Tests that the update succeeds when a hidden field is deleted modifies the password history..
@@ -603,7 +607,7 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         let secondComparison = comparison.updatedView(with: cipherItemState)
         let newerPasswordHistory = secondComparison.passwordHistory
 
-        XCTAssertEqual(newerPasswordHistory?.last?.password, "NewField: 1")
+        XCTAssertEqual(newerPasswordHistory?.first?.password, "NewField: 1")
     }
 
     /// Tests a new hidden field doesn't update the password history.
@@ -625,6 +629,53 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         let newPasswordHistory = comparison.passwordHistory
 
         XCTAssertNil(newPasswordHistory)
+    }
+
+    /// `updatedView(with:timeProvider:)` prepends the previous password and drops the oldest entry
+    /// when a full newest-first password history is updated.
+    func test_updatedView_passwordHistory_fullNewestFirst_dropsOldest() {
+        subject = CipherView.loginFixture(
+            login: .fixture(password: "Old password"),
+            passwordHistory: passwordHistoryFixture().reversed(),
+        )
+        cipherItemState.loginState.password = "New password"
+
+        let comparison = subject.updatedView(with: cipherItemState, timeProvider: timeProvider)
+
+        XCTAssertEqual(comparison.passwordHistory?.map(\.password), ["Old password", "5", "4", "3", "2"])
+        XCTAssertEqual(comparison.passwordHistory?.first?.lastUsedDate, now)
+    }
+
+    /// `updatedView(with:timeProvider:)` normalizes a full oldest-first password history (previously
+    /// written by iOS) to newest-first and drops the oldest entry when the password changes.
+    func test_updatedView_passwordHistory_fullOldestFirst_normalizesAndDropsOldest() {
+        subject = CipherView.loginFixture(
+            login: .fixture(password: "Old password"),
+            passwordHistory: passwordHistoryFixture(),
+        )
+        cipherItemState.loginState.password = "New password"
+
+        let comparison = subject.updatedView(with: cipherItemState, timeProvider: timeProvider)
+
+        XCTAssertEqual(comparison.passwordHistory?.map(\.password), ["Old password", "5", "4", "3", "2"])
+    }
+
+    /// `updatedView(with:timeProvider:)` adds both the previous password and a changed hidden field
+    /// ahead of the existing history, with the password first, and caps the history.
+    func test_updatedView_passwordHistory_passwordAndHiddenField_capsHistory() {
+        subject = CipherView.loginFixture(
+            fields: [.fixture(name: "Name", value: "1")],
+            login: .fixture(password: "Old password"),
+            passwordHistory: passwordHistoryFixture().reversed(),
+        )
+        cipherItemState.loginState.password = "New password"
+        cipherItemState.customFieldsState.customFields = [
+            CustomFieldState(fieldView: .fixture(name: "Name", value: "2")),
+        ]
+
+        let comparison = subject.updatedView(with: cipherItemState, timeProvider: timeProvider)
+
+        XCTAssertEqual(comparison.passwordHistory?.map(\.password), ["Old password", "Name: 1", "5", "4", "3"])
     }
 
     /// Tests that the update succeeds with a new password updating the password revision date.
@@ -798,5 +849,15 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertNil(identity.state)
         XCTAssertNil(identity.postalCode)
         XCTAssertNil(identity.country)
+    }
+
+    // MARK: Private
+
+    /// Returns a full password history in oldest-first order, with passwords "1" (oldest) through
+    /// "5" (newest).
+    private func passwordHistoryFixture() -> [PasswordHistoryView] {
+        (1 ... Constants.maxCipherPasswordHistoryCount).map { index in
+            .fixture(password: "\(index)", lastUsedDate: Date(year: 2024, month: 1, day: index))
+        }
     }
 } // swiftlint:disable:this file_length

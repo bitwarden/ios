@@ -38,7 +38,7 @@ env:
 jobs:
   build:
     name: Build ${{ inputs.bw-env }}
-    runs-on: macos-26
+    runs-on: xcode-27-xlarge
     timeout-minutes: 60
     permissions:
       contents: read
@@ -53,7 +53,7 @@ jobs:
           inputs: "${{ toJson(inputs) }}"
 
       - name: Check out repo
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
@@ -71,12 +71,6 @@ jobs:
         with:
           xcode-version: ${{ env._XCODE_VERSION }}
 
-      - name: Install simulators for specific Xcode version
-        if: ${{ env._XCODE_VERSION == '26.0-beta' }}
-        run: |
-          xcodebuild -downloadPlatform iOS
-          xcodebuild -downloadPlatform watchOS
-
       - name: Configure Ruby
         uses: ruby/setup-ruby@12fd324f1d0b43274fdc8130f6980590a667c455 # v1.312.0
         with:
@@ -90,7 +84,7 @@ jobs:
 
       - name: Cache Mint packages
         id: mint-cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .mint
           key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}

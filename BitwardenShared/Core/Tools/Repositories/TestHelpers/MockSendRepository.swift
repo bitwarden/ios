@@ -11,8 +11,6 @@ class MockSendRepository: BitwardenShared.SendRepository {
 
     var doesActivateAccountHavePremiumResult: Bool = true
 
-    var doesActiveAccountHaveVerifiedEmailResult: Result<Bool, Error> = .success(true)
-
     var fetchSyncCalled = false
     var fetchSyncForceSync: Bool?
     var fetchSyncIsPeriodic: Bool?
@@ -23,6 +21,7 @@ class MockSendRepository: BitwardenShared.SendRepository {
     var searchSendType: BitwardenShared.SendType?
     var searchSendSubject = CurrentValueSubject<[SendListItem], Error>([])
 
+    var sendListPublisherIncludeTypesSection: Bool?
     var sendListSubject = CurrentValueSubject<[SendListSection], Error>([])
 
     var sendSubject = CurrentValueSubject<SendView?, Error>(nil)
@@ -81,10 +80,6 @@ class MockSendRepository: BitwardenShared.SendRepository {
         doesActivateAccountHavePremiumResult
     }
 
-    func doesActiveAccountHaveVerifiedEmail() async throws -> Bool {
-        try doesActiveAccountHaveVerifiedEmailResult.get()
-    }
-
     func fetchSync(forceSync: Bool, isPeriodic: Bool) async throws {
         fetchSyncCalled = true
         fetchSyncForceSync = forceSync
@@ -102,8 +97,11 @@ class MockSendRepository: BitwardenShared.SendRepository {
         return searchSendSubject.eraseToAnyPublisher().values
     }
 
-    func sendListPublisher() -> AsyncThrowingPublisher<AnyPublisher<[SendListSection], Error>> {
-        sendListSubject
+    func sendListPublisher(
+        includeTypesSection: Bool,
+    ) -> AsyncThrowingPublisher<AnyPublisher<[SendListSection], Error>> {
+        sendListPublisherIncludeTypesSection = includeTypesSection
+        return sendListSubject
             .eraseToAnyPublisher()
             .values
     }

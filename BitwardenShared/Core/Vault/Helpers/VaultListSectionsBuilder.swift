@@ -98,8 +98,6 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
     let clientService: ClientService
     /// The helper functions for collections.
     let collectionHelper: CollectionHelper
-    /// The service used by the application to determine feature flag state.
-    let configService: ConfigService
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
     /// Vault list data prepared to  be used by the builder.
@@ -115,7 +113,6 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
     /// - Parameters:
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - collectionHelper: The helper functions for collections.
-    ///   - configService: The service used by the application to determine feature flag state.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - preparedData: `VaultListPreparedData` to be used as input to build the sections where the caller
     ///   decides which to include depending on the builder methods called.
@@ -123,14 +120,12 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
     init(
         clientService: ClientService,
         collectionHelper: CollectionHelper,
-        configService: ConfigService,
         errorReporter: ErrorReporter,
         stateService: StateService,
         withData preparedData: VaultListPreparedData,
     ) {
         self.clientService = clientService
         self.collectionHelper = collectionHelper
-        self.configService = configService
         self.errorReporter = errorReporter
         self.preparedData = preparedData
         self.stateService = stateService
@@ -206,8 +201,6 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
             return self
         }
 
-        let isVfo1FoundationEnabled: Bool = await configService.getFeatureFlag(.vfo1Foundation)
-
         let collections = try await clientService.vault().collections()
             .decryptList(collections: preparedData.collections)
 
@@ -232,10 +225,9 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
             }
             return VaultListItem(
                 id: collectionId,
-                isVfo1FoundationFeatureFlagEnabled: isVfo1FoundationEnabled,
                 itemType: .group(
                     .collection(id: collectionId, name: collectionNode.name, organizationId: collection.organizationId),
-                    preparedData.collectionsCount[collectionId, default: 0],
+                    cipherCount(for: collectionNode, cipherIds: preparedData.collectionCipherIds),
                 ),
             )
         }
@@ -245,7 +237,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
                 VaultListSection(
                     id: "Collections",
                     items: collectionItems,
-                    name: isVfo1FoundationEnabled ? Localizations.sharedFolders : Localizations.collections,
+                    name: Localizations.sharedFolders,
                 ),
             )
         }
@@ -264,8 +256,6 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
     }
 
     func addFoldersSection(nestedFolderId: String? = nil) async throws -> VaultListSectionsBuilder {
-        let isVfo1FoundationEnabled: Bool = await configService.getFeatureFlag(.vfo1Foundation)
-
         let folderTree = try await clientService.vault().folders()
             .decryptList(folders: preparedData.folders)
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
@@ -298,7 +288,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
                 VaultListSection(
                     id: "Folders",
                     items: foldersVaultListItems,
-                    name: isVfo1FoundationEnabled ? Localizations.myFolders : Localizations.folders,
+                    name: Localizations.myFolders,
                 ),
             )
         }
@@ -329,7 +319,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
                 itemType: .group(.folder(
                     id: folderId,
                     name: folderNode.name,
-                ), preparedData.foldersCount[folderId, default: 0]),
+                ), cipherCount(for: folderNode, cipherIds: preparedData.folderCipherIds)),
             )
         }
     }
@@ -432,7 +422,8 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
             )
         }
 
-        if preparedData.isNewItemTypesEnabled {
+        let bankAccountCount = preparedData.countPerCipherType[.bankAccount, default: 0]
+        if preparedData.isNewItemTypesEnabled, bankAccountCount != 0 {
             types.append(newItemTypeRow(id: "Types.BankAccounts", group: .bankAccount, type: .bankAccount))
         }
 
@@ -474,6 +465,31 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
         defer { preparedData = VaultListPreparedData() }
         return vaultListData
     }
+
+    // MARK: Private
+
+    /// Returns the number of unique ciphers in a tree node and all of its descendant nodes at any
+    /// depth. A cipher that belongs to multiple nodes within the subtree is only counted once.
+    ///
+    /// - Parameters:
+    ///   - node: The tree node (e.g. collection or folder) to count the ciphers of.
+    ///   - cipherIds: A dictionary mapping node IDs to the IDs of the ciphers directly in each node.
+    /// - Returns: The number of unique ciphers in the node and its descendants.
+    ///
+    private func cipherCount<T>(for node: TreeNode<T>, cipherIds: [Uuid: Set<Uuid>]) -> Int {
+        func collectCipherIds(in node: TreeNode<T>, into result: inout Set<Uuid>) {
+            if let nodeId = node.node.id, let nodeCipherIds = cipherIds[nodeId] {
+                result.formUnion(nodeCipherIds)
+            }
+            for child in node.children {
+                collectCipherIds(in: child, into: &result)
+            }
+        }
+
+        var uniqueCipherIds = Set<Uuid>()
+        collectCipherIds(in: node, into: &uniqueCipherIds)
+        return uniqueCipherIds.count
+    }
 }
 
 // MARK: - VaultListPreparedData
@@ -493,8 +509,8 @@ struct VaultListPreparedData {
     /// The list of collections available to the user.
     var collections: [Collection] = []
 
-    /// A dictionary mapping collection IDs to the count of ciphers in each collection.
-    var collectionsCount: [Uuid: Int] = [:]
+    /// A dictionary mapping collection IDs to the IDs of the ciphers directly in each collection.
+    var collectionCipherIds: [Uuid: Set<Uuid>] = [:]
 
     /// A dictionary mapping cipher types to their counts in the vault.
     var countPerCipherType: [CipherType: Int] = [
@@ -520,8 +536,8 @@ struct VaultListPreparedData {
     /// The list of folders available to the user.
     var folders: [Folder] = []
 
-    /// A dictionary mapping folder IDs to the count of ciphers in each folder.
-    var foldersCount: [Uuid: Int] = [:]
+    /// A dictionary mapping folder IDs to the IDs of the ciphers directly in each folder.
+    var folderCipherIds: [Uuid: Set<Uuid>] = [:]
 
     /// Vault list items that partially match the search criteria.
     var fuzzyMatchItems: [VaultListItem] = []

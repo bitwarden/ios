@@ -2,7 +2,7 @@
 /// useful for decoding a boolean value which may not be present in the response.
 ///
 @propertyWrapper
-public struct DefaultFalse: Codable, Hashable {
+public struct DefaultFalse: Codable, Hashable, Sendable {
     // MARK: Properties
 
     /// The wrapped value.

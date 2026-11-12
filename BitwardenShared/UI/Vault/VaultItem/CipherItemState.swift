@@ -44,7 +44,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
 
     /// The icon to use for a collection the item belongs to.
     var collectionIcon: SharedImageAsset {
-        isVfo1FoundationFeatureFlagEnabled ? SharedAsset.Icons.sharedFolder16 : SharedAsset.Icons.collections16
+        SharedAsset.Icons.sharedFolder16
     }
 
     /// The list of collection IDs that the cipher is included in.
@@ -104,9 +104,6 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     /// Whether it's showing multiple collections or not.
     var isShowingMultipleCollections: Bool = false
 
-    /// Whether the `vfo1-foundation` feature flag is enabled.
-    var isVfo1FoundationFeatureFlagEnabled = false
-
     /// The state for a login type item.
     var loginState: LoginItemState
 
@@ -119,9 +116,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     /// The accessibility label describing the organization the cipher belongs to, if any.
     var organizationAccessibilityLabel: String? {
         guard let organizationName else { return nil }
-        return isVfo1FoundationFeatureFlagEnabled
-            ? Localizations.vaultX(organizationName)
-            : Localizations.ownerX(organizationName)
+        return Localizations.vaultX(organizationName)
     }
 
     /// The organization ID of the cipher, if the cipher is owned by an organization.
@@ -135,7 +130,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
 
     /// The title to display for the ownership field.
     var ownerFieldTitle: String {
-        isVfo1FoundationFeatureFlagEnabled ? Localizations.vault : Localizations.owner
+        Localizations.vault
     }
 
     /// The list of ownership options that can be selected for the cipher.
@@ -426,9 +421,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     /// - Parameter collectionName: The name of the collection.
     /// - Returns: The accessibility label.
     func collectionAccessibilityLabel(_ collectionName: String) -> String {
-        isVfo1FoundationFeatureFlagEnabled
-            ? Localizations.sharedFolderX(collectionName)
-            : Localizations.collectionX(collectionName)
+        Localizations.sharedFolderX(collectionName)
     }
 
     /// Toggles the password visibility for the specified custom field.
@@ -481,7 +474,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         }
 
         bankAccountItemState = cipherView.bankAccountItemState()
-        cardItemState = cipherView.cardItemState()
+        cardItemState = cipherView.cardItemState().preservingCardScannerState(from: cardItemState)
         driversLicenseItemState = cipherView.driversLicenseItemState()
         collectionIds = cipherView.collectionIds
         customFieldsState = AddEditCustomFieldsState(cipherType: type, customFields: cipherView.customFields)
@@ -509,7 +502,7 @@ extension CipherItemState: AddEditItemState {
     // MARK: Properties
 
     var folderTitle: String {
-        isVfo1FoundationFeatureFlagEnabled ? Localizations.myFolder : Localizations.folder
+        Localizations.myFolder
     }
 
     var navigationTitle: String {
@@ -598,9 +591,7 @@ extension CipherItemState: ViewVaultItemState {
 
     var folderAccessibilityLabel: String? {
         guard let folderName else { return nil }
-        return isVfo1FoundationFeatureFlagEnabled
-            ? Localizations.myFolderX(folderName)
-            : Localizations.folderX(folderName)
+        return Localizations.myFolderX(folderName)
     }
 
     var icon: SharedImageAsset {
@@ -650,9 +641,7 @@ extension CipherItemState: ViewVaultItemState {
     }
 
     var noFolderAccessibilityLabel: String {
-        isVfo1FoundationFeatureFlagEnabled
-            ? Localizations.myFolderX(Localizations.folderNone)
-            : Localizations.folderX(Localizations.folderNone)
+        Localizations.myFolderX(Localizations.folderNone)
     }
 
     var shouldDisplayFolder: Bool {
@@ -733,6 +722,7 @@ extension CipherItemState {
             deletedDate: nil,
             revisionDate: creationDate,
             archivedDate: nil,
+            partial: false,
         )
     }
 } // swiftlint:disable:this file_length

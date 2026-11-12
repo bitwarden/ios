@@ -9,11 +9,11 @@ struct VaultListItemRowState {
     /// The base url used to fetch icons.
     var iconBaseURL: URL?
 
+    /// Whether the active account has Premium, used to gate the Copy TOTP accessibility action.
+    var hasPremium: Bool = false
+
     /// Whether we are in an extension context.
     var isFromExtension: Bool = false
-
-    /// Whether the `vfo1-foundation` feature flag is enabled.
-    var isVfo1FoundationFeatureFlagEnabled = false
 
     /// The item displayed in this row.
     var item: VaultListItem

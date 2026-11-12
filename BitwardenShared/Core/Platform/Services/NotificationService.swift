@@ -393,7 +393,15 @@ class DefaultNotificationService: NotificationService { // swiftlint:disable:thi
             )
             UNUserNotificationCenter.current().setNotificationCategories([category])
             let request = UNNotificationRequest(identifier: data.id, content: content, trigger: nil)
-            try await UNUserNotificationCenter.current().add(request)
+            do {
+                try await UNUserNotificationCenter.current().add(request)
+            } catch {
+                // The banner is best-effort. On iOS 27+, `add(_:)` throws if notifications aren't
+                // authorized, but the login request should still be shown in the app.
+                await flightRecorder.log(
+                    "[Notification] Unable to add login request banner notification: \(error.localizedDescription)",
+                )
+            }
         }
 
         try await showOrSwitchForLoginRequest(id: data.id, loginSourceAccount: loginSourceAccount, showAlert: true)
@@ -403,10 +411,14 @@ class DefaultNotificationService: NotificationService { // swiftlint:disable:thi
     ///
     /// - Parameters:
     ///   - message: The content of the push notification.
-    ///   - notificationDismissed: `true` if a notification banner has been dismissed.
-    ///   - notificationTapped: `true` if a notification banner has been tapped.
+    ///   - notificationDismissed: `true` if a notification banner has been dismissed. `nil` if the
+    ///     notification is being presented rather than responded to.
+    ///   - notificationTapped: `true` if a notification banner has been tapped. `nil` if the
+    ///     notification is being presented rather than responded to.
     ///
-    /// - Returns: `true` if the message was able to be decoded as a response.
+    /// - Returns: `true` if the message was handled and requires no further processing. Locally
+    ///   created login request banners are always handled here, including when they are presented
+    ///   in the foreground, since they don't contain a push notification payload.
     ///
     private func handleLoginRequestResponse(
         _ message: [AnyHashable: Any],
@@ -423,14 +435,14 @@ class DefaultNotificationService: NotificationService { // swiftlint:disable:thi
                from: jsonData,
            ) {
             // Handle taps/dismissals of local notification banners created for silent auth request pushes.
-            if notificationDismissed == true {
-                await handleNotificationDismissed()
-                return true
-            }
             if notificationTapped == true {
                 await handleNotificationTapped(loginRequestData)
-                return true
+            } else if notificationDismissed != nil {
+                // The banner was dismissed or a non-default action (e.g. "Clear") was selected.
+                await handleNotificationDismissed()
             }
+            // Otherwise the banner is being presented in the foreground and there's nothing to do.
+            return true
         } else if notificationTapped == true {
             // Handle taps of alert push notifications (sent directly by the backend, enriched by the
             // notification service extension). These don't carry a `notificationData` key, so the

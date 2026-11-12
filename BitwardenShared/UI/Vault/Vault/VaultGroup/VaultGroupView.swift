@@ -44,6 +44,9 @@ struct VaultGroupView: View {
             .task {
                 await store.perform(.streamShowWebIcons)
             }
+            .task {
+                await store.perform(.streamSyncComplete)
+            }
             .toast(
                 store.binding(
                     get: \.toast,
@@ -165,15 +168,11 @@ struct VaultGroupView: View {
                     searchVaultFilterRow
 
                     ForEach(store.state.searchResults) { item in
-                        Button {
-                            store.send(.itemPressed(item))
-                        } label: {
-                            vaultItemRow(
-                                for: item,
-                                isLastInSection: store.state.searchResults.last == item,
-                            )
-                            .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
-                        }
+                        vaultItemRow(
+                            for: item,
+                            isLastInSection: store.state.searchResults.last == item,
+                        )
+                        .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
                     }
                 }
             }
@@ -225,11 +224,7 @@ struct VaultGroupView: View {
 
             ForEach(sections) { section in
                 VaultListSectionView(section: section) { item in
-                    Button {
-                        store.send(.itemPressed(item))
-                    } label: {
-                        vaultItemRow(for: item, isLastInSection: section.items.last == item)
-                    }
+                    vaultItemRow(for: item, isLastInSection: section.items.last == item)
                 }
             }
         }
@@ -250,7 +245,7 @@ struct VaultGroupView: View {
                 state: { state in
                     VaultListItemRowState(
                         iconBaseURL: state.iconBaseURL,
-                        isVfo1FoundationFeatureFlagEnabled: state.isVfo1FoundationFeatureFlagEnabled,
+                        hasPremium: state.hasPremium,
                         item: item,
                         hasDivider: !isLastInSection,
                         showWebIcons: state.showWebIcons,
@@ -264,8 +259,12 @@ struct VaultGroupView: View {
                 },
                 mapEffect: { effect in
                     switch effect {
+                    case let .accessibilityMoreOptionsActionPressed(kind):
+                        .accessibilityMoreOptionsActionPressed(item, kind)
                     case .morePressed:
                         .morePressed(item)
+                    case .pressed:
+                        .itemPressed(item)
                     }
                 },
             ),

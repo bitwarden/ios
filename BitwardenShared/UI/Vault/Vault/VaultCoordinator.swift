@@ -205,7 +205,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         case .addAccount:
             delegate?.didTapAddAccount()
         case .addFolder:
-            showAddFolder()
+            showAddFolder(delegate: context as? AddEditFolderDelegate)
         case let .addItem(group, newCipherOptions, organizationId, type):
             Task {
                 let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
@@ -269,13 +269,16 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             delegate?.switchToSettingsTab(route: .premiumPlan(nil))
         case .premiumUpgrade:
             showPremiumUpgrade()
+        case .premiumUpgradeComplete:
+            showPremiumUpgradeCompleteScreen()
         case let .vaultItemSelection(totpKeyModel):
             showVaultItemSelection(totpKeyModel: totpKeyModel)
-        case let .viewItem(id, masterPasswordRepromptCheckCompleted):
+        case let .viewItem(id, masterPasswordRepromptCheckCompleted, toastTitle):
             showViewItem(
                 cipherId: id,
                 delegate: context as? CipherItemOperationDelegate,
                 masterPasswordRepromptCheckCompleted: masterPasswordRepromptCheckCompleted,
+                toastTitle: toastTitle,
             )
         case let .switchAccount(userId: userId):
             delegate?.didTapAccount(userId: userId)
@@ -294,11 +297,14 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
 
     /// Shows the add folder screen.
     ///
-    private func showAddFolder() {
+    /// - Parameter delegate: A `AddEditFolderDelegate` that is notified when the user makes a
+    ///     change to folders.
+    ///
+    private func showAddFolder(delegate: AddEditFolderDelegate?) {
         let navigationController = module.makeNavigationController()
         let coordinator = module.makeAddEditFolderCoordinator(stackNavigator: navigationController)
         coordinator.start()
-        coordinator.navigate(to: .addEditFolder(folder: nil))
+        coordinator.navigate(to: .addEditFolder(folder: nil), context: delegate)
 
         stackNavigator?.present(navigationController)
     }
@@ -431,6 +437,15 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         stackNavigator?.present(navigationController)
     }
 
+    /// Shows a standalone Premium upgrade complete screen in a new modal.
+    ///
+    private func showPremiumUpgradeCompleteScreen() {
+        let navigationController = module.makeNavigationController()
+        let coordinator = module.makeBillingCoordinator(stackNavigator: navigationController)
+        coordinator.navigate(to: .premiumUpgradeCompleteStandalone)
+        stackNavigator?.present(navigationController)
+    }
+
     /// Shows the vault list screen.
     ///
     private func showList() {
@@ -510,13 +525,17 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
     ///     within the view.
     ///   - masterPasswordRepromptCheckCompleted: Whether the master password reprompt check has
     ///     already been completed.
+    ///   - toastTitle: A toast title to show once the view item screen is displayed, if any.
     ///
     private func showViewItem(
         cipherId: String,
         delegate: CipherItemOperationDelegate?,
         masterPasswordRepromptCheckCompleted: Bool,
+        toastTitle: String? = nil,
     ) {
-        let navigate = { self.showVaultItem(route: .viewItem(id: cipherId), delegate: delegate) }
+        let navigate = {
+            self.showVaultItem(route: .viewItem(id: cipherId, toastTitle: toastTitle), delegate: delegate)
+        }
 
         // If the master password reprompt check has already completed, skip reprompting again which
         // avoids an extra database fetch, otherwise check if reprompting is necessary.

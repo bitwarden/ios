@@ -136,13 +136,17 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `addCipher()` makes the add cipher API request and updates the vault.
     func test_addCipher() async throws {
         let cipher = CipherView.fixture()
-        try await subject.addCipher(cipher)
+        let addedCipherView = CipherView.fixture(id: "1")
+        clientCiphers.decryptClosure = { _ in addedCipherView }
+
+        let result = try await subject.addCipher(cipher)
 
         XCTAssertEqual(clientCiphers.encryptReceivedCipherView, cipher)
 
         XCTAssertEqual(cipherService.addCipherWithServerCiphers.last, Cipher(cipherView: cipher))
         XCTAssertNil(cipherService.addCipherWithServerEncryptedByKeyId)
         XCTAssertEqual(cipherService.addCipherWithServerEncryptedFor, "1")
+        XCTAssertEqual(result, addedCipherView)
     }
 
     /// `addCipher()` throws an error if encrypting the cipher fails.
@@ -656,7 +660,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_createAutofillListExcludedCredentialSection_throws() async throws {
         let cipher = CipherView.fixture()
         cipherService.fetchCipherResult = .success(.fixture(id: "1"))
-        clientService.mockPlatform.mockFido2.decryptFido2AutofillCredentialsThrowableError = BitwardenTestError.example
+        clientService.mockPlatform.mockFido2.getFido2AutofillCredentialsThrowableError = BitwardenTestError.example
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.createAutofillListExcludedCredentialSection(from: cipher)
@@ -796,7 +800,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(
             ownershipOptions,
             [
-                .personal(displayName: "user@bitwarden.com"),
+                .personal(displayName: Localizations.myVault),
                 .organization(id: "1", name: "Org1"),
                 .organization(id: "2", name: "Org2"),
             ],
@@ -830,28 +834,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `fetchCipherOwnershipOptions()` returns the ownership options containing the user's personal account.
     func test_fetchCipherOwnershipOptions_personal() async throws {
         stateService.activeAccount = .fixture()
-
-        let ownershipOptions = try await subject.fetchCipherOwnershipOptions(includePersonal: true)
-
-        XCTAssertEqual(ownershipOptions, [.personal(displayName: "user@bitwarden.com")])
-    }
-
-    /// `fetchCipherOwnershipOptions()` shows the account email for the personal option when the
-    /// `.vfo1Foundation` feature flag is disabled.
-    func test_fetchCipherOwnershipOptions_personal_vfo1FoundationDisabled() async throws {
-        stateService.activeAccount = .fixture()
-        configService.featureFlagsBool[.vfo1Foundation] = false
-
-        let ownershipOptions = try await subject.fetchCipherOwnershipOptions(includePersonal: true)
-
-        XCTAssertEqual(ownershipOptions, [.personal(displayName: "user@bitwarden.com")])
-    }
-
-    /// `fetchCipherOwnershipOptions()` shows "My vault" for the personal option when the
-    /// `.vfo1Foundation` feature flag is enabled.
-    func test_fetchCipherOwnershipOptions_personal_vfo1FoundationEnabled() async throws {
-        stateService.activeAccount = .fixture()
-        configService.featureFlagsBool[.vfo1Foundation] = true
 
         let ownershipOptions = try await subject.fetchCipherOwnershipOptions(includePersonal: true)
 
@@ -1046,7 +1028,9 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `getItemTypesUserCanCreate()` includes the gated `.bankAccount` and `.driversLicense` types
-    /// when the `.newItemTypes` feature flag is enabled.
+    /// when the `.newItemTypes` feature flag is enabled, returning item types in reverse of the order
+    /// they should appear in the add item menu, since the menu content is rendered in reverse so it
+    /// displays correctly when it opens upward from the floating action button.
     @MainActor
     func test_getItemTypesUserCanCreate_newItemTypesEnabled() async throws {
         stateService.activeAccount = .fixture()
@@ -1056,6 +1040,10 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let result = await subject.getItemTypesUserCanCreate()
         XCTAssertTrue(result.contains(.bankAccount))
         XCTAssertTrue(result.contains(.driversLicense))
+        XCTAssertEqual(
+            result,
+            [.secureNote, .passport, .driversLicense, .identity, .bankAccount, .card, .login],
+        )
     }
 
     /// `getItemTypesUserCanCreate()` excludes the gated `.bankAccount` and `.driversLicense` types
@@ -1968,7 +1956,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         expectedCredentialId: Data,
         cipherIdToReturnEmptyFido2Credentials: String? = nil,
     ) {
-        clientService.mockPlatform.mockFido2.decryptFido2AutofillCredentialsClosure = { cipherView in
+        clientService.mockPlatform.mockFido2.getFido2AutofillCredentialsClosure = { cipherView in
             guard let cipherId = cipherView.id,
                   cipherId != cipherIdToReturnEmptyFido2Credentials else {
                 return []

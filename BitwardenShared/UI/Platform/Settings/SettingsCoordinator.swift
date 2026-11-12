@@ -194,8 +194,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showExportVaultToFile()
         case let .flightRecorder(route):
             showFlightRecorder(route: route)
-        case let .folders(isVfo1FoundationFeatureFlagEnabled):
-            showFolders(isVfo1FoundationFeatureFlagEnabled: isVfo1FoundationFeatureFlagEnabled)
+        case .folders:
+            showFolders()
         case .importLogins:
             showImportLogins()
         case let .loginRequest(loginRequest):
@@ -210,6 +210,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showPremiumPlan(subscription: subscription)
         case .premiumUpgrade:
             showPremiumUpgrade()
+        case .premiumUpgradeComplete:
+            showPremiumUpgradeCompleteScreen()
         case let .selectLanguage(currentLanguage: currentLanguage):
             showSelectLanguage(currentLanguage: currentLanguage, delegate: context as? SelectLanguageDelegate)
         case let .settings(presentationMode):
@@ -419,19 +421,16 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
 
     /// Shows the folders screen.
     ///
-    /// - Parameter isVfo1FoundationFeatureFlagEnabled: Whether the `vfo1-foundation` feature flag is enabled.
-    ///
-    private func showFolders(isVfo1FoundationFeatureFlagEnabled: Bool) {
-        let state = FoldersState(isVfo1FoundationFeatureFlagEnabled: isVfo1FoundationFeatureFlagEnabled)
+    private func showFolders() {
         let processor = FoldersProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: state,
+            state: FoldersState(),
         )
         let view = FoldersView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never
-        stackNavigator?.push(viewController, navigationTitle: state.navigationTitle)
+        stackNavigator?.push(viewController, navigationTitle: Localizations.myFolders)
     }
 
     /// Shows the import login items screen.
@@ -516,6 +515,18 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         guard let stackNavigator else { return }
         let coordinator = module.makeBillingCoordinator(stackNavigator: stackNavigator)
         coordinator.navigate(to: .premiumUpgrade)
+    }
+
+    /// Shows a standalone Premium upgrade complete screen in a new modal.
+    ///
+    private func showPremiumUpgradeCompleteScreen() {
+        // The pushed `PremiumUpgradeView` is still on top of this stack. Pop it so closing the
+        // celebration returns to Settings rather than a stale upgrade screen.
+        stackNavigator?.pop(animated: false)
+        let navigationController = module.makeNavigationController()
+        let coordinator = module.makeBillingCoordinator(stackNavigator: navigationController)
+        coordinator.navigate(to: .premiumUpgradeCompleteStandalone)
+        stackNavigator?.present(navigationController)
     }
 
     /// Shows the select language screen.
