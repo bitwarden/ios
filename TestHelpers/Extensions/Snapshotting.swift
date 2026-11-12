@@ -6,26 +6,33 @@ import SwiftUI
 /// Returns whether the tests are running in a host application that has a key window.
 ///
 /// Rendering from the key window (`drawHierarchyInKeyWindow`) requires a host application. Test
-/// targets without one, such as `BitwardenKitSnapshotTests`, use layer rendering instead.
+/// targets without one use layer rendering instead.
 ///
 /// - Returns: `true` if a host application with a key window is available.
 ///
 @usableFromInline
 func isRunningInHostWithKeyWindow() -> Bool {
-    MainActor.assumeIsolated {
-        // `UIApplication.shared` isn't available without a host application, so look it up
-        // dynamically, the same way swift-snapshot-testing does.
-        let selector = NSSelectorFromString("sharedApplication")
-        guard UIApplication.responds(to: selector),
-              let application = UIApplication.perform(selector)?.takeUnretainedValue() as? UIApplication
-        else {
-            return false
-        }
-        return application.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .flatMap(\.windows)
-            .contains { $0.isKeyWindow }
+    MainActor.assumeIsolated { keyWindowForSnapshots() != nil }
+}
+
+/// Returns the host application's key window, if the tests are running in a host application.
+///
+/// - Returns: The key window, or `nil` if there's no host application or key window.
+///
+@MainActor
+func keyWindowForSnapshots() -> UIWindow? {
+    // `UIApplication.shared` isn't available without a host application, so look it up
+    // dynamically, the same way swift-snapshot-testing does.
+    let selector = NSSelectorFromString("sharedApplication")
+    guard UIApplication.responds(to: selector),
+          let application = UIApplication.perform(selector)?.takeUnretainedValue() as? UIApplication
+    else {
+        return nil
     }
+    return application.connectedScenes
+        .compactMap { $0 as? UIWindowScene }
+        .flatMap(\.windows)
+        .first { $0.isKeyWindow }
 }
 
 public extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
@@ -254,6 +261,9 @@ public extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
     /// Animations don't progress while a snapshot is taken from the key window, so a view that animates
     /// in (for example, by fading in from `onAppear`) would otherwise be captured in its starting state.
     ///
+    /// Snapshots taller than the key-window capture limit are captured in tiles and combined into
+    /// one image.
+    ///
     private static func imageWithoutAnimations(
         drawHierarchyInKeyWindow: Bool = false,
         precision: Float = 1,
@@ -261,14 +271,25 @@ public extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
         layout: SwiftUISnapshotLayout = .sizeThatFits,
         traits: UITraitCollection = .init(),
     ) -> Snapshotting {
-        Snapshotting<AnyView, UIImage>.image(
-            drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
-            precision: precision,
-            perceptualPrecision: perceptualPrecision,
-            layout: layout,
-            traits: traits,
-        )
-        .pullback { view in
+        let strategy: Snapshotting<AnyView, UIImage> = if drawHierarchyInKeyWindow,
+                                                          case let .device(config) = layout,
+                                                          exceedsKeyWindowCaptureLimit(config) {
+            .tiledKeyWindowImage(
+                precision: precision,
+                perceptualPrecision: perceptualPrecision,
+                config: config,
+                traits: traits,
+            )
+        } else {
+            .image(
+                drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
+                precision: precision,
+                perceptualPrecision: perceptualPrecision,
+                layout: layout,
+                traits: traits,
+            )
+        }
+        return strategy.pullback { view in
             AnyView(
                 view.transaction { transaction in
                     // Remove explicit animations (`withAnimation`) and stop implicit animations
