@@ -38,6 +38,14 @@ public struct DebugMenuView: View {
                 Text("Fill Assist")
             }
 
+            Section {
+                accountSetupOnboardingSection
+            } header: {
+                Text("Account setup onboarding")
+            } footer: {
+                Text("Lock and unlock, or log in again, to see onboarding. Steps for what's already on are skipped.")
+            }
+
             userIDSection
 
             Section {
@@ -126,6 +134,17 @@ public struct DebugMenuView: View {
             Text(Localizations.clearMasterPasswordUnlock)
         }
         .accessibilityIdentifier("ClearMasterPasswordUnlockButton")
+    }
+
+    /// The section for marking account setup onboarding as pending for the active account, so
+    /// onboarding is evaluated again the next time the user unlocks or logs in.
+    private var accountSetupOnboardingSection: some View {
+        AsyncButton {
+            await store.perform(.markAccountSetupOnboardingPending)
+        } label: {
+            Text("Show account setup onboarding again")
+        }
+        .accessibilityIdentifier("ShowAccountSetupOnboardingAgainButton")
     }
 
     /// The section for adding a Fill Assist debug rule and clearing the cached rules, to support

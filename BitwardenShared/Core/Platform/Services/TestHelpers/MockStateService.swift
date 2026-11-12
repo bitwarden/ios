@@ -92,6 +92,10 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
     var lastUserShouldConnectToWatch = false
     var manuallyLockedAccounts = [String: Bool]()
+    // swiftlint:disable:next identifier_name
+    var markAccountSetupOnboardingPendingForActiveAccountCalled = false
+    // swiftlint:disable:next identifier_name
+    var markAccountSetupOnboardingPendingForActiveAccountResult: Result<Void, Error> = .success(())
     var masterPasswordHashes = [String: String]()
     var masterPasswordUnlockByUserId = [String: MasterPasswordUnlockResponseModel]()
     var notificationsLastRegistrationDates = [String: Date]()
@@ -539,6 +543,11 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         let userId = try unwrapUserId(userId)
         accountsLoggedOut.append(userId)
         logoutAccountUserInitiated = userInitiated
+    }
+
+    func markAccountSetupOnboardingPendingForActiveAccount() async throws {
+        markAccountSetupOnboardingPendingForActiveAccountCalled = true
+        try markAccountSetupOnboardingPendingForActiveAccountResult.get()
     }
 
     func pinProtectedUserKey(userId: String?) async throws -> String? {
