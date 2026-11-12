@@ -27,6 +27,7 @@ schemes:
     build:
       targets:
         BitwardenKit: all
+        BitwardenKitTestHost: [test]
         BitwardenKitTests: [test]
         BitwardenKitSnapshotTests: [test]
         BitwardenKitViewInspectorTests: [test]
@@ -190,6 +191,8 @@ targets:
     settings:
       base:
         INFOPLIST_FILE: BitwardenKit/Application/TestHelpers/Support/Info.plist
+        # Snapshots are rendered from the host app's key window.
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/BitwardenKitTestHost.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/BitwardenKitTestHost"
     templates:
       - SnapshotTestTarget
     templateAttributes:
@@ -197,10 +200,30 @@ targets:
     dependencies:
       - target: AuthenticatorBridgeKitMocks
       - target: BitwardenKit
+      - target: BitwardenKitTestHost
       - target: BitwardenKitMocks
       - target: TestHelpers
       - package: SnapshotTesting
     randomExecutionOrder: true
+  BitwardenKitTestHost:
+    # A minimal app that hosts BitwardenKitSnapshotTests, so snapshots can be rendered from a key window.
+    type: application
+    platform: iOS
+    configFiles:
+      Debug: Configs/BitwardenKit-Debug.xcconfig
+      Release: Configs/BitwardenKit-Release.xcconfig
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: >-
+          UIInterfaceOrientationPortrait
+          UIInterfaceOrientationLandscapeLeft
+          UIInterfaceOrientationLandscapeRight
+        PRODUCT_BUNDLE_IDENTIFIER: $(ORGANIZATION_IDENTIFIER).bitwarden-kit-test-host
+    sources:
+      - path: BitwardenKitTestHost
   BitwardenKitViewInspectorTests:
     type: bundle.unit-test
     platform: iOS
