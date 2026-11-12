@@ -880,6 +880,8 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.receive(.textFieldFocusChanged(keyPath: nil))
         waitFor { subject.state.generatedValue == "USERNAME" }
 
+        // Showing or hiding the API key is display-only and doesn't discard the alias.
+        subject.state.usernameState.isAPIKeyVisible.toggle()
         subject.state.generatedValue = "OTHER"
         Task { await subject.perform(.appeared) }
         waitFor { subject.state.generatedValue == "USERNAME" }

@@ -438,18 +438,31 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     func setGeneratedValue(_ value: String, shouldSavePassword: Bool = true) async throws {
         state.generatedValue = value
         if isForwardedEmailUsernameGenerator {
-            lastForwardedEmailAlias = (value, state.usernameState)
+            lastForwardedEmailAlias = (value, aliasOptions(state.usernameState))
         }
         if state.generatorType != .username, shouldSavePassword {
             try await saveGeneratedValue(value)
         }
     }
 
+    /// Returns the username options that a forwarded email alias depends on, ignoring display-only
+    /// state such as whether the API key is visible.
+    ///
+    /// - Parameter usernameState: The current username state.
+    /// - Returns: The username state with display-only values reset.
+    ///
+    private func aliasOptions(_ usernameState: GeneratorState.UsernameState) -> GeneratorState.UsernameState {
+        var options = usernameState
+        options.isAPIKeyVisible = false
+        return options
+    }
+
     /// Shows the last generated forwarded email alias if it was generated with the current username
     /// options, otherwise shows the placeholder, without generating a new alias.
     ///
     private func showLastForwardedEmailAliasOrPlaceholder() {
-        if let lastForwardedEmailAlias, lastForwardedEmailAlias.usernameState == state.usernameState {
+        if let lastForwardedEmailAlias,
+           lastForwardedEmailAlias.usernameState == aliasOptions(state.usernameState) {
             state.generatedValue = lastForwardedEmailAlias.value
         } else {
             state.generatedValue = Constants.defaultGeneratedUsername
