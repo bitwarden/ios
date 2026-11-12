@@ -37,7 +37,7 @@ class AddEditBankAccountItemViewTests: BitwardenTestCase {
 
     /// The empty add/edit bank account view renders correctly.
     @MainActor
-    func disabletest_snapshot_empty() {
+    func test_snapshot_empty() {
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 1.75)],
@@ -46,7 +46,7 @@ class AddEditBankAccountItemViewTests: BitwardenTestCase {
 
     /// The populated add/edit bank account view renders correctly, with the reveal fields hidden.
     @MainActor
-    func disabletest_snapshot_populated() {
+    func test_snapshot_populated() {
         processor.state = populatedState()
         assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
     }
@@ -54,7 +54,7 @@ class AddEditBankAccountItemViewTests: BitwardenTestCase {
     /// The populated add/edit bank account view renders correctly with the account number, PIN, and
     /// IBAN revealed.
     @MainActor
-    func disabletest_snapshot_revealFieldsVisible() {
+    func test_snapshot_revealFieldsVisible() {
         var state = populatedState()
         state.isAccountNumberVisible = true
         state.isPinVisible = true

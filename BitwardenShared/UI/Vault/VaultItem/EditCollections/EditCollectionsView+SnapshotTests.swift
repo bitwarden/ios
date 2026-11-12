@@ -35,7 +35,7 @@ class EditCollectionsViewTests: BitwardenTestCase {
 
     /// The edit collections view renders correctly.
     @MainActor
-    func disabletest_snapshot_editCollections() {
+    func test_snapshot_editCollections() {
         processor.state.collections = [
             .fixture(id: "1", name: "Design", organizationId: "1"),
             .fixture(id: "2", name: "Engineering", organizationId: "1"),

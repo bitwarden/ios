@@ -36,19 +36,51 @@ class TutorialViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// Test a snapshot of the ItemListView previews.
-    func disabletest_snapshot_TutorialView_previews() {
-        for preview in TutorialView_Previews._allPreviews {
-            assertSnapshots(
-                of: preview.content,
-                as: [
-                    .defaultPortrait,
-                    .defaultPortraitDark,
-                    .defaultLandscape,
-                    .defaultPortraitAX5,
-                    .defaultLandscapeAX5,
-                ],
-            )
-        }
+    /// Test a snapshot of the intro page.
+    @MainActor
+    func test_snapshot_intro() {
+        processor.state.page = .intro
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [
+                .defaultPortrait,
+                .defaultPortraitDark,
+                .defaultLandscape,
+                .defaultPortraitAX5,
+                .defaultLandscapeAX5,
+            ],
+        )
+    }
+
+    /// Test a snapshot of the QR scanner page.
+    @MainActor
+    func test_snapshot_qrScanner() {
+        processor.state.page = .qrScanner
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [
+                .defaultPortrait,
+                .defaultPortraitDark,
+                .defaultLandscape,
+                .defaultPortraitAX5,
+                .defaultLandscapeAX5,
+            ],
+        )
+    }
+
+    /// Test a snapshot of the unique codes page.
+    @MainActor
+    func test_snapshot_uniqueCodes() {
+        processor.state.page = .uniqueCodes
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [
+                .defaultPortrait,
+                .defaultPortraitDark,
+                .defaultLandscape,
+                .defaultPortraitAX5,
+                .defaultLandscapeAX5,
+            ],
+        )
     }
 }

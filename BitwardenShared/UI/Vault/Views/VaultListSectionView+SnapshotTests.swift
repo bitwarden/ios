@@ -20,7 +20,7 @@ class VaultListSectionViewTests: BitwardenTestCase {
 
     /// The expandable section renders correctly when expanded.
     @MainActor
-    func disabletest_snapshot_expanded() {
+    func test_snapshot_expanded() {
         let subject = VaultListSectionView(section: section, isExpanded: .constant(true)) { item in
             Text(item.id)
         }
@@ -32,7 +32,7 @@ class VaultListSectionViewTests: BitwardenTestCase {
 
     /// The expandable section renders correctly when collapsed.
     @MainActor
-    func disabletest_snapshot_collapsed() {
+    func test_snapshot_collapsed() {
         let subject = VaultListSectionView(section: section, isExpanded: .constant(false)) { item in
             Text(item.id)
         }

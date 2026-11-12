@@ -36,7 +36,7 @@ class ExportCXFViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Test a snapshot on start status.
-    func disabletest_snapshot_start() {
+    func test_snapshot_start() {
         assertSnapshots(
             of: subject,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
@@ -45,7 +45,7 @@ class ExportCXFViewTests: BitwardenTestCase {
 
     /// Test a snapshot on prepared status.
     @MainActor
-    func disabletest_snapshot_prepared() {
+    func test_snapshot_prepared() {
         processor.state.status = .prepared(itemsToExport: [
             CXFCredentialsResult(count: 10, type: .password),
             CXFCredentialsResult(count: 90, type: .passkey),
@@ -59,7 +59,7 @@ class ExportCXFViewTests: BitwardenTestCase {
 
     /// Test a snapshot on failure status.
     @MainActor
-    func disabletest_snapshot_failure() {
+    func test_snapshot_failure() {
         processor.state.status = .failure(message: "Something went wrong")
         assertSnapshots(
             of: subject,
@@ -69,7 +69,7 @@ class ExportCXFViewTests: BitwardenTestCase {
 
     /// Test a snapshot on failure status but when feature unavailable.
     @MainActor
-    func disabletest_snapshot_failureFeatureUnavailable() {
+    func test_snapshot_failureFeatureUnavailable() {
         processor.state.isFeatureUnavailable = true
         assertSnapshots(
             of: subject,

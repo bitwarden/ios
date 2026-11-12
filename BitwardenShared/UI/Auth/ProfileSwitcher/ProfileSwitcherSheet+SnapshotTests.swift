@@ -44,12 +44,12 @@ class ProfileSwitcherSheetTests: BitwardenTestCase {
     // NB: There's not really a good way, it seems, to capture a view hierarchy when it's presenting a sheet.
     // cf. https://github.com/pointfreeco/swift-snapshot-testing/discussions/956
 
-    func disabletest_snapshot_singleAccount() {
+    func test_snapshot_singleAccount() {
         assertSnapshot(of: NavigationView { subject }, as: .defaultPortrait)
     }
 
     @MainActor
-    func disabletest_snapshot_multiAccount_unlocked_belowMaximum() {
+    func test_snapshot_multiAccount_unlocked_belowMaximum() {
         processor.state = ProfileSwitcherState(
             accounts: [
                 ProfileSwitcherItem.anneAccount,
@@ -80,19 +80,19 @@ class ProfileSwitcherSheetTests: BitwardenTestCase {
     }
 
     @MainActor
-    func disabletest_snapshot_multiAccount_unlocked_atMaximum() {
+    func test_snapshot_multiAccount_unlocked_atMaximum() {
         processor.state = ProfileSwitcherState.maximumAccounts
         assertSnapshot(of: NavigationView { subject }, as: .defaultPortrait)
     }
 
     @MainActor
-    func disabletest_snapshot_multiAccount_unlocked_atMaximum_largeText() {
+    func test_snapshot_multiAccount_unlocked_atMaximum_largeText() {
         processor.state = ProfileSwitcherState.maximumAccounts
         assertSnapshot(of: NavigationView { subject }, as: .defaultPortraitAX5)
     }
 
     @MainActor
-    func disabletest_snapshot_multiAccount_locked_belowMaximum() {
+    func test_snapshot_multiAccount_locked_belowMaximum() {
         processor.state = ProfileSwitcherState(
             accounts: [
                 ProfileSwitcherItem.fixture(
@@ -123,7 +123,7 @@ class ProfileSwitcherSheetTests: BitwardenTestCase {
     }
 
     @MainActor
-    func disabletest_snapshot_multiAccount_locked_atMaximum() {
+    func test_snapshot_multiAccount_locked_atMaximum() {
         processor.state = ProfileSwitcherState(
             accounts: [
                 ProfileSwitcherItem.fixture(

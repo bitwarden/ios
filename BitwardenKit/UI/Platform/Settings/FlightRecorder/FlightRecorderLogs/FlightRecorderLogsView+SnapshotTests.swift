@@ -37,7 +37,7 @@ class FlightRecorderLogsViewTests: BitwardenTestCase {
 
     /// The empty flight recorder logs view renders correctly.
     @MainActor
-    func disabletest_snapshot_flightRecorderLogs_empty() {
+    func test_snapshot_flightRecorderLogs_empty() {
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
@@ -46,7 +46,7 @@ class FlightRecorderLogsViewTests: BitwardenTestCase {
 
     /// The populated flight recorder logs view renders correctly.
     @MainActor
-    func disabletest_snapshot_flightRecorderLogs_populated() {
+    func test_snapshot_flightRecorderLogs_populated() {
         processor.state.logs = [
             FlightRecorderLogMetadata(
                 duration: .eightHours,

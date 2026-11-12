@@ -35,27 +35,27 @@ class LandingViewTests: BitwardenTestCase {
 
     /// Check the snapshot for the empty state.
     @MainActor
-    func disabletest_snapshot_empty() {
+    func test_snapshot_empty() {
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
     /// Check the snapshot when the email text field has a value.
     @MainActor
-    func disabletest_snapshot_email_value() {
+    func test_snapshot_email_value() {
         processor.state.email = "email@example.com"
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
     /// Check the snapshot when the remember me toggle is on.
     @MainActor
-    func disabletest_snapshot_isRememberMeOn_true() {
+    func test_snapshot_isRememberMeOn_true() {
         processor.state.isRememberMeOn = true
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
     /// Check the snapshot for the profiles visible
     @MainActor
-    func disabletest_snapshot_profilesVisible() {
+    func test_snapshot_profilesVisible() {
         let account = ProfileSwitcherItem.fixture(
             email: "extra.warden@bitwarden.com",
             userInitials: "EW",
@@ -73,14 +73,14 @@ class LandingViewTests: BitwardenTestCase {
 
     /// Check the snapshot when user registration is disabled (create account button hidden).
     @MainActor
-    func disabletest_snapshot_createAccountHidden() {
+    func test_snapshot_createAccountHidden() {
         processor.state.isCreateAccountButtonHidden = true
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
     /// Check the snapshot for the profiles closed
     @MainActor
-    func disabletest_snapshot_profilesClosed() {
+    func test_snapshot_profilesClosed() {
         let account = ProfileSwitcherItem.fixture(
             email: "extra.warden@bitwarden.com",
             userInitials: "EW",

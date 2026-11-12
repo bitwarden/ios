@@ -40,12 +40,12 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
 
     // MARK: Snapshots
 
-    func disabletest_snapshot_singleAccount() {
+    func test_snapshot_singleAccount() {
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
-    func disabletest_snapshot_multiAccount_unlocked_belowMaximum() {
+    func test_snapshot_multiAccount_unlocked_belowMaximum() {
         processor.state = ProfileSwitcherState(
             accounts: [
                 ProfileSwitcherItem.anneAccount,
@@ -76,19 +76,19 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
     }
 
     @MainActor
-    func disabletest_snapshot_multiAccount_unlocked_atMaximum() {
+    func test_snapshot_multiAccount_unlocked_atMaximum() {
         processor.state = ProfileSwitcherState.maximumAccounts
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
-    func disabletest_snapshot_multiAccount_unlocked_atMaximum_largeText() {
+    func test_snapshot_multiAccount_unlocked_atMaximum_largeText() {
         processor.state = ProfileSwitcherState.maximumAccounts
         assertSnapshot(of: subject, as: .defaultPortraitAX5)
     }
 
     @MainActor
-    func disabletest_snapshot_multiAccount_locked_belowMaximum() {
+    func test_snapshot_multiAccount_locked_belowMaximum() {
         processor.state = ProfileSwitcherState(
             accounts: [
                 ProfileSwitcherItem.fixture(
@@ -119,7 +119,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
     }
 
     @MainActor
-    func disabletest_snapshot_multiAccount_locked_atMaximum() {
+    func test_snapshot_multiAccount_locked_atMaximum() {
         processor.state = ProfileSwitcherState(
             accounts: [
                 ProfileSwitcherItem.fixture(
@@ -155,13 +155,17 @@ class ProfileSwitcherViewTests: BitwardenTestCase {
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
-    /// Test a snapshot of the ProfileSwitcherView previews.
-    func disabletest_snapshot_profileSwitcherView_previews() {
-        for preview in ProfileSwitcherView_Previews._allPreviews {
-            assertSnapshots(
-                of: preview.content,
-                as: [.defaultPortrait],
-            )
-        }
+    /// Test a snapshot of the ProfileSwitcherView with two accounts.
+    @MainActor
+    func test_snapshot_dualAccounts() {
+        processor.state = .dualAccounts
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    /// Test a snapshot of the ProfileSwitcherView with fewer than the maximum number of accounts.
+    @MainActor
+    func test_snapshot_subMaximumAccounts() {
+        processor.state = .subMaximumAccounts
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 }

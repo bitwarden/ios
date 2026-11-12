@@ -34,7 +34,7 @@ class SingleSignOnViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// Tests the view renders correctly when the text field is empty.
-    func disabletest_snapshot_empty() {
+    func test_snapshot_empty() {
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
@@ -43,7 +43,7 @@ class SingleSignOnViewTests: BitwardenTestCase {
 
     /// Tests the view renders correctly when the text field is populated.
     @MainActor
-    func disabletest_snapshot_populated() {
+    func test_snapshot_populated() {
         processor.state.identifierText = "Insert cool identifier here"
         assertSnapshots(
             of: subject.navStackWrapped,

@@ -51,7 +51,7 @@ class FlightRecorderSettingsSectionViewSnapshotTests: BitwardenTestCase {
 
     /// The flight recorder settings section view renders correctly when disabled.
     @MainActor
-    func disabletest_snapshot_flightRecorderSettingsSection_disabled() {
+    func test_snapshot_flightRecorderSettingsSection_disabled() {
         assertSnapshots(
             of: snapshotView,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
@@ -60,7 +60,7 @@ class FlightRecorderSettingsSectionViewSnapshotTests: BitwardenTestCase {
 
     /// The flight recorder settings section view renders correctly when enabled.
     @MainActor
-    func disabletest_snapshot_flightRecorderSettingsSection_enabled() {
+    func test_snapshot_flightRecorderSettingsSection_enabled() {
         processor.state.activeLog = FlightRecorderData.LogMetadata(
             duration: .eightHours,
             startDate: Date(year: 2025, month: 5, day: 1, hour: 8),

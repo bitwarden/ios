@@ -1,5 +1,8 @@
 // swiftlint:disable:this file_name
+import BitwardenKit
+import BitwardenResources
 import SnapshotTesting
+import SwiftUI
 import XCTest
 
 @testable import BitwardenShared
@@ -9,9 +12,10 @@ class ViewCardItemViewTests: BitwardenTestCase {
 
     /// Test preview snapshots of the empty state `ViewCardItemView`.
     ///
-    func disabletest_snapshot_viewCardItemView_empty() {
+    @MainActor
+    func test_snapshot_viewCardItemView_empty() {
         assertSnapshots(
-            of: ViewCardItemView_Previews.emptyPreview,
+            of: makeView(state: CardItemState()),
             as: [
                 .defaultPortrait,
             ],
@@ -20,9 +24,10 @@ class ViewCardItemViewTests: BitwardenTestCase {
 
     /// Test preview snapshots of the full visibility state `ViewCardItemView`.
     ///
-    func disabletest_snapshot_viewCardItemView_full() {
+    @MainActor
+    func test_snapshot_viewCardItemView_full() {
         assertSnapshots(
-            of: ViewCardItemView_Previews.fullPreview,
+            of: makeView(state: populatedState(isVisible: true)),
             as: [
                 .defaultPortrait,
             ],
@@ -31,9 +36,10 @@ class ViewCardItemViewTests: BitwardenTestCase {
 
     /// Test preview snapshots of the full visibility state `ViewCardItemView` in dark mode.
     ///
-    func disabletest_snapshot_viewCardItemView_full_dark() {
+    @MainActor
+    func test_snapshot_viewCardItemView_full_dark() {
         assertSnapshots(
-            of: ViewCardItemView_Previews.fullPreview,
+            of: makeView(state: populatedState(isVisible: true)),
             as: [
                 .defaultPortraitDark,
             ],
@@ -42,9 +48,10 @@ class ViewCardItemViewTests: BitwardenTestCase {
 
     /// Test preview snapshots of the `ViewCardItemView` with a large font.
     ///
-    func disabletest_snapshot_viewCardItemView_full_largeFont() {
+    @MainActor
+    func test_snapshot_viewCardItemView_full_largeFont() {
         assertSnapshots(
-            of: ViewCardItemView_Previews.fullPreview,
+            of: makeView(state: populatedState(isVisible: true)),
             as: [
                 .tallPortraitAX5(heightMultiple: 1.75),
             ],
@@ -53,9 +60,10 @@ class ViewCardItemViewTests: BitwardenTestCase {
 
     /// Test preview snapshots of the `ViewCardItemView` with a hidden number & code.
     ///
-    func disabletest_snapshot_viewCardItemView_hiddenCode() {
+    @MainActor
+    func test_snapshot_viewCardItemView_hiddenCode() {
         assertSnapshots(
-            of: ViewCardItemView_Previews.hiddenCodePreview,
+            of: makeView(state: populatedState(isVisible: false)),
             as: [
                 .defaultPortrait,
             ],
@@ -64,9 +72,10 @@ class ViewCardItemViewTests: BitwardenTestCase {
 
     /// Test preview snapshots of the `ViewCardItemView` with no expiration data.
     ///
-    func disabletest_snapshot_viewCardItemView_noExpirationState() {
+    @MainActor
+    func test_snapshot_viewCardItemView_noExpirationState() {
         assertSnapshots(
-            of: ViewCardItemView_Previews.noExpiration,
+            of: makeView(state: populatedState(expirationMonth: .default, expirationYear: "")),
             as: [
                 .defaultPortrait,
             ],
@@ -75,12 +84,52 @@ class ViewCardItemViewTests: BitwardenTestCase {
 
     /// Test preview snapshots of the `ViewCardItemView` with partial expiration data.
     ///
-    func disabletest_snapshot_viewCardItemView_partialExpirationState() {
+    @MainActor
+    func test_snapshot_viewCardItemView_partialExpirationState() {
         assertSnapshots(
-            of: ViewCardItemView_Previews.yearOnlyExpiration,
+            of: makeView(state: populatedState(expirationMonth: .default)),
             as: [
                 .defaultPortrait,
             ],
         )
+    }
+
+    // MARK: Private
+
+    /// Returns the view for the given state, wrapped in a scrolling navigation view.
+    @MainActor
+    private func makeView(state: CardItemState) -> some View {
+        NavigationView {
+            ScrollView {
+                ViewCardItemView(
+                    store: Store(
+                        processor: StateProcessor(
+                            state: state as (any ViewCardItemState),
+                        ),
+                    ),
+                )
+                .padding(16)
+            }
+            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
+        }
+    }
+
+    /// Returns a card state with the card details populated.
+    @MainActor
+    private func populatedState(
+        expirationMonth: DefaultableType<CardComponent.Month> = .custom(.aug),
+        expirationYear: String = "1989",
+        isVisible: Bool = false,
+    ) -> CardItemState {
+        var state = CardItemState()
+        state.brand = .custom(.visa)
+        state.cardNumber = "4400123456789"
+        state.cardSecurityCode = "123"
+        state.cardholderName = "Bitwarden User"
+        state.expirationMonth = expirationMonth
+        state.expirationYear = expirationYear
+        state.isCodeVisible = isVisible
+        state.isNumberVisible = isVisible
+        return state
     }
 }

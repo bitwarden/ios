@@ -36,7 +36,7 @@ class SyncWithBrowserViewSnapshotTests: BitwardenTestCase {
 
     /// The sync with browser view renders correctly.
     @MainActor
-    func disabletest_snapshot_default() {
+    func test_snapshot_default() {
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],

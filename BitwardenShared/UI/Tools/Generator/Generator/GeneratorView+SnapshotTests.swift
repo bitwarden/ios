@@ -58,7 +58,7 @@ class GeneratorViewTests: BitwardenTestCase {
 
     /// Test a snapshot of the copied value toast.
     @MainActor
-    func disabletest_snapshot_generatorViewToast() {
+    func test_snapshot_generatorViewToast() {
         processor.state.generatedValue = "pa11w0rd"
         processor.state.showCopiedValueToast()
         assertSnapshot(
@@ -69,7 +69,7 @@ class GeneratorViewTests: BitwardenTestCase {
 
     /// Test a snapshot of the passphrase generation view.
     @MainActor
-    func disabletest_snapshot_generatorViewPassphrase() {
+    func test_snapshot_generatorViewPassphrase() {
         processor.state.generatorType = .passphrase
         assertSnapshots(
             of: snapshotView,
@@ -79,7 +79,7 @@ class GeneratorViewTests: BitwardenTestCase {
 
     /// Test a snapshot of the password generation view.
     @MainActor
-    func disabletest_snapshot_generatorViewPassword() {
+    func test_snapshot_generatorViewPassword() {
         processor.state.generatorType = .password
         assertSnapshots(
             of: snapshotView,
@@ -89,7 +89,7 @@ class GeneratorViewTests: BitwardenTestCase {
 
     /// Test a snapshot of the password generation view with the select button.
     @MainActor
-    func disabletest_snapshot_generatorViewPassword_inPlace() {
+    func test_snapshot_generatorViewPassword_inPlace() {
         processor.state.generatorType = .password
         processor.state.presentationMode = .inPlace
         assertSnapshot(of: snapshotView, as: .tallPortrait)
@@ -97,7 +97,7 @@ class GeneratorViewTests: BitwardenTestCase {
 
     /// Test a snapshot of the password generation view with a policy in effect.
     @MainActor
-    func disabletest_snapshot_generatorViewPassword_policyInEffect() {
+    func test_snapshot_generatorViewPassword_policyInEffect() {
         processor.state.isPolicyInEffect = true
         processor.state.policyOptions = PasswordGenerationOptions(type: .password, overridePasswordType: true)
         assertSnapshot(
@@ -108,7 +108,7 @@ class GeneratorViewTests: BitwardenTestCase {
 
     /// Test a snapshot of the catch-all username generation view.
     @MainActor
-    func disabletest_snapshot_generatorViewUsernameCatchAll() {
+    func test_snapshot_generatorViewUsernameCatchAll() {
         processor.state.generatorType = .username
         processor.state.usernameState.usernameGeneratorType = .catchAllEmail
         assertSnapshots(
@@ -123,7 +123,7 @@ class GeneratorViewTests: BitwardenTestCase {
 
     /// Test a snapshot of the forwarded email alias generation view.
     @MainActor
-    func disabletest_snapshot_generatorViewUsernameForwarded() {
+    func test_snapshot_generatorViewUsernameForwarded() {
         processor.state.generatorType = .username
         processor.state.usernameState.usernameGeneratorType = .forwardedEmail
         assertSnapshot(
@@ -134,7 +134,7 @@ class GeneratorViewTests: BitwardenTestCase {
 
     /// Test a snapshot of the plus addressed username generation view.
     @MainActor
-    func disabletest_snapshot_generatorViewUsernamePlusAddressed() {
+    func test_snapshot_generatorViewUsernamePlusAddressed() {
         processor.state.generatorType = .username
         processor.state.usernameState.usernameGeneratorType = .plusAddressedEmail
         assertSnapshot(
@@ -145,7 +145,7 @@ class GeneratorViewTests: BitwardenTestCase {
 
     /// Test a snapshot of the plus addressed username generation view with the select button.
     @MainActor
-    func disabletest_snapshot_generatorViewUsernamePlusAddressed_inPlace() {
+    func test_snapshot_generatorViewUsernamePlusAddressed_inPlace() {
         processor.state.generatorType = .username
         processor.state.usernameState.usernameGeneratorType = .plusAddressedEmail
         processor.state.presentationMode = .inPlace
@@ -154,7 +154,7 @@ class GeneratorViewTests: BitwardenTestCase {
 
     /// Test a snapshot of the random word username generation view.
     @MainActor
-    func disabletest_snapshot_generatorViewUsernameRandomWord() {
+    func test_snapshot_generatorViewUsernameRandomWord() {
         processor.state.generatorType = .username
         processor.state.usernameState.usernameGeneratorType = .randomWord
         assertSnapshot(
@@ -165,7 +165,7 @@ class GeneratorViewTests: BitwardenTestCase {
 
     /// Tests the snapshot with the learn generator action card.
     @MainActor
-    func disabletest_snapshot_generatorView_learnGeneratorActionCard() throws {
+    func test_snapshot_generatorView_learnGeneratorActionCard() throws {
         processor.state.isLearnGeneratorActionCardEligible = true
         assertSnapshots(
             of: subject,

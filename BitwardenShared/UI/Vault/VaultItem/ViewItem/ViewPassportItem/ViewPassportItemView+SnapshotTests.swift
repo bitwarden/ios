@@ -33,13 +33,13 @@ class ViewPassportItemViewTests: BitwardenTestCase {
 
     /// The empty passport view renders correctly.
     @MainActor
-    func disabletest_snapshot_empty() {
+    func test_snapshot_empty() {
         assertSnapshots(of: subject.navStackWrapped, as: [.defaultPortrait])
     }
 
     /// The populated passport view renders correctly with the sensitive fields hidden.
     @MainActor
-    func disabletest_snapshot_populated() {
+    func test_snapshot_populated() {
         processor.state = populatedState()
         assertSnapshots(
             of: subject.navStackWrapped,
@@ -49,7 +49,7 @@ class ViewPassportItemViewTests: BitwardenTestCase {
 
     /// The populated passport view renders correctly with the sensitive fields revealed.
     @MainActor
-    func disabletest_snapshot_sensitiveFieldsVisible() {
+    func test_snapshot_sensitiveFieldsVisible() {
         var state = populatedState()
         state.isNationalIdentificationNumberVisible = true
         state.isPassportNumberVisible = true

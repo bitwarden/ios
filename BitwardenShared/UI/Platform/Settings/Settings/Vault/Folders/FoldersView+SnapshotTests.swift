@@ -35,14 +35,14 @@ class FoldersViewTests: BitwardenTestCase {
 
     /// The empty view renders correctly.
     @MainActor
-    func disabletest_snapshot_empty() {
+    func test_snapshot_empty() {
         processor.state.folders = []
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// The folders view renders correctly.
     @MainActor
-    func disabletest_snapshot_folders() {
+    func test_snapshot_folders() {
         processor.state.folders = [
             .fixture(id: "test", name: "Secret Folder"),
             .fixture(id: "test2", name: "Double Secret Folder"),

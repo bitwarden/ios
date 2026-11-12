@@ -10,7 +10,7 @@ class PasswordStrengthIndicatorTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// Test a snapshot of the password strength indicator variations.
-    func disabletest_snapshot_passwordStrengthIndicator() {
+    func test_snapshot_passwordStrengthIndicator() {
         struct SnapshotView: View {
             var body: some View {
                 ScrollView {

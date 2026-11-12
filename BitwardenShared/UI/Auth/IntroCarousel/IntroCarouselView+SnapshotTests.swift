@@ -33,7 +33,7 @@ class IntroCarouselViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// The intro carousel page 1 renders correctly.
-    func disabletest_snapshot_introCarousel_page1() {
+    func test_snapshot_introCarousel_page1() {
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5, .defaultLandscape],
@@ -42,7 +42,7 @@ class IntroCarouselViewTests: BitwardenTestCase {
 
     /// The intro carousel page 2 renders correctly.
     @MainActor
-    func disabletest_snapshot_introCarousel_page2() {
+    func test_snapshot_introCarousel_page2() {
         processor.state.currentPageIndex = 1
         assertSnapshots(
             of: subject.navStackWrapped,
@@ -52,7 +52,7 @@ class IntroCarouselViewTests: BitwardenTestCase {
 
     /// The intro carousel page 3 renders correctly.
     @MainActor
-    func disabletest_snapshot_introCarousel_page3() {
+    func test_snapshot_introCarousel_page3() {
         processor.state.currentPageIndex = 2
         assertSnapshots(
             of: subject.navStackWrapped,
@@ -62,7 +62,7 @@ class IntroCarouselViewTests: BitwardenTestCase {
 
     /// The intro carousel page 4 renders correctly.
     @MainActor
-    func disabletest_snapshot_introCarousel_page4() {
+    func test_snapshot_introCarousel_page4() {
         processor.state.currentPageIndex = 3
         assertSnapshots(
             of: subject.navStackWrapped,

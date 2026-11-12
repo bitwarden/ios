@@ -1,5 +1,7 @@
 // swiftlint:disable:this file_name
+import BitwardenResources
 import SnapshotTesting
+import SwiftUI
 import XCTest
 
 @testable import BitwardenKit
@@ -7,13 +9,17 @@ import XCTest
 class SectionViewTests: BitwardenTestCase {
     // MARK: Tests
 
-    /// Test a snapshot of the sectionView.
-    func disabletest_snapshot_sectionView() {
-        for preview in SectionView_Previews._allPreviews {
-            assertSnapshots(
-                of: preview.content,
-                as: [.defaultPortrait],
-            )
+    /// Test a snapshot of a section view containing a text field.
+    @MainActor
+    func test_snapshot_sectionView() {
+        let subject = VStack {
+            SectionView("Section View") {
+                BitwardenTextField(title: Localizations.name, text: .constant("name"))
+            }
         }
+        .padding(16)
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
+
+        assertSnapshots(of: subject, as: [.defaultPortrait])
     }
 }
