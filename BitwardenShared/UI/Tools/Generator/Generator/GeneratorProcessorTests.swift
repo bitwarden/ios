@@ -854,6 +854,42 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(subject.state.generatedValue, "USERNAME")
     }
 
+    /// `receive(_:)` keeps showing a generated forwarded email alias when an action that doesn't
+    /// request a new value is received, and when the view appears again, while the username options
+    /// are unchanged. It shows the placeholder once the options change.
+    @MainActor
+    func test_receive_forwardedEmail_keepsGeneratedAliasUntilOptionsChange() {
+        generatorRepository.getUsernameGenerationOptionsResult = .success(UsernameGenerationOptions(
+            anonAddyApiAccessToken: "TOKEN",
+            anonAddyDomainName: "bitwarden.com",
+            serviceType: .addyIO,
+            type: .forwardedEmail,
+        ))
+        setUpSubject()
+        subject.state.generatorType = .username
+        subject.state.generatedValue = ""
+        Task { await subject.perform(.appeared) }
+        waitFor { subject.state.generatedValue == Constants.defaultGeneratedUsername }
+
+        subject.receive(.refreshGeneratedValue)
+        waitFor { subject.state.generatedValue == "USERNAME" }
+        generatorRepository.usernameGeneratorRequest = nil
+
+        // Leaving a text field would otherwise regenerate; the existing alias is shown instead.
+        subject.state.generatedValue = "OTHER"
+        subject.receive(.textFieldFocusChanged(keyPath: nil))
+        waitFor { subject.state.generatedValue == "USERNAME" }
+
+        subject.state.generatedValue = "OTHER"
+        Task { await subject.perform(.appeared) }
+        waitFor { subject.state.generatedValue == "USERNAME" }
+        XCTAssertNil(generatorRepository.usernameGeneratorRequest)
+
+        subject.receive(.usernameForwardedEmailServiceChanged(.duckDuckGo))
+        waitFor { subject.state.generatedValue == Constants.defaultGeneratedUsername }
+        XCTAssertNil(generatorRepository.usernameGeneratorRequest)
+    }
+
     /// `receive(_:)` with `.generatorTypeChanged` to username doesn't generate a forwarded email
     /// alias, but still saves the generator options.
     @MainActor

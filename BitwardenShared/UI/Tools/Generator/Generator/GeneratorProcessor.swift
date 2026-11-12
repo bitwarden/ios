@@ -47,6 +47,11 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         state.generatorType == .username && state.usernameState.usernameGeneratorType == .forwardedEmail
     }
 
+    /// The most recently generated forwarded email alias and the username options it was generated
+    /// with. It's shown again instead of the placeholder while those options are unchanged, since the
+    /// alias already exists with the user's forwarding service.
+    private var lastForwardedEmailAlias: (value: String, usernameState: GeneratorState.UsernameState)?
+
     /// The key path of the currently focused text field.
     private var focusedKeyPath: KeyPath<GeneratorState, String>?
 
@@ -96,7 +101,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         case .appeared:
             await reloadGeneratorOptions()
             if isForwardedEmailUsernameGenerator {
-                state.generatedValue = Constants.defaultGeneratedUsername
+                showLastForwardedEmailAliasOrPlaceholder()
             } else {
                 await generateValue(shouldSavePassword: true)
             }
@@ -214,7 +219,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
                 switch generateValueBehavior {
                 case let .generateNewValue(shouldSave):
                     if isForwardedEmailUsernameGenerator, !isRefreshRequested {
-                        state.generatedValue = Constants.defaultGeneratedUsername
+                        showLastForwardedEmailAliasOrPlaceholder()
                     } else {
                         await generateValue(shouldSavePassword: shouldSave)
                     }
@@ -432,8 +437,22 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     ///
     func setGeneratedValue(_ value: String, shouldSavePassword: Bool = true) async throws {
         state.generatedValue = value
+        if isForwardedEmailUsernameGenerator {
+            lastForwardedEmailAlias = (value, state.usernameState)
+        }
         if state.generatorType != .username, shouldSavePassword {
             try await saveGeneratedValue(value)
+        }
+    }
+
+    /// Shows the last generated forwarded email alias if it was generated with the current username
+    /// options, otherwise shows the placeholder, without generating a new alias.
+    ///
+    private func showLastForwardedEmailAliasOrPlaceholder() {
+        if let lastForwardedEmailAlias, lastForwardedEmailAlias.usernameState == state.usernameState {
+            state.generatedValue = lastForwardedEmailAlias.value
+        } else {
+            state.generatedValue = Constants.defaultGeneratedUsername
         }
     }
 
