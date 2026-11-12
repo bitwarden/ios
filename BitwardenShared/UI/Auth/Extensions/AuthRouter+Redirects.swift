@@ -36,23 +36,11 @@ extension AuthRouter {
             return .updateMasterPassword
         }
 
-        if !isInAppExtension {
-            if await (try? services.stateService.getAccountSetupVaultUnlock()) == .incomplete {
-                return .vaultUnlockSetup(.createAccount)
-            } else if await (try? services.stateService.getAccountSetupAutofill()) == .incomplete {
-                return .autofillSetup
-            }
-
-            do {
-                if let rehydratableTarget = try await services.rehydrationHelper.getSavedRehydratableTarget() {
-                    return .completeWithRehydration(rehydratableTarget)
-                }
-            } catch {
-                services.errorReporter.log(error: error)
-            }
+        if !isInAppExtension, await consumePendingAccountSetupOnboarding(userId: account.profile.userId) {
+            return await accountSetupOnboardingRedirect(userId: account.profile.userId)
         }
 
-        return .complete
+        return await completeRedirect()
     }
 
     /// Handles the `.didCompleteVaultUnlockSetup` event by continuing the account setup onboarding
@@ -387,6 +375,9 @@ extension AuthRouter {
                 // If the user has enabled Never Lock, but the vault is locked,
                 // unlock the vault and return `.complete`.
                 try await services.authRepository.unlockVaultWithNeverlockKey()
+                if !isInAppExtension, await consumePendingAccountSetupOnboarding(userId: userId) {
+                    return await accountSetupOnboardingRedirect(userId: userId)
+                }
                 return .completeWithNeverUnlockKey
             case (_, false, _):
                 return .complete
@@ -412,6 +403,22 @@ extension AuthRouter {
                 didSwitchAccountAutomatically: didSwitchAccountAutomatically,
             )
         }
+    }
+
+    // MARK: Private
+
+    /// Determines the first account setup onboarding step to show based on the current state of the
+    /// user's unlock methods and autofill.
+    ///
+    /// - Parameter userId: The user ID of the account that just completed authentication.
+    /// - Returns: A redirect route to `.vaultUnlockSetup(.createAccount)`, `.autofillSetup`, or `.complete`
+    ///     (possibly with rehydration).
+    ///
+    private func accountSetupOnboardingRedirect(userId: String) async -> AuthRoute {
+        if await shouldShowVaultUnlockSetup(userId: userId) {
+            return .vaultUnlockSetup(.createAccount)
+        }
+        return await autofillSetupRedirect()
     }
 
     /// Returns the autofill setup route if autofill is turned off, otherwise completes auth.
@@ -444,6 +451,31 @@ extension AuthRouter {
         return .complete
     }
 
+    /// Reads the pending account setup onboarding marker for the user and, if it's pending, marks
+    /// onboarding as shown. This happens before any onboarding step is shown, so onboarding is only
+    /// evaluated once per account on this device.
+    ///
+    /// - Parameter userId: The user ID of the account that just completed authentication.
+    /// - Returns: Whether account setup onboarding was pending for the user.
+    ///
+    private func consumePendingAccountSetupOnboarding(userId: String) async -> Bool {
+        do {
+            guard try await services.stateService.getPendingAccountSetupOnboarding(userId: userId) == true else {
+                return false
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+            return false
+        }
+
+        do {
+            try await services.stateService.setPendingAccountSetupOnboarding(false, userId: userId)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+        return true
+    }
+
     /// Sets the flag indicating that the carousel was shown (or in the case of existing accounts,
     /// that it doesn't need to be shown again). This should be called on app launch if there's
     /// existing account or once logging in or creating an account is successful.
@@ -453,5 +485,29 @@ extension AuthRouter {
         if !introCarouselShown {
             await services.stateService.setIntroCarouselShown(true)
         }
+    }
+
+    /// Whether the vault unlock setup step should be shown. This is the case when neither biometric
+    /// nor PIN unlock is turned on.
+    ///
+    /// - Parameter userId: The user ID of the account that just completed authentication.
+    /// - Returns: `true` if the vault unlock setup step should be shown, `false` otherwise.
+    ///
+    private func shouldShowVaultUnlockSetup(userId: String) async -> Bool {
+        var biometricsStatus: BiometricsUnlockStatus?
+        do {
+            biometricsStatus = try await services.biometricsRepository.getBiometricUnlockStatus(userId: userId)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+
+        var isPinUnlockOn = false
+        do {
+            isPinUnlockOn = try await services.authRepository.isPinUnlockAvailable(userId: userId)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+
+        return biometricsStatus?.isEnabled != true && !isPinUnlockOn
     }
 } // swiftlint:disable:this file_length
