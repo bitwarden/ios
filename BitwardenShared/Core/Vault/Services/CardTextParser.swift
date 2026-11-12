@@ -109,20 +109,19 @@ final class DefaultCardTextParser: CardTextParser {
     ///
     /// Lines carrying a card number's worth of digits are skipped: OCR often reads a digit or a
     /// group separator within a card number as `/`, so `"5/33 6195 0371 5702"` would otherwise parse
-    /// as May 2033. Of the remaining matches the last one wins, so a card printing both a
-    /// "valid from" and a "valid thru" date yields the expiry. The year is not bounded, so an
-    /// expired card can still be scanned into the vault.
+    /// as May 2033.
     private func extractExpiry(from line: String) -> (month: Int, year: String)? {
         guard let regex = Self.expiryRegex,
               line.filter(\.isNumber).count < Self.minimumCardNumberDigits
         else { return nil }
-
         let range = NSRange(line.startIndex..., in: line)
-        guard let match = regex.matches(in: line, range: range).last,
-              match.numberOfRanges == 3,
-              let monthRange = Range(match.range(at: 1), in: line),
-              let yearRange = Range(match.range(at: 2), in: line),
-              let month = Int(String(line[monthRange]))
+        let allMatches = regex.matches(in: line, range: range)
+        guard let match = allMatches.last,
+              match.numberOfRanges == 3 else { return nil }
+        guard
+            let monthRange = Range(match.range(at: 1), in: line),
+            let yearRange = Range(match.range(at: 2), in: line),
+            let month = Int(String(line[monthRange]))
         else { return nil }
 
         var yearString = String(line[yearRange])

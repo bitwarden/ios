@@ -634,7 +634,6 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             // A cancellation that lands after the sleep finishes doesn't throw, so check again.
             guard let self, !Task.isCancelled else { return }
             cardScanGracePeriodTask = nil
-            guard self.state.cardItemState.isCardScannerPresented else { return }
             applyCardScanResult(&self.state, data: data)
         }
     }
