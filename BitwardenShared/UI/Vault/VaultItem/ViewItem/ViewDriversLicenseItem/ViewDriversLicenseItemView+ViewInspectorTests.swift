@@ -29,6 +29,19 @@ class ViewDriversLicenseItemViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// When the driver's license has no details, the view doesn't show the details section.
+    @MainActor
+    func test_body_emptyState_hidesDetailsSection() {
+        initSubject(state: DriversLicenseItemState())
+        XCTAssertThrowsError(try subject.inspect().find(text: Localizations.licenseDetails))
+    }
+
+    /// When the driver's license has details, the view shows the details section.
+    @MainActor
+    func test_body_populatedState_showsDetailsSection() {
+        XCTAssertNoThrow(try subject.inspect().find(text: Localizations.licenseDetails))
+    }
+
     /// Tapping the copy first name button dispatches the copy action.
     @MainActor
     func test_copyFirstNameButton_pressed() throws {

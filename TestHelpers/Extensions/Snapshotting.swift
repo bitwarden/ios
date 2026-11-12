@@ -289,16 +289,18 @@ public extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
                 traits: traits,
             )
         }
-        return strategy.pullback { view in
-            AnyView(
-                view.transaction { transaction in
-                    // Remove explicit animations (`withAnimation`) and stop implicit animations
-                    // (`.animation(_:value:)`) from adding their own.
-                    transaction.animation = nil
-                    transaction.disablesAnimations = true
-                },
-            )
-        }
+        return strategy
+            .pullback { view in
+                AnyView(
+                    view.transaction { transaction in
+                        // Remove explicit animations (`withAnimation`) and stop implicit animations
+                        // (`.animation(_:value:)`) from adding their own.
+                        transaction.animation = nil
+                        transaction.disablesAnimations = true
+                    },
+                )
+            }
+            .failingOnSingleColorImages()
     }
 }
 
@@ -316,11 +318,12 @@ public extension Snapshotting where Value == UIViewController, Format == UIImage
 
     /// A default snapshot in landscape on iPhone 13, with precision 1 and perceptual precision of 0.95.
     static var standardImage: Snapshotting {
-        .image(
+        Snapshotting.image(
             drawHierarchyInKeyWindow: defaultDrawHierarchyInKeyWindow,
             precision: defaultPrecision,
             perceptualPrecision: defaultPerceptualPrecision,
             size: ViewImageConfig.iPhone13(.portrait).size,
         )
+        .failingOnSingleColorImages()
     }
 }

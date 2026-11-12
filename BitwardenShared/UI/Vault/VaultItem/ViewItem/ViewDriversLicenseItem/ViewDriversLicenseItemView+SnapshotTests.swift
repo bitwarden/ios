@@ -31,12 +31,6 @@ class ViewDriversLicenseItemViewTests: BitwardenTestCase {
 
     // MARK: Snapshots
 
-    /// The empty driver's license view renders correctly.
-    @MainActor
-    func test_snapshot_empty() {
-        assertSnapshots(of: subject.navStackWrapped, as: [.defaultPortrait])
-    }
-
     /// The populated driver's license view renders correctly with the license number hidden.
     @MainActor
     func test_snapshot_populated() {

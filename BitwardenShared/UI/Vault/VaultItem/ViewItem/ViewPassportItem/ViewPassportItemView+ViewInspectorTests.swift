@@ -1,6 +1,7 @@
 // swiftlint:disable:this file_name
 import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
 import XCTest
 
 @testable import BitwardenShared
@@ -27,6 +28,19 @@ class ViewPassportItemViewTests: BitwardenTestCase {
     }
 
     // MARK: Tests
+
+    /// When the passport has no details, the view doesn't show the details section.
+    @MainActor
+    func test_body_emptyState_hidesDetailsSection() {
+        initSubject(state: PassportItemState())
+        XCTAssertThrowsError(try subject.inspect().find(text: Localizations.passportDetails))
+    }
+
+    /// When the passport has details, the view shows the details section.
+    @MainActor
+    func test_body_populatedState_showsDetailsSection() {
+        XCTAssertNoThrow(try subject.inspect().find(text: Localizations.passportDetails))
+    }
 
     /// Tapping the copy given name button dispatches the copy action.
     @MainActor

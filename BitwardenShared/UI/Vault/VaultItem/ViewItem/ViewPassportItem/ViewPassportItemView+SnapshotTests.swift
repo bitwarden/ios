@@ -31,12 +31,6 @@ class ViewPassportItemViewTests: BitwardenTestCase {
 
     // MARK: Snapshots
 
-    /// The empty passport view renders correctly.
-    @MainActor
-    func test_snapshot_empty() {
-        assertSnapshots(of: subject.navStackWrapped, as: [.defaultPortrait])
-    }
-
     /// The populated passport view renders correctly with the sensitive fields hidden.
     @MainActor
     func test_snapshot_populated() {
