@@ -19,7 +19,7 @@ Bitwarden-specific test requirements. See `Docs/Testing.md` for full guidelines.
 ## Snapshot Tests
 
 - [ ] New/modified views have snapshot tests in three modes: `.defaultPortrait`, `.defaultPortraitDark`, `.defaultPortraitAX5`
-- [ ] Snapshot test function names prefixed with `disabletest_` (snapshot tests currently disabled globally)
+- [ ] Reference images for new or changed snapshots committed under `__Snapshots__/`
 - [ ] Simulator matches `.test-simulator-device-name` and `.test-simulator-ios-version`
 
 ## Test File Co-location

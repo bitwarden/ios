@@ -14,7 +14,7 @@ Do **NOT** convert the following; leave them in XCTest:
 | Pattern | Why |
 |---------|-----|
 | **ViewInspector tests** | `imports ViewInspector`; requires XCTest infrastructure |
-| **Snapshot tests** | Functions named `disabletest_*`, uses `assertSnapshot` or `SnapshotTesting`; depends on `BitwardenTestCase` |
+| **Snapshot tests** | Uses `assertSnapshot` or `SnapshotTesting` (`+SnapshotTests.swift` files); depends on `BitwardenTestCase` |
 | **UI automation tests** | Uses `XCUIApplication` |
 | **Performance tests** | Uses `measure { ... }` or `XCTMetric` |
 | **Objective-C tests** | Cannot use Swift Testing |

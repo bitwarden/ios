@@ -85,7 +85,6 @@ class FeatureViewTests: BitwardenTestCase {
 
 ```swift
 // MARK: - FeatureViewTests (Snapshot)
-// Note: snapshot test functions are prefixed with `disabletest_` — snapshots globally disabled.
 
 class FeatureViewTests: BitwardenTestCase {
     var processor: MockProcessor<FeatureState, FeatureAction, FeatureEffect>!
@@ -106,12 +105,12 @@ class FeatureViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     @MainActor
-    func disabletest_snapshot_default() {
+    func test_snapshot_default() {
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
     @MainActor
-    func disabletest_snapshot_populated() {
+    func test_snapshot_populated() {
         processor.state.email = "user@example.com"
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
@@ -125,4 +124,4 @@ class FeatureViewTests: BitwardenTestCase {
 - `processor.dispatchedActions.last` — sync actions (sent via `store.send`)
 - `processor.effects.last` — async effects (sent via `store.perform`)
 - `find(button:)` — sync button; `find(asyncButton:)` — async button
-- Snapshot functions prefixed `disabletest_` — three modes: `.defaultPortrait`, `.defaultPortraitDark`, `.defaultPortraitAX5`
+- Snapshot tests cover three modes: `.defaultPortrait`, `.defaultPortraitDark`, `.defaultPortraitAX5`

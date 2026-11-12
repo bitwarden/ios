@@ -65,7 +65,7 @@ Xcode version requirement: see `.xcode-version` file
 
 ## Testing
 
-Follow `Docs/Testing.md` (authoritative). See `testing-ios-code` skill for test-writing workflow. Snapshot tests are currently disabled — prefix function names with `disabletest_`.
+Follow `Docs/Testing.md` (authoritative). See `testing-ios-code` skill for test-writing workflow. Snapshot reference images live in `__Snapshots__/<TestFileName>/` next to each `+SnapshotTests.swift` file and must be recorded on the simulator in `.test-simulator-device-name`/`.test-simulator-ios-version`.
 
 ## Code Style & Standards
 
@@ -127,7 +127,7 @@ someFunction(argumentOne: valueOne,
 - ✅ Use `store.binding(get:send:)` for SwiftUI bindings backed by store state
 - ✅ Mark protocols with `// sourcery: AutoMockable` for mock generation
 - ✅ Use `ServiceContainer.withMocks()` in tests
-- ✅ Write snapshot tests in light, dark, AND large dynamic type modes (prefix disabled tests with `disable`)
+- ✅ Write snapshot tests in light, dark, AND large dynamic type modes
 
 ### DON'T
 
