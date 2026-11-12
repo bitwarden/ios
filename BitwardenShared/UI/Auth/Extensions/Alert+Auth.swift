@@ -406,8 +406,8 @@ extension Alert {
                     shouldEnableAction: { textFields in
                         guard let pin = textFields.first(where: { $0.id == "pin" })?.text else { return false }
                         guard pin.count >= Constants.minimumPinLength else { return false }
-                        // Only new PINs must be numeric; existing alphanumeric PINs can still be verified.
-                        return !settingUp || pin.allSatisfy(\.isWholeNumber)
+                        // Only new PINs must be numeric (ASCII 0-9); existing alphanumeric PINs can still be verified.
+                        return !settingUp || pin.allSatisfy { $0.isASCII && $0.isNumber }
                     },
                 ),
                 AlertAction(title: Localizations.cancel, style: .cancel, handler: { _, _ in

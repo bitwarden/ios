@@ -248,7 +248,8 @@ class AlertAuthTests: BitwardenTestCase { // swiftlint:disable:this type_body_le
     }
 
     /// `enterPINCode(completion:settingUp:)` keeps the "Submit" button disabled when setting up a PIN
-    /// that contains non-numeric characters, and enables it for a numeric PIN of the minimum length.
+    /// that contains non-numeric or non-ASCII numeric characters, and enables it for a numeric PIN
+    /// of the minimum length.
     @MainActor
     func test_enterPINCode_settingUp_disablesSubmitButtonForNonNumericPin() async throws {
         let alert = Alert.enterPINCode(settingUp: true) { _ in }
@@ -266,6 +267,13 @@ class AlertAuthTests: BitwardenTestCase { // swiftlint:disable:this type_body_le
         uiTextField.text = "12a4"
         alert.alertTextFields.first?.textChanged(in: uiTextField)
         XCTAssertFalse(submitAction.isEnabled)
+
+        // Non-ASCII numerals (full-width, Roman, CJK) can't be typed on the number pad later.
+        for nonASCIIPin in ["１２３４", "ⅠⅡⅢⅣ", "万万万万"] {
+            uiTextField.text = nonASCIIPin
+            alert.alertTextFields.first?.textChanged(in: uiTextField)
+            XCTAssertFalse(submitAction.isEnabled, "Expected \(nonASCIIPin) to be rejected")
+        }
 
         uiTextField.text = "1234"
         alert.alertTextFields.first?.textChanged(in: uiTextField)
