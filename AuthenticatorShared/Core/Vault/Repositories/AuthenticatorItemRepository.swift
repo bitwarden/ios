@@ -410,11 +410,13 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
 
             return sections.flatMap(\.items)
                 .filter { item in
-                    // Match the name the list displays: an otpauth code with no issuer
-                    // shows its account name in place of a blank name.
-                    (item.name.nilIfEmpty ?? item.accountName ?? "").lowercased()
-                        .folding(options: .diacriticInsensitive, locale: .current)
-                        .contains(query)
+                    // Match both lines the list displays: the name (issuer) and the account name.
+                    // This also finds otpauth codes with no issuer, which show only the account name.
+                    [item.name, item.accountName ?? ""].contains { value in
+                        value.lowercased()
+                            .folding(options: .diacriticInsensitive, locale: .current)
+                            .contains(query)
+                    }
                 }
                 .sorted(by: ItemListItem.localizedNameComparator)
         }
