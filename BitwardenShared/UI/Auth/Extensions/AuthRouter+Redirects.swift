@@ -55,6 +55,16 @@ extension AuthRouter {
         return .complete
     }
 
+    /// Handles the `.didCompleteVaultUnlockSetup` event by continuing the account setup onboarding
+    /// flow after the vault unlock setup step.
+    ///
+    /// - Returns: A redirect route to either `.autofillSetup` or `.complete` (possibly with rehydration).
+    ///
+    func completeVaultUnlockSetupRedirect() async -> AuthRoute {
+        guard !isInAppExtension else { return await completeRedirect() }
+        return await autofillSetupRedirect()
+    }
+
     /// Handles the `.didDeleteAccount`route and redirects the user to the correct screen
     ///     based on alternate accounts state. If the user has an alternate account,
     ///     they will go to the unlock sequence for that account.
@@ -402,6 +412,36 @@ extension AuthRouter {
                 didSwitchAccountAutomatically: didSwitchAccountAutomatically,
             )
         }
+    }
+
+    /// Returns the autofill setup route if autofill is turned off, otherwise completes auth.
+    ///
+    /// - Returns: A redirect route to either `.autofillSetup` or `.complete` (possibly with rehydration).
+    ///
+    private func autofillSetupRedirect() async -> AuthRoute {
+        guard await services.autofillCredentialService.isAutofillCredentialsEnabled() else {
+            return .autofillSetup
+        }
+        return await completeRedirect()
+    }
+
+    /// The final route after auth completes, which navigates to any saved rehydratable target in
+    /// the main app, or otherwise completes auth.
+    ///
+    /// - Returns: A redirect route to either `.completeWithRehydration(_:)` or `.complete`.
+    ///
+    private func completeRedirect() async -> AuthRoute {
+        guard !isInAppExtension else { return .complete }
+
+        do {
+            if let rehydratableTarget = try await services.rehydrationHelper.getSavedRehydratableTarget() {
+                return .completeWithRehydration(rehydratableTarget)
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+
+        return .complete
     }
 
     /// Sets the flag indicating that the carousel was shown (or in the case of existing accounts,

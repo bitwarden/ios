@@ -13,6 +13,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
     // MARK: Properties
 
     var authRepository: MockAuthRepository!
+    var autofillCredentialService: MockAutofillCredentialService!
     var biometricsRepository: MockBiometricsRepository!
     var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
@@ -27,6 +28,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         super.setUp()
 
         authRepository = MockAuthRepository()
+        autofillCredentialService = MockAutofillCredentialService()
         biometricsRepository = MockBiometricsRepository()
         configService = MockConfigService()
         errorReporter = MockErrorReporter()
@@ -34,10 +36,36 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         stateService = MockStateService()
         vaultTimeoutService = MockVaultTimeoutService()
 
-        subject = AuthRouter(
-            isInAppExtension: false,
+        subject = makeSubject(isInAppExtension: false)
+    }
+
+    override func tearDown() async throws {
+        try await super.tearDown()
+
+        authRepository = nil
+        autofillCredentialService = nil
+        biometricsRepository = nil
+        configService = nil
+        errorReporter = nil
+        rehydrationHelper = nil
+        stateService = nil
+        subject = nil
+        vaultTimeoutService = nil
+    }
+
+    // MARK: Private
+
+    /// Creates an `AuthRouter` using the test's mock services.
+    ///
+    /// - Parameter isInAppExtension: Whether the router is running in an app extension.
+    /// - Returns: The `AuthRouter` to test.
+    ///
+    private func makeSubject(isInAppExtension: Bool) -> AuthRouter {
+        AuthRouter(
+            isInAppExtension: isInAppExtension,
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
+                autofillCredentialService: autofillCredentialService,
                 biometricsRepository: biometricsRepository,
                 configService: configService,
                 errorReporter: errorReporter,
@@ -48,18 +76,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
-    override func tearDown() async throws {
-        try await super.tearDown()
-
-        authRepository = nil
-        biometricsRepository = nil
-        configService = nil
-        errorReporter = nil
-        rehydrationHelper = nil
-        stateService = nil
-        subject = nil
-        vaultTimeoutService = nil
-    }
+    // MARK: Tests
 
     /// `handleAndRoute(_ :)` redirects `.accountBecameActive()` to `.vaultUnlock`
     ///     when `unlockVaultWithNeverlockResult` fails.
@@ -332,6 +349,52 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
         let route = await subject.handleAndRoute(.didCompleteAuth)
         XCTAssertEqual(route, .updateMasterPassword)
+    }
+
+    /// `handleAndRoute(_:)` redirects `.didCompleteVaultUnlockSetup` to `.autofillSetup` if
+    /// autofill is turned off.
+    func test_handleAndRoute_didCompleteVaultUnlockSetup_autofillOff() async {
+        authRepository.activeAccount = .fixture()
+        autofillCredentialService.isAutofillCredentialsEnabled = false
+
+        let route = await subject.handleAndRoute(.didCompleteVaultUnlockSetup)
+
+        XCTAssertEqual(route, .autofillSetup)
+        XCTAssertFalse(biometricsRepository.getBiometricUnlockStatusCalled)
+    }
+
+    /// `handleAndRoute(_:)` redirects `.didCompleteVaultUnlockSetup` to `.complete` if autofill is
+    /// already turned on.
+    func test_handleAndRoute_didCompleteVaultUnlockSetup_autofillOn() async {
+        authRepository.activeAccount = .fixture()
+        autofillCredentialService.isAutofillCredentialsEnabled = true
+
+        let route = await subject.handleAndRoute(.didCompleteVaultUnlockSetup)
+
+        XCTAssertEqual(route, .complete)
+    }
+
+    /// `handleAndRoute(_:)` redirects `.didCompleteVaultUnlockSetup` to `.completeWithRehydration`
+    /// if autofill is already turned on and there's a rehydratable target saved.
+    func test_handleAndRoute_didCompleteVaultUnlockSetup_autofillOn_rehydration() async {
+        authRepository.activeAccount = .fixture()
+        autofillCredentialService.isAutofillCredentialsEnabled = true
+        rehydrationHelper.getSavedRehydratableTargetResult = .success(.viewCipher(cipherId: "1"))
+
+        let route = await subject.handleAndRoute(.didCompleteVaultUnlockSetup)
+
+        XCTAssertEqual(route, .completeWithRehydration(.viewCipher(cipherId: "1")))
+    }
+
+    /// `handleAndRoute(_:)` redirects `.didCompleteVaultUnlockSetup` to `.complete` when running in
+    /// an app extension.
+    func test_handleAndRoute_didCompleteVaultUnlockSetup_withinAppExtension() async {
+        subject = makeSubject(isInAppExtension: true)
+        autofillCredentialService.isAutofillCredentialsEnabled = false
+
+        let route = await subject.handleAndRoute(.didCompleteVaultUnlockSetup)
+
+        XCTAssertEqual(route, .complete)
     }
 
     /// `handleAndRoute(_ :)` redirects`.didDeleteAccount` to another account
