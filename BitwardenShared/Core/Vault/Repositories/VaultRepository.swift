@@ -530,9 +530,9 @@ extension DefaultVaultRepository: VaultRepository {
         var preparedCiphers = [CipherView]()
 
         for cipher in ciphers {
-            // Ensure the cipher has a cipher key.
-            let encryptedCipher = try await cipherEncryptionMediator.encryptAndUpdateCipher(cipher)
-            var cipherView = try await clientService.vault().ciphers().decrypt(cipher: encryptedCipher)
+            // Ensure the cipher has a cipher key. This returns the cipher with its updated revision date,
+            // which the server requires when sharing.
+            var cipherView = try await cipherEncryptionMediator.updateCipherKeyIfNeeded(cipher)
 
             // Migrate any attachments without an encryption key.
             if let attachments = cipherView.attachments {
