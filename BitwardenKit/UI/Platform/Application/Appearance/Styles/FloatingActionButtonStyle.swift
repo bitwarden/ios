@@ -66,7 +66,6 @@ public struct FloatingActionButtonStyle: ButtonStyle {
 
 public extension ButtonStyle where Self == FloatingActionButtonStyle {
     /// The style for floating action buttons.
-    ///
     static var floatingActionButton: FloatingActionButtonStyle {
         FloatingActionButtonStyle()
     }
