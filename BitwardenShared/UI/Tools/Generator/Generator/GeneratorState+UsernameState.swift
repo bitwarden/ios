@@ -142,28 +142,7 @@ extension GeneratorState.UsernameState {
     /// Returns whether the inputs for generating the username are valid and a new username can be
     /// generated.
     var canGenerateUsername: Bool {
-        switch usernameGeneratorType {
-        case .catchAllEmail:
-            !domain.isEmpty
-        case .plusAddressedEmail,
-             .randomWord:
-            true
-        case .forwardedEmail:
-            switch forwardedEmailService {
-            case .addyIO:
-                [addyIOAPIAccessToken, addyIODomainName].allSatisfy { !$0.isEmpty }
-            case .duckDuckGo:
-                !duckDuckGoAPIKey.isEmpty
-            case .fastmail:
-                !fastmailAPIKey.isEmpty
-            case .firefoxRelay:
-                !firefoxRelayAPIAccessToken.isEmpty
-            case .forwardEmail:
-                [forwardEmailAPIToken, forwardEmailDomainName].allSatisfy { !$0.isEmpty }
-            case .simpleLogin:
-                !simpleLoginAPIKey.isEmpty
-            }
-        }
+        missingRequiredFieldName == nil
     }
 
     /// Returns the localized name of the first required field that is empty and prevents a
