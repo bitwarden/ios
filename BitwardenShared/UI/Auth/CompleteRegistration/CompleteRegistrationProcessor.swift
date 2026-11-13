@@ -1,3 +1,5 @@
+// swiftlint:disable file_length
+
 import AuthenticationServices
 import BitwardenKit
 import BitwardenResources
@@ -288,8 +290,14 @@ class CompleteRegistrationProcessor: StateProcessor<// swiftlint:disable:this ty
             showCompleteRegistrationErrorAlert(error)
         } catch {
             guard !state.didCreateAccount else {
-                // If an error occurs after the account was created, dismiss the view and navigate
-                // the user to the login screen to complete login.
+                // Re-snapshot using the account's own persisted URLs, not live pre-auth URLs
+                // which may have been corrupted since account creation, so a login retry can't
+                // resave this account under the wrong server.
+                if let activeAccount = try? await services.stateService.getActiveAccount(),
+                   let urls = activeAccount.settings.environmentUrls {
+                    await services.stateService.setAccountCreationEnvironmentURLs(urls: urls, email: state.userEmail)
+                }
+                // Dismiss the view and navigate the user to the login screen to complete login.
                 coordinator.navigate(to: .dismissWithAction(DismissAction {
                     self.coordinator.navigate(to: .login(username: self.state.userEmail, isNewAccount: true))
                     self.coordinator.showToast(Localizations.accountSuccessfullyCreated)
@@ -312,7 +320,9 @@ class CompleteRegistrationProcessor: StateProcessor<// swiftlint:disable:this ty
             }
 
             guard
-                let urls = await services.stateService.getAccountCreationEnvironmentURLs(email: state.userEmail)
+                let urls = await services.stateService.getAccountCreationEnvironmentURLs(
+                    email: state.userEmail,
+                )
             else { throw CompleteRegistrationError.preAuthUrlsEmpty }
 
             await services.environmentService.setPreAuthURLs(urls: urls)

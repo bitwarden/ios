@@ -765,12 +765,13 @@ protocol StateService: AnyObject, DebugStateService {
     ///
     func setPreAuthEnvironmentURLs(_ urls: EnvironmentURLData) async
 
-    /// Sets the environment URLs for a given email during account creation.
+    /// Sets the environment URLs for a given email during account creation. Pass `nil` to clear
+    /// the value once it's been consumed, so it can't be reused by a later, unrelated flow.
     /// - Parameters:
-    ///   - urls: The environment urls used to start the account creation.
+    ///   - urls: The environment urls used to start the account creation, or `nil` to clear them.
     ///   - email: The email used to start the account creation.
     ///
-    func setAccountCreationEnvironmentURLs(urls: EnvironmentURLData, email: String) async
+    func setAccountCreationEnvironmentURLs(urls: EnvironmentURLData?, email: String) async
 
     /// Sets the app rehydration state for the active account.
     /// - Parameters:
@@ -2306,7 +2307,7 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.preAuthEnvironmentURLs = urls
     }
 
-    func setAccountCreationEnvironmentURLs(urls: EnvironmentURLData, email: String) async {
+    func setAccountCreationEnvironmentURLs(urls: EnvironmentURLData?, email: String) async {
         appSettingsStore.setAccountCreationEnvironmentURLs(
             environmentURLData: urls,
             email: email,

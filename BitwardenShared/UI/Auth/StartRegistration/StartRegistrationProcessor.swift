@@ -168,6 +168,8 @@ class StartRegistrationProcessor: StateProcessor<
                 ),
             )
 
+            try await snapshotAccountCreationEnvironmentURLs(email: email)
+
             if let token = result.token,
                !token.isEmpty {
                 coordinator.navigate(to: .completeRegistration(
@@ -175,11 +177,6 @@ class StartRegistrationProcessor: StateProcessor<
                     userEmail: email,
                 ))
             } else {
-                guard let preAuthUrls = await services.stateService.getPreAuthEnvironmentURLs() else {
-                    throw StartRegistrationError.preAuthUrlsEmpty
-                }
-
-                await services.stateService.setAccountCreationEnvironmentURLs(urls: preAuthUrls, email: email)
                 coordinator.navigate(to: .checkEmail(email: email))
             }
         } catch let error as StartRegistrationError {
@@ -189,6 +186,20 @@ class StartRegistrationProcessor: StateProcessor<
                 await self.startRegistration()
             }
         }
+    }
+
+    /// Snapshots the current pre-auth environment URLs for the given email, so a later step in
+    /// the account creation flow can use them even if the global pre-auth URLs are since
+    /// overwritten by an unrelated active-account sync (e.g. triggered by the AutoFill extension).
+    ///
+    /// - Parameter email: The email to snapshot the current pre-auth environment URLs for.
+    ///
+    private func snapshotAccountCreationEnvironmentURLs(email: String) async throws {
+        guard let preAuthUrls = await services.stateService.getPreAuthEnvironmentURLs() else {
+            throw StartRegistrationError.preAuthUrlsEmpty
+        }
+
+        await services.stateService.setAccountCreationEnvironmentURLs(urls: preAuthUrls, email: email)
     }
 
     /// Refreshes the server configuration for the current pre-auth environment.
