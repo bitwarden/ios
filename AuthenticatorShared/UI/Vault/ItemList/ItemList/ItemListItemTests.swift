@@ -1,4 +1,7 @@
+import AuthenticatorBridgeKit
+import AuthenticatorBridgeKitMocks
 import BitwardenKit
+import BitwardenKitMocks
 import XCTest
 
 @testable import AuthenticatorShared
@@ -7,6 +10,36 @@ import XCTest
 
 class ItemListItemTests: BitwardenTestCase {
     var subject: ItemListItem!
+
+    /// `init(itemView:timeProvider:)` uses the vault item's name and username for a shared item
+    /// whose TOTP key is an `otpauth://` URI, rather than the values parsed from the URI.
+    func test_init_itemView_otpAuthUri_usesVaultNameAndUsername() {
+        let itemView = AuthenticatorBridgeItemDataView.fixture(
+            name: "Vault Name",
+            totpKey: "otpauth://totp/first.last@gmail.com?secret=JBSWY3DPEHPK3PXP&issuer=Example",
+            username: "first.last@gmail.com",
+        )
+
+        subject = ItemListItem(itemView: itemView, timeProvider: MockTimeProvider(.currentTime))
+
+        XCTAssertEqual(subject?.name, "Vault Name")
+        XCTAssertEqual(subject?.accountName, "first.last@gmail.com")
+    }
+
+    /// `init(itemView:timeProvider:)` uses the vault item's name for a shared item whose
+    /// `otpauth://` URI has no issuer, rather than showing a blank name.
+    func test_init_itemView_otpAuthUri_noIssuer_usesVaultName() {
+        let itemView = AuthenticatorBridgeItemDataView.fixture(
+            name: "Vault Name",
+            totpKey: "otpauth://totp/first.last@gmail.com?secret=JBSWY3DPEHPK3PXP",
+            username: "username",
+        )
+
+        subject = ItemListItem(itemView: itemView, timeProvider: MockTimeProvider(.currentTime))
+
+        XCTAssertEqual(subject?.name, "Vault Name")
+        XCTAssertEqual(subject?.accountName, "username")
+    }
 
     func test_localizedNameComparator() {
         let alpha = ItemListItem.fixture(name: "alpha")
