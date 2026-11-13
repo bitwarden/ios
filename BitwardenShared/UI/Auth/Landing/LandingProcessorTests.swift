@@ -626,7 +626,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertTrue(subject.state.isContinueButtonEnabled)
     }
 
-    /// `perform(_:)` with `.regionPressed` shows US, EU, Self-Hosted — Gov is excluded by default.
+    /// `perform(_:)` with `.regionPressed` shows US, EU, Self-Hosted — Gov is excluded without a cached config.
     @MainActor
     func test_perform_regionPressed() async throws {
         await subject.perform(.regionPressed)
@@ -654,10 +654,9 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(coordinator.routes.last, .selfHosted(currentRegion: .europe))
     }
 
-    /// `perform(_:)` with `.regionPressed` includes Gov when `fedrampGovRegion` is enabled
-    /// and the cached config matches the current region.
+    /// `perform(_:)` with `.regionPressed` includes Gov when the cached config matches the current region.
     @MainActor
-    func test_perform_regionPressed_fedrampGovRegionEnabled() async throws {
+    func test_perform_regionPressed_matchingConfig() async throws {
         stateService.preAuthEnvironmentURLs = .defaultUS
         configService.configMocker.withResult(
             ServerConfig(
@@ -680,7 +679,6 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
                 ),
             ),
         )
-        configService.featureFlagsBoolPreAuth[.fedrampGovRegion] = true
 
         await subject.perform(.regionPressed)
 
@@ -691,10 +689,10 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(subject.state.region, .gov)
     }
 
-    /// `perform(_:)` with `.regionPressed` excludes Gov when `fedrampGovRegion` is enabled
-    /// but the cached config belongs to a different region (stale cache).
+    /// `perform(_:)` with `.regionPressed` excludes Gov when the cached config belongs to a
+    /// different region (stale cache).
     @MainActor
-    func test_perform_regionPressed_fedrampGovRegionEnabled_staleConfig() async throws {
+    func test_perform_regionPressed_staleConfig() async throws {
         stateService.preAuthEnvironmentURLs = .defaultUS
         configService.configMocker.withResult(
             ServerConfig(
@@ -717,7 +715,6 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
                 ),
             ),
         )
-        configService.featureFlagsBoolPreAuth[.fedrampGovRegion] = true
 
         await subject.perform(.regionPressed)
 
