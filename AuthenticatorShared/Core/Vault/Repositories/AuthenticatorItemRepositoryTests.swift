@@ -713,6 +713,90 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertEqual(foundItems, [expected.last!])
     }
 
+    /// `searchItemListPublisher()` matches an otpauth item with no issuer by its account name,
+    /// which is the name the list displays for it.
+    func test_searchItemListPublisher_otpAuthNoIssuer_matchesAccountName() async throws {
+        let items = [
+            AuthenticatorItem.fixture(
+                id: "1",
+                name: "myaccount",
+                totpKey: "otpauth://totp/myaccount?secret=JBSWY3DPEHPK3PXP",
+                username: nil,
+            ),
+            AuthenticatorItem.fixture(id: "2", name: "Other"),
+        ]
+        let codeModel = TOTPCodeModel(
+            code: "123456",
+            codeGenerationDate: timeProvider.presentTime,
+            period: 30,
+        )
+        totpService.getTotpCodeResult = .success(codeModel)
+
+        authItemService.authenticatorItemsSubject.send(items)
+
+        var iterator = try await subject.searchItemListPublisher(searchText: "myacc").makeAsyncIterator()
+        let foundItems = try await iterator.next()
+
+        XCTAssertEqual(foundItems?.map(\.id), ["1"])
+    }
+
+    /// `searchItemListPublisher()` matches an item with an issuer by its account name, since the
+    /// list displays the account name below the issuer.
+    func test_searchItemListPublisher_matchesAccountNameWithIssuer() async throws {
+        let items = [
+            AuthenticatorItem.fixture(
+                id: "1",
+                name: "GitHub",
+                totpKey: "otpauth://totp/GitHub:me@example.com?secret=JBSWY3DPEHPK3PXP&issuer=GitHub",
+                username: nil,
+            ),
+            AuthenticatorItem.fixture(id: "2", name: "Other", username: "someone@other.test"),
+        ]
+        let codeModel = TOTPCodeModel(
+            code: "123456",
+            codeGenerationDate: timeProvider.presentTime,
+            period: 30,
+        )
+        totpService.getTotpCodeResult = .success(codeModel)
+
+        authItemService.authenticatorItemsSubject.send(items)
+
+        var iterator = try await subject.searchItemListPublisher(searchText: "example.com").makeAsyncIterator()
+        let foundItems = try await iterator.next()
+
+        XCTAssertEqual(foundItems?.map(\.id), ["1"])
+    }
+
+    /// `searchItemListPublisher()` matches an otpauth item shared from the Password Manager app with
+    /// no issuer by its account name.
+    @MainActor
+    func test_searchItemListPublisher_sharedOtpAuthNoIssuer_matchesAccountName() async throws {
+        application.canOpenUrlResponse = true
+        sharedItemService.syncOn = true
+        let sharedItem = AuthenticatorBridgeItemDataView.fixture(
+            accountDomain: "Domain",
+            accountEmail: "shared@example.com",
+            id: "shared-1",
+            name: "Shared",
+            totpKey: "otpauth://totp/sharedaccount?secret=JBSWY3DPEHPK3PXP",
+        )
+        sharedItemService.storedItems = ["userId": [sharedItem]]
+        let codeModel = TOTPCodeModel(
+            code: "123456",
+            codeGenerationDate: timeProvider.presentTime,
+            period: 30,
+        )
+        totpService.getTotpCodeResult = .success(codeModel)
+
+        authItemService.authenticatorItemsSubject.send([AuthenticatorItem.fixture(id: "1", name: "Other")])
+        sharedItemService.sharedItemsSubject.send([sharedItem])
+
+        var iterator = try await subject.searchItemListPublisher(searchText: "sharedacc").makeAsyncIterator()
+        let foundItems = try await iterator.next()
+
+        XCTAssertEqual(foundItems?.map(\.id), ["shared-1"])
+    }
+
     // MARK: - Private functions
 
     /// Convenience method to create an `ItemListItem` from an `AuthenticatorItem` using our test fixtures.
