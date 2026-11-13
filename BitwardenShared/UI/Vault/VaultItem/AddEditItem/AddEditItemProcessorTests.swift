@@ -2414,11 +2414,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// dismisses the scanner and populates card state.
     @MainActor
     func test_receive_cardFieldChanged_cardScannerLinesUpdated_sufficientData() {
-        cardTextParser.parseCardReturnValue = ScannedCardData(
-            cardNumber: "4111111111111111",
-            expirationMonth: 12,
-            expirationYear: "2028",
-        )
+        cardTextParser.parseCardReturnValue = .fixture()
         subject.state.cardItemState.isCardScannerPresented = true
 
         subject.receive(.cardFieldChanged(.cardScannerLinesUpdated(["4111111111111111", "JANE DOE", "12/28"])))
@@ -2434,11 +2430,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// leaves the scanner open and does not update card state.
     @MainActor
     func test_receive_cardFieldChanged_cardScannerLinesUpdated_insufficientData() {
-        cardTextParser.parseCardReturnValue = ScannedCardData(
-            cardNumber: nil,
-            expirationMonth: 12,
-            expirationYear: "2028",
-        )
+        cardTextParser.parseCardReturnValue = .fixture(cardNumber: nil)
         subject.state.cardItemState.isCardScannerPresented = true
 
         subject.receive(.cardFieldChanged(.cardScannerLinesUpdated(["JANE DOE", "12/28"])))
@@ -2451,16 +2443,113 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// inferred from the detected card number.
     @MainActor
     func test_receive_cardFieldChanged_cardScannerLinesUpdated_setsCardBrand() {
-        cardTextParser.parseCardReturnValue = ScannedCardData(
-            cardNumber: "4111111111111111",
-            expirationMonth: 12,
-            expirationYear: "2028",
-        )
+        cardTextParser.parseCardReturnValue = .fixture()
         subject.state.cardItemState.isCardScannerPresented = true
 
         subject.receive(.cardFieldChanged(.cardScannerLinesUpdated(["4111111111111111", "JANE DOE", "12/28"])))
 
         XCTAssertEqual(subject.state.cardItemState.brand, .custom(.visa))
+    }
+
+    /// `receive(_:)` with `.cardFieldChanged(.cardScannerLinesUpdated)` for a card with no printed
+    /// expiration date waits out the grace period, then populates the card number and brand and
+    /// leaves the expiration fields empty.
+    @MainActor
+    func test_receive_cardFieldChanged_cardScannerLinesUpdated_noExpiration() async throws {
+        cardTextParser.parseCardReturnValue = .fixture(
+            cardNumber: "5333619503715702",
+            expirationMonth: nil,
+            expirationYear: nil,
+        )
+        subject.state.cardItemState.isCardScannerPresented = true
+
+        subject.receive(.cardFieldChanged(.cardScannerLinesUpdated(["5333 6195 0371 5702"])))
+
+        XCTAssertTrue(subject.state.cardItemState.isCardScannerPresented)
+        XCTAssertEqual(subject.state.cardItemState.cardNumber, "")
+
+        let task = try XCTUnwrap(subject.cardScanGracePeriodTask)
+        await task.value
+
+        XCTAssertNil(subject.cardScanGracePeriodTask)
+        XCTAssertFalse(subject.state.cardItemState.isCardScannerPresented)
+        XCTAssertTrue(subject.state.cardItemState.shouldFocusCardholderNameAfterScan)
+        XCTAssertEqual(subject.state.cardItemState.cardNumber, "5333619503715702")
+        XCTAssertEqual(subject.state.cardItemState.brand, .custom(.mastercard))
+        XCTAssertEqual(subject.state.cardItemState.expirationMonth, .default)
+        XCTAssertEqual(subject.state.cardItemState.expirationYear, "")
+    }
+
+    /// `receive(_:)` with `.cardFieldChanged(.cardScannerLinesUpdated)` for a card with no printed
+    /// expiration date clears an expiration date already in the form, rather than keeping one that
+    /// belongs to a different card.
+    @MainActor
+    func test_receive_cardFieldChanged_cardScannerLinesUpdated_noExpiration_clearsPreviousExpiration() async throws {
+        cardTextParser.parseCardReturnValue = .fixture(expirationMonth: nil, expirationYear: nil)
+        subject.state.cardItemState.expirationMonth = .custom(.may)
+        subject.state.cardItemState.expirationYear = "2030"
+        subject.state.cardItemState.isCardScannerPresented = true
+
+        subject.receive(.cardFieldChanged(.cardScannerLinesUpdated(["4111111111111111"])))
+        let task = try XCTUnwrap(subject.cardScanGracePeriodTask)
+        await task.value
+
+        XCTAssertEqual(subject.state.cardItemState.cardNumber, "4111111111111111")
+        XCTAssertEqual(subject.state.cardItemState.expirationMonth, .default)
+        XCTAssertEqual(subject.state.cardItemState.expirationYear, "")
+    }
+
+    /// `receive(_:)` with `.cardFieldChanged(.cardScannerLinesUpdated)` keeps the grace period
+    /// running across repeated number-only updates rather than restarting it.
+    @MainActor
+    func test_receive_cardFieldChanged_cardScannerLinesUpdated_noExpiration_keepsGracePeriod() async throws {
+        cardTextParser.parseCardReturnValue = .fixture(expirationMonth: nil, expirationYear: nil)
+        subject.state.cardItemState.isCardScannerPresented = true
+
+        subject.receive(.cardFieldChanged(.cardScannerLinesUpdated(["4111111111111111"])))
+        let task = try XCTUnwrap(subject.cardScanGracePeriodTask)
+        subject.receive(.cardFieldChanged(.cardScannerLinesUpdated(["4111111111111111"])))
+
+        XCTAssertEqual(subject.cardScanGracePeriodTask, task)
+        await task.value
+    }
+
+    /// `receive(_:)` with `.cardFieldChanged(.cardScannerLinesUpdated)` applies an expiration date
+    /// recognized during the grace period that follows a number-only update, and the grace period
+    /// does not later overwrite it.
+    @MainActor
+    func test_receive_cardFieldChanged_cardScannerLinesUpdated_numberFirstThenExpiration() async throws {
+        cardTextParser.parseCardReturnValue = .fixture(expirationMonth: nil, expirationYear: nil)
+        subject.state.cardItemState.isCardScannerPresented = true
+
+        subject.receive(.cardFieldChanged(.cardScannerLinesUpdated(["4111111111111111"])))
+        let task = try XCTUnwrap(subject.cardScanGracePeriodTask)
+
+        cardTextParser.parseCardReturnValue = .fixture()
+        subject.receive(.cardFieldChanged(.cardScannerLinesUpdated(["4111111111111111", "12/28"])))
+
+        XCTAssertTrue(task.isCancelled)
+        XCTAssertNil(subject.cardScanGracePeriodTask)
+        await task.value
+
+        XCTAssertFalse(subject.state.cardItemState.isCardScannerPresented)
+        XCTAssertEqual(subject.state.cardItemState.cardNumber, "4111111111111111")
+        XCTAssertEqual(subject.state.cardItemState.expirationMonth, .custom(.dec))
+        XCTAssertEqual(subject.state.cardItemState.expirationYear, "2028")
+    }
+
+    /// `receive(_:)` with `.cardFieldChanged(.cardScannerLinesUpdated)` applies an expiration year
+    /// that was detected without a month, leaving the month unset.
+    @MainActor
+    func test_receive_cardFieldChanged_cardScannerLinesUpdated_expirationYearWithoutMonth() {
+        cardTextParser.parseCardReturnValue = .fixture(expirationMonth: nil, expirationYear: "2028")
+        subject.state.cardItemState.isCardScannerPresented = true
+
+        subject.receive(.cardFieldChanged(.cardScannerLinesUpdated(["4111111111111111", "2028"])))
+
+        XCTAssertFalse(subject.state.cardItemState.isCardScannerPresented)
+        XCTAssertEqual(subject.state.cardItemState.expirationMonth, .default)
+        XCTAssertEqual(subject.state.cardItemState.expirationYear, "2028")
     }
 
     /// `receive(_:)` with `.cardFieldChanged(.cardScannerDismissed)` hides the card scanner and
@@ -2474,6 +2563,26 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         XCTAssertFalse(subject.state.cardItemState.isCardScannerPresented)
         XCTAssertFalse(subject.state.cardItemState.shouldFocusCardholderNameAfterScan)
+    }
+
+    /// `receive(_:)` with `.cardFieldChanged(.cardScannerDismissed)` during the grace period that
+    /// follows a number-only update cancels it, so the number is not applied after dismissal.
+    @MainActor
+    func test_receive_cardFieldChanged_cardScannerDismissed_cancelsGracePeriod() async throws {
+        cardTextParser.parseCardReturnValue = .fixture(expirationMonth: nil, expirationYear: nil)
+        subject.state.cardItemState.isCardScannerPresented = true
+
+        subject.receive(.cardFieldChanged(.cardScannerLinesUpdated(["4111111111111111"])))
+        let task = try XCTUnwrap(subject.cardScanGracePeriodTask)
+        subject.receive(.cardFieldChanged(.cardScannerDismissed))
+
+        XCTAssertTrue(task.isCancelled)
+        XCTAssertNil(subject.cardScanGracePeriodTask)
+        await task.value
+
+        XCTAssertFalse(subject.state.cardItemState.isCardScannerPresented)
+        XCTAssertFalse(subject.state.cardItemState.shouldFocusCardholderNameAfterScan)
+        XCTAssertEqual(subject.state.cardItemState.cardNumber, "")
     }
 
     /// `receive(_:)` with `.clearTOTPKey` clears the authenticator key.
