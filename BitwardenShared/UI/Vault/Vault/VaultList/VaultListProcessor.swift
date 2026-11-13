@@ -138,7 +138,7 @@ final class VaultListProcessor: StateProcessor<
             state.shouldShowUpgradedToPremiumActionCard = false
             await services.billingService.setUpgradedToPremiumActionCardDismissed()
         case let .itemPressed(item):
-            handleItemTapped(item)
+            await handleItemTapped(item)
         case let .morePressed(item):
             await morePressed(item: item)
         case let .profileSwitcher(profileEffect):
@@ -417,7 +417,7 @@ extension VaultListProcessor {
     ///
     /// - Parameter item: The `VaultListItem` that was tapped.
     ///
-    private func handleItemTapped(_ item: VaultListItem) {
+    private func handleItemTapped(_ item: VaultListItem) async {
         switch item.itemType {
         case let .cipher(cipherListView, _):
             if cipherListView.isDecryptionFailure, let cipherId = cipherListView.id {
@@ -429,12 +429,16 @@ extension VaultListProcessor {
             }
         case let .group(group, count):
             if !state.hasPremium, group == .archive, count == 0 {
+                let isInAppUpgradeAvailable = await services.billingRepository.isInAppUpgradeAvailable()
                 coordinator.showAlert(
-                    Alert.archiveUnavailable(action: { [weak self] in
-                        Task { [weak self] in
-                            await self?.navigateToPremiumUpgrade()
-                        }
-                    }),
+                    Alert.archiveUnavailable(
+                        isInAppUpgradeAvailable: isInAppUpgradeAvailable,
+                        action: { [weak self] in
+                            Task { [weak self] in
+                                await self?.navigateToPremiumUpgrade()
+                            }
+                        },
+                    ),
                 )
                 return
             }
