@@ -328,6 +328,40 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertTrue(identities.isEmpty)
     }
 
+    /// `createCredentialIdentities(from:accountHasPremium:)` adds an `https://` scheme to the
+    /// service identifier of both identities when the login URI doesn't have a scheme.
+    func test_createCredentialIdentities_uriWithoutScheme() async throws {
+        guard #available(iOS 18.0, *) else {
+            throw XCTSkip("iOS 18.0 is required to run this test.")
+        }
+
+        let cipher = CipherView.fixture(
+            login: .fixture(
+                password: "1234",
+                uris: [
+                    .fixture(uri: "www.example.com", match: nil),
+                ],
+                username: "test",
+                totp: "1234",
+            ),
+        )
+        let identities = await subject.createCredentialIdentities(from: cipher, accountHasPremium: true)
+        XCTAssertEqual(identities.count, 2)
+        let oneTimeCodeIdentity = try XCTUnwrap(identities[0] as? ASOneTimeCodeCredentialIdentity)
+        let passwordIdentity = try XCTUnwrap(identities[1] as? ASPasswordCredentialIdentity)
+
+        XCTAssertEqual(oneTimeCodeIdentity.serviceIdentifier.identifier, "https://www.example.com")
+        XCTAssertEqual(
+            oneTimeCodeIdentity.serviceIdentifier.type,
+            ASCredentialServiceIdentifier.IdentifierType.URL,
+        )
+        XCTAssertEqual(passwordIdentity.serviceIdentifier.identifier, "https://www.example.com")
+        XCTAssertEqual(
+            passwordIdentity.serviceIdentifier.type,
+            ASCredentialServiceIdentifier.IdentifierType.URL,
+        )
+    }
+
     /// `createCredentialIdentities(from:)` returns no credentials if the cipher view is not login.
     func test_createCredentialIdentities_notLogin() async throws {
         guard #available(iOS 17.0, *) else {
@@ -361,6 +395,69 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertEqual(passwordIdentity.serviceIdentifier.type, ASCredentialServiceIdentifier.IdentifierType.URL)
         XCTAssertEqual(passwordIdentity.user, expectedUsername)
         XCTAssertEqual(passwordIdentity.recordIdentifier, cipher.id)
+    }
+
+    /// `tryCreatePasswordCredentialIdentity(from:)` leaves an app URI unchanged.
+    func test_tryCreatePasswordCredentialIdentity_appUri() throws {
+        let cipher = CipherView.fixture(
+            login: .fixture(
+                password: "1234",
+                uris: [
+                    .fixture(uri: "iosapp://com.example.app", match: .domain),
+                ],
+                username: "test",
+            ),
+        )
+        let passwordIdentity = try XCTUnwrap(subject.tryCreatePasswordCredentialIdentity(from: cipher))
+        XCTAssertEqual(passwordIdentity.serviceIdentifier.identifier, "iosapp://com.example.app")
+    }
+
+    /// `tryCreatePasswordCredentialIdentity(from:)` leaves a URI with an `http://` scheme unchanged.
+    func test_tryCreatePasswordCredentialIdentity_httpScheme() throws {
+        let cipher = CipherView.fixture(
+            login: .fixture(
+                password: "1234",
+                uris: [
+                    .fixture(uri: "http://example.com/login", match: .domain),
+                ],
+                username: "test",
+            ),
+        )
+        let passwordIdentity = try XCTUnwrap(subject.tryCreatePasswordCredentialIdentity(from: cipher))
+        XCTAssertEqual(passwordIdentity.serviceIdentifier.identifier, "http://example.com/login")
+    }
+
+    /// `tryCreatePasswordCredentialIdentity(from:)` adds an `https://` scheme to the service
+    /// identifier when the login URI doesn't have a scheme.
+    func test_tryCreatePasswordCredentialIdentity_uriWithoutScheme() throws {
+        let cipher = CipherView.fixture(
+            login: .fixture(
+                password: "1234",
+                uris: [
+                    .fixture(uri: "www.example.com", match: .domain),
+                ],
+                username: "test",
+            ),
+        )
+        let passwordIdentity = try XCTUnwrap(subject.tryCreatePasswordCredentialIdentity(from: cipher))
+        XCTAssertEqual(passwordIdentity.serviceIdentifier.identifier, "https://www.example.com")
+        XCTAssertEqual(passwordIdentity.serviceIdentifier.type, ASCredentialServiceIdentifier.IdentifierType.URL)
+    }
+
+    /// `tryCreatePasswordCredentialIdentity(from:)` adds an `https://` scheme to the service
+    /// identifier when the login URI is a host and port without a scheme.
+    func test_tryCreatePasswordCredentialIdentity_uriWithoutSchemeWithPort() throws {
+        let cipher = CipherView.fixture(
+            login: .fixture(
+                password: "1234",
+                uris: [
+                    .fixture(uri: "localhost:8080", match: .domain),
+                ],
+                username: "test",
+            ),
+        )
+        let passwordIdentity = try XCTUnwrap(subject.tryCreatePasswordCredentialIdentity(from: cipher))
+        XCTAssertEqual(passwordIdentity.serviceIdentifier.identifier, "https://localhost:8080")
     }
 
     /// `tryCreatePasswordCredentialIdentity(from:)` returns `nil` when cipher doesn't have login.
