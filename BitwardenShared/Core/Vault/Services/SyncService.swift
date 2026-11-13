@@ -173,9 +173,6 @@ class DefaultSyncService: SyncService {
     /// The service for managing the collections for the user.
     private let collectionService: CollectionService
 
-    /// The service to get server-specified configuration.
-    private let configService: ConfigService
-
     /// The repository used by the application to manage fill-assist data.
     private let fillAssistRepository: FillAssistRepository
 
@@ -231,7 +228,6 @@ class DefaultSyncService: SyncService {
     ///   - cipherService: The service for managing the ciphers for the user.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - collectionService: The service for managing the collections for the user.
-    ///   - configService: The service to get server-specified configuration.
     ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - folderService: The service for managing the folders for the user.
     ///   - keyConnectorService: The service used by the application to manage Key Connector.
@@ -251,7 +247,6 @@ class DefaultSyncService: SyncService {
         cipherService: CipherService,
         clientService: ClientService,
         collectionService: CollectionService,
-        configService: ConfigService,
         fillAssistRepository: FillAssistRepository,
         flightRecorder: FlightRecorder,
         folderService: FolderService,
@@ -271,7 +266,6 @@ class DefaultSyncService: SyncService {
         self.cipherService = cipherService
         self.clientService = clientService
         self.collectionService = collectionService
-        self.configService = configService
         self.fillAssistRepository = fillAssistRepository
         self.flightRecorder = flightRecorder
         self.folderService = folderService
@@ -297,9 +291,6 @@ class DefaultSyncService: SyncService {
     }
 
     func organizationIdRequiringVaultMigration() async throws -> String? {
-        guard await configService.getFeatureFlag(.migrateMyVaultToMyItems) else {
-            return nil
-        }
         guard let organizationId = await policyService.getEarliestOrganizationApplyingPolicy(.personalOwnership)
         else {
             return nil
