@@ -27,7 +27,7 @@ struct FloatingActionMenu<Content: View>: View {
         .accessibilitySortPriority(1)
         .apply { view in
             if #available(iOS 17, *) {
-                view.buttonStyle(CircleButtonStyle(diameter: 50))
+                view.buttonStyle(.floatingActionButton)
             } else {
                 // Prior to iOS 17, applying a custom button style to a Menu component has no effect,
                 // so a custom menu style is needed instead.
@@ -54,17 +54,20 @@ struct FloatingActionMenu<Content: View>: View {
 
 #if DEBUG
 #Preview {
-    VStack {
-        FloatingActionMenu(image: SharedAsset.Icons.plus32.swiftUIImage) {
-            Button("Item 1") {}
-            Button("Item 2") {}
-            Button("Item 3") {}
+    VStack {}
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
+        .overlay(alignment: .bottomTrailing) {
+            FloatingActionMenu(image: SharedAsset.Icons.plus32.swiftUIImage) {
+                Button("Item 1") {}
+                Button("Item 2") {}
+                Button("Item 3") {}
 
-            Divider()
+                Divider()
 
-            Button("Other Item") {}
+                Button("Other Item") {}
+            }
+            .padding([.trailing, .bottom], 16)
         }
-    }
-    .padding()
 }
 #endif
