@@ -981,6 +981,30 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:pinProtectedUserKeyEnvelope_1"), "123")
     }
 
+    /// `planBadgeDismissed(userId:)` returns `false` if there isn't a previously stored value.
+    func test_planBadgeDismissed_isInitiallyFalse() {
+        XCTAssertFalse(subject.planBadgeDismissed(userId: "1"))
+    }
+
+    /// `planBadgeDismissed(userId:)` can be used to get and set the persisted value in user defaults.
+    func test_planBadgeDismissed_withValue() {
+        subject.setPlanBadgeDismissed(true, userId: "1")
+        XCTAssertTrue(subject.planBadgeDismissed(userId: "1"))
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:planBadgeDismissed_1"))
+
+        subject.setPlanBadgeDismissed(false, userId: "1")
+        XCTAssertFalse(subject.planBadgeDismissed(userId: "1"))
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:planBadgeDismissed_1"))
+    }
+
+    /// `planBadgeDismissed(userId:)` stores the value separately for each user.
+    func test_planBadgeDismissed_withMultipleUsers() {
+        subject.setPlanBadgeDismissed(true, userId: "1")
+
+        XCTAssertTrue(subject.planBadgeDismissed(userId: "1"))
+        XCTAssertFalse(subject.planBadgeDismissed(userId: "2"))
+    }
+
     /// `preAuthEnvironmentURLs` returns `nil` if there isn't a previously stored value.
     func test_preAuthEnvironmentURLs_isInitiallyNil() {
         XCTAssertNil(subject.preAuthEnvironmentURLs)

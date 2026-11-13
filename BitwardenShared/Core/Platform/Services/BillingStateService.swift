@@ -6,6 +6,26 @@ import Foundation
 /// A service that provides state management functionality around billing.
 ///
 protocol BillingStateService { // sourcery: AutoMockable
+    // MARK: Plan Badge
+
+    /// Gets whether the Plan badge has been dismissed.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID associated with the Plan badge dismissed value.
+    ///     Defaults to the active account if `nil`.
+    /// - Returns: Whether the Plan badge has been dismissed.
+    ///
+    func getPlanBadgeDismissed(userId: String?) async throws -> Bool
+
+    /// Sets whether the Plan badge has been dismissed.
+    ///
+    /// - Parameters:
+    ///   - dismissed: Whether the Plan badge has been dismissed.
+    ///   - userId: The user ID associated with the Plan badge dismissed value.
+    ///     Defaults to the active account if `nil`.
+    ///
+    func setPlanBadgeDismissed(_ dismissed: Bool, userId: String?) async throws
+
     // MARK: Premium Upgrade Banner
 
     /// Gets whether the Premium upgrade banner has been dismissed.
@@ -131,6 +151,25 @@ protocol BillingStateService { // sourcery: AutoMockable
 // MARK: - BillingStateService Convenience Methods
 
 extension BillingStateService {
+    // MARK: Plan Badge
+
+    /// Gets whether the Plan badge has been dismissed for the active account.
+    ///
+    /// - Returns: Whether the Plan badge has been dismissed.
+    ///
+    func getPlanBadgeDismissed() async throws -> Bool {
+        try await getPlanBadgeDismissed(userId: nil)
+    }
+
+    /// Sets whether the Plan badge has been dismissed for the active account.
+    ///
+    /// - Parameters:
+    ///   - dismissed: Whether the Plan badge has been dismissed.
+    ///
+    func setPlanBadgeDismissed(_ dismissed: Bool) async throws {
+        try await setPlanBadgeDismissed(dismissed, userId: nil)
+    }
+
     // MARK: Premium Upgrade Banner
 
     /// Gets whether the Premium upgrade banner has been dismissed for the active account.

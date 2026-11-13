@@ -67,6 +67,15 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func hasPersonalSubscription() async -> Bool?
 
+    /// Gets whether the Plan badge has been dismissed by the active account.
+    ///
+    /// If the stored value can't be read, the error is logged and the badge is treated as not
+    /// dismissed.
+    ///
+    /// - Returns: Whether the Plan badge has been dismissed.
+    ///
+    func isPlanBadgeDismissed() async -> Bool
+
     /// Gets whether the Premium upgrade banner has been dismissed by the active account.
     ///
     /// - Returns: Whether the banner has been dismissed.
@@ -144,6 +153,11 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func retryPendingUpgrade() async
 
+    /// Sets the Plan badge as dismissed for the active account, so it is not shown again until the
+    /// account logs out.
+    ///
+    func setPlanBadgeDismissed() async
+
     /// Sets the Premium upgrade banner as dismissed for the active account, so it is not shown again.
     ///
     func setPremiumUpgradeBannerDismissed() async throws
@@ -181,7 +195,7 @@ extension BillingService {
 
 /// The default implementation of `BillingService`.
 ///
-class DefaultBillingService: BillingService {
+class DefaultBillingService: BillingService { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// The API service used for billing requests.
@@ -321,6 +335,15 @@ class DefaultBillingService: BillingService {
         }
     }
 
+    func isPlanBadgeDismissed() async -> Bool {
+        do {
+            return try await billingStateService.getPlanBadgeDismissed()
+        } catch {
+            errorReporter.log(error: error)
+            return false
+        }
+    }
+
     func isPremiumUpgradeBannerDismissed() async -> Bool {
         do {
             return try await billingStateService.getPremiumUpgradeBannerDismissed()
@@ -448,6 +471,14 @@ class DefaultBillingService: BillingService {
         }
 
         await syncAndReport(userId: userId)
+    }
+
+    func setPlanBadgeDismissed() async {
+        do {
+            try await billingStateService.setPlanBadgeDismissed(true)
+        } catch {
+            errorReporter.log(error: error)
+        }
     }
 
     func setPremiumUpgradeBannerDismissed() async throws {
