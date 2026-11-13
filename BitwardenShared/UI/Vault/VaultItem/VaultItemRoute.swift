@@ -34,6 +34,12 @@ enum VaultItemRoute: Equatable, Hashable {
     ///
     case attachments(_ cipher: CipherView)
 
+    /// A route to preview an attachment.
+    ///
+    /// - Parameter state: The initial state of the attachment preview screen.
+    ///
+    case attachmentPreview(_ state: AttachmentPreviewState)
+
     /// A route to the clone item screen.
     ///
     /// - Parameters:
@@ -47,6 +53,10 @@ enum VaultItemRoute: Equatable, Hashable {
     /// - Parameter action: The action to perform on dismiss.
     ///
     case dismiss(_ action: DismissAction? = nil)
+
+    /// A route to dismiss only the topmost presented screen, leaving any screens it was presented
+    /// over in place.
+    case dismissPresented
 
     /// A route to edit the collections of a cipher.
     case editCollections(CipherView)

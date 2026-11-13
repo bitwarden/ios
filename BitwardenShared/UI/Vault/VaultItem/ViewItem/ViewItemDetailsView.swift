@@ -475,19 +475,16 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
     private func attachmentRow(_ attachment: AttachmentView, hasDivider: Bool) -> some View {
         BitwardenField {
             HStack {
-                Text(attachment.fileName ?? "")
-                    .styleGuide(.body)
-                    .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
-                    .lineLimit(1)
-
-                Spacer()
-
-                if let sizeName = attachment.sizeName {
-                    Text(sizeName)
-                        .styleGuide(.body)
-                        .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
-                        .lineLimit(1)
-                }
+                attachmentRowLabel(attachment)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        store.send(.attachmentTapped(attachment))
+                    }
+                    .accessibilityElement(children: .combine)
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityAction {
+                        store.send(.attachmentTapped(attachment))
+                    }
 
                 Button {
                     store.send(.downloadAttachment(attachment))
@@ -500,6 +497,29 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("CipherAttachment")
+    }
+
+    /// The file name and size of an attachment, which together act as the tappable area of an
+    /// attachment row that opens the attachment preview.
+    ///
+    /// - Parameter attachment: The attachment to display.
+    ///
+    private func attachmentRowLabel(_ attachment: AttachmentView) -> some View {
+        HStack {
+            Text(attachment.fileName ?? "")
+                .styleGuide(.body)
+                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
+                .lineLimit(1)
+
+            Spacer()
+
+            if let sizeName = attachment.sizeName {
+                Text(sizeName)
+                    .styleGuide(.body)
+                    .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
+                    .lineLimit(1)
+            }
+        }
     }
 
     /// Returns a view used to display where the item belongs to information.

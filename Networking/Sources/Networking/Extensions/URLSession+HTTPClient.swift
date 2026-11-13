@@ -16,14 +16,13 @@ extension URLSession: HTTPClient {
                 }
 
                 do {
-                    let temporaryURL = try FileManager.default.url(
-                        for: .applicationSupportDirectory,
-                        in: .userDomainMask,
-                        appropriateFor: nil,
-                        create: true,
-                    )
-                    .appendingPathComponent("temp")
-                    .appendingPathComponent(url.lastPathComponent)
+                    // This is a general purpose download, so the file is stored in a temporary
+                    // directory rather than a feature specific one. Callers are responsible for
+                    // moving or removing the file. For example, attachments are still encrypted
+                    // here and are removed once they're decrypted into the attachments directory.
+                    let temporaryURL = FileManager.default.temporaryDirectory
+                        .appendingPathComponent("temp")
+                        .appendingPathComponent(url.lastPathComponent)
 
                     try FileManager.default.createDirectory(at: temporaryURL, withIntermediateDirectories: true)
 
