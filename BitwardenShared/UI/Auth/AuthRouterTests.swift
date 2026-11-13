@@ -32,6 +32,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         biometricsRepository = MockBiometricsRepository()
         biometricsRepository.getBiometricUnlockStatusReturnValue = .notAvailable
         configService = MockConfigService()
+        configService.featureFlagsBool[.accountSetupOnboardingOnSignIn] = true
         errorReporter = MockErrorReporter()
         rehydrationHelper = MockRehydrationHelper()
         stateService = MockStateService()
@@ -156,6 +157,31 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(route, .vaultUnlockSetup(.createAccount))
         XCTAssertTrue(authRepository.unlockVaultWithNeverlockKeyCalled)
         XCTAssertEqual(stateService.pendingAccountSetupOnboarding["1"], false)
+    }
+
+    /// `handleAndRoute(_ :)` redirects `.accountBecameActive()` to `.completeWithNeverUnlockKey`
+    /// and keeps the account setup onboarding marker when the vault is unlocked with the never lock
+    /// key and account setup onboarding on sign-in is disabled.
+    func test_handleAndRoute_accountBecameActive_neverLock_pendingAccountSetupOnboarding_onboardingOnSignInDisabled() async { // swiftlint:disable:this line_length
+        configService.featureFlagsBool[.accountSetupOnboardingOnSignIn] = false
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        stateService.pendingAccountSetupOnboarding["1"] = true
+        authRepository.isLockedResult = .success(true)
+        vaultTimeoutService.vaultTimeout = [
+            active.profile.userId: .never,
+        ]
+        authRepository.unlockVaultWithNeverlockResult = .success(())
+        let route = await subject.handleAndRoute(
+            .accountBecameActive(
+                active,
+                animated: true,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: false,
+            ),
+        )
+        XCTAssertEqual(route, .completeWithNeverUnlockKey)
+        XCTAssertEqual(stateService.pendingAccountSetupOnboarding["1"], true)
     }
 
     /// `handleAndRoute(_ :)` redirects `.accountBecameActive()` to `.completeWithNeverUnlockKey`
@@ -332,6 +358,65 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         XCTAssertEqual(route, .complete)
         XCTAssertFalse(biometricsRepository.getBiometricUnlockStatusCalled)
+    }
+
+    /// `handleAndRoute(_:)` redirects `.didCompleteAuth` to `.vaultUnlockSetup` if the user still
+    /// needs to set up a vault unlock method and account setup onboarding on sign-in is disabled.
+    func test_handleAndRoute_didCompleteAuth_onboardingOnSignInDisabled_incompleteVaultUnlock() async {
+        configService.featureFlagsBool[.accountSetupOnboardingOnSignIn] = false
+        authRepository.activeAccount = .fixture()
+        stateService.activeAccount = .fixture()
+        stateService.accountSetupAutofill["1"] = .incomplete
+        stateService.accountSetupVaultUnlock["1"] = .incomplete
+
+        let route = await subject.handleAndRoute(.didCompleteAuth)
+
+        XCTAssertEqual(route, .vaultUnlockSetup(.createAccount))
+    }
+
+    /// `handleAndRoute(_:)` redirects `.didCompleteAuth` to `.autofillSetup` if the user still
+    /// needs to set up autofill and account setup onboarding on sign-in is disabled.
+    func test_handleAndRoute_didCompleteAuth_onboardingOnSignInDisabled_incompleteAutofill() async {
+        configService.featureFlagsBool[.accountSetupOnboardingOnSignIn] = false
+        authRepository.activeAccount = .fixture()
+        stateService.activeAccount = .fixture()
+        stateService.accountSetupAutofill["1"] = .incomplete
+
+        let route = await subject.handleAndRoute(.didCompleteAuth)
+
+        XCTAssertEqual(route, .autofillSetup)
+    }
+
+    /// `handleAndRoute(_:)` redirects `.didCompleteAuth` to `.complete` if the user still needs to
+    /// set up a vault unlock method but is within the app extension and account setup onboarding on
+    /// sign-in is disabled.
+    func test_handleAndRoute_didCompleteAuth_onboardingOnSignInDisabled_incomplete_withinAppExtension() async {
+        subject = makeSubject(isInAppExtension: true)
+        configService.featureFlagsBool[.accountSetupOnboardingOnSignIn] = false
+        authRepository.activeAccount = .fixture()
+        stateService.activeAccount = .fixture()
+        stateService.accountSetupVaultUnlock["1"] = .incomplete
+
+        let route = await subject.handleAndRoute(.didCompleteAuth)
+
+        XCTAssertEqual(route, .complete)
+    }
+
+    /// `handleAndRoute(_:)` redirects `.didCompleteAuth` to `.complete` without evaluating or
+    /// consuming pending account setup onboarding if account setup onboarding on sign-in is
+    /// disabled.
+    func test_handleAndRoute_didCompleteAuth_onboardingOnSignInDisabled_pendingAccountSetupOnboarding() async {
+        configService.featureFlagsBool[.accountSetupOnboardingOnSignIn] = false
+        authRepository.activeAccount = .fixture()
+        autofillCredentialService.isAutofillCredentialsEnabled = false
+        stateService.activeAccount = .fixture()
+        stateService.pendingAccountSetupOnboarding["1"] = true
+
+        let route = await subject.handleAndRoute(.didCompleteAuth)
+
+        XCTAssertEqual(route, .complete)
+        XCTAssertFalse(biometricsRepository.getBiometricUnlockStatusCalled)
+        XCTAssertEqual(stateService.pendingAccountSetupOnboarding["1"], true)
     }
 
     /// `handleAndRoute(_:)` redirects `.didCompleteAuth` to `.complete` without evaluating account
@@ -553,6 +638,37 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         XCTAssertEqual(route, .autofillSetup)
         XCTAssertFalse(biometricsRepository.getBiometricUnlockStatusCalled)
+    }
+
+    /// `handleAndRoute(_:)` redirects `.didCompleteVaultUnlockSetup` to `.autofillSetup` if the
+    /// user still needs to set up autofill and account setup onboarding on sign-in is disabled.
+    func test_handleAndRoute_didCompleteVaultUnlockSetup_onboardingOnSignInDisabled_incompleteAutofill() async {
+        configService.featureFlagsBool[.accountSetupOnboardingOnSignIn] = false
+        authRepository.activeAccount = .fixture()
+        autofillCredentialService.isAutofillCredentialsEnabled = true
+        stateService.activeAccount = .fixture()
+        stateService.accountSetupAutofill["1"] = .incomplete
+        stateService.accountSetupVaultUnlock["1"] = .complete
+
+        let route = await subject.handleAndRoute(.didCompleteVaultUnlockSetup)
+
+        XCTAssertEqual(route, .autofillSetup)
+    }
+
+    /// `handleAndRoute(_:)` redirects `.didCompleteVaultUnlockSetup` to `.complete` if the user
+    /// doesn't need to set up autofill and account setup onboarding on sign-in is disabled, even if
+    /// autofill is off.
+    func test_handleAndRoute_didCompleteVaultUnlockSetup_onboardingOnSignInDisabled_setUpLaterAutofill() async {
+        configService.featureFlagsBool[.accountSetupOnboardingOnSignIn] = false
+        authRepository.activeAccount = .fixture()
+        autofillCredentialService.isAutofillCredentialsEnabled = false
+        stateService.activeAccount = .fixture()
+        stateService.accountSetupAutofill["1"] = .setUpLater
+        stateService.accountSetupVaultUnlock["1"] = .setUpLater
+
+        let route = await subject.handleAndRoute(.didCompleteVaultUnlockSetup)
+
+        XCTAssertEqual(route, .complete)
     }
 
     /// `handleAndRoute(_:)` redirects `.didCompleteVaultUnlockSetup` to `.complete` if autofill is

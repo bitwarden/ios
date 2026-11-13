@@ -20,6 +20,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     var client: MockHTTPClient!
     var clientService: MockClientService!
     var configService: MockConfigService!
+    var credentialIdentityStore: MockCredentialIdentityStore!
     var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
     var keychainRepository: MockKeychainRepository!
@@ -53,6 +54,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                     version: "2024.6.0",
                 ),
             ))
+        configService.featureFlagsBool[.accountSetupOnboardingOnSignIn] = true
+        credentialIdentityStore = MockCredentialIdentityStore()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         keychainRepository = MockKeychainRepository()
@@ -72,6 +75,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             authAPIService: authAPIService,
             clientService: clientService,
             configService: configService,
+            credentialIdentityStore: credentialIdentityStore,
             environmentService: environmentService,
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,
@@ -91,6 +95,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         client = nil
         clientService = nil
         configService = nil
+        credentialIdentityStore = nil
         environmentService = nil
         errorReporter = nil
         keychainRepository = nil
@@ -750,6 +755,88 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertNil(stateService.accountSetupVaultUnlock["13512467-9cfe-43b0-969f-07534084764b"])
     }
 
+    /// `loginWithMasterPassword(_:username:isNewAccount:)` logs the user in with the password for
+    /// a newly created account and sets the account setup progress that drives onboarding if
+    /// account setup onboarding on sign-in is disabled, without marking onboarding as pending.
+    @MainActor
+    func test_loginWithMasterPassword_isNewAccount_onboardingOnSignInDisabled() async throws {
+        client.results = [
+            .httpSuccess(testData: .preLoginSuccess),
+            .httpSuccess(testData: .identityTokenSuccess),
+        ]
+        appIDSettingsStore.appID = "App ID"
+        clientService.mockAuth.hashPasswordReturnValue = "hashed password"
+        configService.featureFlagsBool[.accountSetupOnboardingOnSignIn] = false
+        credentialIdentityStore.state.mockIsEnabled = false
+        stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
+        systemDevice.modelIdentifier = "Model id"
+
+        try await subject.loginWithMasterPassword(
+            "Password1234!",
+            username: "email@example.com",
+            isNewAccount: true,
+        )
+
+        XCTAssertEqual(stateService.accountsAdded, [Account.fixtureAccountLogin()])
+        XCTAssertEqual(stateService.accountSetupAutofill["13512467-9cfe-43b0-969f-07534084764b"], .incomplete)
+        XCTAssertEqual(stateService.accountSetupImportLogins["13512467-9cfe-43b0-969f-07534084764b"], .incomplete)
+        XCTAssertEqual(stateService.accountSetupVaultUnlock["13512467-9cfe-43b0-969f-07534084764b"], .incomplete)
+        XCTAssertTrue(stateService.pendingAccountSetupOnboarding.isEmpty)
+    }
+
+    /// `loginWithMasterPassword(_:username:isNewAccount:)` logs the user in with the password for
+    /// a newly created account and sets the autofill account setup progress to complete if autofill
+    /// is already enabled and account setup onboarding on sign-in is disabled.
+    @MainActor
+    func test_loginWithMasterPassword_isNewAccount_onboardingOnSignInDisabled_autofillEnabled() async throws {
+        client.results = [
+            .httpSuccess(testData: .preLoginSuccess),
+            .httpSuccess(testData: .identityTokenSuccess),
+        ]
+        appIDSettingsStore.appID = "App ID"
+        clientService.mockAuth.hashPasswordReturnValue = "hashed password"
+        configService.featureFlagsBool[.accountSetupOnboardingOnSignIn] = false
+        credentialIdentityStore.state.mockIsEnabled = true
+        stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
+        systemDevice.modelIdentifier = "Model id"
+
+        try await subject.loginWithMasterPassword(
+            "Password1234!",
+            username: "email@example.com",
+            isNewAccount: true,
+        )
+
+        XCTAssertEqual(stateService.accountSetupAutofill["13512467-9cfe-43b0-969f-07534084764b"], .complete)
+        XCTAssertEqual(stateService.accountSetupImportLogins["13512467-9cfe-43b0-969f-07534084764b"], .incomplete)
+        XCTAssertEqual(stateService.accountSetupVaultUnlock["13512467-9cfe-43b0-969f-07534084764b"], .incomplete)
+    }
+
+    /// `loginWithMasterPassword(_:username:isNewAccount:)` logs an error instead of throwing if
+    /// setting the account setup progress fails and account setup onboarding on sign-in is disabled.
+    @MainActor
+    func test_loginWithMasterPassword_isNewAccount_onboardingOnSignInDisabled_accountSetupError() async throws {
+        client.results = [
+            .httpSuccess(testData: .preLoginSuccess),
+            .httpSuccess(testData: .identityTokenSuccess),
+        ]
+        appIDSettingsStore.appID = "App ID"
+        clientService.mockAuth.hashPasswordReturnValue = "hashed password"
+        configService.featureFlagsBool[.accountSetupOnboardingOnSignIn] = false
+        stateService.accountSetupAutofillError = BitwardenTestError.example
+        stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
+        systemDevice.modelIdentifier = "Model id"
+
+        try await subject.loginWithMasterPassword(
+            "Password1234!",
+            username: "email@example.com",
+            isNewAccount: true,
+        )
+
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        XCTAssertNil(stateService.accountSetupImportLogins["13512467-9cfe-43b0-969f-07534084764b"])
+        XCTAssertNil(stateService.accountSetupVaultUnlock["13512467-9cfe-43b0-969f-07534084764b"])
+    }
+
     /// `loginWithMasterPassword(_:username:)` logs in with the password updates AccountProfile's
     /// `.forcePasswordResetReason` value if policy requires user to update password.
     @MainActor
@@ -825,6 +912,32 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
 
         XCTAssertEqual(stateService.accountsAdded, [Account.fixtureAccountLogin()])
         XCTAssertEqual(stateService.pendingAccountSetupOnboarding, ["13512467-9cfe-43b0-969f-07534084764b": false])
+    }
+
+    /// `loginWithMasterPassword(_:username:isNewAccount:)` doesn't mark account setup onboarding as
+    /// pending if account setup onboarding on sign-in is disabled.
+    @MainActor
+    func test_loginWithMasterPassword_onboardingOnSignInDisabled() async throws {
+        client.results = [
+            .httpSuccess(testData: .preLoginSuccess),
+            .httpSuccess(testData: .identityTokenSuccess),
+        ]
+        appIDSettingsStore.appID = "App ID"
+        clientService.mockAuth.hashPasswordReturnValue = "hashed password"
+        configService.featureFlagsBool[.accountSetupOnboardingOnSignIn] = false
+        stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
+        systemDevice.modelIdentifier = "Model id"
+
+        try await subject.loginWithMasterPassword(
+            "Password1234!",
+            username: "email@example.com",
+            isNewAccount: false,
+        )
+
+        XCTAssertEqual(stateService.accountsAdded, [Account.fixtureAccountLogin()])
+        XCTAssertTrue(stateService.pendingAccountSetupOnboarding.isEmpty)
+        XCTAssertNil(stateService.accountSetupAutofill["13512467-9cfe-43b0-969f-07534084764b"])
+        XCTAssertNil(stateService.accountSetupVaultUnlock["13512467-9cfe-43b0-969f-07534084764b"])
     }
 
     /// `loginWithMasterPassword(_:username:isNewAccount:)` logs an error but still logs the user in if

@@ -146,7 +146,7 @@ final class PasswordAutoFillProcessor: StateProcessor<
         hasCompletedOnboarding = true
         isAwaitingReturnFromSettings = false
 
-        await updateAccountSetupAutofillProgress()
+        await updateAccountSetupAutofillProgressIfNeeded()
         await navigateOnCompletion()
     }
 
@@ -219,9 +219,12 @@ final class PasswordAutoFillProcessor: StateProcessor<
     }
 
     /// Updates the autofill setup progress when the onboarding step is completed, based on whether
-    /// autofill is turned on, so the step isn't shown again.
+    /// autofill is turned on, so the step isn't shown again. This is only needed if account setup
+    /// onboarding on sign-in is disabled, since the stored progress then determines which steps are
+    /// shown.
     ///
-    private func updateAccountSetupAutofillProgress() async {
+    private func updateAccountSetupAutofillProgressIfNeeded() async {
+        guard await !services.configService.getFeatureFlag(.accountSetupOnboardingOnSignIn) else { return }
         let isAutofillEnabled = await services.autofillCredentialService.isAutofillCredentialsEnabled()
         do {
             try await services.stateService.setAccountSetupAutofill(isAutofillEnabled ? .complete : .setUpLater)

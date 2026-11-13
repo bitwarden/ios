@@ -36,8 +36,14 @@ extension AuthRouter {
             return .updateMasterPassword
         }
 
-        if !isInAppExtension, await consumePendingAccountSetupOnboarding(userId: account.profile.userId) {
-            return await accountSetupOnboardingRedirect(userId: account.profile.userId)
+        if !isInAppExtension {
+            if await isAccountSetupOnboardingOnSignInEnabled() {
+                if await consumePendingAccountSetupOnboarding(userId: account.profile.userId) {
+                    return await accountSetupOnboardingRedirect(userId: account.profile.userId)
+                }
+            } else if let accountSetupRoute = await accountSetupProgressRedirect() {
+                return accountSetupRoute
+            }
         }
 
         return await completeRedirect()
@@ -50,6 +56,12 @@ extension AuthRouter {
     ///
     func completeVaultUnlockSetupRedirect() async -> AuthRoute {
         guard !isInAppExtension else { return await completeRedirect() }
+        guard await isAccountSetupOnboardingOnSignInEnabled() else {
+            if let accountSetupRoute = await accountSetupProgressRedirect() {
+                return accountSetupRoute
+            }
+            return await completeRedirect()
+        }
         return await autofillSetupRedirect()
     }
 
@@ -375,7 +387,9 @@ extension AuthRouter {
                 // If the user has enabled Never Lock, but the vault is locked,
                 // unlock the vault and return `.complete`.
                 try await services.authRepository.unlockVaultWithNeverlockKey()
-                if !isInAppExtension, await consumePendingAccountSetupOnboarding(userId: userId) {
+                if !isInAppExtension,
+                   await isAccountSetupOnboardingOnSignInEnabled(),
+                   await consumePendingAccountSetupOnboarding(userId: userId) {
                     return await accountSetupOnboardingRedirect(userId: userId)
                 }
                 return .completeWithNeverUnlockKey
@@ -419,6 +433,22 @@ extension AuthRouter {
             return .vaultUnlockSetup(.createAccount)
         }
         return await autofillSetupRedirect()
+    }
+
+    /// Determines the account setup onboarding step to show from the stored account setup progress,
+    /// which is set when an account is created. This is used when account setup onboarding on
+    /// sign-in is disabled.
+    ///
+    /// - Returns: A redirect route to `.vaultUnlockSetup(.createAccount)` or `.autofillSetup`, or
+    ///     `nil` if no account setup onboarding step needs to be shown.
+    ///
+    private func accountSetupProgressRedirect() async -> AuthRoute? {
+        if await (try? services.stateService.getAccountSetupVaultUnlock()) == .incomplete {
+            return .vaultUnlockSetup(.createAccount)
+        } else if await (try? services.stateService.getAccountSetupAutofill()) == .incomplete {
+            return .autofillSetup
+        }
+        return nil
     }
 
     /// Returns the autofill setup route if autofill is turned off, otherwise completes auth.
@@ -474,6 +504,15 @@ extension AuthRouter {
             services.errorReporter.log(error: error)
         }
         return true
+    }
+
+    /// Whether account setup onboarding is shown after signing in, for only the steps that are off,
+    /// rather than only after creating an account based on the stored account setup progress.
+    ///
+    /// - Returns: Whether the account setup onboarding on sign-in feature flag is enabled.
+    ///
+    private func isAccountSetupOnboardingOnSignInEnabled() async -> Bool {
+        await services.configService.getFeatureFlag(.accountSetupOnboardingOnSignIn)
     }
 
     /// Sets the flag indicating that the carousel was shown (or in the case of existing accounts,
