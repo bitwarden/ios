@@ -802,7 +802,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             cipherService: cipherService,
             clientService: clientService,
             collectionService: collectionService,
-            configService: configService,
             fillAssistRepository: fillAssistRepository,
             flightRecorder: flightRecorder,
             folderService: folderService,
