@@ -88,6 +88,7 @@ struct GeneratorView: View { // swiftlint:disable:this type_body_length
             store.send(.fillGeneratedValue)
         }
         .buttonStyle(.primary())
+        .disabled(!store.state.hasGeneratedValue)
         .accessibilityIdentifier("FillGeneratedValueButton")
     }
 

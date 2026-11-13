@@ -240,11 +240,22 @@ class GeneratorViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(processor.dispatchedActions.last, .showPasswordHistory)
     }
 
+    /// The fill button is disabled when the generated value is the placeholder username.
+    @MainActor
+    func test_fillButton_disabledWithPlaceholderUsername() throws {
+        processor.state.presentationMode = .inPlace
+        processor.state.generatorType = .username
+        processor.state.generatedValue = Constants.defaultGeneratedUsername
+        let button = try subject.inspect().find(button: Localizations.useThisUsername)
+        XCTAssertTrue(button.isDisabled())
+    }
+
     /// Tapping the fill button dispatches the `.fillGeneratedValue` action, labeled for a password.
     @MainActor
     func test_fillButton_tap_password() throws {
         processor.state.presentationMode = .inPlace
         processor.state.generatorType = .password
+        processor.state.generatedValue = "VALUE"
         let button = try subject.inspect().find(button: Localizations.useThisPassword)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .fillGeneratedValue)
@@ -255,6 +266,7 @@ class GeneratorViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     func test_fillButton_tap_passphrase() throws {
         processor.state.presentationMode = .inPlace
         processor.state.generatorType = .passphrase
+        processor.state.generatedValue = "VALUE"
         let button = try subject.inspect().find(button: Localizations.useThisPassphrase)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .fillGeneratedValue)
@@ -265,6 +277,7 @@ class GeneratorViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     func test_fillButton_tap_username() throws {
         processor.state.presentationMode = .inPlace
         processor.state.generatorType = .username
+        processor.state.generatedValue = "VALUE"
         let button = try subject.inspect().find(button: Localizations.useThisUsername)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .fillGeneratedValue)
