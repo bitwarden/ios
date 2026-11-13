@@ -29,6 +29,10 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         type: .masterPassword,
     )
 
+    /// The data for an organization data ownership policy that prompts users to transfer their
+    /// individual items to the organization.
+    let itemTransferEnabledData: [String: AnyCodable] = ["enableIndividualItemsTransfer": .bool(true)]
+
     let policies: [PolicyResponseModel] = [
         .fixture(id: "1"),
         .fixture(id: "2"),
@@ -351,6 +355,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         organizationService.fetchAllOrganizationsUserIdResult = .success([.fixture(id: "org-1")])
         policyDataStore.fetchPoliciesResult = .success([
             .fixture(
+                data: itemTransferEnabledData,
                 id: "policy-1",
                 organizationId: "org-1",
                 revisionDate: Date(year: 2024, month: 1, day: 15),
@@ -363,6 +368,94 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(organizationId, "org-1")
     }
 
+    /// `getEarliestOrganizationApplyingPolicy()` returns nil for the personal ownership policy when
+    /// the organization doesn't prompt users to transfer their individual items.
+    func test_getEarliestOrganizationApplyingPolicy_personalOwnership_itemTransferDisabled() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsUserIdResult = .success([.fixture(id: "org-1")])
+        policyDataStore.fetchPoliciesResult = .success([
+            .fixture(
+                data: ["enableIndividualItemsTransfer": .bool(false)],
+                id: "policy-1",
+                organizationId: "org-1",
+                revisionDate: Date(year: 2024, month: 1, day: 15),
+                type: .personalOwnership,
+            ),
+        ])
+
+        let organizationId = await subject.getEarliestOrganizationApplyingPolicy(.personalOwnership)
+
+        XCTAssertNil(organizationId)
+    }
+
+    /// `getEarliestOrganizationApplyingPolicy()` returns nil for the personal ownership policy when
+    /// the policy has no data indicating that users should transfer their individual items.
+    func test_getEarliestOrganizationApplyingPolicy_personalOwnership_itemTransferMissing() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsUserIdResult = .success([.fixture(id: "org-1")])
+        policyDataStore.fetchPoliciesResult = .success([
+            .fixture(
+                data: nil,
+                id: "policy-1",
+                organizationId: "org-1",
+                revisionDate: Date(year: 2024, month: 1, day: 15),
+                type: .personalOwnership,
+            ),
+        ])
+
+        let organizationId = await subject.getEarliestOrganizationApplyingPolicy(.personalOwnership)
+
+        XCTAssertNil(organizationId)
+    }
+
+    /// `getEarliestOrganizationApplyingPolicy()` skips personal ownership policies that don't prompt
+    /// users to transfer their individual items, even if they have an earlier revision date.
+    func test_getEarliestOrganizationApplyingPolicy_personalOwnership_skipsItemTransferDisabled() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsUserIdResult = .success([
+            .fixture(id: "org-1"),
+            .fixture(id: "org-2"),
+        ])
+        policyDataStore.fetchPoliciesResult = .success([
+            .fixture(
+                data: ["enableIndividualItemsTransfer": .bool(false)],
+                id: "policy-1",
+                organizationId: "org-1",
+                revisionDate: Date(year: 2024, month: 1, day: 1),
+                type: .personalOwnership,
+            ),
+            .fixture(
+                data: itemTransferEnabledData,
+                id: "policy-2",
+                organizationId: "org-2",
+                revisionDate: Date(year: 2024, month: 6, day: 15),
+                type: .personalOwnership,
+            ),
+        ])
+
+        let organizationId = await subject.getEarliestOrganizationApplyingPolicy(.personalOwnership)
+
+        XCTAssertEqual(organizationId, "org-2")
+    }
+
+    /// `policyAppliesToUser(_:)` still applies the personal ownership policy when the organization
+    /// doesn't prompt users to transfer their individual items.
+    func test_policyAppliesToUser_personalOwnership_itemTransferDisabled() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsUserIdResult = .success([.fixture(id: "org-1")])
+        policyDataStore.fetchPoliciesResult = .success([
+            .fixture(
+                data: ["enableIndividualItemsTransfer": .bool(false)],
+                organizationId: "org-1",
+                type: .personalOwnership,
+            ),
+        ])
+
+        let policyApplies = await subject.policyAppliesToUser(.personalOwnership)
+
+        XCTAssertTrue(policyApplies)
+    }
+
     /// `getEarliestOrganizationApplyingPolicy()` returns the organization with the earliest revision date.
     func test_getEarliestOrganizationApplyingPolicy_multipleOrganizations_earliestFirst() async {
         stateService.activeAccount = .fixture()
@@ -373,18 +466,21 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         ])
         policyDataStore.fetchPoliciesResult = .success([
             .fixture(
+                data: itemTransferEnabledData,
                 id: "policy-1",
                 organizationId: "org-1",
                 revisionDate: Date(year: 2024, month: 3, day: 15),
                 type: .personalOwnership,
             ),
             .fixture(
+                data: itemTransferEnabledData,
                 id: "policy-2",
                 organizationId: "org-2",
                 revisionDate: Date(year: 2024, month: 1, day: 10), // Earliest
                 type: .personalOwnership,
             ),
             .fixture(
+                data: itemTransferEnabledData,
                 id: "policy-3",
                 organizationId: "org-3",
                 revisionDate: Date(year: 2024, month: 2, day: 20),
@@ -406,12 +502,14 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         ])
         policyDataStore.fetchPoliciesResult = .success([
             .fixture(
+                data: itemTransferEnabledData,
                 id: "policy-1",
                 organizationId: "org-1",
                 revisionDate: nil, // nil revision date should be treated as distant future
                 type: .personalOwnership,
             ),
             .fixture(
+                data: itemTransferEnabledData,
                 id: "policy-2",
                 organizationId: "org-2",
                 revisionDate: Date(year: 2024, month: 1, day: 10),
@@ -434,18 +532,21 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         ])
         policyDataStore.fetchPoliciesResult = .success([
             .fixture(
+                data: itemTransferEnabledData,
                 id: "policy-1",
                 organizationId: "org-1",
                 revisionDate: nil,
                 type: .personalOwnership,
             ),
             .fixture(
+                data: itemTransferEnabledData,
                 id: "policy-2",
                 organizationId: "org-2",
                 revisionDate: nil,
                 type: .personalOwnership,
             ),
             .fixture(
+                data: itemTransferEnabledData,
                 id: "policy-3",
                 organizationId: "org-3",
                 revisionDate: nil,
@@ -483,6 +584,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 type: .twoFactorAuthentication,
             ),
             .fixture(
+                data: itemTransferEnabledData,
                 id: "policy-2",
                 organizationId: "org-2",
                 revisionDate: Date(year: 2024, month: 6, day: 15),
