@@ -285,6 +285,54 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertEqual(subject.alertActions[3].style, .cancel)
     }
 
+    /// `fileSendPremiumRequired(isInAppUpgradeAvailable:action:)` returns an `Alert` notifying the user that a
+    /// Premium subscription is required to send files, with an "Upgrade to Premium" action.
+    func test_fileSendPremiumRequired() async throws {
+        var called = false
+        let subject = Alert.fileSendPremiumRequired(isInAppUpgradeAvailable: false) { called = true }
+
+        XCTAssertEqual(subject.title, Localizations.premiumSubscriptionRequired)
+        XCTAssertEqual(subject.message, Localizations.sendFilePremiumRequired)
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.upgradeToPremium)
+        XCTAssertEqual(subject.alertActions[0].style, .default)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.cancel)
+        XCTAssertEqual(subject.alertActions[1].style, .cancel)
+
+        let preferredAction = try XCTUnwrap(subject.preferredAction)
+        XCTAssertTrue(preferredAction === subject.alertActions[0])
+
+        try await subject.tapAction(title: Localizations.upgradeToPremium)
+        XCTAssertTrue(called)
+    }
+
+    /// `fileSendPremiumRequired(isInAppUpgradeAvailable:action:)` doesn't call action when cancel is tapped.
+    func test_fileSendPremiumRequired_cancel() async throws {
+        var called = false
+        let subject = Alert.fileSendPremiumRequired(isInAppUpgradeAvailable: false) { called = true }
+
+        try await subject.tapCancel()
+        XCTAssertFalse(called)
+    }
+
+    /// `fileSendPremiumRequired(isInAppUpgradeAvailable:action:)` titles the upgrade action "Explore Premium"
+    /// and calls the action when the in-app upgrade is available.
+    func test_fileSendPremiumRequired_inAppUpgradeAvailable() async throws {
+        var called = false
+        let subject = Alert.fileSendPremiumRequired(isInAppUpgradeAvailable: true) { called = true }
+
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.explorePremium)
+        XCTAssertEqual(subject.alertActions[0].style, .default)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.cancel)
+
+        let preferredAction = try XCTUnwrap(subject.preferredAction)
+        XCTAssertTrue(preferredAction === subject.alertActions[0])
+
+        try await subject.tapAction(title: Localizations.explorePremium)
+        XCTAssertTrue(called)
+    }
+
     /// `importLoginsComputerAvailable(action:)` constructs an `Alert` that confirms that the user
     /// has a computer available to import logins.
     func test_importLoginsComputerAvailable() async throws {
@@ -742,11 +790,11 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertEqual(subject.message, Localizations.sendOptionsPolicyInEffect)
     }
 
-    /// `specificPeopleUnavailable(action:)` returns an `Alert` notifying the user that the
+    /// `specificPeopleUnavailable(isInAppUpgradeAvailable:action:)` returns an `Alert` notifying the user that the
     /// "Specific People" Send feature requires Premium.
     func test_specificPeopleUnavailable() async throws {
         var called = false
-        let subject = Alert.specificPeopleUnavailable { called = true }
+        let subject = Alert.specificPeopleUnavailable(isInAppUpgradeAvailable: false) { called = true }
 
         XCTAssertEqual(subject.title, Localizations.premiumSubscriptionRequired)
         XCTAssertEqual(subject.message, Localizations.sharingWithSpecificPeopleIsPremiumFeatureDescriptionLong)
@@ -763,13 +811,31 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertTrue(called)
     }
 
-    /// `specificPeopleUnavailable(action:)` doesn't call action when cancel is tapped.
+    /// `specificPeopleUnavailable(isInAppUpgradeAvailable:action:)` doesn't call action when cancel is tapped.
     func test_specificPeopleUnavailable_cancel() async throws {
         var called = false
-        let subject = Alert.specificPeopleUnavailable { called = true }
+        let subject = Alert.specificPeopleUnavailable(isInAppUpgradeAvailable: false) { called = true }
 
         try await subject.tapCancel()
         XCTAssertFalse(called)
+    }
+
+    /// `specificPeopleUnavailable(isInAppUpgradeAvailable:action:)` titles the upgrade action "Explore Premium"
+    /// and calls the action when the in-app upgrade is available.
+    func test_specificPeopleUnavailable_inAppUpgradeAvailable() async throws {
+        var called = false
+        let subject = Alert.specificPeopleUnavailable(isInAppUpgradeAvailable: true) { called = true }
+
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.explorePremium)
+        XCTAssertEqual(subject.alertActions[0].style, .default)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.cancel)
+
+        let preferredAction = try XCTUnwrap(subject.preferredAction)
+        XCTAssertTrue(preferredAction === subject.alertActions[0])
+
+        try await subject.tapAction(title: Localizations.explorePremium)
+        XCTAssertTrue(called)
     }
 
     /// `syncUnsuccessful(message:tryAgainHandler:)` returns an `Alert` notifying the user that the
