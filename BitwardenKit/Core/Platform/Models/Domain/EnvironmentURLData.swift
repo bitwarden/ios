@@ -102,6 +102,17 @@ public extension EnvironmentURLData {
             && webVault == nil
     }
 
+    /// Whether the base URL belongs to a FedRAMP environment, including subdomains.
+    var isFedRamp: Bool {
+        guard let host = base?.host else { return false }
+        return [
+            "bitwarden-gov.com",
+            "fedramp.usdev.bitwarden.pw",
+            "gw.dev.bitwarden.pw",
+            "gw.stg.bitwarden.pw",
+        ].contains { host.hasSuffix($0) }
+    }
+
     /// The URL for managing the subscription plan.
     var manageSubscriptionURL: URL? {
         subpageURL(additionalPath: "settings/subscription")

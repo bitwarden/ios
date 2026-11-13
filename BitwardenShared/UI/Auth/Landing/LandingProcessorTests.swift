@@ -168,6 +168,67 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(subject.state.isCreateAccountButtonHidden)
     }
 
+    /// `perform(.appeared)` hides the create account button for a FedRAMP environment without a cached config.
+    @MainActor
+    func test_perform_appeared_fedRamp_noConfig() async {
+        stateService.preAuthEnvironmentURLs = .defaultGov
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.isCreateAccountButtonHidden)
+    }
+
+    /// `setRegion(_:_:)` hides the create account button when the new URLs are FedRAMP.
+    @MainActor
+    func test_setRegion_fedRamp() async {
+        await subject.setRegion(.gov, .defaultGov)
+
+        XCTAssertTrue(subject.state.isCreateAccountButtonHidden)
+    }
+
+    /// `setRegion(_:_:)` shows the create account button when the new URLs are not FedRAMP.
+    @MainActor
+    func test_setRegion_notFedRamp() async {
+        subject.state.isCreateAccountButtonHidden = true
+
+        await subject.setRegion(.unitedStates, .defaultUS)
+
+        XCTAssertFalse(subject.state.isCreateAccountButtonHidden)
+    }
+
+    /// The `configPublisher` subscription keeps the create account button hidden on FedRAMP even when
+    /// the config has `disableUserRegistration` set to `false`.
+    @MainActor
+    func test_configPublisher_fedRamp_disableUserRegistration_false() async throws {
+        stateService.preAuthEnvironmentURLs = .defaultGov
+        let config = ServerConfig(
+            date: Date(),
+            responseModel: ConfigResponseModel(
+                communication: nil,
+                environment: EnvironmentServerConfigResponseModel(
+                    api: nil,
+                    cloudRegion: nil,
+                    fillAssistRules: nil,
+                    identity: nil,
+                    notifications: nil,
+                    sso: nil,
+                    vault: "https://vault.bitwarden-gov.com",
+                ),
+                featureStates: [:],
+                gitHash: nil,
+                server: nil,
+                settings: ServerSettingsResponseModel(disableUserRegistration: false),
+                version: "2025.1.0",
+            ),
+        )
+        configService.configSubject.send(MetaServerConfig(
+            isPreAuth: true,
+            userId: nil,
+            serverConfig: config,
+        ))
+        try await waitForAsync { self.subject.state.isCreateAccountButtonHidden }
+    }
+
     /// `perform(.appeared)` with no pre-auth URLs defaults the region and URLs to the US environment.
     @MainActor
     func test_perform_appeared_loadsRegion_noPreAuthUrls() async {
