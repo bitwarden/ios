@@ -526,27 +526,22 @@ extension AuthRouter {
         }
     }
 
-    /// Whether the vault unlock setup step should be shown. This is the case when neither biometric
-    /// nor PIN unlock is turned on.
+    /// Whether the vault unlock setup step should be shown. The step only offers biometric unlock,
+    /// so this is the case when biometrics are available on the device and biometric unlock isn't
+    /// turned on, whether or not PIN unlock is on.
     ///
     /// - Parameter userId: The user ID of the account that just completed authentication.
     /// - Returns: `true` if the vault unlock setup step should be shown, `false` otherwise.
     ///
     private func shouldShowVaultUnlockSetup(userId: String) async -> Bool {
-        var biometricsStatus: BiometricsUnlockStatus?
+        let biometricsStatus: BiometricsUnlockStatus
         do {
             biometricsStatus = try await services.biometricsRepository.getBiometricUnlockStatus(userId: userId)
         } catch {
             services.errorReporter.log(error: error)
+            return false
         }
-
-        var isPinUnlockOn = false
-        do {
-            isPinUnlockOn = try await services.authRepository.isPinUnlockAvailable(userId: userId)
-        } catch {
-            services.errorReporter.log(error: error)
-        }
-
-        return biometricsStatus?.isEnabled != true && !isPinUnlockOn
+        guard case .available(_, enabled: false) = biometricsStatus else { return false }
+        return true
     }
 } // swiftlint:disable:this file_length

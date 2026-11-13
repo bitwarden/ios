@@ -121,7 +121,8 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
     }
 
-    /// `perform(_:)` with `.loadData` fetches the biometrics unlock status.
+    /// `perform(_:)` with `.loadData` fetches the biometrics unlock status and hides the PIN unlock
+    /// option in the create account flow if account setup onboarding on sign-in is enabled.
     @MainActor
     func test_perform_loadData() async {
         let status = BiometricsUnlockStatus.available(.faceID, enabled: false)
@@ -130,6 +131,41 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
         await subject.perform(.loadData)
 
         XCTAssertEqual(subject.state.biometricsStatus, status)
+        XCTAssertFalse(subject.state.shouldShowPinUnlock)
+        XCTAssertEqual(subject.state.unlockMethods, [.biometrics(.faceID)])
+        XCTAssertEqual(
+            subject.state.message,
+            Localizations.youCanAlsoSetUpOtherUnlockOptionsAnytimeInSettingsAccountSecurity,
+        )
+    }
+
+    /// `perform(_:)` with `.loadData` shows the PIN unlock option in the create account flow if
+    /// account setup onboarding on sign-in is disabled.
+    @MainActor
+    func test_perform_loadData_onboardingOnSignInDisabled() async {
+        configService.featureFlagsBool[.accountSetupOnboardingOnSignIn] = false
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: false)
+
+        await subject.perform(.loadData)
+
+        XCTAssertTrue(subject.state.shouldShowPinUnlock)
+        XCTAssertEqual(subject.state.unlockMethods, [.biometrics(.faceID), .pin])
+        XCTAssertEqual(
+            subject.state.message,
+            Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,
+        )
+    }
+
+    /// `perform(_:)` with `.loadData` shows the PIN unlock option in the settings flow, even if
+    /// account setup onboarding on sign-in is enabled.
+    @MainActor
+    func test_perform_loadData_settings() async {
+        subject.state.accountSetupFlow = .settings
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: false)
+
+        await subject.perform(.loadData)
+
+        XCTAssertTrue(subject.state.shouldShowPinUnlock)
         XCTAssertEqual(subject.state.unlockMethods, [.biometrics(.faceID), .pin])
     }
 
@@ -142,7 +178,7 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
         await subject.perform(.loadData)
 
         XCTAssertEqual(subject.state.biometricsStatus, status)
-        XCTAssertEqual(subject.state.unlockMethods, [.biometrics(.unknown), .pin])
+        XCTAssertEqual(subject.state.unlockMethods, [.biometrics(.unknown)])
     }
 
     /// `perform(_:)` with `.loadData` logs the error and shows an alert if one occurs.
@@ -166,7 +202,7 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
         await subject.perform(.loadData)
 
         XCTAssertEqual(subject.state.biometricsStatus, status)
-        XCTAssertEqual(subject.state.unlockMethods, [.pin])
+        XCTAssertEqual(subject.state.unlockMethods, [])
     }
 
     /// `perform(_:)` with `.loadData` fetches the biometrics unlock status for a device with Optic ID.
@@ -178,7 +214,7 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
         await subject.perform(.loadData)
 
         XCTAssertEqual(subject.state.biometricsStatus, status)
-        XCTAssertEqual(subject.state.unlockMethods, [.biometrics(.opticID), .pin])
+        XCTAssertEqual(subject.state.unlockMethods, [.biometrics(.opticID)])
     }
 
     /// `perform(_:)` with `.loadData` fetches the biometrics unlock status for a device with Touch ID.
@@ -190,7 +226,7 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
         await subject.perform(.loadData)
 
         XCTAssertEqual(subject.state.biometricsStatus, status)
-        XCTAssertEqual(subject.state.unlockMethods, [.biometrics(.touchID), .pin])
+        XCTAssertEqual(subject.state.unlockMethods, [.biometrics(.touchID)])
     }
 
     /// `perform(_:)` with `.toggleUnlockMethod` disables biometrics unlock and updates the state.
