@@ -139,9 +139,7 @@ struct VaultListItemRowView: View {
                     .accessibilityIdentifier("CipherNameLabel")
 
                 if cipherItem.organizationId != nil {
-                    (store.state.isVfo1FoundationFeatureFlagEnabled
-                        ? SharedAsset.Icons.sharedFolder16
-                        : SharedAsset.Icons.collections16).swiftUIImage
+                    SharedAsset.Icons.sharedFolder16.swiftUIImage
                         .imageStyle(.accessoryIcon16(
                             color: SharedAsset.Colors.textSecondary.swiftUIColor,
                             scaleWithFont: true,

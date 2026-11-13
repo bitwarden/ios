@@ -547,6 +547,36 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertTrue(subject.hasPerformedSyncAfterLogin(userId: "2"))
     }
 
+    /// `hasPersonalSubscription(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_hasPersonalSubscription_isInitiallyNil() {
+        XCTAssertNil(subject.hasPersonalSubscription(userId: "1"))
+    }
+
+    /// `hasPersonalSubscription(userId:)` keeps a separate value for each user.
+    func test_hasPersonalSubscription_separatePerUser() {
+        subject.setHasPersonalSubscription(true, userId: "1")
+        subject.setHasPersonalSubscription(false, userId: "2")
+
+        XCTAssertEqual(subject.hasPersonalSubscription(userId: "1"), true)
+        XCTAssertEqual(subject.hasPersonalSubscription(userId: "2"), false)
+        XCTAssertNil(subject.hasPersonalSubscription(userId: "3"))
+    }
+
+    /// `hasPersonalSubscription(userId:)` can be used to get, set, and clear the persisted value in user defaults.
+    func test_hasPersonalSubscription_withValue() {
+        subject.setHasPersonalSubscription(true, userId: "1")
+        XCTAssertEqual(subject.hasPersonalSubscription(userId: "1"), true)
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:hasPersonalSubscription_1"), "true")
+
+        subject.setHasPersonalSubscription(false, userId: "1")
+        XCTAssertEqual(subject.hasPersonalSubscription(userId: "1"), false)
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:hasPersonalSubscription_1"), "false")
+
+        subject.setHasPersonalSubscription(nil, userId: "1")
+        XCTAssertNil(subject.hasPersonalSubscription(userId: "1"))
+        XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:hasPersonalSubscription_1"))
+    }
+
     /// `isBiometricAuthenticationEnabled` returns false if there is no previous value.
     func test_isBiometricAuthenticationEnabled_isInitiallyFalse() {
         XCTAssertFalse(subject.isBiometricAuthenticationEnabled(userId: "-1"))

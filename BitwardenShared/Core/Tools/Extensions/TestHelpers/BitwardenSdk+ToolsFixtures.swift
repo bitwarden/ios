@@ -62,7 +62,14 @@ extension SendItem {
         SendItem(
             encryptionVersion: encryptionVersion,
             data: data,
-            metadata: SendItemMetadata(itemId: itemId),
+            metadata: SendItemMetadata(
+                itemId: itemId,
+                folderName: nil,
+                collectionNames: nil,
+                organizationName: nil,
+                creationDate: nil,
+                revisionDate: nil,
+            ),
         )
     }
 }

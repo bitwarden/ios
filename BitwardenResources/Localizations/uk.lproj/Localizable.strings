@@ -1,7 +1,7 @@
 "About" = "Про програму";
 "Add" = "Додати";
 "AddFolder" = "Додати теку";
-"AnErrorHasOccurred" = "Сталася помилка.";
+"AnErrorHasOccurred" = "Сталася помилка";
 "Back" = "Назад";
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Скасувати";
@@ -452,7 +452,7 @@
 "SendOptionsPolicyInEffect" = "На параметри відправлень впливають одна чи декілька політик організації.";
 "SendFilePremiumRequired" = "З безплатним обліковим записом можна відправляти лише текст. Щоб відправляти файли, необхідна передплата Premium.";
 /* Alert message shown when Send Controls policy restricts creation to File Sends only. */
-"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Відповідно до політики компанії, ви можете створювати лише запити на відправлення файлів.";
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Відповідно до політики компанії, ви можете створювати лише відправлення файлів.";
 /* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
 "DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Відповідно до політики компанії, ви можете створювати лише текстові відправлення.";
 "OrganizationPolicyRestriction" = "Обмеження політики організації";
@@ -1302,7 +1302,9 @@
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Не вдалося синхронізувати ваше сховище з сервером. Ваше сховище може не показувати останні зміни. Ви можете повторити спробу зараз або синхронізація відбудеться згодом автоматично.";
 "TextToShareRequired" = "Текст для надсилання (обов'язково)";
 /* Header on the Authenticator export screen, shown above a description of which codes are exported. */
-"IncludedInThisReport" = "У цьому звіті міститься";
-"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Будуть експортовані лише коди, збережені локально на цьому пристрої. Синхронізовані коди не враховуються.";
+"IncludedInThisReport" = "Включено в цей звіт";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Буде експортовано лише коди, які зберігаються локально на цьому пристрої. Синхронізовані коди не включаються.";
 "ConfirmExport" = "Підтвердити експорт";
 "ForYourSecurityDontShareOrSendDescriptionLong" = "З міркувань безпеки не зберігайте і не надсилайте цей файл незахищеними каналами (як-от електронна пошта). Після використання негайно видаліть файл.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Створити запис входу";

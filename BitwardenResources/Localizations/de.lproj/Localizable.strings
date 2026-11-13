@@ -520,7 +520,7 @@
 "NeverLockWarning" = "Wenn du deine Sperroptionen auf „Nie“ einstellst, bleibt dein Tresor für jeden zugänglich, der Zugriff auf dein Gerät hat. Wenn du diese Option verwendest, solltest du sicherstellen, dass du dein Gerät angemessen schützt.";
 "EnvironmentPageUrlsError" = "Eine oder mehrere der eingegebenen URLs sind ungültig. Bitte überarbeite diese und versuche erneut zu speichern.";
 "GenericErrorMessage" = "Wir konnten deine Anfrage nicht bearbeiten. Bitte versuche es erneut oder kontaktiere uns.";
-"LogInRequested" = "Anmeldung angefordert";
+"LogInRequested" = "Anmeldung angefragt";
 "AreYouTryingToLogIn" = "Versuchst du dich anzumelden?";
 "LogInAttemptByXOnY" = "Anmeldeversuch von %1$@ auf %2$@";
 "DeviceType" = "Gerätetyp";
@@ -1306,3 +1306,5 @@
 "OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Es werden nur lokal auf diesem Gerät gespeicherte Codes exportiert. Synchronisierte Codes sind nicht enthalten.";
 "ConfirmExport" = "Export bestätigen";
 "ForYourSecurityDontShareOrSendDescriptionLong" = "Dieser Export enthält deine Tresordaten in einem unverschlüsseltem Format. Du solltest sie nicht speichern oder über unsichere Kanäle (z. B. E-Mail) senden. Lösche sie sofort nach ihrer Verwendung.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Zugangsdaten erstellen";

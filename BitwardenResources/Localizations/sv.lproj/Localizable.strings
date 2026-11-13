@@ -1306,3 +1306,5 @@
 "OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Endast koder som lagras lokalt på den här enheten exporteras. Synkroniserade koder ingår inte.";
 "ConfirmExport" = "Bekräfta export";
 "ForYourSecurityDontShareOrSendDescriptionLong" = "Denna export innehåller ditt valv i ett okrypterat format. Du bör inte lagra eller skicka den exporterade filen över osäkra kanaler (t.ex. e-post). Radera den omedelbart när du är färdig med den.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Skapa inloggning";

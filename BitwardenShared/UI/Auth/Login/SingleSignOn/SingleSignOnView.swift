@@ -28,7 +28,7 @@ struct SingleSignOnView: View {
             }
 
             ToolbarItem(placement: .topBarTrailing) {
-                toolbarButton(Localizations.logIn) {
+                primaryActionToolbarButton(Localizations.logIn) {
                     await store.perform(.loginTapped)
                 }
                 .accessibilityIdentifier("SSOLoginButton")

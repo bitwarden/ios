@@ -2581,6 +2581,18 @@ extension DefaultStateService: BillingStateService {
         appSettingsStore.setPreviousPersonalPremium(previousPersonalPremium, userId: userId)
     }
 
+    // MARK: Subscription
+
+    func getHasPersonalSubscription(userId: String?) async throws -> Bool? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.hasPersonalSubscription(userId: userId)
+    }
+
+    func setHasPersonalSubscription(_ hasPersonalSubscription: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setHasPersonalSubscription(hasPersonalSubscription, userId: userId)
+    }
+
     // MARK: Subscription Attention Card
 
     func getSubscriptionAttentionCardVisible() async throws -> Bool {
@@ -2795,12 +2807,6 @@ extension DefaultStateService: SdkStateBridgeStateService {
 
     func setEphemeralPinEnvelope(_ envelope: String?, userId: String) async {
         accountVolatileData[userId, default: AccountVolatileData()].pinProtectedUserKey = envelope
-
-        // Remove any legacy pin protected user key, mirroring `setPinKeys`. Guarded on non-nil so a
-        // routine in-memory clear doesn't wipe a still-valid persistent legacy PIN.
-        if envelope != nil {
-            appSettingsStore.setPinProtectedUserKey(key: nil, userId: userId)
-        }
     }
 
     // MARK: Kdf Config

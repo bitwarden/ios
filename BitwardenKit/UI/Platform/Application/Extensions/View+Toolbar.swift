@@ -81,8 +81,8 @@ public extension View {
             .accessibilityIdentifier("CloseButton")
     }
 
-    /// Returns a toolbar button configured to confirm a primary action, using the system checkmark
-    /// on iOS 26 and a text label on earlier versions.
+    /// Returns a toolbar button configured to confirm a primary action, using a checkmark on iOS 26
+    /// and a text label on earlier versions.
     ///
     /// - Parameters:
     ///   - accessibilityIdentifier: The accessibility identifier for the button.
@@ -97,15 +97,17 @@ public extension View {
         action: @escaping () async -> Void,
     ) -> some View {
         if #available(iOS 26, *) {
-            return Button(role: .confirm) {
-                Task {
-                    await action()
-                }
+            // This mimics `Button(role: .confirm)` rather than using it. The system draws confirm
+            // buttons in the toolbar itself and ignores the button style and label color, which
+            // leaves a white checkmark on the light blue tint used in dark mode.
+            return AsyncButton(action: action) {
+                Image(systemName: "checkmark")
             }
+            .buttonStyle(.primaryActionToolbar)
             .accessibilityIdentifier(accessibilityIdentifier)
             .accessibilityLabel(label)
         }
-        return toolbarButton(label, action: action)
+        return primaryActionToolbarButton(label, action: action)
             .accessibilityIdentifier(accessibilityIdentifier)
     }
 
@@ -131,7 +133,7 @@ public extension View {
             Text(label)
                 .styleGuide(.body, weight: .semibold)
         }
-        .buttonStyle(.toolbar)
+        .buttonStyle(.primaryActionToolbar)
         // Ideally we would set both `minHeight` and `minWidth` to 44. Setting `minWidth` causes
         // padding to be applied equally on both sides of the image. This results in extra padding
         // along the margin though.
@@ -150,7 +152,7 @@ public extension View {
             Text(label)
                 .styleGuide(.body, weight: .semibold)
         }
-        .buttonStyle(.toolbar)
+        .buttonStyle(.primaryActionToolbar)
         // Ideally we would set both `minHeight` and `minWidth` to 44. Setting `minWidth` causes
         // padding to be applied equally on both sides of the image. This results in extra padding
         // along the margin though.

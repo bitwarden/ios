@@ -132,9 +132,9 @@ final class PremiumPlanProcessor: StateProcessor<
             }
             state.loadingState = .data(subscription)
             state.planStatus = subscription.status
-            // Update the cached attention card visibility so the vault list reflects the
-            // current status if the user returns after fixing their subscription.
-            await services.billingService.refreshSubscriptionAttentionCard(subscription: subscription)
+            // Update the cached subscription status so it reflects the current state if the user
+            // returns after fixing their subscription.
+            await services.billingService.refreshSubscriptionStatus(subscription: subscription)
         } catch {
             guard !(error is CancellationError) else { return }
             services.errorReporter.log(error: error)
