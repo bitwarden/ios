@@ -49,6 +49,7 @@ final class PremiumPlanProcessor: StateProcessor<
     override func perform(_ effect: PremiumPlanEffect) async {
         switch effect {
         case .appeared:
+            await services.billingService.setPlanBadgeDismissed()
             await loadPremiumPlan()
         case .managePlanTapped:
             showManageSubscriptionAlert()

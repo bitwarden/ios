@@ -57,6 +57,14 @@ struct PremiumUpgradeProcessorTests {
 
     // MARK: Tests
 
+    /// `perform(_:)` with `.appeared` marks the Plan badge as dismissed.
+    @Test
+    func perform_appeared_dismissesPlanBadge() async {
+        await subject.perform(.appeared)
+
+        #expect(billingService.setPlanBadgeDismissedCallsCount == 1)
+    }
+
     /// `perform(_:)` with `.appeared` fetches the Premium price and sets it in state on success.
     @Test
     func perform_appeared_fetchesPremiumPrice_success() async {
