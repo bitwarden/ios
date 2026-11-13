@@ -35,6 +35,15 @@ public protocol CredentialProviderExtensionDelegate: AppExtensionDelegate {
     /// Completes the save password request.
     func completeSavePasswordRequest()
 
+    /// Completes the save password request if the vault already has a login with the same URI,
+    /// username and password as the credential being saved, so a duplicate isn't added.
+    ///
+    /// The vault must be unlocked before calling this.
+    ///
+    /// - Returns: `true` if the request was completed, `false` if the login still needs to be saved.
+    ///
+    func completeSavePasswordRequestIfLoginExists() async -> Bool
+
     /// Completes the text request with some text to insert.
     @available(iOSApplicationExtension 18.0, *)
     func completeTextRequest(text: String)

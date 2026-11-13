@@ -554,6 +554,23 @@ extension CredentialProviderViewController: CredentialProviderExtensionDelegate 
         extensionContext.completeSavePasswordRequest(completionHandler: nil)
     }
 
+    func completeSavePasswordRequestIfLoginExists() async -> Bool {
+        guard #available(iOSApplicationExtension 26.2, *),
+              case let .savePasswordCredential(request, _) = context?.extensionMode,
+              let savePasswordRequest = request as? ASSavePasswordRequest,
+              let appProcessor,
+              await appProcessor.registerExistingPasswordCredential(
+                  username: savePasswordRequest.credential.user,
+                  password: savePasswordRequest.credential.password,
+                  uri: savePasswordRequest.serviceIdentifier.normalizedURI,
+              ) else {
+            return false
+        }
+
+        extensionContext.completeSavePasswordRequest(completionHandler: nil)
+        return true
+    }
+
     @available(iOSApplicationExtension 17.0, *)
     func completeRegistrationRequest(asPasskeyRegistrationCredential: ASPasskeyRegistrationCredential) {
         extensionContext.completeRegistrationRequest(using: asPasskeyRegistrationCredential)

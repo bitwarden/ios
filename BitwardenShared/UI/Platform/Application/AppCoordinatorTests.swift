@@ -183,6 +183,67 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertFalse(module.vaultItemCoordinator.isStarted)
     }
 
+    /// `didCompleteAuth()` in the save-password-credential flow completes the save request with an
+    /// identical existing login and doesn't navigate to the add item screen.
+    @available(iOS 17.0, *)
+    @MainActor
+    func test_didCompleteAuth_appExtension_savePasswordCredential_existingLogin() async throws {
+        let credentialProviderDelegate = MockCredentialProviderExtensionDelegate()
+        credentialProviderDelegate.authCompletionRoute = .vault(.autofillList)
+        credentialProviderDelegate.completeIfLoginExistsResult = true
+        credentialProviderDelegate.extensionMode = .savePasswordCredential(
+            MockSavePasswordRequestProxy(),
+            userInteraction: true,
+        )
+        subject = AppCoordinator(
+            appContext: .appExtension,
+            appExtensionDelegate: credentialProviderDelegate,
+            module: module,
+            rootNavigator: rootNavigator,
+            services: services,
+        )
+
+        subject.didCompleteAuth(rehydratableTarget: nil)
+        try await waitForAsync { credentialProviderDelegate.completeIfLoginExistsCalled }
+        // Give the navigation task a chance to run if it was going to.
+        try await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+
+        XCTAssertFalse(module.vaultCoordinator.isStarted)
+        XCTAssertTrue(module.vaultCoordinator.routes.isEmpty)
+    }
+
+    /// `didCompleteAuth()` in the save-password-credential flow navigates to the add item screen
+    /// only after the existing login check finds no identical login.
+    @available(iOS 17.0, *)
+    @MainActor
+    func test_didCompleteAuth_appExtension_savePasswordCredential_noExistingLogin() async throws {
+        let credentialProviderDelegate = MockCredentialProviderExtensionDelegate()
+        credentialProviderDelegate.authCompletionRoute = .vault(.autofillList)
+        credentialProviderDelegate.completeIfLoginExistsResult = false
+        credentialProviderDelegate.extensionMode = .savePasswordCredential(
+            MockSavePasswordRequestProxy(),
+            userInteraction: true,
+        )
+        subject = AppCoordinator(
+            appContext: .appExtension,
+            appExtensionDelegate: credentialProviderDelegate,
+            module: module,
+            rootNavigator: rootNavigator,
+            services: services,
+        )
+
+        subject.didCompleteAuth(rehydratableTarget: nil)
+
+        // The add item screen isn't shown until the existing login check has finished.
+        XCTAssertTrue(module.vaultCoordinator.routes.isEmpty)
+
+        try await waitForAsync { [weak self] in
+            guard let self else { return false }
+            return module.vaultCoordinator.routes == [.autofillList]
+        }
+        XCTAssertTrue(credentialProviderDelegate.completeIfLoginExistsCalled)
+    }
+
     /// `didCompleteAuth()` starts the tab coordinator and navigates to the vault list and the auth completion route.
     @MainActor
     func test_didCompleteAuth_authCompletionRoute() async {

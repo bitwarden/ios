@@ -92,6 +92,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
 
     typealias Services = HasAPIService
         & HasAuthRepository
+        & HasAutofillCredentialService
         & HasBillingRepository
         & HasBillingService
         & HasCameraService
@@ -964,11 +965,32 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             return
         }
 
-        let addedCipher = try await services.vaultRepository.addCipher(state.cipher)
+        let addedCipher = if let credentialProviderExtensionDelegate =
+            appExtensionDelegate as? CredentialProviderExtensionDelegate,
+            credentialProviderExtensionDelegate.isSavingPasswordCredential {
+            try await addPasswordCredentialItem()
+        } else {
+            try await services.vaultRepository.addCipher(state.cipher)
+        }
         coordinator.hideLoadingOverlay()
 
         handleDismiss(addedItemId: addedCipher.id, didAddItem: true)
         await services.reviewPromptService.trackUserAction(.addedNewItem)
+    }
+
+    /// Adds the item currently in `state` for a save-password request from the AutoFill extension.
+    ///
+    /// The added login's credential identities are added to the identity store before returning, so
+    /// the system doesn't prompt to save the same credential again.
+    ///
+    /// - Returns: The added login.
+    ///
+    private func addPasswordCredentialItem() async throws -> CipherView {
+        let addedCipher = try await services.vaultRepository.addCipher(state.cipher)
+        if let cipherId = addedCipher.id {
+            await services.autofillCredentialService.upsertCredentialsInStore(forCipherId: cipherId)
+        }
+        return addedCipher
     }
 
     /// Checks user verification if needed on Fido2 flows.
