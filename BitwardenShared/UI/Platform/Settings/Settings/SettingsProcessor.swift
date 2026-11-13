@@ -119,6 +119,11 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
                 && isUSStorefront
                 && !hasPremiumFromOrganizationOnly
                 && !hasPremiumWithoutSubscription
+            let isPlanBadgeDismissed = await services.billingService.isPlanBadgeDismissed()
+            state.showPlanBadge = state.showPlanRow
+                && !hasPremium
+                && hasPersonalSubscription != true
+                && !isPlanBadgeDismissed
             state.shouldShowUpgradedToPremiumActionCard = await services.billingService
                 .shouldShowUpgradedToPremiumActionCard()
         case .dismissUpgradedToPremiumActionCard:

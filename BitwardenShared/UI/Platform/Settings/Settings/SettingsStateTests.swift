@@ -47,6 +47,18 @@ class SettingsStateTests: BitwardenTestCase {
         XCTAssertEqual(subject.autofillBadgeValue, "1")
     }
 
+    /// `planBadgeValue` returns `nil` if the plan badge should not be shown.
+    func test_planBadgeValue_nil() {
+        let subject = SettingsState(showPlanBadge: false)
+        XCTAssertNil(subject.planBadgeValue)
+    }
+
+    /// `planBadgeValue` returns the badge value for the plan row if the plan badge should be shown.
+    func test_planBadgeValue_value() {
+        let subject = SettingsState(showPlanBadge: true)
+        XCTAssertEqual(subject.planBadgeValue, "1")
+    }
+
     /// `vaultBadgeValue` returns `nil` if no badge should be shown for the vault row.
     func test_vaultBadgeValue_nil() {
         var subject = SettingsState(badgeState: .fixture())
