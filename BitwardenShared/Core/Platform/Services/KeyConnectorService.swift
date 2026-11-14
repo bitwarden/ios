@@ -143,9 +143,11 @@ extension DefaultKeyConnectorService: KeyConnectorService {
             )
         }
 
+        // A `nil` `acceptOrganizationInvite` defers to the server default (`true`).
         let result = try await clientService.auth().registration().postKeysForKeyConnectorRegistration(
             keyConnectorUrl: keyConnectorUrl.absoluteString,
             ssoOrgIdentifier: orgIdentifier,
+            acceptOrganizationInvite: nil,
         )
 
         try await stateService.setAccountCryptographicState(result.accountCryptographicState)
