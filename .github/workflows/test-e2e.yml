@@ -1,0 +1,124 @@
+name: Test Password Manager E2E
+
+on:
+  schedule:
+    # Weekdays at 05:00 UTC. Scheduled runs are skipped until the E2E_SCHEDULE_ENABLED variable is "true".
+    - cron: "0 5 * * 1-5"
+  workflow_dispatch:
+
+env:
+  MINT_LINK_PATH: .mint/bin # used by mint in bootstrap.sh
+  MINT_PATH: .mint/lib # used by mint in bootstrap.sh
+  _TESTS_RESULT_BUNDLE_PATH: build/E2E.xcresult
+
+jobs:
+  test:
+    name: Test
+    if: github.event_name != 'schedule' || vars.E2E_SCHEDULE_ENABLED == 'true'
+    runs-on: xcode-27-xlarge
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Optimize macOS Runner
+        uses: ./.github/actions/macos-runner-tuneup
+
+      - name: Read Xcode version and simulator configuration from file
+        run: |
+          {
+            echo "_XCODE_VERSION=$(tr -d '\n' < .xcode-version)"
+            echo "_SIMULATOR_NAME=$(tr -d '\n' < .test-simulator-device-name)"
+            echo "_SIMULATOR_VERSION=$(tr -d '\n' < .test-simulator-ios-version)"
+          } >> "$GITHUB_ENV"
+
+      - name: Set Xcode version
+        uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
+        with:
+          xcode-version: ${{ env._XCODE_VERSION }}
+
+      - name: Configure Ruby
+        uses: ruby/setup-ruby@12fd324f1d0b43274fdc8130f6980590a667c455 # v1.312.0
+        with:
+          bundler-cache: true
+
+      - name: Restore Mint packages
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mint
+          key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
+          restore-keys: |
+            ${{ runner.os }}-mint-
+
+      - name: Update local config
+        run: |
+          ./Scripts/update_test_local_config.sh ""
+
+      - name: Install Homebrew Dependencies and run bootstrap.sh
+        run: |
+          brew update
+          brew bundle
+          brew install wix/brew/applesimutils
+          ./Scripts/bootstrap.sh
+
+      - name: Boot Simulator
+        id: boot-simulator
+        uses: ./.github/actions/boot-simulator
+        with:
+          simulator-name: ${{ env._SIMULATOR_NAME }}
+          simulator-version: ${{ env._SIMULATOR_VERSION }}
+
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-ios
+          secrets: "E2E-SEEDER-USERNAME,E2E-SEEDER-PASSWORD"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
+      # The repository, its logs and its artifacts are public, so the server under test is kept in
+      # secrets. A secret masks only its exact value; this also masks the host names on their own.
+      - name: Mask the test server hosts
+        env:
+          BW_SEEDER_URL: ${{ secrets.E2E_SEEDER_URL }}
+          BW_TEST_SERVER_URL: ${{ secrets.E2E_TEST_SERVER_URL }}
+        run: |
+          for url in "$BW_TEST_SERVER_URL" "$BW_SEEDER_URL"; do
+            host="${url#*://}"
+            echo "::add-mask::${host%%/*}"
+          done
+
+      - name: Test
+        id: test
+        env:
+          BW_SEEDER_PASSWORD: ${{ steps.get-kv-secrets.outputs.E2E-SEEDER-PASSWORD }}
+          BW_SEEDER_SELF_HOSTED: ${{ secrets.E2E_SEEDER_SELF_HOSTED }}
+          BW_SEEDER_URL: ${{ secrets.E2E_SEEDER_URL }}
+          BW_SEEDER_USERNAME: ${{ steps.get-kv-secrets.outputs.E2E-SEEDER-USERNAME }}
+          BW_TEST_SERVER_URL: ${{ secrets.E2E_TEST_SERVER_URL }}
+          _SIMULATOR_ID: ${{ steps.boot-simulator.outputs.simulator-id }}
+        run: |
+          ./Scripts/run-e2e-tests.sh --simulator-id "$_SIMULATOR_ID"
+
+      # The result bundle is never uploaded: it records the app's launch arguments, which name the
+      # server under test, and this repository's artifacts are public.
+      - name: Print Logs Summary
+        if: always() && steps.test.outcome != 'skipped'
+        run: |
+          xcresultparser -f -o cli "$_TESTS_RESULT_BUNDLE_PATH"
+          xcresultparser -f -o txt "$_TESTS_RESULT_BUNDLE_PATH" >> "$GITHUB_STEP_SUMMARY"

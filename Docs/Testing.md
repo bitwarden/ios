@@ -139,7 +139,7 @@ Use this decision tree to determine which tests to write for a new or modified c
 **Framework Selection**:
 - **New test files**: Use Swift Testing (`import Testing`, `@Test`, `#expect`)
 - **Existing XCTest files**: Keep as XCTest — do not mix frameworks in the same file
-- **Fallback to XCTest**: When the test requires `BitwardenTestCase` subclassing, ViewInspector, SnapshotTesting, or other XCTest-only features
+- **Fallback to XCTest**: When the test requires `BitwardenTestCase` subclassing, ViewInspector, SnapshotTesting, UI automation (XCUITest), or other XCTest-only features
 
 **Use for**:
 - Processors (state mutations, action handling, effects)
@@ -183,6 +183,30 @@ Use this decision tree to determine which tests to write for a new or modified c
 - iOS Version: [.test-simulator-ios-version](../.test-simulator-ios-version)
 
 Otherwise, tests will fail due to rendering differences between iOS versions.
+
+### 4. End-to-End UI Tests
+
+**Purpose**: Verify complete user flows in the real app against a real test server
+
+**Tool**: [XCUITest](https://developer.apple.com/documentation/xcuiautomation), in the `BitwardenE2ETests` target (Password Manager only)
+
+**Use for**:
+- Flows that cross the app, the SDK and the server (log in, sync, view or edit vault data)
+- Behavior no unit test can prove because the collaborators are mocked
+
+**Do not use for**: anything a unit or ViewInspector test can cover. These tests are slow and need a server.
+
+**How a test is built**:
+- Every test class inherits `E2ETestCase`. Before each test it launches the app with all stored state erased (`-BWResetAppState YES`) and pointed at the server under test (`-BWPreAuthEnvironmentBaseURL`), then checks the intro carousel is shown. Tests never launch the app themselves; SwiftLint rejects `.launch()` and `.activate()` outside `XCUIApplication+Launch.swift`.
+- Server data comes from the seeder API through `SeederClient`. Each test gets its own play ID, deleted when the test ends, so tests share nothing and run in any order.
+- Screens are driven through robots (`BitwardenE2ETests/Robots`): one robot per screen, holding that screen's actions and assertions. A robot waits for its screen when created and doesn't return other robots. Flows that span screens live in `RobotFlows`.
+- Elements are found by accessibility identifier, declared as private properties of the robot.
+- Timeouts come from `E2ETimeouts`. No sleeps, retries or optional steps.
+- Nothing a test prints may name the server under test: CI logs are public. Errors carry paths and status codes, never hosts, and the test plan sets `OS_ACTIVITY_MODE=disable` so the system's networking logs, which do name hosts, stay out of the output.
+- Test methods are synchronous (`func test_...() throws`, never `async`). XCTest can't stop an `async` test at a failed assertion, so a failing robot would hang the test until its time allowance runs out. `SeederClient` blocks for the same reason.
+- Name tests `test_<function>_<behavior>` and put the Testmo case ID in the doc comment.
+
+**Debug builds only**: both launch arguments are compiled out of Release builds, and CI fails a Release build that contains the `DebugAppStateResetter` type (`Scripts/check-release-binary.sh`). The reset doesn't clear the iOS notification permission or the app group data shared with Authenticator; keychain items shared with Authenticator are erased, as on a fresh install.
 
 ## Testing by Component Type
 
@@ -745,6 +769,7 @@ Test plans are organized in the `TestPlans` folder. Each project has multiple te
 - `{ProjectName}-Unit.xctestplan`: Unit tests only (any simulator)
 - `{ProjectName}-Snapshot.xctestplan`: Snapshot tests only (specific simulator required)
 - `{ProjectName}-ViewInspector.xctestplan`: View inspector tests only
+- `Bitwarden-E2E.xctestplan`: End-to-end UI tests (`BitwardenE2ETests` scheme only; never part of the `Bitwarden` scheme)
 
 #### Available Projects
 
@@ -798,6 +823,37 @@ xcodebuild test \
   -scheme Bitwarden \
   -only-testing:BitwardenShared-Tests/ExampleProcessorTests/test_receive_action_updatesState
 ```
+
+#### Run End-to-End UI Tests
+
+The tests need a test server with the seeder API and [applesimutils](https://github.com/wix/AppleSimulatorUtils) (`brew install wix/brew/applesimutils`).
+
+**This repository is public, so the server under test is never named in it.** The values are exported environment variables for the script, a gitignored `.e2e.env` file for Xcode, and secrets in CI. Don't put real hosts in code, docs, commit messages or PR descriptions.
+
+```bash
+export BW_TEST_SERVER_URL=... BW_SEEDER_URL=... BW_SEEDER_SELF_HOSTED=... BW_SEEDER_USERNAME=... BW_SEEDER_PASSWORD=...
+./Scripts/run-e2e-tests.sh
+```
+
+| Variable | Meaning |
+|----------|---------|
+| `BW_TEST_SERVER_URL` | Base URL of the server under test |
+| `BW_SEEDER_URL` | Base URL of that server's seeder API |
+| `BW_SEEDER_SELF_HOSTED` | `true` or `false` |
+| `BW_SEEDER_USERNAME` | Seeder basic-auth username |
+| `BW_SEEDER_PASSWORD` | Seeder basic-auth password |
+
+The script reads these from the environment only and stops, naming the variable, if one isn't exported. `.e2e.env.example` explains each one.
+
+The script builds the `BitwardenE2ETests` scheme, reinstalls the app on the simulator from the `.test-simulator-*` files, grants the notification permission and runs the tests. Results are written to `build/E2E.xcresult`; the bundle records the server URL, so don't attach it to public issues or PRs.
+
+Production servers are rejected. The run also fails if `~/.bitwarden/debug-environment.json` exists, because the app reads it before the launch argument and would connect to a different server.
+
+To run from Xcode instead:
+
+1. Run `./Scripts/run-e2e-tests.sh --prepare-simulator` once per simulator. It installs the app and grants the notification permission, which the tests can't do themselves. Repeat it after deleting the app or erasing the simulator.
+2. Copy `.e2e.env.example` to `.e2e.env` in the repository root and fill in the five values. The file is gitignored. The tests read it for any variable that isn't in their environment, which is every variable when they are started from Xcode.
+3. Run `./Scripts/bootstrap.sh`, select the `BitwardenE2ETests` scheme and press Cmd+U.
 
 ### Running Tests from Xcode
 
@@ -1025,6 +1081,8 @@ CI runs all test plans:
 - View inspector tests (interaction validation)
 
 Ensure all tests pass locally before pushing to prevent CI failures.
+
+End-to-end UI tests don't run on pull requests. `test-e2e.yml` runs them on a weekday schedule and on manual dispatch, against the server configured in the repository's secrets. It doesn't upload the result bundle.
 
 ## Quick Reference for AI Agents
 
