@@ -35,6 +35,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var appRehydrationState = [String: AppRehydrationState]()
     var appTheme: AppTheme?
     var archiveOnboardingShown = false
+    var autofillActionCardOptedOut = false
     var biometricsEnabled = [String: Bool]()
     var capturedUserId: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
@@ -376,6 +377,10 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
 
     func getLearnNewLoginActionCardStatus() async -> AccountSetupProgress? {
         learnNewLoginActionCardStatus
+    }
+
+    func getAutofillActionCardOptedOut() async -> Bool {
+        autofillActionCardOptedOut
     }
 
     func getLastRequestToTurnOnCredentialProvider() async -> Date? {
@@ -727,6 +732,10 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
 
     func setLearnNewLoginActionCardStatus(_ status: AccountSetupProgress) async {
         learnNewLoginActionCardStatus = status
+    }
+
+    func setAutofillActionCardOptedOut(_ optedOut: Bool) async {
+        autofillActionCardOptedOut = optedOut
     }
 
     func setLastRequestToTurnOnCredentialProvider(_ date: Date?) async {

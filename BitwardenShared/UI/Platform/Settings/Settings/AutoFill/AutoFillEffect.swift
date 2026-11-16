@@ -12,6 +12,12 @@ enum AutoFillEffect: Equatable {
     /// The user tapped the get started/turn on button on the set up autofill action card.
     case setUpAutofill
 
+    /// Stream whether autofill is turned on.
+    case streamAutofillStatus
+
     /// Stream the state of the badges in the settings tab.
     case streamSettingsBadge
+
+    /// The user tapped the button to turn on autofill on the autofill off action card.
+    case turnOnAutofill
 }

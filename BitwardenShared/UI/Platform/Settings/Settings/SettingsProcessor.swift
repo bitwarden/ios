@@ -79,9 +79,19 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
         if state.presentationMode == .tab {
             badgeUpdateTask = Task { @MainActor [weak self] in
                 do {
-                    guard let publisher = try await self?.services.stateService.settingsBadgePublisher() else { return }
+                    guard let services = self?.services else { return }
+                    let isAutofillOffActionCardEnabled: Bool = await services.configService.getFeatureFlag(
+                        .autofillOffActionCard,
+                    )
+                    self?.state.isAutofillOffActionCardEnabled = isAutofillOffActionCardEnabled
+
+                    let publisher = try await services.stateService.settingsBadgePublisher()
                     for await badgeState in publisher.values {
-                        self?.delegate?.updateSettingsTabBadge(badgeState.badgeValue)
+                        self?.delegate?.updateSettingsTabBadge(
+                            isAutofillOffActionCardEnabled
+                                ? badgeState.badgeValueExcludingAutofill
+                                : badgeState.badgeValue,
+                        )
                         self?.state.badgeState = badgeState
                     }
                 } catch {

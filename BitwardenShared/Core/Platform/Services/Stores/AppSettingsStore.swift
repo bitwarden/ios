@@ -129,6 +129,13 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The rehydration state.
     func appRehydrationState(userId: String) -> AppRehydrationState?
 
+    /// Whether the user has opted out of the vault's autofill action card. This applies to all
+    /// accounts on the device.
+    ///
+    /// - Returns: `true` if the user tapped "Don't remind me again" on the autofill action card.
+    ///
+    func autofillActionCardOptedOut() -> Bool
+
     /// Gets the time after which the clipboard should be cleared.
     ///
     /// - Parameter userId: The user ID associated with the clipboard clearing time.
@@ -394,6 +401,13 @@ protocol AppSettingsStore: AnyObject {
     ///   - state: The state to save.
     ///   - userId: The user ID the state belongs to.
     func setAppRehydrationState(_ state: AppRehydrationState?, userId: String)
+
+    /// Sets whether the user has opted out of the vault's autofill action card. This applies to
+    /// all accounts on the device.
+    ///
+    /// - Parameter optedOut: Whether the user opted out of the autofill action card.
+    ///
+    func setAutofillActionCardOptedOut(_ optedOut: Bool)
 
     /// Whether the vault should sync on refreshing.
     ///
@@ -945,6 +959,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case appRehydrationState(userId: String)
         case appTheme
         case archiveOnboardingShown
+        case autofillActionCardOptedOut
         case biometricAuthEnabled(userId: String)
         case clearClipboardValue(userId: String)
         case collapsedVaultListSectionIds(userId: String)
@@ -1032,6 +1047,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "theme"
             case .archiveOnboardingShown:
                 "archiveOnboardingShown"
+            case .autofillActionCardOptedOut:
+                "autofillActionCardOptedOut"
             case let .biometricAuthEnabled(userId):
                 "biometricUnlock_\(userId)"
             case let .clearClipboardValue(userId):
@@ -1283,6 +1300,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .appRehydrationState(userId: userId))
     }
 
+    func autofillActionCardOptedOut() -> Bool {
+        fetch(for: .autofillActionCardOptedOut)
+    }
+
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
         if let rawValue: Int = fetch(for: .clearClipboardValue(userId: userId)),
            let value = ClearClipboardValue(rawValue: rawValue) {
@@ -1449,6 +1470,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func setAppRehydrationState(_ state: AppRehydrationState?, userId: String) {
         store(state, for: .appRehydrationState(userId: userId))
+    }
+
+    func setAutofillActionCardOptedOut(_ optedOut: Bool) {
+        store(optedOut, for: .autofillActionCardOptedOut)
     }
 
     func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, for userId: String) {

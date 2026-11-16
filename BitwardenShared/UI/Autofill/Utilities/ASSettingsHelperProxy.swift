@@ -5,6 +5,11 @@ import AuthenticationServices
 /// A proxy protocol to call ``ASSettingsHelper`` functions so it can be mocked.
 ///
 protocol ASSettingsHelperProxy { // sourcery: AutoMockable
+    /// Calling this method will open the Settings app and navigate directly to the AutoFill
+    /// provider settings.
+    @available(iOS 17.0, *)
+    func openCredentialProviderAppSettings() async throws
+
     /// Calling this method will open the Settings app and navigate directly to the Verification Code provider settings.
     @available(iOS 17.0, *)
     func openVerificationCodeAppSettings() async throws
@@ -20,6 +25,11 @@ protocol ASSettingsHelperProxy { // sourcery: AutoMockable
 ///
 class DefaultASSettingsHelperProxy: ASSettingsHelperProxy {
     // MARK: Methods
+
+    @available(iOS 17.0, *)
+    func openCredentialProviderAppSettings() async throws {
+        try await ASSettingsHelper.openCredentialProviderAppSettings()
+    }
 
     @available(iOS 17.0, *)
     func openVerificationCodeAppSettings() async throws {

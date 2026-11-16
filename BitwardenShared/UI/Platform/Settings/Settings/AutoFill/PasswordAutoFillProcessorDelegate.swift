@@ -12,6 +12,8 @@ protocol PasswordAutoFillProcessorDelegate: AnyObject {
 
 extension AutoFillProcessor: PasswordAutoFillProcessorDelegate {
     func didEnableAutofill() {
+        // The autofill off action card reflects the live autofill state, so no confirmation is shown.
+        guard !state.isAutofillOffActionCardEnabled else { return }
         state.toast = Toast(title: Localizations.autofillEnabled)
     }
 }

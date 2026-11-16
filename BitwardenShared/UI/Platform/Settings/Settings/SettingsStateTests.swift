@@ -37,6 +37,14 @@ class SettingsStateTests: BitwardenTestCase {
         XCTAssertNil(subject.autofillBadgeValue)
     }
 
+    /// `autofillBadgeValue` returns `nil` when the autofill off action card is enabled, even if the
+    /// autofill setup isn't complete.
+    func test_autofillBadgeValue_autofillOffActionCardEnabled() {
+        var subject = SettingsState(badgeState: .fixture(autofillSetupProgress: .incomplete))
+        subject.isAutofillOffActionCardEnabled = true
+        XCTAssertNil(subject.autofillBadgeValue)
+    }
+
     /// `autofillBadgeValue` returns the badge value for the autofill row if the autofill setup
     /// isn't complete.
     func test_autofillBadgeValue_value() {

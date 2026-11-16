@@ -1009,6 +1009,16 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNil(result)
     }
 
+    /// `getAutofillActionCardOptedOut()` returns whether the user opted out of the autofill action card.
+    func test_getAutofillActionCardOptedOut() async {
+        var result = await subject.getAutofillActionCardOptedOut()
+        XCTAssertFalse(result)
+
+        appSettingsStore.autofillActionCardOptedOutValue = true
+        result = await subject.getAutofillActionCardOptedOut()
+        XCTAssertTrue(result)
+    }
+
     /// `getLastRequestToTurnOnCredentialProvider()` returns the date of the last request
     /// to turn on the credential provider.
     func test_getLastRequestToTurnOnCredentialProvider() async {
@@ -2138,6 +2148,15 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let date2 = Date(year: 2023, month: 12, day: 2)
         try await subject.setLastSyncTime(date2, userId: "1")
         XCTAssertEqual(appSettingsStore.lastSyncTimeByUserId["1"], date2)
+    }
+
+    /// `setAutofillActionCardOptedOut(_:)` stores the value in the app settings store.
+    func test_setAutofillActionCardOptedOut() async {
+        await subject.setAutofillActionCardOptedOut(true)
+        XCTAssertTrue(appSettingsStore.autofillActionCardOptedOutValue)
+
+        await subject.setAutofillActionCardOptedOut(false)
+        XCTAssertFalse(appSettingsStore.autofillActionCardOptedOutValue)
     }
 
     /// `setLastRequestToTurnOnCredentialProvider(_:)` stores the date in the app settings store.

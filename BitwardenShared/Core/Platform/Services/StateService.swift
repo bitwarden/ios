@@ -2771,8 +2771,16 @@ extension DefaultStateService: UserSessionStateService {
 // MARK: Autofill
 
 extension DefaultStateService: AutofillStateService {
+    func getAutofillActionCardOptedOut() async -> Bool {
+        appSettingsStore.autofillActionCardOptedOut()
+    }
+
     func getLastRequestToTurnOnCredentialProvider() async -> Date? {
         appSettingsStore.lastRequestToTurnOnCredentialProvider()
+    }
+
+    func setAutofillActionCardOptedOut(_ optedOut: Bool) async {
+        appSettingsStore.setAutofillActionCardOptedOut(optedOut)
     }
 
     func setLastRequestToTurnOnCredentialProvider(_ date: Date?) async {

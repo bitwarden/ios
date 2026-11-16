@@ -78,6 +78,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         & HasAuthRepository
         & HasAuthService
         & HasAutofillCredentialService
+        & HasAutofillPromptService
         & HasBillingRepository
         & HasBillingService
         & HasCameraService

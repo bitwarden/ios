@@ -15,6 +15,12 @@ struct AutoFillState {
     /// The default URI match type.
     var defaultUriMatchType: UriMatchType = .domain
 
+    /// Whether autofill is turned on, or `nil` if it hasn't been determined yet.
+    var isAutofillEnabled: Bool?
+
+    /// Whether the autofill off action card feature flag is enabled.
+    var isAutofillOffActionCardEnabled: Bool = false
+
     /// Whether or not the copy TOTP automatically toggle is on.
     var isCopyTOTPToggleOn: Bool = false
 
@@ -35,10 +41,22 @@ struct AutoFillState {
 
     // MARK: Computed Properties
 
-    /// Whether the autofill action card should be shown.
+    /// Whether the set up autofill action card, driven by the user's autofill setup progress,
+    /// should be shown. This is replaced by the autofill off action card when that feature flag
+    /// is enabled.
     var shouldShowAutofillActionCard: Bool {
-        guard let badgeState, badgeState.autofillSetupProgress != .complete else { return false }
+        guard !isAutofillOffActionCardEnabled,
+              let badgeState,
+              badgeState.autofillSetupProgress != .complete
+        else { return false }
         return true
+    }
+
+    /// Whether the autofill off action card should be shown. Unlike the vault's card, this is
+    /// shown whenever autofill is off, regardless of whether the user dismissed or opted out of
+    /// the vault's card.
+    var shouldShowAutofillOffActionCard: Bool {
+        isAutofillOffActionCardEnabled && isAutofillEnabled == false
     }
 
     /// The warning message based on the default URI match type.
