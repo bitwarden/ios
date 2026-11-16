@@ -206,7 +206,7 @@ Otherwise, tests will fail due to rendering differences between iOS versions.
 - Test methods are synchronous (`func test_...() throws`, never `async`). XCTest can't stop an `async` test at a failed assertion, so a failing robot would hang the test until its time allowance runs out. `SeederClient` blocks for the same reason.
 - Name tests `test_<function>_<behavior>` and put the Testmo case ID in the doc comment.
 
-**Debug builds only**: both launch arguments are compiled out of Release builds, and CI fails a Release build that contains the `DebugAppStateResetter` type (`Scripts/check-release-binary.sh`). The reset doesn't clear the iOS notification permission or the app group data shared with Authenticator; keychain items shared with Authenticator are erased, as on a fresh install.
+**Debug builds only**: both launch arguments are compiled out of Release builds. The reset doesn't clear the iOS notification permission or the app group data shared with Authenticator; keychain items shared with Authenticator are erased, as on a fresh install.
 
 ## Testing by Component Type
 
