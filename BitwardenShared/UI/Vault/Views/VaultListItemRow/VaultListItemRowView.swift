@@ -6,23 +6,23 @@ import SwiftUI
 // MARK: - View+MoreOptionsAccessibilityActions
 
 private extension ModifiedContent where Modifier == AccessibilityAttachmentModifier {
-    /// Adds a named `.accessibilityAction` for each of the provided more-options action kinds.
-    /// The number of kinds is data-driven (it depends on the cipher's `copyableFields`), so this
+    /// Adds a named `.accessibilityAction` for each of the provided row actions, in order. The
+    /// number of actions is data-driven (it depends on the cipher's `copyableFields`), so this
     /// folds over the list at runtime. Accessibility actions applied to
     /// `AccessibilityAttachmentModifier` content merge into the same modifier, so the view's type
-    /// stays the same however many kinds are added.
+    /// stays the same however many actions are added.
     ///
     /// - Parameters:
-    ///   - kinds: The more-options action kinds to expose as accessibility actions.
-    ///   - onSelect: Called with the selected kind when its accessibility action is activated.
+    ///   - actions: The accessibility actions to expose on the row.
+    ///   - perform: Called with the effect of the action when it is activated.
     ///
-    func accessibilityMoreOptionsActions(
-        _ kinds: [MoreOptionsActionKind],
-        onSelect: @escaping (MoreOptionsActionKind) async -> Void,
+    func accessibilityRowActions(
+        _ actions: [VaultListItemRowAccessibilityAction],
+        perform: @escaping (VaultListItemRowEffect) async -> Void,
     ) -> ModifiedContent<Content, Modifier> {
-        kinds.reduce(self) { view, kind in
-            view.accessibilityAction(named: kind.localizedName) {
-                Task { await onSelect(kind) }
+        actions.reduce(self) { view, action in
+            view.accessibilityAction(named: action.localizedName) {
+                Task { await perform(action.effect) }
             }
         }
     }
@@ -81,8 +81,8 @@ struct VaultListItemRowView: View {
                     }
                     .accessibilityLabel(Localizations.moreOptions)
                     .accessibilityIdentifier("CipherOptionsButton")
-                    // Each more-options action is exposed individually as a custom action on the
-                    // row, so the combined "More options" action would be redundant.
+                    // VoiceOver reaches this menu through the row's "More options" accessibility
+                    // action (see `accessibilityRowActions`), so the button is hidden here.
                     .accessibilityHidden(true)
                 }
 
@@ -107,8 +107,10 @@ struct VaultListItemRowView: View {
         }
         .accessibilityElement(children: .combine)
         .accessibilityIdentifier(store.state.item.vaultItemAccessibilityId)
-        .accessibilityMoreOptionsActions(accessibilityMoreOptionsActionKinds) { kind in
-            await store.perform(.accessibilityMoreOptionsActionPressed(kind))
+        .accessibilityRowActions(
+            VaultListItemRowAccessibilityAction.actions(for: accessibilityMoreOptionsActionKinds),
+        ) { effect in
+            await store.perform(effect)
         }
     }
 
