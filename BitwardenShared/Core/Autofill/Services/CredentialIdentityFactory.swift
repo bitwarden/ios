@@ -66,20 +66,6 @@ struct DefaultCredentialIdentityFactory: CredentialIdentityFactory {
         return ASCredentialServiceIdentifier(identifier: uriWithScheme(uri), type: .URL)
     }
 
-    /// Returns the URI with an `https://` scheme added if it doesn't already have a scheme.
-    ///
-    /// Login URIs can be saved without a scheme (e.g. `www.example.com`). The system doesn't match
-    /// a `.URL` service identifier without a scheme to the website, so it won't suggest the
-    /// credential and may prompt to save it again after it's filled. URIs that already have a
-    /// scheme, including app URIs (e.g. `iosapp://`), are returned unchanged.
-    ///
-    /// - Parameter uri: The login URI.
-    /// - Returns: The URI with a scheme.
-    ///
-    private func uriWithScheme(_ uri: String) -> String {
-        uri.contains("://") ? uri : "https://" + uri
-    }
-
     /// Tries to create a one time code credential identity if possible from the `cipher`.
     /// - Parameter cipher: The cipher to get the one time code identity.
     /// - Returns: An `ASOneTimeCodeCredentialIdentity` if possible, `nil` otherwise.
@@ -99,5 +85,19 @@ struct DefaultCredentialIdentityFactory: CredentialIdentityFactory {
             label: cipher.name,
             recordIdentifier: cipher.id,
         )
+    }
+
+    /// Returns the URI with an `https://` scheme added if it doesn't already have a scheme.
+    ///
+    /// Login URIs can be saved without a scheme (e.g. `www.example.com`). The system doesn't match
+    /// a `.URL` service identifier without a scheme to the website, so it won't suggest the
+    /// credential and may prompt to save it again after it's filled. URIs that already have a
+    /// scheme, including app URIs (e.g. `iosapp://`), are returned unchanged.
+    ///
+    /// - Parameter uri: The login URI.
+    /// - Returns: The URI with a scheme.
+    ///
+    private func uriWithScheme(_ uri: String) -> String {
+        uri.contains("://") ? uri : "https://" + uri
     }
 }
