@@ -44,6 +44,19 @@ protocol CipherDataStore: AnyObject {
     ///
     func fetchAllCiphers(userId: String) async throws -> [Cipher]
 
+    /// Fetches a page of the ciphers belonging to the specified user id, in order of their ID.
+    ///
+    /// Passing the ID of the last cipher of a page as `afterId` fetches the next page, so the
+    /// ciphers can be read a page at a time without holding them all in memory.
+    ///
+    /// - Parameters:
+    ///   - userId: The id of the user associated with the ciphers.
+    ///   - afterId: Only ciphers with an ID after this one are fetched, or all ciphers if `nil`.
+    ///   - limit: The maximum number of ciphers to fetch.
+    /// - Returns: Up to `limit` ciphers associated with the user id, sorted by ID.
+    ///
+    func fetchCiphers(userId: String, afterId: String?, limit: Int) async throws -> [Cipher]
+
     /// A publisher for a user's cipher objects.
     ///
     /// - Parameter userId: The user ID of the user to associated with the objects to fetch.
@@ -126,6 +139,17 @@ extension DataStore: CipherDataStore {
     func fetchAllCiphers(userId: String) async throws -> [Cipher] {
         try await backgroundContext.perform {
             let fetchRequest = CipherData.fetchByUserIdRequest(userId: userId)
+            return try self.backgroundContext.fetch(fetchRequest).map(Cipher.init)
+        }
+    }
+
+    func fetchCiphers(userId: String, afterId: String?, limit: Int) async throws -> [Cipher] {
+        try await backgroundContext.perform {
+            let predicate = afterId.map { CipherData.userIdAndAfterIdPredicate(userId: userId, afterId: $0) }
+                ?? CipherData.userIdPredicate(userId: userId)
+            let fetchRequest = CipherData.fetchRequest(predicate: predicate)
+            fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \CipherData.id, ascending: true)]
+            fetchRequest.fetchLimit = limit
             return try self.backgroundContext.fetch(fetchRequest).map(Cipher.init)
         }
     }

@@ -66,6 +66,80 @@ class SdkCipherRepositoryTests: BitwardenTestCase {
         XCTAssertEqual(cipherDataStore.fetchAllCiphersUserId, expectedUserId)
     }
 
+    /// `listIter(batchSize:)` returns an iterator that fetches a page per `next()` call, each
+    /// continuing after the ID of the last cipher of the previous page, until a short page.
+    func test_listIter_pages() async throws {
+        cipherDataStore.fetchCiphersResults = [
+            .success([.fixture(id: "1"), .fixture(id: "2")]),
+            .success([.fixture(id: "3"), .fixture(id: "4")]),
+            .success([.fixture(id: "5")]),
+        ]
+
+        let iterator = try subject.listIter(batchSize: 2)
+        XCTAssertTrue(cipherDataStore.fetchCiphersCalls.isEmpty)
+
+        let firstPage = try await iterator.next()
+        XCTAssertEqual(firstPage?.map(\.id), ["1", "2"])
+        let secondPage = try await iterator.next()
+        XCTAssertEqual(secondPage?.map(\.id), ["3", "4"])
+        let lastPage = try await iterator.next()
+        XCTAssertEqual(lastPage?.map(\.id), ["5"])
+        let end = try await iterator.next()
+        XCTAssertNil(end)
+
+        XCTAssertEqual(cipherDataStore.fetchCiphersCalls.map(\.afterId), [nil, "2", "4"])
+        XCTAssertEqual(cipherDataStore.fetchCiphersCalls.map(\.limit), [2, 2, 2])
+        XCTAssertEqual(cipherDataStore.fetchCiphersUserId, expectedUserId)
+    }
+
+    /// `listIter(batchSize:)` returns an iterator that ends with an empty fetch when the last page
+    /// is full.
+    func test_listIter_fullLastPage() async throws {
+        cipherDataStore.fetchCiphersResults = [
+            .success([.fixture(id: "1"), .fixture(id: "2")]),
+            .success([]),
+        ]
+
+        let iterator = try subject.listIter(batchSize: 2)
+
+        let page = try await iterator.next()
+        XCTAssertEqual(page?.map(\.id), ["1", "2"])
+        let end = try await iterator.next()
+        XCTAssertNil(end)
+        let afterEnd = try await iterator.next()
+        XCTAssertNil(afterEnd)
+
+        XCTAssertEqual(cipherDataStore.fetchCiphersCalls.map(\.afterId), [nil, "2"])
+    }
+
+    /// `listIter(batchSize:)` returns an iterator that ends right away when there are no ciphers.
+    func test_listIter_empty() async throws {
+        let iterator = try subject.listIter(batchSize: 2)
+
+        let end = try await iterator.next()
+        XCTAssertNil(end)
+        XCTAssertEqual(cipherDataStore.fetchCiphersCalls.count, 1)
+    }
+
+    /// `listIter(batchSize:)` returns an iterator that fetches at least one cipher per page.
+    func test_listIter_zeroBatchSize() async throws {
+        let iterator = try subject.listIter(batchSize: 0)
+
+        _ = try await iterator.next()
+        XCTAssertEqual(cipherDataStore.fetchCiphersCalls.map(\.limit), [1])
+    }
+
+    /// `listIter(batchSize:)` returns an iterator that throws the error of the data store.
+    func test_listIter_error() async throws {
+        cipherDataStore.fetchCiphersResults = [.failure(BitwardenTestError.example)]
+
+        let iterator = try subject.listIter(batchSize: 2)
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await iterator.next()
+        }
+    }
+
     /// `remove(id:)` deletes the cipher from local storage by ID.
     func test_remove() async throws {
         try await subject.remove(id: "1")

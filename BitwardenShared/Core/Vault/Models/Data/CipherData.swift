@@ -59,6 +59,16 @@ extension CipherData {
         NSPredicate(format: "%K == %@", #keyPath(CipherData.userId), userId)
     }
 
+    static func userIdAndAfterIdPredicate(userId: String, afterId: String) -> NSPredicate {
+        NSPredicate(
+            format: "%K == %@ AND %K > %@",
+            #keyPath(CipherData.userId),
+            userId,
+            #keyPath(CipherData.id),
+            afterId,
+        )
+    }
+
     static func userIdAndIdPredicate(userId: String, id: String) -> NSPredicate {
         NSPredicate(
             format: "%K == %@ AND %K == %@",
