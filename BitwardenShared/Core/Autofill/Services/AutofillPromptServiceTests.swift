@@ -93,7 +93,32 @@ struct AutofillPromptServiceTests {
         autofillCredentialService.isAutofillCredentialsEnabled = true
         await subject.refreshAutofillStatus()
 
-        #expect(autofillCredentialService.updateCredentialsInStoreCalled)
+        try await waitForAsync { autofillCredentialService.updateCredentialsInStoreCalled }
+    }
+
+    /// `refreshAutofillStatus()` returns without waiting for the delayed credential identity store
+    /// repopulation, so callers like the app's foreground handling aren't held up.
+    @Test
+    func refreshAutofillStatus_offToOn_unlocked_doesNotWaitForCredentialStoreUpdate() async throws {
+        let subject = DefaultAutofillPromptService(
+            activeAccountStateProvider: stateService,
+            appContextHelper: appContextHelper,
+            asSettingsMediator: asSettingsMediator,
+            autofillCredentialService: autofillCredentialService,
+            autofillStateService: stateService,
+            errorReporter: errorReporter,
+            vaultTimeoutService: vaultTimeoutService,
+            credentialStoreUpdateDelay: 60,
+        )
+        autofillCredentialService.isAutofillCredentialsEnabled = false
+        await subject.refreshAutofillStatus()
+
+        autofillCredentialService.isAutofillCredentialsEnabled = true
+        await subject.refreshAutofillStatus()
+
+        #expect(!autofillCredentialService.updateCredentialsInStoreCalled)
+        var iterator = subject.autofillEnabledPublisher().values.makeAsyncIterator()
+        #expect(await iterator.next() == true)
     }
 
     /// `refreshAutofillStatus()` doesn't repopulate the credential identity store when autofill

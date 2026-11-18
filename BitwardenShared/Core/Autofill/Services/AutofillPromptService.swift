@@ -211,17 +211,25 @@ class DefaultAutofillPromptService: AutofillPromptService {
         }
     }
 
-    /// Repopulates the credential identity store if the active account's vault is unlocked. If
-    /// it's locked, the store is populated when the vault is unlocked.
+    /// Repopulates the credential identity store, after a short delay, if the active account's
+    /// vault is unlocked. If it's locked, the store is populated when the vault is unlocked.
     ///
     private func updateCredentialsInStoreIfUnlocked() async {
         do {
             let userId = try await activeAccountStateProvider.getActiveAccountId()
             guard await !vaultTimeoutService.isLocked(userId: userId) else { return }
             // The identity store rejects writes made right after the credential provider is turned
-            // on, so wait briefly before repopulating it.
-            try await Task.sleep(nanoseconds: UInt64(credentialStoreUpdateDelay * 1_000_000_000))
-            await autofillCredentialService.updateCredentialsInStore()
+            // on, so wait briefly before repopulating it. This runs in its own task so callers,
+            // like the app's foreground handling, aren't held up by the delay.
+            Task { [autofillCredentialService, credentialStoreUpdateDelay] in
+                do {
+                    try await Task.sleep(nanoseconds: UInt64(credentialStoreUpdateDelay * 1_000_000_000))
+                } catch {
+                    // The task was cancelled, so skip repopulating the store.
+                    return
+                }
+                await autofillCredentialService.updateCredentialsInStore()
+            }
         } catch StateServiceError.noActiveAccount {
             // No-op: nothing to populate without an active account.
         } catch {
