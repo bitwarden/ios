@@ -138,6 +138,37 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(publishedValues, [.default, .dark])
     }
 
+    /// `autofillActionCardDismissedForSessionPublisher()` publishes whether the autofill action card
+    /// is dismissed for the session, including when it's cleared from the debug menu, without
+    /// persisting anything.
+    func test_autofillActionCardDismissedForSessionPublisher() async {
+        var publishedValues = [Bool]()
+        let publisher = await subject.autofillActionCardDismissedForSessionPublisher()
+            .sink { publishedValues.append($0) }
+        defer { publisher.cancel() }
+
+        await subject.setAutofillActionCardDismissedForSession(true)
+        await subject.clearAutofillActionCardDismissedForSession()
+
+        XCTAssertEqual(publishedValues, [false, true, false])
+        XCTAssertFalse(appSettingsStore.autofillActionCardOptedOutValue)
+    }
+
+    /// `autofillActionCardOptedOutPublisher()` publishes whether the user opted out of the autofill
+    /// action card, including when it's set or cleared from the debug menu.
+    func test_autofillActionCardOptedOutPublisher() async {
+        var publishedValues = [Bool]()
+        let publisher = await subject.autofillActionCardOptedOutPublisher()
+            .sink { publishedValues.append($0) }
+        defer { publisher.cancel() }
+
+        await subject.setAutofillActionCardOptedOut(true)
+        await subject.clearAutofillActionCardOptOut()
+
+        XCTAssertEqual(publishedValues, [false, true, false])
+        XCTAssertFalse(appSettingsStore.autofillActionCardOptedOutValue)
+    }
+
     /// `clearPins()` clears the user's pins.
     func test_clearPins() async throws {
         let account = Account.fixture()
@@ -1007,16 +1038,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_getLocalUserDataKeyStates_notSet() async throws {
         let result = try await subject.getLocalUserDataKeyStates(userId: "1")
         XCTAssertNil(result)
-    }
-
-    /// `getAutofillActionCardOptedOut()` returns whether the user opted out of the autofill action card.
-    func test_getAutofillActionCardOptedOut() async {
-        var result = await subject.getAutofillActionCardOptedOut()
-        XCTAssertFalse(result)
-
-        appSettingsStore.autofillActionCardOptedOutValue = true
-        result = await subject.getAutofillActionCardOptedOut()
-        XCTAssertTrue(result)
     }
 
     /// `getLastRequestToTurnOnCredentialProvider()` returns the date of the last request

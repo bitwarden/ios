@@ -18,7 +18,7 @@ protocol AutofillPromptService { // sourcery: AutoMockable
 
     /// Hides the vault's autofill action card until the next cold launch of the app.
     ///
-    func dismissVaultActionCardForSession()
+    func dismissVaultActionCardForSession() async
 
     /// Permanently hides the vault's autofill action card for all accounts on the device.
     ///
@@ -83,13 +83,6 @@ class DefaultAutofillPromptService: AutofillPromptService {
     /// The subject publishing whether autofill is turned on, or `nil` if it hasn't been checked.
     private let isAutofillEnabledSubject = CurrentValueSubject<Bool?, Never>(nil)
 
-    /// The subject publishing whether the vault action card was dismissed during this session.
-    private let isDismissedForSessionSubject = CurrentValueSubject<Bool, Never>(false)
-
-    /// The subject publishing whether the user opted out of the vault action card, or `nil` if it
-    /// hasn't been loaded.
-    private let isOptedOutSubject = CurrentValueSubject<Bool?, Never>(nil)
-
     /// The service used to determine whether the vault is locked.
     private let vaultTimeoutService: VaultTimeoutService
 
@@ -136,12 +129,11 @@ class DefaultAutofillPromptService: AutofillPromptService {
         isAutofillEnabledSubject.removeDuplicates().eraseToAnyPublisher()
     }
 
-    func dismissVaultActionCardForSession() {
-        isDismissedForSessionSubject.send(true)
+    func dismissVaultActionCardForSession() async {
+        await autofillStateService.setAutofillActionCardDismissedForSession(true)
     }
 
     func optOutOfVaultActionCard() async {
-        isOptedOutSubject.send(true)
         await autofillStateService.setAutofillActionCardOptedOut(true)
     }
 
@@ -180,14 +172,13 @@ class DefaultAutofillPromptService: AutofillPromptService {
     }
 
     func vaultActionCardVisibilityPublisher() async -> AnyPublisher<Bool, Never> {
-        if isOptedOutSubject.value == nil {
-            await isOptedOutSubject.send(autofillStateService.getAutofillActionCardOptedOut())
-        }
-
-        return isAutofillEnabledSubject
-            .combineLatest(isDismissedForSessionSubject, isOptedOutSubject)
+        await isAutofillEnabledSubject
+            .combineLatest(
+                autofillStateService.autofillActionCardDismissedForSessionPublisher(),
+                autofillStateService.autofillActionCardOptedOutPublisher(),
+            )
             .map { isEnabled, isDismissed, isOptedOut in
-                isEnabled == false && !isDismissed && isOptedOut == false
+                isEnabled == false && !isDismissed && !isOptedOut
             }
             .removeDuplicates()
             .eraseToAnyPublisher()

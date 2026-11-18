@@ -35,7 +35,14 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var appRehydrationState = [String: AppRehydrationState]()
     var appTheme: AppTheme?
     var archiveOnboardingShown = false
-    var autofillActionCardOptedOut = false
+    var autofillActionCardDismissedSubject = CurrentValueSubject<Bool, Never>(false)
+
+    var autofillActionCardOptedOut: Bool {
+        get { autofillActionCardOptedOutSubject.value }
+        set { autofillActionCardOptedOutSubject.send(newValue) }
+    }
+
+    var autofillActionCardOptedOutSubject = CurrentValueSubject<Bool, Never>(false)
     var biometricsEnabled = [String: Bool]()
     var capturedUserId: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
@@ -160,6 +167,14 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         addFillAssistDebugRuleUsernameId = usernameFieldId
         addFillAssistDebugRulePasswordId = passwordFieldId
         try addFillAssistDebugRuleResult.get()
+    }
+
+    func clearAutofillActionCardDismissedForSession() async {
+        autofillActionCardDismissedSubject.send(false)
+    }
+
+    func clearAutofillActionCardOptOut() async {
+        autofillActionCardOptedOut = false
     }
 
     func clearFillAssistCache() async throws {
@@ -377,10 +392,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
 
     func getLearnNewLoginActionCardStatus() async -> AccountSetupProgress? {
         learnNewLoginActionCardStatus
-    }
-
-    func getAutofillActionCardOptedOut() async -> Bool {
-        autofillActionCardOptedOut
     }
 
     func getLastRequestToTurnOnCredentialProvider() async -> Date? {
@@ -732,6 +743,18 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
 
     func setLearnNewLoginActionCardStatus(_ status: AccountSetupProgress) async {
         learnNewLoginActionCardStatus = status
+    }
+
+    func autofillActionCardDismissedForSessionPublisher() async -> AnyPublisher<Bool, Never> {
+        autofillActionCardDismissedSubject.eraseToAnyPublisher()
+    }
+
+    func autofillActionCardOptedOutPublisher() async -> AnyPublisher<Bool, Never> {
+        autofillActionCardOptedOutSubject.eraseToAnyPublisher()
+    }
+
+    func setAutofillActionCardDismissedForSession(_ dismissed: Bool) async {
+        autofillActionCardDismissedSubject.send(dismissed)
     }
 
     func setAutofillActionCardOptedOut(_ optedOut: Bool) async {

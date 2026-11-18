@@ -129,7 +129,7 @@ final class VaultListProcessor: StateProcessor<
         case .dismissArchiveOnboardingActionCard:
             await dismissArchiveOnboardingActionCard()
         case .dismissAutofillActionCard:
-            services.autofillPromptService.dismissVaultActionCardForSession()
+            await services.autofillPromptService.dismissVaultActionCardForSession()
         case .dismissFlightRecorderToastBanner:
             await dismissFlightRecorderToastBanner()
         case .dismissImportLoginsActionCard:

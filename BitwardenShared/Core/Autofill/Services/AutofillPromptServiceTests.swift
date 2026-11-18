@@ -276,7 +276,7 @@ struct AutofillPromptServiceTests {
         var iterator = await subject.vaultActionCardVisibilityPublisher().values.makeAsyncIterator()
         #expect(await iterator.next() == true)
 
-        subject.dismissVaultActionCardForSession()
+        await subject.dismissVaultActionCardForSession()
 
         #expect(await iterator.next() == false)
         #expect(!stateService.autofillActionCardOptedOut)
@@ -295,6 +295,36 @@ struct AutofillPromptServiceTests {
 
         #expect(await iterator.next() == false)
         #expect(stateService.autofillActionCardOptedOut)
+    }
+
+    /// `vaultActionCardVisibilityPublisher()` emits `true` again when the session dismissal is
+    /// cleared, such as from the debug menu, without restarting the app.
+    @Test
+    func vaultActionCardVisibilityPublisher_sessionDismissalCleared_shown() async throws {
+        autofillCredentialService.isAutofillCredentialsEnabled = false
+        await subject.refreshAutofillStatus()
+        await subject.dismissVaultActionCardForSession()
+        var iterator = await subject.vaultActionCardVisibilityPublisher().values.makeAsyncIterator()
+        #expect(await iterator.next() == false)
+
+        await stateService.clearAutofillActionCardDismissedForSession()
+
+        #expect(await iterator.next() == true)
+    }
+
+    /// `vaultActionCardVisibilityPublisher()` emits `true` again when the opt-out is cleared, such
+    /// as from the debug menu, without restarting the app.
+    @Test
+    func vaultActionCardVisibilityPublisher_optOutCleared_shown() async throws {
+        stateService.autofillActionCardOptedOut = true
+        autofillCredentialService.isAutofillCredentialsEnabled = false
+        await subject.refreshAutofillStatus()
+        var iterator = await subject.vaultActionCardVisibilityPublisher().values.makeAsyncIterator()
+        #expect(await iterator.next() == false)
+
+        await stateService.clearAutofillActionCardOptOut()
+
+        #expect(await iterator.next() == true)
     }
 
     /// `vaultActionCardVisibilityPublisher()` emits `false` when the user previously opted out.

@@ -38,6 +38,12 @@ public struct DebugMenuView: View {
                 Text("Fill Assist")
             }
 
+            Section {
+                autofillActionCardSection
+            } header: {
+                Text("Autofill banner")
+            }
+
             userIDSection
 
             Section {
@@ -126,6 +132,26 @@ public struct DebugMenuView: View {
             Text(Localizations.clearMasterPasswordUnlock)
         }
         .accessibilityIdentifier("ClearMasterPasswordUnlockButton")
+    }
+
+    /// The section for resetting the vault's autofill action card dismissal and opt-out, so QA can
+    /// test the dismiss and "Don't remind me again" flows again without restarting the app.
+    private var autofillActionCardSection: some View {
+        Group {
+            AsyncButton {
+                await store.perform(.clearAutofillActionCardDismissal)
+            } label: {
+                Text("Reset banner dismissal (X)")
+            }
+            .accessibilityIdentifier("ResetAutofillActionCardDismissalButton")
+
+            AsyncButton {
+                await store.perform(.clearAutofillActionCardOptOut)
+            } label: {
+                Text("Reset \u{201C}Don\u{2019}t remind me again\u{201D}")
+            }
+            .accessibilityIdentifier("ResetAutofillActionCardOptOutButton")
+        }
     }
 
     /// The section for adding a Fill Assist debug rule and clearing the cached rules, to support
