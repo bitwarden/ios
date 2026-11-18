@@ -11,6 +11,11 @@ extension Constants {
     /// The app review prompt delay in nanoseconds.
     static let appReviewPromptDelay: UInt64 = 3_000_000_000
 
+    /// The number of seconds to wait after autofill is turned on before repopulating the credential
+    /// identity store. Writing to the store immediately after the credential provider is enabled
+    /// fails with `ASCredentialIdentityStoreErrorDomain` code 0.
+    static let autofillCredentialStoreUpdateDelay: TimeInterval = 2
+
     /// The size of the slice to decrypt ciphers in batch using the SDK.
     static let decryptCiphersBatchSize: Int = 100
 

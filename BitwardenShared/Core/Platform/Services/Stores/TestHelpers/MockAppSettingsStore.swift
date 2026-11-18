@@ -21,6 +21,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var appRehydrationState = [String: AppRehydrationState]()
     var appTheme: String?
     var archiveOnboardingShown = false
+    var autofillActionCardOptedOutValue = false
     var cachedActiveUserId: String?
     var disableWebIcons = false
     var flightRecorderData: FlightRecorderData?
@@ -122,6 +123,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func appRehydrationState(userId: String) -> BitwardenShared.AppRehydrationState? {
         appRehydrationState[userId]
+    }
+
+    func autofillActionCardOptedOut() -> Bool {
+        autofillActionCardOptedOutValue
     }
 
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
@@ -297,6 +302,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
             return
         }
         appRehydrationState[userId] = state
+    }
+
+    func setAutofillActionCardOptedOut(_ optedOut: Bool) {
+        autofillActionCardOptedOutValue = optedOut
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {

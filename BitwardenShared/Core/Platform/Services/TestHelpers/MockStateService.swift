@@ -35,6 +35,14 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var appRehydrationState = [String: AppRehydrationState]()
     var appTheme: AppTheme?
     var archiveOnboardingShown = false
+    var autofillActionCardDismissedSubject = CurrentValueSubject<Bool, Never>(false)
+
+    var autofillActionCardOptedOut: Bool {
+        get { autofillActionCardOptedOutSubject.value }
+        set { autofillActionCardOptedOutSubject.send(newValue) }
+    }
+
+    var autofillActionCardOptedOutSubject = CurrentValueSubject<Bool, Never>(false)
     var biometricsEnabled = [String: Bool]()
     var capturedUserId: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
@@ -727,6 +735,22 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
 
     func setLearnNewLoginActionCardStatus(_ status: AccountSetupProgress) async {
         learnNewLoginActionCardStatus = status
+    }
+
+    func autofillActionCardDismissedForSessionPublisher() async -> AnyPublisher<Bool, Never> {
+        autofillActionCardDismissedSubject.eraseToAnyPublisher()
+    }
+
+    func autofillActionCardOptedOutPublisher() async -> AnyPublisher<Bool, Never> {
+        autofillActionCardOptedOutSubject.eraseToAnyPublisher()
+    }
+
+    func setAutofillActionCardDismissedForSession(_ dismissed: Bool) async {
+        autofillActionCardDismissedSubject.send(dismissed)
+    }
+
+    func setAutofillActionCardOptedOut(_ optedOut: Bool) async {
+        autofillActionCardOptedOut = optedOut
     }
 
     func setLastRequestToTurnOnCredentialProvider(_ date: Date?) async {
