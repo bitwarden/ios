@@ -95,6 +95,10 @@ extension StateService {
         passwordFieldId: String,
     ) async throws {}
 
+    func clearAutofillActionCardDismissedForSession() async {}
+
+    func clearAutofillActionCardOptOut() async {}
+
     func clearFillAssistCache() async throws {}
 
     func clearMasterPasswordUnlockForActiveAccount() async throws {}
