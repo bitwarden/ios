@@ -299,6 +299,20 @@ extension SearchableVaultListView {
     /// The active action card, rendered based on priority. Only one card is shown at a time.
     @ViewBuilder private var actionCard: some View {
         switch store.state.activeActionCard {
+        case .autofill:
+            ActionCard(
+                title: Localizations.setUpAutofill,
+                message: Localizations.autofillWithBitwardenDescriptionLong,
+                actionButtonState: ActionCard.ButtonState(title: Localizations.turnOnAutoFill) {
+                    await store.perform(.turnOnAutofill)
+                },
+                dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
+                    await store.perform(.dismissAutofillActionCard)
+                },
+                secondaryButtonState: ActionCard.ButtonState(title: Localizations.dontRemindMeAgain) {
+                    await store.perform(.optOutOfAutofillActionCard)
+                },
+            )
         case .importItems:
             ActionCard(
                 title: Localizations.importSavedLogins,
@@ -451,6 +465,12 @@ struct VaultListView: View {
         }
         .task {
             await store.perform(.streamAccountSetupProgress)
+        }
+        .task {
+            await store.perform(.streamAutofillActionCard)
+        }
+        .backport.onAppearsActive {
+            Task { await store.perform(.windowBecameActive) }
         }
         .task {
             await store.perform(.streamFlightRecorderLog)

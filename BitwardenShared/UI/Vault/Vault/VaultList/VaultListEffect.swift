@@ -19,6 +19,9 @@ enum VaultListEffect: Equatable {
     /// The user tapped the dismiss button on the Archive Onboarding action card.
     case dismissArchiveOnboardingActionCard
 
+    /// The user tapped the dismiss button on the autofill action card.
+    case dismissAutofillActionCard
+
     /// The flight recorder toast banner was dismissed.
     case dismissFlightRecorderToastBanner
 
@@ -50,6 +53,9 @@ enum VaultListEffect: Equatable {
     ///
     case morePressed(_ item: VaultListItem)
 
+    /// The user tapped "Don't remind me again" on the autofill action card.
+    case optOutOfAutofillActionCard
+
     /// A Profile Switcher Effect.
     case profileSwitcher(ProfileSwitcherEffect)
 
@@ -64,6 +70,9 @@ enum VaultListEffect: Equatable {
 
     /// Stream the user's accounts setup progress.
     case streamAccountSetupProgress
+
+    /// Stream whether the autofill action card should be shown.
+    case streamAutofillActionCard
 
     /// Stream the active flight recorder log.
     case streamFlightRecorderLog
@@ -83,6 +92,12 @@ enum VaultListEffect: Equatable {
     /// The try again button was tapped on the error view.
     case tryAgainTapped
 
+    /// The user tapped the button to turn on autofill.
+    case turnOnAutofill
+
     /// The upgrade to Premium button was tapped.
     case upgradeToPremium
+
+    /// The view's window became active, such as when regaining focus in Split View.
+    case windowBecameActive
 }

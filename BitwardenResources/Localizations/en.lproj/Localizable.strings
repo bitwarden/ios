@@ -1286,3 +1286,5 @@
 "ForYourSecurityDontShareOrSendDescriptionLong" = "For your security, don’t share or send this file over unsecured channels (like email), and delete it when you’re done.";
 /* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
 "CreateLogin" = "Create login";
+/* Secondary button on the "Set up autofill" card on the vault screen. Tapping it permanently hides the card. */
+"DontRemindMeAgain" = "Don’t remind me again";
