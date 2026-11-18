@@ -108,10 +108,13 @@ final class AppProcessorAutofillPromptTests {
     func start_flagEnabled_refreshesAutofillStatus() async throws {
         configService.featureFlagsBool[.autofillOffActionCard] = true
         let subject = makeSubject()
+        // Wait for the initial foreground event, which also refreshes, so only `start` is measured.
+        try await waitForAsync { self.willEnterForegroundCalled == 1 }
+        let refreshCountBeforeStart = autofillPromptService.refreshAutofillStatusCallsCount
 
         await subject.start(appContext: .mainApp, navigator: MockRootNavigator(), window: nil)
 
-        #expect(autofillPromptService.refreshAutofillStatusCalled)
+        #expect(autofillPromptService.refreshAutofillStatusCallsCount == refreshCountBeforeStart + 1)
         #expect(stateService.accountSetupAutofill == ["1": .setUpLater])
     }
 
@@ -133,6 +136,10 @@ final class AppProcessorAutofillPromptTests {
     @Test
     func start_flagDisabled_completesAutofillAccountSetup() async throws {
         let subject = makeSubject()
+        // Wait for the initial foreground event, which also completes the setup, then reset it so
+        // only `start` is measured.
+        try await waitForAsync { self.willEnterForegroundCalled == 1 }
+        stateService.accountSetupAutofill["1"] = .setUpLater
 
         await subject.start(appContext: .mainApp, navigator: MockRootNavigator(), window: nil)
 

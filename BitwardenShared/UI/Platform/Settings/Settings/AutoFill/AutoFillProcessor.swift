@@ -61,6 +61,9 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
             await streamSettingsBadge()
         case .turnOnAutofill:
             state.url = await services.autofillPromptService.turnOnAutofill()
+        case .windowBecameActive:
+            guard state.isAutofillOffActionCardEnabled else { return }
+            await services.autofillPromptService.refreshAutofillStatus()
         }
     }
 

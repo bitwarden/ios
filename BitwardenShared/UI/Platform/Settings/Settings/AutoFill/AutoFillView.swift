@@ -45,6 +45,9 @@ struct AutoFillView: View {
         .task {
             await store.perform(.streamAutofillStatus)
         }
+        .backport.onAppearsActive {
+            Task { await store.perform(.windowBecameActive) }
+        }
         .toast(store.binding(
             get: \.toast,
             send: AutoFillAction.toastShown,

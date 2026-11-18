@@ -97,4 +97,7 @@ enum VaultListEffect: Equatable {
 
     /// The upgrade to Premium button was tapped.
     case upgradeToPremium
+
+    /// The view's window became active, such as when regaining focus in Split View.
+    case windowBecameActive
 }

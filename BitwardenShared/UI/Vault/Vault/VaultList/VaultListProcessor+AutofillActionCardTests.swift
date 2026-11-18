@@ -98,6 +98,26 @@ struct VaultListProcessorAutofillActionCardTests {
         #expect(!autofillPromptService.vaultActionCardVisibilityPublisherCalled)
     }
 
+    /// `perform(_:)` with `.windowBecameActive` refreshes the autofill status when the autofill off
+    /// action card is enabled, such as when regaining focus in Split View.
+    @Test
+    func perform_windowBecameActive_flagEnabled_refreshesAutofillStatus() async {
+        subject.state.isAutofillOffActionCardEnabled = true
+
+        await subject.perform(.windowBecameActive)
+
+        #expect(autofillPromptService.refreshAutofillStatusCalled)
+    }
+
+    /// `perform(_:)` with `.windowBecameActive` does nothing when the autofill off action card is
+    /// disabled.
+    @Test
+    func perform_windowBecameActive_flagDisabled_doesNothing() async {
+        await subject.perform(.windowBecameActive)
+
+        #expect(!autofillPromptService.refreshAutofillStatusCalled)
+    }
+
     /// `perform(_:)` with `.turnOnAutofill` doesn't open a URL when the request was handled by
     /// the system.
     @Test

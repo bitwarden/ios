@@ -289,6 +289,26 @@ class AutoFillProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.url, URL(string: UIApplication.openSettingsURLString))
     }
 
+    /// `perform(_:)` with `.windowBecameActive` refreshes the autofill status when the autofill off
+    /// action card is enabled, such as when regaining focus in Split View.
+    @MainActor
+    func test_perform_windowBecameActive_flagEnabled_refreshesAutofillStatus() async {
+        subject.state.isAutofillOffActionCardEnabled = true
+
+        await subject.perform(.windowBecameActive)
+
+        XCTAssertTrue(autofillPromptService.refreshAutofillStatusCalled)
+    }
+
+    /// `perform(_:)` with `.windowBecameActive` does nothing when the autofill off action card is
+    /// disabled.
+    @MainActor
+    func test_perform_windowBecameActive_flagDisabled_doesNothing() async {
+        await subject.perform(.windowBecameActive)
+
+        XCTAssertFalse(autofillPromptService.refreshAutofillStatusCalled)
+    }
+
     /// `receive(_:)` with `.appExtensionTapped` navigates to the app extension view.
     @MainActor
     func test_receive_appExtensionTapped() {

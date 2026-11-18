@@ -469,6 +469,9 @@ struct VaultListView: View {
         .task {
             await store.perform(.streamAutofillActionCard)
         }
+        .backport.onAppearsActive {
+            Task { await store.perform(.windowBecameActive) }
+        }
         .task {
             await store.perform(.streamFlightRecorderLog)
         }

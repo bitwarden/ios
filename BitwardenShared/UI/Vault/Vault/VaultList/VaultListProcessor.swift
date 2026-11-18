@@ -175,6 +175,9 @@ final class VaultListProcessor: StateProcessor<
             state.url = await services.autofillPromptService.turnOnAutofill()
         case .upgradeToPremium:
             await upgradeToPremium()
+        case .windowBecameActive:
+            guard state.isAutofillOffActionCardEnabled else { return }
+            await services.autofillPromptService.refreshAutofillStatus()
         }
     }
 

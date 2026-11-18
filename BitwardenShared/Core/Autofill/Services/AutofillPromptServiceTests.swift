@@ -43,6 +43,7 @@ struct AutofillPromptServiceTests {
             autofillStateService: stateService,
             errorReporter: errorReporter,
             vaultTimeoutService: vaultTimeoutService,
+            credentialStoreUpdateDelay: 0,
         )
     }
 

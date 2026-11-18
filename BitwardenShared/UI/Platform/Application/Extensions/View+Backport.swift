@@ -50,6 +50,21 @@ extension Backport where Content: View {
         }
     }
 
+    /// On iOS 18+, performs an action each time the view's window becomes active. This includes
+    /// regaining focus in Split View or Slide Over, where the app itself stays active and no
+    /// app-level notification is posted.
+    ///
+    /// - Parameter action: The action to perform when the window becomes active.
+    ///
+    @ViewBuilder
+    func onAppearsActive(perform action: @escaping () -> Void) -> some View {
+        if #available(iOS 18, *) {
+            content.modifier(AppearsActiveModifier(action: action))
+        } else {
+            content
+        }
+    }
+
     /// On iOS 16+, handles geometry changes.
     ///
     @preconcurrency
@@ -88,6 +103,30 @@ extension Backport where Content: View {
             content.contentMargins(edges, length, for: .scrollContent)
         } else {
             content
+        }
+    }
+}
+
+// MARK: - AppearsActiveModifier
+
+/// A modifier that performs an action each time the view's window becomes active.
+///
+@available(iOS 18, *)
+private struct AppearsActiveModifier: ViewModifier {
+    // MARK: Properties
+
+    /// The action to perform when the window becomes active.
+    let action: () -> Void
+
+    /// Whether the view's window appears active.
+    @Environment(\.appearsActive) private var appearsActive
+
+    // MARK: View
+
+    func body(content: Content) -> some View {
+        content.onChange(of: appearsActive) { _, isActive in
+            guard isActive else { return }
+            action()
         }
     }
 }

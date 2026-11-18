@@ -8,7 +8,7 @@ import UIKit
 /// A service that tracks whether autofill is turned on and whether the autofill action card should
 /// be shown to help the user turn it on.
 ///
-protocol AutofillPromptService: AnyObject { // sourcery: AutoMockable
+protocol AutofillPromptService { // sourcery: AutoMockable
     /// A publisher for whether autofill is turned on. Emits `nil` until the autofill state has
     /// been checked for the first time.
     ///
@@ -73,6 +73,10 @@ class DefaultAutofillPromptService: AutofillPromptService {
     /// The service used to get and set state around autofill.
     private let autofillStateService: AutofillStateService
 
+    /// The number of seconds to wait after autofill is turned on before repopulating the
+    /// credential identity store.
+    private let credentialStoreUpdateDelay: TimeInterval
+
     /// The service used to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
@@ -103,6 +107,8 @@ class DefaultAutofillPromptService: AutofillPromptService {
     ///   - autofillStateService: The service used to get and set state around autofill.
     ///   - errorReporter: The service used to report non-fatal errors.
     ///   - vaultTimeoutService: The service used to determine whether the vault is locked.
+    ///   - credentialStoreUpdateDelay: The number of seconds to wait after autofill is turned on
+    ///     before repopulating the credential identity store.
     ///
     init(
         activeAccountStateProvider: ActiveAccountStateProvider,
@@ -112,12 +118,14 @@ class DefaultAutofillPromptService: AutofillPromptService {
         autofillStateService: AutofillStateService,
         errorReporter: ErrorReporter,
         vaultTimeoutService: VaultTimeoutService,
+        credentialStoreUpdateDelay: TimeInterval = Constants.autofillCredentialStoreUpdateDelay,
     ) {
         self.activeAccountStateProvider = activeAccountStateProvider
         self.appContextHelper = appContextHelper
         self.asSettingsMediator = asSettingsMediator
         self.autofillCredentialService = autofillCredentialService
         self.autofillStateService = autofillStateService
+        self.credentialStoreUpdateDelay = credentialStoreUpdateDelay
         self.errorReporter = errorReporter
         self.vaultTimeoutService = vaultTimeoutService
     }
@@ -210,6 +218,9 @@ class DefaultAutofillPromptService: AutofillPromptService {
         do {
             let userId = try await activeAccountStateProvider.getActiveAccountId()
             guard await !vaultTimeoutService.isLocked(userId: userId) else { return }
+            // The identity store rejects writes made right after the credential provider is turned
+            // on, so wait briefly before repopulating it.
+            try await Task.sleep(nanoseconds: UInt64(credentialStoreUpdateDelay * 1_000_000_000))
             await autofillCredentialService.updateCredentialsInStore()
         } catch StateServiceError.noActiveAccount {
             // No-op: nothing to populate without an active account.
