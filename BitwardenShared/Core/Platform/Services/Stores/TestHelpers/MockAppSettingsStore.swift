@@ -62,6 +62,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     // swiftlint:disable:next identifier_name
     var organizationUserNotificationBannerDismissals = [String: OrganizationUserNotificationBannerDismissal]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
+    var pendingAccountSetupOnboarding = [String: Bool]()
     var pinProtectedUserKey = [String: String]()
     var pinProtectedUserKeyEnvelope = [String: String]()
     var premiumUpgradeBannerDismissedByUserId = [String: Bool]()
@@ -217,6 +218,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions? {
         passwordGenerationOptions[userId]
+    }
+
+    func pendingAccountSetupOnboarding(userId: String) -> Bool? {
+        pendingAccountSetupOnboarding[userId]
     }
 
     func pinProtectedUserKey(userId: String) -> String? {
@@ -396,6 +401,14 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
             return
         }
         passwordGenerationOptions[userId] = options
+    }
+
+    func setPendingAccountSetupOnboarding(_ isPending: Bool?, userId: String) {
+        guard let isPending else {
+            pendingAccountSetupOnboarding.removeValue(forKey: userId)
+            return
+        }
+        pendingAccountSetupOnboarding[userId] = isPending
     }
 
     func setPinProtectedUserKey(key: String?, userId: String) {
