@@ -62,6 +62,15 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// Flag to enable/disable Premium upgrade path.
     static let premiumUpgradePath = FeatureFlag(rawValue: "pm-31697-premium-upgrade-path")
 
+    /// Flag to enable/disable routing cipher operations through the SDK.
+    ///
+    /// When enabled, creating, editing, deleting, restoring, and sharing ciphers, updating cipher
+    /// collections, and creating and deleting attachments are sent to the server and persisted
+    /// to local storage by the SDK's `CiphersClient` and `AttachmentsClient` instead of the app.
+    /// This is a mobile-only flag that must remain disabled until the SDK supports mTLS client
+    /// certificates (PM-39915).
+    static let sdkCipherOperations = FeatureFlag(rawValue: "pm-44389-mobile-sdk-cipher-operations")
+
     /// Flag to enable/disable SDK-managed PIN unlock.
     ///
     /// When enabled, PIN unlock, enrollment, and validation route through the Bitwarden SDK's
@@ -91,6 +100,7 @@ extension FeatureFlag: @retroactive CaseIterable {
             .organizationUserNotificationBanner,
             .passwordPreloginFromSdk,
             .premiumUpgradePath,
+            .sdkCipherOperations,
             .sdkManagedPinUnlock,
             .sendControls,
         ]
