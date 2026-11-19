@@ -58,14 +58,28 @@ final class SeederClient {
 
     /// The result of `SingleUserScene`.
     private struct SingleUserResult: Decodable {
+        enum CodingKeys: String, CodingKey { // swiftlint:disable:this nesting
+            case base64EncodedUserKey = "decryptedKeyB64"
+            case userId
+        }
+
         let userId: String
-        let decryptedKeyB64: String
+        let base64EncodedUserKey: String
     }
 
     /// The arguments of `UserLoginCipherScene`. The server defaults cover the rest.
     private struct UserLoginCipherArguments: Encodable {
+        enum CodingKeys: String, CodingKey { // swiftlint:disable:this nesting
+            case base64EncodedUserKey = "userKeyB64"
+            case name
+            case password
+            case uri
+            case userId
+            case username
+        }
+
         let userId: String
-        let userKeyB64: String
+        let base64EncodedUserKey: String
         let name: String
         let username: String
         let password: String
@@ -123,7 +137,7 @@ final class SeederClient {
             template: "UserLoginCipherScene",
             arguments: UserLoginCipherArguments(
                 userId: account.userId,
-                userKeyB64: account.userKeyB64,
+                base64EncodedUserKey: account.base64EncodedUserKey,
                 name: item.name,
                 username: item.username,
                 password: item.password,
@@ -154,7 +168,7 @@ final class SeederClient {
         return SeededAccount(
             email: email,
             password: password,
-            userKeyB64: response.result.decryptedKeyB64,
+            base64EncodedUserKey: response.result.base64EncodedUserKey,
             userId: response.result.userId,
         )
     }
