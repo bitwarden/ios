@@ -13,6 +13,9 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
     /// The service that handles common client functionality such as encryption and decryption.
     private let clientService: ClientService
 
+    /// The service to get server-specified configuration and feature flags.
+    private let configService: ConfigService
+
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
@@ -28,18 +31,21 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
     /// - Parameters:
     ///   - cipherService: The service used to manage syncing and updates to the user's ciphers.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
+    ///   - configService: The service to get server-specified configuration and feature flags.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
     init(
         cipherService: CipherService,
         clientService: ClientService,
+        configService: ConfigService,
         errorReporter: ErrorReporter,
         stateService: StateService,
         syncService: SyncService,
     ) {
         self.cipherService = cipherService
         self.clientService = clientService
+        self.configService = configService
         self.errorReporter = errorReporter
         self.stateService = stateService
         self.syncService = syncService
@@ -71,7 +77,17 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
     /// Saves a cipher credential that contains a Fido2 credential, either creating it or updating it to server.
     /// - Parameter cred: Cipher/Credential to add/update.
     func saveCredential(cred: BitwardenSdk.EncryptionContext) async throws {
-        if cred.cipher.id == nil {
+        if await configService.getFeatureFlag(.sdkCipherOperations) {
+            // The SDK's create and edit operations take a decrypted cipher, which the SDK
+            // re-encrypts (including the Fido2 credential) before saving it.
+            let ciphersClient = try await clientService.vault().ciphers()
+            let cipherView = try await ciphersClient.decrypt(cipher: cred.cipher)
+            if cipherView.id == nil {
+                _ = try await ciphersClient.createCipher(cipherView)
+            } else {
+                _ = try await ciphersClient.editCipher(cipherView)
+            }
+        } else if cred.cipher.id == nil {
             try await cipherService.addCipherWithServer(
                 cred.cipher,
                 encryptedByKeyId: cred.encryptedByKeyId,

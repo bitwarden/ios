@@ -14,6 +14,7 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
 
     var cipherService: MockCipherService!
     var clientService: MockClientService!
+    var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
     var stateService: MockStateService!
     var subject: Fido2CredentialStoreService!
@@ -26,6 +27,7 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
 
         cipherService = MockCipherService()
         clientService = MockClientService()
+        configService = MockConfigService()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
         syncService = MockSyncService()
@@ -33,6 +35,7 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
         subject = Fido2CredentialStoreService(
             cipherService: cipherService,
             clientService: clientService,
+            configService: configService,
             errorReporter: errorReporter,
             stateService: stateService,
             syncService: syncService,
@@ -44,6 +47,7 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
 
         cipherService = nil
         clientService = nil
+        configService = nil
         errorReporter = nil
         stateService = nil
         subject = nil
@@ -489,6 +493,84 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
     /// `.saveCredential(cred:)` updating cipher to server throws.
     func test_saveCredential_updateThrows() async throws {
         cipherService.updateCipherWithServerResult = .failure(BitwardenTestError.example)
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.saveCredential(cred: EncryptionContext(encryptedFor: "1", cipher: .fixture(id: "1")))
+        }
+    }
+
+    /// `.saveCredential(cred:)` decrypts the cipher and creates it with the SDK when no id is present
+    /// and the SDK cipher operations feature flag is enabled.
+    @MainActor
+    func test_saveCredential_sdkCipherOperations_add() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        let ciphersClient = clientService.mockVault.clientCiphers
+        let cipher = Cipher.fixture(login: .fixture(fido2Credentials: [.fixture()]))
+        let cipherView = CipherView.fixture(
+            id: nil,
+            key: "cipherKey",
+            login: .fixture(fido2Credentials: [.fixture(credentialId: "credential-id")]),
+        )
+        ciphersClient.decryptClosure = { _ in cipherView }
+        ciphersClient.createReturnValue = .fixture(id: "1")
+
+        try await subject.saveCredential(
+            cred: EncryptionContext(encryptedFor: "1", encryptedByKeyId: "key-1", cipher: cipher),
+        )
+
+        XCTAssertEqual(ciphersClient.decryptReceivedCipher, cipher)
+        XCTAssertEqual(ciphersClient.createReceivedRequest, try CipherCreateRequest(cipherView: cipherView))
+        XCTAssertFalse(ciphersClient.editCalled)
+        XCTAssertTrue(cipherService.addCipherWithServerCiphers.isEmpty)
+    }
+
+    /// `.saveCredential(cred:)` decrypts the cipher and edits it with the SDK, preserving the cipher
+    /// key, when an id is present and the SDK cipher operations feature flag is enabled.
+    @MainActor
+    func test_saveCredential_sdkCipherOperations_update() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        let ciphersClient = clientService.mockVault.clientCiphers
+        let cipher = Cipher.fixture(id: "1", login: .fixture(fido2Credentials: [.fixture()]))
+        let cipherView = CipherView.fixture(
+            id: "1",
+            key: "cipherKey",
+            login: .fixture(fido2Credentials: [.fixture(credentialId: "credential-id")]),
+        )
+        ciphersClient.decryptClosure = { _ in cipherView }
+        ciphersClient.editReturnValue = cipherView
+
+        try await subject.saveCredential(
+            cred: EncryptionContext(encryptedFor: "1", encryptedByKeyId: "key-1", cipher: cipher),
+        )
+
+        XCTAssertEqual(ciphersClient.decryptReceivedCipher, cipher)
+        XCTAssertEqual(ciphersClient.editReceivedRequest, try CipherEditRequest(cipherView: cipherView))
+        XCTAssertEqual(ciphersClient.editReceivedRequest?.key, "cipherKey")
+        XCTAssertFalse(ciphersClient.createCalled)
+        XCTAssertTrue(cipherService.updateCipherWithServerCiphers.isEmpty)
+    }
+
+    /// `.saveCredential(cred:)` throws if decrypting the cipher fails when the SDK cipher operations
+    /// feature flag is enabled.
+    @MainActor
+    func test_saveCredential_sdkCipherOperations_decryptThrows() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        clientService.mockVault.clientCiphers.decryptThrowableError = BitwardenTestError.example
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.saveCredential(cred: EncryptionContext(encryptedFor: "1", cipher: .fixture(id: "1")))
+        }
+        XCTAssertFalse(clientService.mockVault.clientCiphers.editCalled)
+        XCTAssertTrue(cipherService.updateCipherWithServerCiphers.isEmpty)
+    }
+
+    /// `.saveCredential(cred:)` throws if the SDK fails to save the cipher.
+    @MainActor
+    func test_saveCredential_sdkCipherOperations_editThrows() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        let ciphersClient = clientService.mockVault.clientCiphers
+        ciphersClient.decryptClosure = { _ in .fixture(id: "1", login: .fixture()) }
+        ciphersClient.editThrowableError = BitwardenTestError.example
+
         await assertAsyncThrows(error: BitwardenTestError.example) {
             try await subject.saveCredential(cred: EncryptionContext(encryptedFor: "1", cipher: .fixture(id: "1")))
         }
