@@ -106,6 +106,7 @@ public class AppProcessor {
 
         listenForWillEnterForeground(debugWillEnterForeground: debugWillEnterForeground)
         listenForDidEnterBackground(debugDidEnterBackground: debugDidEnterBackground)
+        listenForWillResignActive()
         listenForPendingAppIntentActions()
         listenForAcquireCookies()
     }
@@ -552,8 +553,8 @@ extension AppProcessor {
     }
 
     /// Subscribes to the did-enter-background notification and performs the necessary work
-    /// each time the app moves to the background, including stopping the event timer and
-    /// recording the last active time for the current user.
+    /// each time the app moves to the background, such as stopping the event timer. The last
+    /// active time is recorded in `listenForWillResignActive()`, which always fires before this.
     ///
     /// - Parameter debugDidEnterBackground: An optional closure invoked in debug builds after
     ///   background work completes, used for testing.
@@ -562,6 +563,21 @@ extension AppProcessor {
         Task {
             for await _ in services.notificationCenterService.didEnterBackgroundPublisher() {
                 stopEventTimer()
+                #if DEBUG
+                debugDidEnterBackground?()
+                #endif
+            }
+        }
+    }
+
+    /// Subscribes to the will-resign-active notification, records the last active time for the
+    /// current user and re-arms the background session key cleanup task. This fires before
+    /// `didEnterBackground` whenever the app is backgrounded, and also covers the app switcher
+    /// kill path where the app is terminated without `didEnterBackground` ever firing.
+    ///
+    private func listenForWillResignActive() {
+        Task {
+            for await _ in services.notificationCenterService.willResignActivePublisher() {
                 do {
                     let userId = try await self.services.stateService.getActiveAccountId()
                     try await services.vaultTimeoutService.setLastActiveTime(userId: userId)
@@ -570,9 +586,9 @@ extension AppProcessor {
                 } catch {
                     services.errorReporter.log(error: error)
                 }
-                #if DEBUG
-                debugDidEnterBackground?()
-                #endif
+                // Re-arm the background session key cleanup task with the freshest possible
+                // last-active data, since the app may be killed and never relaunched.
+                await services.backgroundSessionCleanupService.scheduleNextRefresh()
             }
         }
     }
