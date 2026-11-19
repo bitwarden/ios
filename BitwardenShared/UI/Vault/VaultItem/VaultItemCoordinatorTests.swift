@@ -253,6 +253,26 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(action.embedInNavigationController, true)
     }
 
+    /// `navigate(to:)` with `.attachmentPreview()` presents the attachment preview screen as a
+    /// sheet so it can be dismissed with a swipe.
+    @MainActor
+    func test_navigateTo_attachmentPreview() throws {
+        let state = AttachmentPreviewState(
+            attachment: .fixture(fileName: "photo.png"),
+            cipher: .fixture(),
+            content: .fileError,
+            fileName: "photo.png",
+            temporaryUrl: URL(fileURLWithPath: "/tmp/photo.png"),
+        )
+        subject.navigate(to: .attachmentPreview(state))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is AttachmentPreviewView)
+        XCTAssertEqual(action.embedInNavigationController, true)
+        XCTAssertEqual(action.overFullscreen, false)
+    }
+
     /// `navigate(to:)` with `.generator`, `.password`, and a delegate presents the generator
     /// screen.
     @MainActor
@@ -286,6 +306,26 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         let lastAction = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(lastAction.type, .dismissedWithCompletionHandler)
         XCTAssertTrue(didRun)
+    }
+
+    /// `navigate(to:)` with `.dismissPresented` dismisses only the topmost presented view, leaving
+    /// the view it was presented over (e.g. the attachment preview over the attachments screen).
+    @MainActor
+    func test_navigate_dismissPresented_dismissesOnlyTopmostView() {
+        let rootViewController = MockUIViewController()
+        let attachmentsViewController = MockUIViewController()
+        let previewViewController = MockUIViewController()
+        rootViewController.present(attachmentsViewController, animated: false)
+        attachmentsViewController.present(previewViewController, animated: false)
+        stackNavigator.rootViewController = rootViewController
+
+        subject.navigate(to: .dismissPresented)
+
+        XCTAssertTrue(previewViewController.dismissCalled)
+        XCTAssertTrue(previewViewController.dismissAnimated)
+        XCTAssertFalse(attachmentsViewController.dismissCalled)
+        XCTAssertFalse(rootViewController.dismissCalled)
+        XCTAssertTrue(stackNavigator.actions.isEmpty)
     }
 
     /// `navigate(to:)` with `.editItem()` with a malformed cipher fails to trigger the show edit flow.

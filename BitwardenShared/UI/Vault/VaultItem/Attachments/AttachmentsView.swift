@@ -123,18 +123,29 @@ struct AttachmentsView: View {
     private func attachmentRow(_ attachment: AttachmentView, hasDivider: Bool) -> some View {
         BitwardenField {
             HStack {
-                Text(attachment.fileName ?? "")
-                    .styleGuide(.body)
-                    .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
-                    .lineLimit(1)
-
-                Spacer()
-
-                if let sizeName = attachment.sizeName {
-                    Text(sizeName)
+                HStack {
+                    Text(attachment.fileName ?? "")
                         .styleGuide(.body)
-                        .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
+                        .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                         .lineLimit(1)
+
+                    Spacer()
+
+                    if let sizeName = attachment.sizeName {
+                        Text(sizeName)
+                            .styleGuide(.body)
+                            .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
+                            .lineLimit(1)
+                    }
+                }
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    store.send(.attachmentTapped(attachment))
+                }
+                .accessibilityElement(children: .combine)
+                .accessibilityAddTraits(.isButton)
+                .accessibilityAction {
+                    store.send(.attachmentTapped(attachment))
                 }
 
                 Button {
@@ -146,6 +157,7 @@ struct AttachmentsView: View {
                 .accessibilityLabel(Localizations.delete)
             }
         }
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier("AttachmentRow")
     }
 }

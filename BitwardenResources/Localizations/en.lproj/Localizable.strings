@@ -172,6 +172,12 @@
 "Attachments" = "Attachments";
 "UnableToDownloadFile" = "Unable to download file.";
 "Downloading" = "Downloading…";
+"OpeningPreview" = "Opening preview…";
+"PlayAnimation" = "Play animation";
+"PauseAnimation" = "Pause animation";
+/* %1$@ is the uppercased file extension of the attachment, e.g. "PDF". */
+"PreviewUnavailableForXFilesDescriptionLong" = "Preview unavailable for %1$@ files. You can still download it to view on your device.";
+"PreviewUnavailableDescriptionLong" = "Preview unavailable for this file. You can still download it to view on your device.";
 "AttachmentLargeWarning" = "This attachment is %1$@ in size. Are you sure you want to download it onto your device?";
 "AuthenticatorKey" = "Authenticator key";
 "VerificationCodeTotp" = "Verification code (TOTP)";
@@ -184,7 +190,7 @@
 "CopyTotp" = "Copy TOTP";
 "CopyTotpAutomaticallyDescription" = "If a login has an authenticator key, copy the TOTP verification code to your clipboard when you autofill the login.";
 "CopyTotpAutomatically" = "Copy TOTP automatically";
-"AttachementAdded" = "Attachment added";
+"AttachmentAdded" = "Attachment added";
 "AttachmentDeleted" = "Attachment deleted";
 "ChooseFile" = "Choose file";
 "File" = "File";
