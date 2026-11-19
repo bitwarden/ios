@@ -200,12 +200,32 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         try await subject.bulkShareCiphers(ciphers, newOrganizationId: "org-123", newCollectionIds: ["col-1", "col-2"])
 
-        // Verify ciphers were encrypted (to ensure cipher key).
-        XCTAssertEqual(cipherEncryptionMediator.encryptAndUpdateCipherCallsCount, 2)
+        // Verify cipher keys were ensured.
+        XCTAssertEqual(cipherEncryptionMediator.updateCipherKeyIfNeededCallsCount, 2)
 
         // Verify bulk share was called.
         XCTAssertEqual(cipherService.bulkShareCiphersEncryptionContexts.last, encryptionContexts)
         XCTAssertEqual(cipherService.bulkShareCiphersWithServerCollectionIds, ["col-1", "col-2"])
+    }
+
+    /// `bulkShareCiphers()` prepares the ciphers returned after a cipher key is added, so the share uses
+    /// each cipher's updated revision date rather than the stale one from before the key was added.
+    func test_bulkShareCiphers_cipherKeyAdded_usesUpdatedCipher() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+
+        let originalRevisionDate = Date(year: 2024, month: 1, day: 1)
+        let updatedRevisionDate = Date(year: 2024, month: 1, day: 2)
+        let cipher = CipherView.fixture(id: "1", key: nil, revisionDate: originalRevisionDate)
+        let updatedCipher = CipherView.fixture(id: "1", key: "newKey", revisionDate: updatedRevisionDate)
+        cipherEncryptionMediator.updateCipherKeyIfNeededClosure = { _ in updatedCipher }
+        clientCiphers.prepareCiphersForBulkShareReturnValue = [
+            EncryptionContext(encryptedFor: "1", encryptedByKeyId: "key-1", cipher: .fixture(id: "1")),
+        ]
+
+        try await subject.bulkShareCiphers([cipher], newOrganizationId: "org-123", newCollectionIds: ["col-1"])
+
+        XCTAssertEqual(cipherEncryptionMediator.updateCipherKeyIfNeededReceivedCipherView, cipher)
+        XCTAssertEqual(clientCiphers.prepareCiphersForBulkShareReceivedArguments?.ciphers, [updatedCipher])
     }
 
     /// `bulkShareCiphers()` migrates attachments without an attachment key.
@@ -1470,6 +1490,24 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(cipherService.shareCipherWithServerCiphers.last, Cipher(cipherView: updatedCipher))
         XCTAssertNil(cipherService.shareCipherWithServerEncryptedByKeyId)
         XCTAssertEqual(cipherService.shareCipherWithServerEncryptedFor, "1")
+    }
+
+    /// `shareCipher()` shares the cipher returned after a cipher key is added, so the share uses the
+    /// cipher's updated revision date rather than the stale one from before the key was added.
+    func test_shareCipher_cipherKeyAdded_usesUpdatedCipher() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+
+        let originalRevisionDate = Date(year: 2024, month: 1, day: 1)
+        let updatedRevisionDate = Date(year: 2024, month: 1, day: 2)
+        let cipher = CipherView.fixture(id: "1", key: nil, revisionDate: originalRevisionDate)
+        let updatedCipher = CipherView.fixture(id: "1", key: "newKey", revisionDate: updatedRevisionDate)
+        cipherEncryptionMediator.updateCipherKeyIfNeededClosure = { _ in updatedCipher }
+        clientCiphers.moveToOrganizationReturnValue = updatedCipher
+
+        try await subject.shareCipher(cipher, newOrganizationId: "5", newCollectionIds: ["6", "7"])
+
+        XCTAssertEqual(cipherEncryptionMediator.updateCipherKeyIfNeededReceivedCipherView, cipher)
+        XCTAssertEqual(clientCiphers.moveToOrganizationReceivedArguments?.cipher, updatedCipher)
     }
 
     /// `shareCipher()` migrates any attachments without an attachment key.
