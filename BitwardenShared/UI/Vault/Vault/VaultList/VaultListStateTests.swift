@@ -43,6 +43,8 @@ struct VaultListStateTests {
         state.loadingState = .data([])
         for card in activeCards {
             switch card {
+            case .autofill:
+                state.shouldShowAutofillActionCard = true
             case .importItems:
                 state.importLoginsSetupProgress = .incomplete
             case .introducingArchive:
@@ -92,6 +94,45 @@ struct VaultListStateTests {
         state.importLoginsSetupProgress = .incomplete
         state.loadingState = .data([VaultListSection(id: "1", items: [VaultListItem.fixture()], name: "")])
         #expect(state.activeActionCard == nil)
+    }
+
+    /// `activeActionCard` doesn't return the autofill card when the autofill off action card
+    /// feature flag is disabled.
+    @Test
+    func activeActionCard_autofill_hiddenWhenFlagDisabled() {
+        var state = VaultListState()
+        state.shouldShowAutofillActionCard = true
+        #expect(state.activeActionCard == nil)
+    }
+
+    /// `activeActionCard` returns the import logins card ahead of the autofill card in an empty
+    /// vault, and the organization banner ahead of both.
+    @Test
+    func activeActionCard_autofill_belowImportItemsAndOrganizationBanner() {
+        var state = VaultListState()
+        state.isAutofillOffActionCardEnabled = true
+        state.shouldShowAutofillActionCard = true
+        state.importLoginsSetupProgress = .incomplete
+        state.loadingState = .data([])
+        #expect(state.activeActionCard == .importItems)
+
+        state.organizationUserNotificationBannerData = .fixture()
+        #expect(state.activeActionCard == .organizationBanner(.fixture()))
+    }
+
+    /// `activeActionCard` returns the autofill card ahead of the Premium, subscription, and archive
+    /// cards when the autofill off action card is enabled.
+    @Test
+    func activeActionCard_autofill_abovePremiumSubscriptionAndArchive() {
+        var state = VaultListState()
+        state.isAutofillOffActionCardEnabled = true
+        state.shouldShowAutofillActionCard = true
+        state.shouldShowArchiveOnboardingActionCard = true
+        state.shouldShowPremiumUpgradeActionCard = true
+        state.shouldShowSubscriptionAttentionCard = true
+        state.shouldShowUpgradedToPremiumActionCard = true
+        state.loadingState = .data([VaultListSection(id: "1", items: [VaultListItem.fixture()], name: "")])
+        #expect(state.activeActionCard == .autofill)
     }
 
     /// `navigationTitle` returns "My Vault" when no organizations are present, and "Vaults"
