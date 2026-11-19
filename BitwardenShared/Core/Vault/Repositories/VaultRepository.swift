@@ -99,9 +99,9 @@ public protocol VaultRepository: AnyObject {
         cipher: CipherView,
     ) async throws -> URL?
 
-    /// Returns an existing login in the active account's vault whose first AutoFill URI is equal to
-    /// `uri` and that has the same username and password, if one exists. Deleted and archived logins
-    /// are ignored.
+    /// Returns an existing login in the active account's vault whose first AutoFill URI matches
+    /// `uri` and that has the same username and password, if one exists. URIs are compared with a
+    /// default `https://` scheme and without a trailing slash. Deleted and archived logins are ignored.
     ///
     /// Errors are logged and `nil` is returned, since failing to find a duplicate shouldn't prevent
     /// the caller from saving the login.
@@ -483,14 +483,17 @@ class DefaultVaultRepository {
         }
         guard !logins.isEmpty else { return nil }
 
+        let normalizedUri = uri.httpsNormalized()
+
         // Use the lightweight list views to narrow down candidates before fully decrypting any cipher.
         let candidateIds = try await clientService.vault().ciphers()
             .decryptListWithFailures(ciphers: logins)
             .successes
             .compactMap { cipherListView -> String? in
                 // Match the first AutoFill URI, using the same rules as `CredentialIdentityFactory`.
-                // It's the only URI the login's credential identity is registered under, so a match is
-                // guaranteed to be offered by the system for `uri`.
+                // It's the only URI the login's credential identity is registered under. URIs are
+                // compared with a default `https://` scheme and without a trailing slash, so a login
+                // saved as `www.example.com` matches a request for `https://www.example.com`.
                 let firstAutofillUri = cipherListView.type.loginListView?.uris?
                     .first { $0.match != .never && $0.uri.isEmptyOrNil == false }?
                     .uri
@@ -498,7 +501,7 @@ class DefaultVaultRepository {
                 // canonically equivalent Unicode (e.g. "é" and "e" + combining accent) as equal.
                 guard let login = cipherListView.type.loginListView,
                       (login.username ?? "").utf8.elementsEqual(username.utf8),
-                      firstAutofillUri == uri else {
+                      firstAutofillUri?.httpsNormalized() == normalizedUri else {
                     return nil
                 }
                 return cipherListView.id

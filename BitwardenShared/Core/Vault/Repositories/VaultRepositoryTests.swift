@@ -887,6 +887,55 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertNil(cipherService.fetchCipherId)
     }
 
+    /// `existingLogin(matchingUri:username:password:)` matches a login whose URI was saved without a
+    /// scheme or with a trailing slash, since it refers to the same site.
+    func test_existingLogin_uriWithoutSchemeOrWithTrailingSlash() async {
+        let withoutScheme = Cipher.fixture(
+            id: "1",
+            login: .fixture(password: "pass", uris: [.fixture(uri: "www.example.com")], username: "user"),
+        )
+        prepareExistingLoginCiphers([withoutScheme])
+
+        var result = await subject.existingLogin(
+            matchingUri: "https://www.example.com",
+            username: "user",
+            password: "pass",
+        )
+        XCTAssertEqual(result, CipherView(cipher: withoutScheme))
+
+        let withTrailingSlash = Cipher.fixture(
+            id: "2",
+            login: .fixture(password: "pass", uris: [.fixture(uri: "https://www.example.com/")], username: "user"),
+        )
+        prepareExistingLoginCiphers([withTrailingSlash])
+
+        result = await subject.existingLogin(
+            matchingUri: "https://www.example.com",
+            username: "user",
+            password: "pass",
+        )
+        XCTAssertEqual(result, CipherView(cipher: withTrailingSlash))
+    }
+
+    /// `existingLogin(matchingUri:username:password:)` doesn't match a login saved with an explicit
+    /// `http://` scheme for an `https://` request, since the scheme is part of the site.
+    func test_existingLogin_differentScheme() async {
+        prepareExistingLoginCiphers([
+            .fixture(
+                id: "1",
+                login: .fixture(password: "pass", uris: [.fixture(uri: "http://www.example.com")], username: "user"),
+            ),
+        ])
+
+        let result = await subject.existingLogin(
+            matchingUri: "https://www.example.com",
+            username: "user",
+            password: "pass",
+        )
+
+        XCTAssertNil(result)
+    }
+
     /// `existingLogin(matchingUri:username:password:)` returns `nil` without fully decrypting any
     /// cipher when no login has the same URI and username.
     func test_existingLogin_noCandidates() async {
