@@ -1,7 +1,9 @@
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
+import Combine
 import TestHelpers
+import UIKit
 import XCTest
 
 @testable import BitwardenShared
@@ -13,6 +15,7 @@ class AutoFillProcessorTests: BitwardenTestCase {
 
     var asSettingsMediator: MockASSettingsMediator!
     var autofillCredentialService: MockAutofillCredentialService!
+    var autofillPromptService: MockAutofillPromptService!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var errorReporter: MockErrorReporter!
@@ -28,6 +31,7 @@ class AutoFillProcessorTests: BitwardenTestCase {
 
         asSettingsMediator = MockASSettingsMediator()
         autofillCredentialService = MockAutofillCredentialService()
+        autofillPromptService = MockAutofillPromptService()
         configService = MockConfigService()
         coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
         errorReporter = MockErrorReporter()
@@ -41,6 +45,7 @@ class AutoFillProcessorTests: BitwardenTestCase {
             services: ServiceContainer.withMocks(
                 asSettingsMediator: asSettingsMediator,
                 autofillCredentialService: autofillCredentialService,
+                autofillPromptService: autofillPromptService,
                 configService: configService,
                 errorReporter: errorReporter,
                 fillAssistRepository: fillAssistRepository,
@@ -56,6 +61,7 @@ class AutoFillProcessorTests: BitwardenTestCase {
 
         asSettingsMediator = nil
         autofillCredentialService = nil
+        autofillPromptService = nil
         configService = nil
         coordinator = nil
         errorReporter = nil
@@ -193,6 +199,45 @@ class AutoFillProcessorTests: BitwardenTestCase {
         XCTAssertNil(subject.state.toast)
     }
 
+    /// `perform(_:)` with `.streamAutofillStatus` refreshes the autofill status and streams it to
+    /// the state when the autofill off action card feature flag is enabled.
+    @MainActor
+    func test_perform_streamAutofillStatus_flagEnabled() {
+        configService.featureFlagsBool[.autofillOffActionCard] = true
+        let autofillEnabledSubject = CurrentValueSubject<Bool?, Never>(nil)
+        autofillPromptService.autofillEnabledPublisherReturnValue = autofillEnabledSubject.eraseToAnyPublisher()
+
+        let task = Task {
+            await subject.perform(.streamAutofillStatus)
+        }
+        defer { task.cancel() }
+
+        waitFor { autofillPromptService.autofillEnabledPublisherCalled }
+        XCTAssertTrue(subject.state.isAutofillOffActionCardEnabled)
+        XCTAssertTrue(autofillPromptService.refreshAutofillStatusCalled)
+        XCTAssertNil(subject.state.isAutofillEnabled)
+        XCTAssertFalse(subject.state.shouldShowAutofillOffActionCard)
+
+        autofillEnabledSubject.send(false)
+        waitFor { subject.state.isAutofillEnabled == false }
+        XCTAssertTrue(subject.state.shouldShowAutofillOffActionCard)
+
+        autofillEnabledSubject.send(true)
+        waitFor { subject.state.isAutofillEnabled == true }
+        XCTAssertFalse(subject.state.shouldShowAutofillOffActionCard)
+    }
+
+    /// `perform(_:)` with `.streamAutofillStatus` does nothing when the autofill off action card
+    /// feature flag is disabled.
+    @MainActor
+    func test_perform_streamAutofillStatus_flagDisabled() async {
+        await subject.perform(.streamAutofillStatus)
+
+        XCTAssertFalse(subject.state.isAutofillOffActionCardEnabled)
+        XCTAssertFalse(autofillPromptService.refreshAutofillStatusCalled)
+        XCTAssertFalse(autofillPromptService.autofillEnabledPublisherCalled)
+    }
+
     /// `perform(_:)` with `.streamSettingsBadge` updates the state's badge state whenever it changes.
     @MainActor
     func test_perform_streamSettingsBadge() {
@@ -218,6 +263,50 @@ class AutoFillProcessorTests: BitwardenTestCase {
         await subject.perform(.streamSettingsBadge)
 
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+    }
+
+    /// `perform(_:)` with `.turnOnAutofill` doesn't open a URL or show a toast when the request was
+    /// handled by the system.
+    @MainActor
+    func test_perform_turnOnAutofill_handled() async {
+        autofillPromptService.turnOnAutofillReturnValue = nil
+
+        await subject.perform(.turnOnAutofill)
+
+        XCTAssertTrue(autofillPromptService.turnOnAutofillCalled)
+        XCTAssertNil(subject.state.url)
+        XCTAssertNil(subject.state.toast)
+    }
+
+    /// `perform(_:)` with `.turnOnAutofill` opens the app's page in the Settings app when the OS
+    /// doesn't support a more direct option.
+    @MainActor
+    func test_perform_turnOnAutofill_openAppSettings() async {
+        autofillPromptService.turnOnAutofillReturnValue = URL(string: UIApplication.openSettingsURLString)
+
+        await subject.perform(.turnOnAutofill)
+
+        XCTAssertEqual(subject.state.url, URL(string: UIApplication.openSettingsURLString))
+    }
+
+    /// `perform(_:)` with `.windowBecameActive` refreshes the autofill status when the autofill off
+    /// action card is enabled, such as when regaining focus in Split View.
+    @MainActor
+    func test_perform_windowBecameActive_flagEnabled_refreshesAutofillStatus() async {
+        subject.state.isAutofillOffActionCardEnabled = true
+
+        await subject.perform(.windowBecameActive)
+
+        XCTAssertTrue(autofillPromptService.refreshAutofillStatusCalled)
+    }
+
+    /// `perform(_:)` with `.windowBecameActive` does nothing when the autofill off action card is
+    /// disabled.
+    @MainActor
+    func test_perform_windowBecameActive_flagDisabled_doesNothing() async {
+        await subject.perform(.windowBecameActive)
+
+        XCTAssertFalse(autofillPromptService.refreshAutofillStatusCalled)
     }
 
     /// `receive(_:)` with `.appExtensionTapped` navigates to the app extension view.
@@ -320,6 +409,14 @@ class AutoFillProcessorTests: BitwardenTestCase {
     func test_didEnableAutofill() {
         subject.didEnableAutofill()
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.autofillEnabled))
+    }
+
+    /// `didEnableAutofill()` doesn't show a toast when the autofill off action card is enabled.
+    @MainActor
+    func test_didEnableAutofill_autofillOffActionCardEnabled() {
+        subject.state.isAutofillOffActionCardEnabled = true
+        subject.didEnableAutofill()
+        XCTAssertNil(subject.state.toast)
     }
 
     /// Updating the default URI match type value logs an error and shows an alert if it fails.

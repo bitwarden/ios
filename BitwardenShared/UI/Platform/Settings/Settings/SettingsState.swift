@@ -11,6 +11,10 @@ struct SettingsState: Equatable {
     /// Whether the active account has a Premium subscription.
     var hasPremium = false
 
+    /// Whether the autofill off action card feature flag is enabled, which removes the autofill
+    /// setup progress from the badges.
+    var isAutofillOffActionCardEnabled = false
+
     /// The presentation mode based on where the settings view is displayed from. This determines
     /// if the UI should show specific elements.
     var presentationMode = SettingsPresentationMode.tab
@@ -34,6 +38,7 @@ struct SettingsState: Equatable {
 
     /// The badge value for the autofill row.
     var autofillBadgeValue: String? {
+        guard !isAutofillOffActionCardEnabled else { return nil }
         let isComplete = badgeState?.autofillSetupProgress?.isComplete ?? true
         return isComplete ? nil : "1"
     }

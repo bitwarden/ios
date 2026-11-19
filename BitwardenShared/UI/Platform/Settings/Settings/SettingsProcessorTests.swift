@@ -9,6 +9,7 @@ import XCTest
 class SettingsProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var delegate: MockSettingsProcessorDelegate!
     var errorReporter: MockErrorReporter!
@@ -20,6 +21,7 @@ class SettingsProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        configService = MockConfigService()
         coordinator = MockCoordinator()
         delegate = MockSettingsProcessorDelegate()
         errorReporter = MockErrorReporter()
@@ -31,6 +33,7 @@ class SettingsProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        configService = nil
         coordinator = nil
         delegate = nil
         errorReporter = nil
@@ -44,6 +47,7 @@ class SettingsProcessorTests: BitwardenTestCase {
             coordinator: coordinator.asAnyCoordinator(),
             delegate: delegate,
             services: ServiceContainer.withMocks(
+                configService: configService,
                 errorReporter: errorReporter,
                 stateService: stateService,
             ),
@@ -89,6 +93,28 @@ class SettingsProcessorTests: BitwardenTestCase {
         try await waitForAsync { self.delegate.badgeValue == nil }
         XCTAssertNil(delegate.badgeValue)
         XCTAssertEqual(subject.state.badgeState, badgeState)
+    }
+
+    /// `init()` subscribes to the badge publisher and excludes the autofill setup progress from
+    /// the tab's badge count when the autofill off action card is enabled.
+    @MainActor
+    func test_init_subscribesToBadgePublisher_autofillOffActionCardEnabled() async throws {
+        configService.featureFlagsBool[.autofillOffActionCard] = true
+        stateService.activeAccount = .fixture()
+        setUpSubject()
+
+        delegate.badgeValue = "initial"
+        let badgeState = SettingsBadgeState.fixture(
+            autofillSetupProgress: .setUpLater,
+            badgeValue: "2",
+            vaultUnlockSetupProgress: .setUpLater,
+        )
+        stateService.settingsBadgeSubject.send(badgeState)
+        try await waitForAsync { self.delegate.badgeValue == "1" }
+        XCTAssertEqual(delegate.badgeValue, "1")
+        XCTAssertEqual(subject.state.badgeState, badgeState)
+        XCTAssertTrue(subject.state.isAutofillOffActionCardEnabled)
+        XCTAssertNil(subject.state.autofillBadgeValue)
     }
 
     /// `init()` subscribes to the badge publisher and logs an error if one occurs.
