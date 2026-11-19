@@ -11,6 +11,10 @@ extension Constants {
     /// The app review prompt delay in nanoseconds.
     static let appReviewPromptDelay: UInt64 = 3_000_000_000
 
+    /// The number of seconds the vault's autofill action card stays hidden after the user dismisses
+    /// it (24 hours).
+    static let autofillActionCardDismissDuration: TimeInterval = 24 * 60 * 60
+
     /// The number of seconds to wait after autofill is turned on before repopulating the credential
     /// identity store. Writing to the store immediately after the credential provider is enabled
     /// fails with `ASCredentialIdentityStoreErrorDomain` code 0.

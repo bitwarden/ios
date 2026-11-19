@@ -1108,6 +1108,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             autofillStateService: stateService,
             errorReporter: errorReporter,
             notificationCenterService: notificationCenterService,
+            timeProvider: timeProvider,
             vaultTimeoutService: vaultTimeoutService,
         )
 

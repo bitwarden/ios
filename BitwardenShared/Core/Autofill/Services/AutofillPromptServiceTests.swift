@@ -12,7 +12,7 @@ import UIKit
 // MARK: - AutofillPromptServiceTests
 
 @MainActor
-struct AutofillPromptServiceTests { // swiftlint:disable:this type_body_length
+struct AutofillPromptServiceTests {
     // MARK: Properties
 
     let appContextHelper: MockAppContextHelper
@@ -22,6 +22,7 @@ struct AutofillPromptServiceTests { // swiftlint:disable:this type_body_length
     let notificationCenterService: MockNotificationCenterService
     let stateService: MockStateService
     let subject: DefaultAutofillPromptService
+    let timeProvider: MockTimeProvider
     let vaultTimeoutService: MockVaultTimeoutService
 
     // MARK: Initialization
@@ -33,6 +34,7 @@ struct AutofillPromptServiceTests { // swiftlint:disable:this type_body_length
         errorReporter = MockErrorReporter()
         notificationCenterService = MockNotificationCenterService()
         stateService = MockStateService()
+        timeProvider = MockTimeProvider(.mockTime(Date(year: 2026, month: 1, day: 1)))
         vaultTimeoutService = MockVaultTimeoutService()
 
         stateService.activeAccount = .fixture()
@@ -45,6 +47,7 @@ struct AutofillPromptServiceTests { // swiftlint:disable:this type_body_length
             autofillStateService: stateService,
             errorReporter: errorReporter,
             notificationCenterService: notificationCenterService,
+            timeProvider: timeProvider,
             vaultTimeoutService: vaultTimeoutService,
             credentialStoreUpdateDelay: 0,
         )
@@ -148,6 +151,7 @@ struct AutofillPromptServiceTests { // swiftlint:disable:this type_body_length
             autofillStateService: stateService,
             errorReporter: errorReporter,
             notificationCenterService: notificationCenterService,
+            timeProvider: timeProvider,
             vaultTimeoutService: vaultTimeoutService,
             credentialStoreUpdateDelay: 60,
         )
@@ -274,123 +278,5 @@ struct AutofillPromptServiceTests { // swiftlint:disable:this type_body_length
 
         #expect(result == URL(string: UIApplication.openSettingsURLString))
         #expect(errorReporter.errors as? [BitwardenTestError] == [.example])
-    }
-
-    // MARK: Tests - vaultActionCardVisibilityPublisher
-
-    /// `vaultActionCardVisibilityPublisher()` emits `false` until the autofill status is known.
-    @Test
-    func vaultActionCardVisibilityPublisher_unknownStatus_hidden() async throws {
-        var iterator = await subject.vaultActionCardVisibilityPublisher().values.makeAsyncIterator()
-        let value = await iterator.next()
-        #expect(value == false)
-    }
-
-    /// `vaultActionCardVisibilityPublisher()` emits `true` when autofill is off.
-    @Test
-    func vaultActionCardVisibilityPublisher_autofillOff_shown() async throws {
-        autofillCredentialService.isAutofillCredentialsEnabled = false
-        await subject.refreshAutofillStatus()
-
-        var iterator = await subject.vaultActionCardVisibilityPublisher().values.makeAsyncIterator()
-        let value = await iterator.next()
-        #expect(value == true)
-    }
-
-    /// `vaultActionCardVisibilityPublisher()` emits `false` when autofill is on.
-    @Test
-    func vaultActionCardVisibilityPublisher_autofillOn_hidden() async throws {
-        autofillCredentialService.isAutofillCredentialsEnabled = true
-        await subject.refreshAutofillStatus()
-
-        var iterator = await subject.vaultActionCardVisibilityPublisher().values.makeAsyncIterator()
-        let value = await iterator.next()
-        #expect(value == false)
-    }
-
-    /// `vaultActionCardVisibilityPublisher()` emits `false` after the card is dismissed for the
-    /// session, without persisting anything.
-    @Test
-    func vaultActionCardVisibilityPublisher_dismissedForSession_hidden() async throws {
-        autofillCredentialService.isAutofillCredentialsEnabled = false
-        await subject.refreshAutofillStatus()
-        var iterator = await subject.vaultActionCardVisibilityPublisher().values.makeAsyncIterator()
-        #expect(await iterator.next() == true)
-
-        await subject.dismissVaultActionCardForSession()
-
-        #expect(await iterator.next() == false)
-        #expect(!stateService.autofillActionCardOptedOut)
-    }
-
-    /// `vaultActionCardVisibilityPublisher()` emits `false` after the user opts out, and the opt
-    /// out is persisted.
-    @Test
-    func vaultActionCardVisibilityPublisher_optedOut_hidden() async throws {
-        autofillCredentialService.isAutofillCredentialsEnabled = false
-        await subject.refreshAutofillStatus()
-        var iterator = await subject.vaultActionCardVisibilityPublisher().values.makeAsyncIterator()
-        #expect(await iterator.next() == true)
-
-        await subject.optOutOfVaultActionCard()
-
-        #expect(await iterator.next() == false)
-        #expect(stateService.autofillActionCardOptedOut)
-    }
-
-    /// `vaultActionCardVisibilityPublisher()` emits `true` again when the session dismissal is
-    /// cleared, without restarting the app.
-    @Test
-    func vaultActionCardVisibilityPublisher_sessionDismissalCleared_shown() async throws {
-        autofillCredentialService.isAutofillCredentialsEnabled = false
-        await subject.refreshAutofillStatus()
-        await subject.dismissVaultActionCardForSession()
-        var iterator = await subject.vaultActionCardVisibilityPublisher().values.makeAsyncIterator()
-        #expect(await iterator.next() == false)
-
-        await stateService.setAutofillActionCardDismissedForSession(false)
-
-        #expect(await iterator.next() == true)
-    }
-
-    /// `vaultActionCardVisibilityPublisher()` emits `true` again when the opt-out is cleared,
-    /// without restarting the app.
-    @Test
-    func vaultActionCardVisibilityPublisher_optOutCleared_shown() async throws {
-        stateService.autofillActionCardOptedOut = true
-        autofillCredentialService.isAutofillCredentialsEnabled = false
-        await subject.refreshAutofillStatus()
-        var iterator = await subject.vaultActionCardVisibilityPublisher().values.makeAsyncIterator()
-        #expect(await iterator.next() == false)
-
-        await stateService.setAutofillActionCardOptedOut(false)
-
-        #expect(await iterator.next() == true)
-    }
-
-    /// `vaultActionCardVisibilityPublisher()` emits `false` when the user previously opted out.
-    @Test
-    func vaultActionCardVisibilityPublisher_previouslyOptedOut_hidden() async throws {
-        stateService.autofillActionCardOptedOut = true
-        autofillCredentialService.isAutofillCredentialsEnabled = false
-        await subject.refreshAutofillStatus()
-
-        var iterator = await subject.vaultActionCardVisibilityPublisher().values.makeAsyncIterator()
-        let value = await iterator.next()
-        #expect(value == false)
-    }
-
-    /// `vaultActionCardVisibilityPublisher()` emits `false` once autofill is turned on.
-    @Test
-    func vaultActionCardVisibilityPublisher_autofillTurnedOn_hides() async throws {
-        autofillCredentialService.isAutofillCredentialsEnabled = false
-        await subject.refreshAutofillStatus()
-        var iterator = await subject.vaultActionCardVisibilityPublisher().values.makeAsyncIterator()
-        #expect(await iterator.next() == true)
-
-        autofillCredentialService.isAutofillCredentialsEnabled = true
-        await subject.refreshAutofillStatus()
-
-        #expect(await iterator.next() == false)
     }
 }

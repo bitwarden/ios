@@ -129,6 +129,13 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The rehydration state.
     func appRehydrationState(userId: String) -> AppRehydrationState?
 
+    /// The time the user last dismissed the vault's autofill action card. This applies to all
+    /// accounts on the device.
+    ///
+    /// - Returns: The time the autofill action card was dismissed, or `nil` if it hasn't been.
+    ///
+    func autofillActionCardDismissedDate() -> Date?
+
     /// Whether the user has opted out of the vault's autofill action card. This applies to all
     /// accounts on the device.
     ///
@@ -401,6 +408,13 @@ protocol AppSettingsStore: AnyObject {
     ///   - state: The state to save.
     ///   - userId: The user ID the state belongs to.
     func setAppRehydrationState(_ state: AppRehydrationState?, userId: String)
+
+    /// Sets the time the user last dismissed the vault's autofill action card. This applies to all
+    /// accounts on the device.
+    ///
+    /// - Parameter date: The time the autofill action card was dismissed, or `nil` to clear it.
+    ///
+    func setAutofillActionCardDismissedDate(_ date: Date?)
 
     /// Sets whether the user has opted out of the vault's autofill action card. This applies to
     /// all accounts on the device.
@@ -959,6 +973,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case appRehydrationState(userId: String)
         case appTheme
         case archiveOnboardingShown
+        case autofillActionCardDismissedDate
         case autofillActionCardOptedOut
         case biometricAuthEnabled(userId: String)
         case clearClipboardValue(userId: String)
@@ -1047,6 +1062,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "theme"
             case .archiveOnboardingShown:
                 "archiveOnboardingShown"
+            case .autofillActionCardDismissedDate:
+                "autofillActionCardDismissedDate"
             case .autofillActionCardOptedOut:
                 "autofillActionCardOptedOut"
             case let .biometricAuthEnabled(userId):
@@ -1300,6 +1317,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .appRehydrationState(userId: userId))
     }
 
+    func autofillActionCardDismissedDate() -> Date? {
+        fetch(for: .autofillActionCardDismissedDate).map { Date(timeIntervalSince1970: $0) }
+    }
+
     func autofillActionCardOptedOut() -> Bool {
         fetch(for: .autofillActionCardOptedOut)
     }
@@ -1470,6 +1491,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func setAppRehydrationState(_ state: AppRehydrationState?, userId: String) {
         store(state, for: .appRehydrationState(userId: userId))
+    }
+
+    func setAutofillActionCardDismissedDate(_ date: Date?) {
+        store(date?.timeIntervalSince1970, for: .autofillActionCardDismissedDate)
     }
 
     func setAutofillActionCardOptedOut(_ optedOut: Bool) {

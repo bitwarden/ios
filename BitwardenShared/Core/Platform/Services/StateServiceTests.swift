@@ -138,19 +138,22 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(publishedValues, [.default, .dark])
     }
 
-    /// `autofillActionCardDismissedForSessionPublisher()` publishes whether the autofill action card
-    /// is dismissed for the session, including when it's cleared, without persisting anything.
-    func test_autofillActionCardDismissedForSessionPublisher() async {
-        var publishedValues = [Bool]()
-        let publisher = await subject.autofillActionCardDismissedForSessionPublisher()
+    /// `autofillActionCardDismissedDatePublisher()` publishes the time the autofill action card
+    /// was dismissed, and the time is persisted in the app settings store.
+    func test_autofillActionCardDismissedDatePublisher() async {
+        let date = Date(year: 2026, month: 1, day: 1)
+        var publishedValues = [Date?]()
+        let publisher = await subject.autofillActionCardDismissedDatePublisher()
             .sink { publishedValues.append($0) }
         defer { publisher.cancel() }
 
-        await subject.setAutofillActionCardDismissedForSession(true)
-        await subject.setAutofillActionCardDismissedForSession(false)
+        await subject.setAutofillActionCardDismissedDate(date)
+        XCTAssertEqual(appSettingsStore.autofillActionCardDismissedDateValue, date)
 
-        XCTAssertEqual(publishedValues, [false, true, false])
-        XCTAssertFalse(appSettingsStore.autofillActionCardOptedOutValue)
+        await subject.setAutofillActionCardDismissedDate(nil)
+
+        XCTAssertEqual(publishedValues, [nil, date, nil])
+        XCTAssertNil(appSettingsStore.autofillActionCardDismissedDateValue)
     }
 
     /// `autofillActionCardOptedOutPublisher()` publishes whether the user opted out of the autofill

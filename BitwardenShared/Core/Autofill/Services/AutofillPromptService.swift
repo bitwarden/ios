@@ -16,9 +16,10 @@ protocol AutofillPromptService { // sourcery: AutoMockable
     ///
     func autofillEnabledPublisher() -> AnyPublisher<Bool?, Never>
 
-    /// Hides the vault's autofill action card until the next cold launch of the app.
+    /// Hides the vault's autofill action card for `Constants.autofillActionCardDismissDuration`
+    /// (24 hours), including across cold launches.
     ///
-    func dismissVaultActionCardForSession() async
+    func dismissVaultActionCard() async
 
     /// Permanently hides the vault's autofill action card for all accounts on the device.
     ///
@@ -38,7 +39,8 @@ protocol AutofillPromptService { // sourcery: AutoMockable
 
     /// A publisher for whether the vault's autofill action card should be shown. The card is
     /// shown when autofill is off, the user hasn't opted out, and the card hasn't been dismissed
-    /// during this session.
+    /// within the last 24 hours. The dismissal's expiry is evaluated each time the autofill status
+    /// is refreshed.
     ///
     /// - Returns: A publisher for whether the vault's autofill action card should be shown.
     ///
@@ -86,6 +88,9 @@ class DefaultAutofillPromptService: AutofillPromptService {
     /// The subject publishing whether autofill is turned on, or `nil` if it hasn't been checked.
     private let isAutofillEnabledSubject = CurrentValueSubject<Bool?, Never>(nil)
 
+    /// The provider used to get the current time.
+    private let timeProvider: TimeProvider
+
     /// The service used to determine whether the vault is locked.
     private let vaultTimeoutService: VaultTimeoutService
 
@@ -103,6 +108,7 @@ class DefaultAutofillPromptService: AutofillPromptService {
     ///   - autofillStateService: The service used to get and set state around autofill.
     ///   - errorReporter: The service used to report non-fatal errors.
     ///   - notificationCenterService: The service used to know whether the app is in the foreground.
+    ///   - timeProvider: The provider used to get the current time.
     ///   - vaultTimeoutService: The service used to determine whether the vault is locked.
     ///   - credentialStoreUpdateDelay: The number of seconds to wait after autofill is turned on
     ///     before repopulating the credential identity store.
@@ -115,6 +121,7 @@ class DefaultAutofillPromptService: AutofillPromptService {
         autofillStateService: AutofillStateService,
         errorReporter: ErrorReporter,
         notificationCenterService: NotificationCenterService,
+        timeProvider: TimeProvider,
         vaultTimeoutService: VaultTimeoutService,
         credentialStoreUpdateDelay: TimeInterval = Constants.autofillCredentialStoreUpdateDelay,
     ) {
@@ -126,6 +133,7 @@ class DefaultAutofillPromptService: AutofillPromptService {
         self.credentialStoreUpdateDelay = credentialStoreUpdateDelay
         self.errorReporter = errorReporter
         self.notificationCenterService = notificationCenterService
+        self.timeProvider = timeProvider
         self.vaultTimeoutService = vaultTimeoutService
     }
 
@@ -135,8 +143,8 @@ class DefaultAutofillPromptService: AutofillPromptService {
         isAutofillEnabledSubject.removeDuplicates().eraseToAnyPublisher()
     }
 
-    func dismissVaultActionCardForSession() async {
-        await autofillStateService.setAutofillActionCardDismissedForSession(true)
+    func dismissVaultActionCard() async {
+        await autofillStateService.setAutofillActionCardDismissedDate(timeProvider.presentTime)
     }
 
     func optOutOfVaultActionCard() async {
@@ -180,11 +188,14 @@ class DefaultAutofillPromptService: AutofillPromptService {
     func vaultActionCardVisibilityPublisher() async -> AnyPublisher<Bool, Never> {
         await isAutofillEnabledSubject
             .combineLatest(
-                autofillStateService.autofillActionCardDismissedForSessionPublisher(),
+                autofillStateService.autofillActionCardDismissedDatePublisher(),
                 autofillStateService.autofillActionCardOptedOutPublisher(),
             )
-            .map { isEnabled, isDismissed, isOptedOut in
-                isEnabled == false && !isDismissed && !isOptedOut
+            .map { [weak self] isEnabled, dismissedDate, isOptedOut in
+                // Every refresh re-publishes the autofill status, so the dismissal's expiry is
+                // re-evaluated against the current time without a separate timer.
+                guard let self, isEnabled == false, !isOptedOut else { return false }
+                return !isDismissalActive(dismissedDate: dismissedDate)
             }
             .removeDuplicates()
             .eraseToAnyPublisher()
@@ -207,6 +218,18 @@ class DefaultAutofillPromptService: AutofillPromptService {
             errorReporter.log(error: error)
             return false
         }
+    }
+
+    /// Returns whether the vault's autofill action card is still dismissed.
+    ///
+    /// - Parameter dismissedDate: The time the card was dismissed, or `nil` if it hasn't been.
+    /// - Returns: `true` if the card was dismissed less than
+    ///   `Constants.autofillActionCardDismissDuration` ago.
+    ///
+    private func isDismissalActive(dismissedDate: Date?) -> Bool {
+        guard let dismissedDate else { return false }
+        return timeProvider.presentTime.timeIntervalSince(dismissedDate)
+            < Constants.autofillActionCardDismissDuration
     }
 
     /// Opens the AutoFill provider settings in the Settings app.

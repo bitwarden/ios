@@ -6,13 +6,13 @@ import Foundation
 /// A service that provides state management functionality around autofill.
 ///
 protocol AutofillStateService { // sourcery: AutoMockable
-    /// A publisher for whether the vault's autofill action card was dismissed during this app
-    /// session. This isn't persisted, so it resets on the next cold launch.
+    /// A publisher for the time the user last dismissed the vault's autofill action card. This is
+    /// persisted and applies to all accounts on the device.
     ///
-    /// - Returns: A publisher that emits `true` while the autofill action card is dismissed for the
-    ///   session, starting with the current value.
+    /// - Returns: A publisher that emits the time the autofill action card was dismissed, or `nil`
+    ///   if it hasn't been, starting with the current value.
     ///
-    func autofillActionCardDismissedForSessionPublisher() async -> AnyPublisher<Bool, Never>
+    func autofillActionCardDismissedDatePublisher() async -> AnyPublisher<Date?, Never>
 
     /// A publisher for whether the user has opted out of the vault's autofill action card. This
     /// applies to all accounts on the device.
@@ -28,12 +28,12 @@ protocol AutofillStateService { // sourcery: AutoMockable
     ///
     func getLastRequestToTurnOnCredentialProvider() async -> Date?
 
-    /// Sets whether the vault's autofill action card is dismissed for the current app session.
-    /// This isn't persisted.
+    /// Sets the time the user last dismissed the vault's autofill action card. This is persisted
+    /// and applies to all accounts on the device.
     ///
-    /// - Parameter dismissed: Whether the autofill action card is dismissed for the session.
+    /// - Parameter date: The time the autofill action card was dismissed, or `nil` to clear it.
     ///
-    func setAutofillActionCardDismissedForSession(_ dismissed: Bool) async
+    func setAutofillActionCardDismissedDate(_ date: Date?) async
 
     /// Sets whether the user has opted out of the vault's autofill action card. This applies to
     /// all accounts on the device.

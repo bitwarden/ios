@@ -692,6 +692,27 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:lastUserShouldConnectToWatch"))
     }
 
+    /// `autofillActionCardDismissedDate()` returns `nil` if there isn't a previously stored value.
+    func test_autofillActionCardDismissedDate_isInitiallyNil() {
+        XCTAssertNil(subject.autofillActionCardDismissedDate())
+    }
+
+    /// `autofillActionCardDismissedDate()` can be used to get and set the persisted value in user
+    /// defaults.
+    func test_autofillActionCardDismissedDate_withValue() {
+        let date = Date(year: 2026, month: 1, day: 1)
+        subject.setAutofillActionCardDismissedDate(date)
+
+        XCTAssertEqual(subject.autofillActionCardDismissedDate(), date)
+        XCTAssertEqual(
+            userDefaults.double(forKey: "bwPreferencesStorage:autofillActionCardDismissedDate"),
+            date.timeIntervalSince1970,
+        )
+
+        subject.setAutofillActionCardDismissedDate(nil)
+        XCTAssertNil(subject.autofillActionCardDismissedDate())
+    }
+
     /// `autofillActionCardOptedOut()` returns `false` if there isn't a previously stored value.
     func test_autofillActionCardOptedOut_isInitiallyFalse() {
         XCTAssertFalse(subject.autofillActionCardOptedOut())

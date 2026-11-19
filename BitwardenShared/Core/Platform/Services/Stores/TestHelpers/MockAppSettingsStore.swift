@@ -21,6 +21,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var appRehydrationState = [String: AppRehydrationState]()
     var appTheme: String?
     var archiveOnboardingShown = false
+    var autofillActionCardDismissedDateValue: Date?
     var autofillActionCardOptedOutValue = false
     var cachedActiveUserId: String?
     var disableWebIcons = false
@@ -123,6 +124,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func appRehydrationState(userId: String) -> BitwardenShared.AppRehydrationState? {
         appRehydrationState[userId]
+    }
+
+    func autofillActionCardDismissedDate() -> Date? {
+        autofillActionCardDismissedDateValue
     }
 
     func autofillActionCardOptedOut() -> Bool {
@@ -302,6 +307,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
             return
         }
         appRehydrationState[userId] = state
+    }
+
+    func setAutofillActionCardDismissedDate(_ date: Date?) {
+        autofillActionCardDismissedDateValue = date
     }
 
     func setAutofillActionCardOptedOut(_ optedOut: Bool) {

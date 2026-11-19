@@ -35,7 +35,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var appRehydrationState = [String: AppRehydrationState]()
     var appTheme: AppTheme?
     var archiveOnboardingShown = false
-    var autofillActionCardDismissedSubject = CurrentValueSubject<Bool, Never>(false)
+    var autofillActionCardDismissedSubject = CurrentValueSubject<Date?, Never>(nil)
 
     var autofillActionCardOptedOut: Bool {
         get { autofillActionCardOptedOutSubject.value }
@@ -737,7 +737,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         learnNewLoginActionCardStatus = status
     }
 
-    func autofillActionCardDismissedForSessionPublisher() async -> AnyPublisher<Bool, Never> {
+    func autofillActionCardDismissedDatePublisher() async -> AnyPublisher<Date?, Never> {
         autofillActionCardDismissedSubject.eraseToAnyPublisher()
     }
 
@@ -745,8 +745,8 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         autofillActionCardOptedOutSubject.eraseToAnyPublisher()
     }
 
-    func setAutofillActionCardDismissedForSession(_ dismissed: Bool) async {
-        autofillActionCardDismissedSubject.send(dismissed)
+    func setAutofillActionCardDismissedDate(_ date: Date?) async {
+        autofillActionCardDismissedSubject.send(date)
     }
 
     func setAutofillActionCardOptedOut(_ optedOut: Bool) async {
