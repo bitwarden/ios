@@ -23,7 +23,7 @@ extension FeatureFlag: @retroactive CaseIterable {
 
     /// Flag to enable/disable the autofill action card, which is shown whenever autofill is off and
     /// helps the user turn it back on.
-    static let autofillOffActionCard = FeatureFlag(rawValue: "pm-44123-autofill-off-action-card")
+    static let autofillOffActionCard = FeatureFlag(rawValue: "pm-42672-autofill-off-banner")
 
     /// A feature flag to enable/disable scanning a card to autocomplete its details in add/edit cipher.
     static let cardScanner = FeatureFlag(rawValue: "pm-34171-card-scanner")
