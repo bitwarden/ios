@@ -69,7 +69,7 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// to local storage by the SDK's `CiphersClient` and `AttachmentsClient` instead of the app.
     /// This is a mobile-only flag that must remain disabled until the SDK supports mTLS client
     /// certificates (PM-39915).
-    static let sdkCipherOperations = FeatureFlag(rawValue: "pm-45789-mobile-sdk-cipher-operations")
+    static let sdkCipherOperations = FeatureFlag(rawValue: "pm-44389-mobile-sdk-cipher-operations")
 
     /// Flag to enable/disable SDK-managed PIN unlock.
     ///
