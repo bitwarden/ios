@@ -2011,6 +2011,7 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.setV2UpgradeToken(nil, userId: knownUserId)
 
         if userInitiated {
+            appSettingsStore.setPlanBadgeDismissed(false, userId: knownUserId)
             appSettingsStore.setPreviousPersonalPremium(nil, userId: knownUserId)
         }
 
@@ -2534,6 +2535,18 @@ struct AccountVolatileData {
 // MARK: BillingStateService
 
 extension DefaultStateService: BillingStateService {
+    // MARK: Plan Badge
+
+    func getPlanBadgeDismissed(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.planBadgeDismissed(userId: userId)
+    }
+
+    func setPlanBadgeDismissed(_ dismissed: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setPlanBadgeDismissed(dismissed, userId: userId)
+    }
+
     // MARK: Premium Upgrade Banner
 
     func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool {
