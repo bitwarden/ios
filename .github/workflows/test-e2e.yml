@@ -5,11 +5,32 @@ on:
     # Weekdays at 05:00 UTC. Scheduled runs are skipped until the E2E_SCHEDULE_ENABLED variable is "true".
     - cron: "0 5 * * 1-5"
   workflow_dispatch:
+    inputs:
+      test-server-url:
+        description: "Base URL of the server under test. Leave all three empty to use the repository secrets"
+        type: string
+      seeder-url:
+        description: "Base URL of that server's seeder API"
+        type: string
+      seeder-self-hosted:
+        description: "Whether the server is self-hosted: 'true' or 'false'"
+        type: string
 
 env:
   MINT_LINK_PATH: .mint/bin # used by mint in bootstrap.sh
   MINT_PATH: .mint/lib # used by mint in bootstrap.sh
-  _TESTS_RESULT_BUNDLE_PATH: build/E2E.xcresult
+  _BUILD_RESULT_BUNDLE_PATH: build/E2E-build.xcresult
+  _TESTS_RESULT_BUNDLE_PATH: build/E2E-tests.xcresult
+
+  # xcode optimization flags
+  COMPILER_INDEX_STORE_ENABLE: "NO"
+  COMPILATION_CACHE_ENABLE_CACHING: "YES"
+  COMPILATION_CACHE_ENABLE_PLUGIN: "YES"
+  SWIFT_ENABLE_COMPILE_CACHE: "YES"
+  CLANG_ENABLE_COMPILE_CACHE: "YES"
+  SWIFT_ENABLE_EXPLICIT_MODULES: "YES"
+  SWIFT_USE_INTEGRATED_DRIVER: "YES"
+  CLANG_ENABLE_MODULES: "YES"
 
 jobs:
   test:
@@ -64,7 +85,6 @@ jobs:
         run: |
           brew update
           brew bundle
-          brew install wix/brew/applesimutils
           ./Scripts/bootstrap.sh
 
       - name: Boot Simulator
@@ -73,6 +93,67 @@ jobs:
         with:
           simulator-name: ${{ env._SIMULATOR_NAME }}
           simulator-version: ${{ env._SIMULATOR_VERSION }}
+
+      - name: Build
+        id: build
+        env:
+          _SIMULATOR_ID: ${{ steps.boot-simulator.outputs.simulator-id }}
+        run: |
+            python Scripts/pyeetd/main.py & PYEETD_PID=$!
+            xcrun xcodebuild build-for-testing \
+              -workspace Bitwarden.xcworkspace \
+              -scheme BitwardenE2ETests \
+              -configuration Debug \
+              -destination "platform=iOS Simulator,id=$_SIMULATOR_ID" \
+              -derivedDataPath build/DerivedData \
+              -resultBundlePath "$_BUILD_RESULT_BUNDLE_PATH" \
+              -parallelizeTargets \
+              -skipPackagePluginValidation \
+              -skipMacroValidation \
+              -quiet
+            kill "$PYEETD_PID"
+
+      - name: Upload build result bundle
+        if: always() && steps.build.outcome != 'skipped'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: e2e-build-result
+          compression-level: 9
+          path: ${{ env._BUILD_RESULT_BUNDLE_PATH }}
+
+      # Read from the event payload rather than `inputs` so the values never appear in a step's
+      # environment block before they are masked.
+      - name: Resolve the test server
+        id: server
+        env:
+          _SECRET_SEEDER_SELF_HOSTED: ${{ secrets.E2E_SEEDER_SELF_HOSTED }}
+          _SECRET_SEEDER_URL: ${{ secrets.E2E_SEEDER_URL }}
+          _SECRET_TEST_SERVER_URL: ${{ secrets.E2E_TEST_SERVER_URL }}
+        run: |
+          read_input() { jq -r --arg name "$1" '.inputs[$name] // ""' "$GITHUB_EVENT_PATH"; }
+          test_server_url=$(read_input test-server-url)
+          seeder_url=$(read_input seeder-url)
+          seeder_self_hosted=$(read_input seeder-self-hosted)
+
+          if [ -z "$test_server_url$seeder_url$seeder_self_hosted" ]; then
+            test_server_url="$_SECRET_TEST_SERVER_URL"
+            seeder_url="$_SECRET_SEEDER_URL"
+            seeder_self_hosted="$_SECRET_SEEDER_SELF_HOSTED"
+          elif [ -z "$test_server_url" ] || [ -z "$seeder_url" ] || [ -z "$seeder_self_hosted" ]; then
+            echo "::error::Set all three server inputs, or none of them to use the repository secrets."
+            exit 1
+          fi
+
+          for url in "$test_server_url" "$seeder_url"; do
+            host="${url#*://}"
+            echo "::add-mask::$url"
+            echo "::add-mask::${host%%/*}"
+          done
+          {
+            echo "test-server-url=$test_server_url"
+            echo "seeder-url=$seeder_url"
+            echo "seeder-self-hosted=$seeder_self_hosted"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
@@ -91,32 +172,31 @@ jobs:
       - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
 
-      # The repository, its logs and its artifacts are public, so the server under test is kept in
-      # secrets. A secret masks only its exact value; this also masks the host names on their own.
-      - name: Mask the test server hosts
-        env:
-          BW_SEEDER_URL: ${{ secrets.E2E_SEEDER_URL }}
-          BW_TEST_SERVER_URL: ${{ secrets.E2E_TEST_SERVER_URL }}
-        run: |
-          for url in "$BW_TEST_SERVER_URL" "$BW_SEEDER_URL"; do
-            host="${url#*://}"
-            echo "::add-mask::${host%%/*}"
-          done
-
+      # The configuration is set only here, so the build result bundle can't record it.
       - name: Test
         id: test
         env:
-          BW_SEEDER_PASSWORD: ${{ steps.get-kv-secrets.outputs.E2E-SEEDER-PASSWORD }}
-          BW_SEEDER_SELF_HOSTED: ${{ secrets.E2E_SEEDER_SELF_HOSTED }}
-          BW_SEEDER_URL: ${{ secrets.E2E_SEEDER_URL }}
-          BW_SEEDER_USERNAME: ${{ steps.get-kv-secrets.outputs.E2E-SEEDER-USERNAME }}
-          BW_TEST_SERVER_URL: ${{ secrets.E2E_TEST_SERVER_URL }}
+          TEST_RUNNER_BW_SEEDER_PASSWORD: ${{ steps.get-kv-secrets.outputs.E2E-SEEDER-PASSWORD }}
+          TEST_RUNNER_BW_SEEDER_SELF_HOSTED: ${{ steps.server.outputs.seeder-self-hosted }}
+          TEST_RUNNER_BW_SEEDER_URL: ${{ steps.server.outputs.seeder-url }}
+          TEST_RUNNER_BW_SEEDER_USERNAME: ${{ steps.get-kv-secrets.outputs.E2E-SEEDER-USERNAME }}
+          TEST_RUNNER_BW_TEST_SERVER_URL: ${{ steps.server.outputs.test-server-url }}
           _SIMULATOR_ID: ${{ steps.boot-simulator.outputs.simulator-id }}
         run: |
-          ./Scripts/run-e2e-tests.sh --simulator-id "$_SIMULATOR_ID"
+            python Scripts/pyeetd/main.py & PYEETD_PID=$!
+            # -collect-test-diagnostics never: on Xcode 27 / iOS 27 simulators, xcodebuild hangs
+            # 600s collecting simulator diagnostics after tests finish, even when all tests pass.
+            xcrun xcodebuild test-without-building \
+              -workspace Bitwarden.xcworkspace \
+              -scheme BitwardenE2ETests \
+              -configuration Debug \
+              -destination "platform=iOS Simulator,id=$_SIMULATOR_ID" \
+              -resultBundlePath "$_TESTS_RESULT_BUNDLE_PATH" \
+              -derivedDataPath build/DerivedData \
+              -collect-test-diagnostics never \
+              -quiet
+            kill "$PYEETD_PID"
 
-      # The result bundle is never uploaded: it records the app's launch arguments, which name the
-      # server under test, and this repository's artifacts are public.
       - name: Print Logs Summary
         if: always() && steps.test.outcome != 'skipped'
         run: |

@@ -26,24 +26,6 @@ final class VaultRobot: Robot {
 
     // MARK: Methods
 
-    /// Fails if an alert covers the vault. The only alerts expected here are the notification
-    /// prompts, which appear when the simulator wasn't prepared.
-    ///
-    @discardableResult
-    func assertNoAlertIsShown(file: StaticString = #filePath, line: UInt = #line) -> Self {
-        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
-        XCTAssertFalse(
-            app.alerts.firstMatch.exists || springboard.alerts.firstMatch.exists,
-            """
-            \(Self.self): an alert is shown over the vault. If it asks about notifications, grant the \
-            permission with `Scripts/run-e2e-tests.sh --prepare-simulator`.
-            """,
-            file: file,
-            line: line,
-        )
-        return self
-    }
-
     /// Opens the item with the given name.
     ///
     func openItem(named name: String) {

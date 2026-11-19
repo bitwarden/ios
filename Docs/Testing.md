@@ -206,7 +206,7 @@ Otherwise, tests will fail due to rendering differences between iOS versions.
 - Test methods are synchronous (`func test_...() throws`, never `async`). XCTest can't stop an `async` test at a failed assertion, so a failing robot would hang the test until its time allowance runs out. `SeederClient` blocks for the same reason.
 - Name tests `test_<function>_<behavior>` and put the Testmo case ID in the doc comment.
 
-**Debug builds only**: both launch arguments are compiled out of Release builds. The reset doesn't clear the iOS notification permission or the app group data shared with Authenticator; keychain items shared with Authenticator are erased, as on a fresh install.
+**Debug builds only**: both launch arguments are compiled out of Release builds. The reset doesn't clear the iOS notification permission (the login flow handles its prompts) or the app group data shared with Authenticator; keychain items shared with Authenticator are erased, as on a fresh install.
 
 ## Testing by Component Type
 
@@ -826,14 +826,9 @@ xcodebuild test \
 
 #### Run End-to-End UI Tests
 
-The tests need a test server with the seeder API and [applesimutils](https://github.com/wix/AppleSimulatorUtils) (`brew install wix/brew/applesimutils`).
+The tests need a test server with the seeder API.
 
-**This repository is public, so the server under test is never named in it.** The values are exported environment variables for the script, a gitignored `.e2e.env` file for Xcode, and secrets in CI. Don't put real hosts in code, docs, commit messages or PR descriptions.
-
-```bash
-export BW_TEST_SERVER_URL=... BW_SEEDER_URL=... BW_SEEDER_SELF_HOSTED=... BW_SEEDER_USERNAME=... BW_SEEDER_PASSWORD=...
-./Scripts/run-e2e-tests.sh
-```
+**This repository is public, so the server under test is never named in it.** Locally the values come from a gitignored `.e2e.env` file; in CI from workflow inputs or secrets. Don't put real hosts in code, docs, commit messages or PR descriptions.
 
 | Variable | Meaning |
 |----------|---------|
@@ -843,17 +838,14 @@ export BW_TEST_SERVER_URL=... BW_SEEDER_URL=... BW_SEEDER_SELF_HOSTED=... BW_SEE
 | `BW_SEEDER_USERNAME` | Seeder basic-auth username |
 | `BW_SEEDER_PASSWORD` | Seeder basic-auth password |
 
-The script reads these from the environment only and stops, naming the variable, if one isn't exported. `.e2e.env.example` explains each one.
-
-The script builds the `BitwardenE2ETests` scheme, reinstalls the app on the simulator from the `.test-simulator-*` files, grants the notification permission and runs the tests. Results are written to `build/E2E.xcresult`; the bundle records the server URL, so don't attach it to public issues or PRs.
+1. Copy `.e2e.env.example` to `.e2e.env` in the repository root and fill in the five values. The tests read it for any variable that isn't in their environment. A missing or invalid value fails the test with the variable's name.
+2. Run `./Scripts/bootstrap.sh`, select the `BitwardenE2ETests` scheme and press Cmd+U.
 
 Production servers are rejected. The run also fails if `~/.bitwarden/debug-environment.json` exists, because the app reads it before the launch argument and would connect to a different server.
 
-To run from Xcode instead:
+The first login on an install shows the app's notification alert and the system permission prompt. XCUITest's default interruption handler accepts both at the next interaction, so a fresh simulator needs no preparation.
 
-1. Run `./Scripts/run-e2e-tests.sh --prepare-simulator` once per simulator. It installs the app and grants the notification permission, which the tests can't do themselves. Repeat it after deleting the app or erasing the simulator.
-2. Copy `.e2e.env.example` to `.e2e.env` in the repository root and fill in the five values. The file is gitignored. The tests read it for any variable that isn't in their environment, which is every variable when they are started from Xcode.
-3. Run `./Scripts/bootstrap.sh`, select the `BitwardenE2ETests` scheme and press Cmd+U.
+The result bundle records the server URL in the app's launch arguments, so don't attach it to public issues or PRs.
 
 ### Running Tests from Xcode
 
@@ -1082,7 +1074,7 @@ CI runs all test plans:
 
 Ensure all tests pass locally before pushing to prevent CI failures.
 
-End-to-end UI tests don't run on pull requests. `test-e2e.yml` runs them on a weekday schedule and on manual dispatch, against the server configured in the repository's secrets. It doesn't upload the result bundle.
+End-to-end UI tests don't run on pull requests. `test-e2e.yml` runs them on a weekday schedule against the server in the repository's secrets, and on manual dispatch against the server given in the inputs (or the secrets when the inputs are empty). It uploads the build result bundle only; the tests result bundle records the server URL and is never uploaded.
 
 ## Quick Reference for AI Agents
 

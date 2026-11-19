@@ -100,7 +100,7 @@ struct E2EConfiguration {
     ) throws {
         // A variable exported with no value counts as unset.
         var environment = environment.filter { !$0.value.isEmpty }
-        // The file is only opened when the environment is incomplete: never in script or CI runs.
+        // The file is only opened when the environment is incomplete: never in CI runs.
         if Variable.allCases.contains(where: { environment[$0] == nil }) {
             environment.merge(Self.variables(inFileAt: environmentFileURL)) { exported, _ in exported }
         }
