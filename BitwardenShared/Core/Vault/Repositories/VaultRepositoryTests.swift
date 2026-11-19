@@ -340,6 +340,97 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(cipherService.bulkShareCiphersEncryptionContexts.isEmpty)
     }
 
+    /// `bulkShareCiphers()` ensures cipher keys and shares the ciphers with the SDK when the SDK
+    /// cipher operations feature flag is enabled.
+    func test_bulkShareCiphers_sdkCipherOperations() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        let ciphers = [CipherView.fixture(id: "1"), CipherView.fixture(id: "2")]
+        clientCiphers.shareCiphersBulkReturnValue = ciphers
+
+        try await subject.bulkShareCiphers(ciphers, newOrganizationId: "org-123", newCollectionIds: ["col-1"])
+
+        XCTAssertEqual(cipherEncryptionMediator.encryptAndUpdateCipherCallsCount, 2)
+        XCTAssertEqual(clientCiphers.shareCiphersBulkReceivedArguments?.cipherViews, ciphers)
+        XCTAssertEqual(clientCiphers.shareCiphersBulkReceivedArguments?.organizationId, "org-123")
+        XCTAssertEqual(clientCiphers.shareCiphersBulkReceivedArguments?.collectionIds, ["col-1"])
+        XCTAssertFalse(clientCiphers.prepareCiphersForBulkShareCalled)
+        XCTAssertTrue(cipherService.bulkShareCiphersEncryptionContexts.isEmpty)
+    }
+
+    /// `bulkShareCiphers()` migrates attachments without an attachment key before sharing the
+    /// ciphers with the SDK when the SDK cipher operations feature flag is enabled.
+    func test_bulkShareCiphers_sdkCipherOperations_attachmentMigration() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        let account = Account.fixtureAccountLogin()
+        stateService.activeAccount = account
+
+        let cipherWithoutAttachmentKey = CipherView.fixture(
+            attachments: [.fixture(fileName: "file.txt", id: "1", key: nil)],
+            id: "1",
+        )
+        let cipherWithAttachmentKey = CipherView.fixture(
+            attachments: [.fixture(fileName: "file.txt", id: "2", key: "abc")],
+            id: "2",
+        )
+        let cipherAfterAttachmentDelete = Cipher.fixture(
+            attachments: [.fixture(id: "3", fileName: "file.txt", key: "def")],
+            id: "1",
+        )
+        cipherService.saveAttachmentWithServerResult = .success(.fixture(id: "1"))
+        cipherService.deleteAttachmentWithServerResult = .success(cipherAfterAttachmentDelete)
+        cipherService.fetchCipherResult = .success(.fixture(id: "1"))
+
+        let downloadUrl = FileManager.default.temporaryDirectory.appendingPathComponent("file.txt")
+        try Data("📁".utf8).write(to: downloadUrl)
+        cipherService.downloadAttachmentResult = .success(downloadUrl)
+        let attachmentsUrl = try FileManager.default.attachmentsUrl(for: account.profile.userId)
+        try FileManager.default.createDirectory(at: attachmentsUrl, withIntermediateDirectories: true)
+        try Data("🗂️".utf8).write(to: attachmentsUrl.appendingPathComponent("file.txt"))
+
+        clientService.mockVault.clientAttachments.encryptBufferReturnValue = AttachmentEncryptResult(
+            attachment: .fixture(),
+            contents: Data(),
+        )
+        clientCiphers.shareCiphersBulkReturnValue = []
+
+        try await subject.bulkShareCiphers(
+            [cipherWithoutAttachmentKey, cipherWithAttachmentKey],
+            newOrganizationId: "org-123",
+            newCollectionIds: ["col-1"],
+        )
+
+        XCTAssertEqual(cipherService.downloadAttachmentId, "1")
+        XCTAssertEqual(cipherService.deleteAttachmentWithServerAttachmentId, "1")
+        XCTAssertEqual(
+            clientCiphers.shareCiphersBulkReceivedArguments?.cipherViews,
+            [CipherView(cipher: cipherAfterAttachmentDelete), cipherWithAttachmentKey],
+        )
+        XCTAssertTrue(cipherService.bulkShareCiphersEncryptionContexts.isEmpty)
+    }
+
+    /// `bulkShareCiphers()` doesn't call the SDK if there are no ciphers to share when the SDK
+    /// cipher operations feature flag is enabled.
+    func test_bulkShareCiphers_sdkCipherOperations_empty() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+
+        try await subject.bulkShareCiphers([], newOrganizationId: "org-123", newCollectionIds: ["col-1"])
+
+        XCTAssertFalse(clientCiphers.shareCiphersBulkCalled)
+    }
+
+    /// `bulkShareCiphers()` throws a `ServerError` if the SDK fails to share the ciphers due to a
+    /// server error response.
+    func test_bulkShareCiphers_sdkCipherOperations_serverError() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        let message = #"error in response: status code 400 Bad Request: {"message":"Error!","object":"error"}"#
+        clientCiphers.shareCiphersBulkThrowableError = BitwardenSdk.BitwardenError.Cipher(.Api(message: message))
+
+        let serverError = ServerError.error(errorResponse: .init(validationErrors: nil, message: "Error!"))
+        await assertAsyncThrows(error: serverError) {
+            try await subject.bulkShareCiphers([.fixture(id: "1")], newOrganizationId: "1", newCollectionIds: [])
+        }
+    }
+
     /// `canShowVaultFilter()` returns true if only org and personal ownership policies are disabled.
     func test_canShowVaultFilter_onlyOrgAndPersonalOwnershipDisabled() async {
         policyService.policyAppliesToUserResult[.onlyOrg] = false
@@ -745,6 +836,30 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.deleteCipherWithServerResult = .success(())
         try await subject.deleteCipher("123")
         XCTAssertEqual(cipherService.deleteCipherId, "123")
+    }
+
+    /// `deleteCipher()` deletes the cipher with the SDK when the SDK cipher operations feature flag
+    /// is enabled.
+    func test_deleteCipher_sdkCipherOperations() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+
+        try await subject.deleteCipher("123")
+
+        XCTAssertEqual(clientCiphers.deleteReceivedCipherId, "123")
+        XCTAssertNil(cipherService.deleteCipherId)
+    }
+
+    /// `deleteCipher()` throws a `ServerError` if the SDK fails to delete the cipher due to a server
+    /// error response.
+    func test_deleteCipher_sdkCipherOperations_serverError() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        let message = #"error in response: status code 400 Bad Request: {"message":"Error!","object":"error"}"#
+        clientCiphers.deleteThrowableError = BitwardenSdk.BitwardenError.DeleteCipher(.Api(message: message))
+
+        let serverError = ServerError.error(errorResponse: .init(validationErrors: nil, message: "Error!"))
+        await assertAsyncThrows(error: serverError) {
+            try await subject.deleteCipher("123")
+        }
     }
 
     /// `doesActiveAccountHavePremium()` returns whether the active account has access to Premium features.
@@ -1851,6 +1966,81 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(clientCiphers.moveToOrganizationReceivedArguments?.organizationId, "5")
     }
 
+    /// `shareCipher()` ensures the cipher has a key and shares the cipher with the SDK when the SDK
+    /// cipher operations feature flag is enabled.
+    func test_shareCipher_sdkCipherOperations() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        let cipher = CipherView.fixture(id: "1")
+        clientCiphers.shareCipherReturnValue = cipher
+
+        try await subject.shareCipher(cipher, newOrganizationId: "5", newCollectionIds: ["6", "7"])
+
+        XCTAssertEqual(cipherEncryptionMediator.encryptAndUpdateCipherReceivedCipherView, cipher)
+        let arguments = try XCTUnwrap(clientCiphers.shareCipherReceivedArguments)
+        XCTAssertEqual(arguments.cipherView, cipher)
+        XCTAssertEqual(arguments.organizationId, "5")
+        XCTAssertEqual(arguments.collectionIds, ["6", "7"])
+        XCTAssertNil(arguments.originalCipherView)
+        XCTAssertFalse(clientCiphers.moveToOrganizationCalled)
+        XCTAssertTrue(cipherService.shareCipherWithServerCiphers.isEmpty)
+    }
+
+    /// `shareCipher()` migrates any attachments without an attachment key before sharing the cipher
+    /// with the SDK when the SDK cipher operations feature flag is enabled.
+    func test_shareCipher_sdkCipherOperations_attachmentMigration() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        let account = Account.fixtureAccountLogin()
+        stateService.activeAccount = account
+
+        let cipherViewOriginal = CipherView.fixture(
+            attachments: [.fixture(fileName: "file.txt", id: "1", key: nil)],
+            id: "1",
+        )
+        let cipherAfterAttachmentDelete = Cipher.fixture(
+            attachments: [.fixture(id: "2", fileName: "file.txt", key: "def")],
+            id: "1",
+        )
+        cipherService.saveAttachmentWithServerResult = .success(.fixture(id: "1"))
+        cipherService.deleteAttachmentWithServerResult = .success(cipherAfterAttachmentDelete)
+        cipherService.fetchCipherResult = .success(.fixture(id: "1"))
+
+        let downloadUrl = FileManager.default.temporaryDirectory.appendingPathComponent("file.txt")
+        try Data("📁".utf8).write(to: downloadUrl)
+        cipherService.downloadAttachmentResult = .success(downloadUrl)
+        let attachmentsUrl = try FileManager.default.attachmentsUrl(for: account.profile.userId)
+        try FileManager.default.createDirectory(at: attachmentsUrl, withIntermediateDirectories: true)
+        try Data("🗂️".utf8).write(to: attachmentsUrl.appendingPathComponent("file.txt"))
+
+        clientService.mockVault.clientAttachments.encryptBufferReturnValue = AttachmentEncryptResult(
+            attachment: .fixture(),
+            contents: Data(),
+        )
+        clientCiphers.shareCipherReturnValue = .fixture(id: "1")
+
+        try await subject.shareCipher(cipherViewOriginal, newOrganizationId: "5", newCollectionIds: ["6"])
+
+        XCTAssertEqual(cipherService.downloadAttachmentId, "1")
+        XCTAssertEqual(cipherService.deleteAttachmentWithServerAttachmentId, "1")
+        XCTAssertEqual(
+            clientCiphers.shareCipherReceivedArguments?.cipherView,
+            CipherView(cipher: cipherAfterAttachmentDelete),
+        )
+        XCTAssertTrue(cipherService.shareCipherWithServerCiphers.isEmpty)
+    }
+
+    /// `shareCipher()` throws a `ServerError` if the SDK fails to share the cipher due to a server
+    /// error response.
+    func test_shareCipher_sdkCipherOperations_serverError() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        let message = #"error in response: status code 400 Bad Request: {"message":"Error!","object":"error"}"#
+        clientCiphers.shareCipherThrowableError = BitwardenSdk.BitwardenError.Cipher(.Api(message: message))
+
+        let serverError = ServerError.error(errorResponse: .init(validationErrors: nil, message: "Error!"))
+        await assertAsyncThrows(error: serverError) {
+            try await subject.shareCipher(.fixture(id: "1"), newOrganizationId: "5", newCollectionIds: [])
+        }
+    }
+
     /// `updateCipherCollections()` throws an error if one occurs.
     func test_updateCipherCollections_error() async throws {
         cipherService.updateCipherCollectionsWithServerResult = .failure(BitwardenTestError.example)
@@ -1921,6 +2111,78 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             cipherService.updateCipherCollectionsWithServerCiphers,
             [Cipher(cipherView: cipher)],
         )
+    }
+
+    /// `updateCipherCollections()` updates the cipher's collections with the SDK when the SDK cipher
+    /// operations feature flag is enabled.
+    func test_updateCipherCollections_sdkCipherOperations() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        let cipher = CipherView.fixture(collectionIds: ["1", "2"], id: "123")
+        clientCiphers.updateCollectionReturnValue = cipher
+
+        try await subject.updateCipherCollections(cipher)
+
+        XCTAssertEqual(clientCiphers.updateCollectionReceivedArguments?.cipherId, "123")
+        XCTAssertEqual(clientCiphers.updateCollectionReceivedArguments?.collectionIds, ["1", "2"])
+        XCTAssertFalse(cipherEncryptionMediator.encryptAndUpdateCipherCalled)
+        XCTAssertTrue(cipherService.updateCipherCollectionsWithServerCiphers.isEmpty)
+        XCTAssertNil(cipherService.deleteCipherWithLocalStorageId)
+    }
+
+    /// `updateCipherCollections()` removes the cipher from local storage if the user no longer has
+    /// access to it after updating its collections with the SDK.
+    func test_updateCipherCollections_sdkCipherOperations_lostAccess() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        clientCiphers.updateCollectionThrowableError = BitwardenSdk.BitwardenError.EditCipher(
+            .MissingField(message: "Missing field cipher"),
+        )
+
+        try await subject.updateCipherCollections(.fixture(collectionIds: ["1"], id: "123"))
+
+        XCTAssertEqual(cipherService.deleteCipherWithLocalStorageId, "123")
+    }
+
+    /// `updateCipherCollections()` throws if the cipher doesn't have an ID when the SDK cipher
+    /// operations feature flag is enabled.
+    func test_updateCipherCollections_sdkCipherOperations_missingId() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+
+        await assertAsyncThrows(error: CipherAPIServiceError.updateMissingId) {
+            try await subject.updateCipherCollections(.fixture(id: nil))
+        }
+        XCTAssertFalse(clientCiphers.updateCollectionCalled)
+    }
+
+    /// `updateCipherCollections()` throws a `ServerError` if the SDK fails to update the cipher's
+    /// collections due to a server error response.
+    func test_updateCipherCollections_sdkCipherOperations_serverError() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        let message = #"error in response: status code 400 Bad Request: {"message":"Error!","object":"error"}"#
+        clientCiphers.updateCollectionThrowableError = BitwardenSdk.BitwardenError.EditCipher(
+            .Api(message: message),
+        )
+
+        let serverError = ServerError.error(errorResponse: .init(validationErrors: nil, message: "Error!"))
+        await assertAsyncThrows(error: serverError) {
+            try await subject.updateCipherCollections(.fixture(id: "123"))
+        }
+        XCTAssertNil(cipherService.deleteCipherWithLocalStorageId)
+    }
+
+    /// `updateCipherCollections()` unarchives the cipher when the user doesn't have Premium and the
+    /// SDK cipher operations feature flag is enabled.
+    @MainActor
+    func test_updateCipherCollections_sdkCipherOperations_unarchivesNonPremiumUser() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        stateService.activeAccount = nonPremiumAccount
+        stateService.doesActiveAccountHavePremiumResult = false
+        let archivedCipher = CipherView.fixture(archivedDate: .now, collectionIds: ["1"], id: "123")
+        clientCiphers.updateCollectionReturnValue = archivedCipher
+
+        try await subject.updateCipherCollections(archivedCipher)
+
+        XCTAssertEqual(clientCiphers.updateCollectionCallsCount, 1)
+        XCTAssertEqual(clientCiphers.updateCollectionReceivedArguments?.collectionIds, ["1"])
     }
 
     /// `updateCipher()` throws on encryption errors.
@@ -2151,6 +2413,33 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(cipherEncryptionMediator.encryptAndUpdateCipherReceivedCipherView?.id, "123")
     }
 
+    /// `restoreCipher()` restores the cipher with the SDK when the SDK cipher operations feature
+    /// flag is enabled.
+    func test_restoreCipher_sdkCipherOperations() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        let cipherView = CipherView.fixture(deletedDate: .now, id: "123")
+        clientCiphers.restoreReturnValue = cipherView.update(deletedDate: nil)
+
+        try await subject.restoreCipher(cipherView)
+
+        XCTAssertEqual(clientCiphers.restoreReceivedCipherId, "123")
+        XCTAssertFalse(cipherEncryptionMediator.encryptAndUpdateCipherCalled)
+        XCTAssertNil(cipherService.restoredCipherId)
+    }
+
+    /// `restoreCipher()` throws a `ServerError` if the SDK fails to restore the cipher due to a
+    /// server error response.
+    func test_restoreCipher_sdkCipherOperations_serverError() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        let message = #"error in response: status code 400 Bad Request: {"message":"Error!","object":"error"}"#
+        clientCiphers.restoreThrowableError = BitwardenSdk.BitwardenError.RestoreCipher(.Api(message: message))
+
+        let serverError = ServerError.error(errorResponse: .init(validationErrors: nil, message: "Error!"))
+        await assertAsyncThrows(error: serverError) {
+            try await subject.restoreCipher(.fixture(deletedDate: .now, id: "123"))
+        }
+    }
+
     /// `saveAttachment(cipherView:fileData:fileName:)` saves the attachment to the cipher.
     func test_saveAttachment() async throws {
         cipherService.saveAttachmentWithServerResult = .success(.fixture(id: "42"))
@@ -2202,6 +2491,31 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertNotNil(cipherService.softDeleteCipher?.deletedDate)
         XCTAssertEqual(cipherService.softDeleteCipherId, "123")
         XCTAssertEqual(cipherEncryptionMediator.encryptAndUpdateCipherReceivedCipherView?.id, "123")
+    }
+
+    /// `softDeleteCipher()` soft deletes the cipher with the SDK when the SDK cipher operations
+    /// feature flag is enabled.
+    func test_softDeleteCipher_sdkCipherOperations() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+
+        try await subject.softDeleteCipher(.fixture(id: "123"))
+
+        XCTAssertEqual(clientCiphers.softDeleteReceivedCipherId, "123")
+        XCTAssertFalse(cipherEncryptionMediator.encryptAndUpdateCipherCalled)
+        XCTAssertNil(cipherService.softDeleteCipherId)
+    }
+
+    /// `softDeleteCipher()` throws a `ServerError` if the SDK fails to soft delete the cipher due
+    /// to a server error response.
+    func test_softDeleteCipher_sdkCipherOperations_serverError() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        let message = #"error in response: status code 400 Bad Request: {"message":"Error!","object":"error"}"#
+        clientCiphers.softDeleteThrowableError = BitwardenSdk.BitwardenError.DeleteCipher(.Api(message: message))
+
+        let serverError = ServerError.error(errorResponse: .init(validationErrors: nil, message: "Error!"))
+        await assertAsyncThrows(error: serverError) {
+            try await subject.softDeleteCipher(.fixture(id: "123"))
+        }
     }
 
     /// `vaultListPublisher(filter:)` makes a strategy and builds the vault list sections.

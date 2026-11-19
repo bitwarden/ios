@@ -13,7 +13,7 @@ struct ServerErrorSdkTests {
     // MARK: Properties
 
     /// An SDK API error message for an out of date cipher, in the format the SDK produces.
-    let outOfDateMessage = """
+    static let outOfDateMessage = """
     error in response: status code 400 Bad Request: {"message":"The cipher you are updating is out \
     of date. Please save your work, sync your vault, and try again.","validationErrors":null,\
     "exceptionMessage":null,"exceptionStackTrace":null,"innerExceptionMessage":null,"object":"error"}
@@ -24,7 +24,7 @@ struct ServerErrorSdkTests {
     /// `init(sdkApiErrorMessage:)` creates a `ServerError` from the server's error response.
     @Test
     func init_sdkApiErrorMessage_errorResponse() {
-        let subject = ServerError(sdkApiErrorMessage: outOfDateMessage)
+        let subject = ServerError(sdkApiErrorMessage: Self.outOfDateMessage)
 
         #expect(subject == .error(errorResponse: ErrorResponseModel(
             validationErrors: nil,
@@ -70,10 +70,10 @@ struct ServerErrorSdkTests {
     /// `mappingSdkApiErrors(_:)` converts a create cipher API error to a `ServerError`.
     @Test
     func mappingSdkApiErrors_createCipherApiError() async throws {
-        let serverError = try #require(ServerError(sdkApiErrorMessage: outOfDateMessage))
+        let serverError = try #require(ServerError(sdkApiErrorMessage: Self.outOfDateMessage))
         await #expect(throws: serverError) {
             try await ServerError.mappingSdkApiErrors {
-                throw BitwardenSdk.BitwardenError.CreateCipher(.Api(message: outOfDateMessage))
+                throw BitwardenSdk.BitwardenError.CreateCipher(.Api(message: Self.outOfDateMessage))
             }
         }
     }
@@ -81,11 +81,25 @@ struct ServerErrorSdkTests {
     /// `mappingSdkApiErrors(_:)` converts an edit cipher API error to a `ServerError`.
     @Test
     func mappingSdkApiErrors_editCipherApiError() async throws {
-        let serverError = try #require(ServerError(sdkApiErrorMessage: outOfDateMessage))
+        let serverError = try #require(ServerError(sdkApiErrorMessage: Self.outOfDateMessage))
         await #expect(throws: serverError) {
             try await ServerError.mappingSdkApiErrors {
-                throw BitwardenSdk.BitwardenError.EditCipher(.Api(message: outOfDateMessage))
+                throw BitwardenSdk.BitwardenError.EditCipher(.Api(message: Self.outOfDateMessage))
             }
+        }
+    }
+
+    /// `mappingSdkApiErrors(_:)` converts the API errors of the other SDK cipher operations to a
+    /// `ServerError`.
+    @Test(arguments: [
+        BitwardenSdk.BitwardenError.Cipher(.Api(message: Self.outOfDateMessage)),
+        BitwardenSdk.BitwardenError.DeleteCipher(.Api(message: Self.outOfDateMessage)),
+        BitwardenSdk.BitwardenError.RestoreCipher(.Api(message: Self.outOfDateMessage)),
+    ])
+    func mappingSdkApiErrors_cipherOperationApiErrors(error: BitwardenSdk.BitwardenError) async throws {
+        let serverError = try #require(ServerError(sdkApiErrorMessage: Self.outOfDateMessage))
+        await #expect(throws: serverError) {
+            try await ServerError.mappingSdkApiErrors { throw error }
         }
     }
 
@@ -101,7 +115,7 @@ struct ServerErrorSdkTests {
     /// `mappingSdkApiErrors(_:)` rethrows SDK errors that aren't API errors.
     @Test
     func mappingSdkApiErrors_nonApiSdkError() async throws {
-        let error = BitwardenSdk.BitwardenError.EditCipher(.Crypto(message: outOfDateMessage))
+        let error = BitwardenSdk.BitwardenError.EditCipher(.Crypto(message: Self.outOfDateMessage))
         await #expect(throws: error) {
             try await ServerError.mappingSdkApiErrors { throw error }
         }
