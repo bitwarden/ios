@@ -55,7 +55,10 @@ class CipherListViewModel: ObservableObject {
                     self.updateHack = !self.updateHack
                 }
 
-                return returnCiphers
+                return returnCiphers.sorted {
+                    // default to sort list by name (ascending)
+                    ($0.name ?? "").localizedStandardCompare($1.name ?? "") == .orderedAscending
+                    }
             }
             .assign(to: &$filteredCiphers)
     }
