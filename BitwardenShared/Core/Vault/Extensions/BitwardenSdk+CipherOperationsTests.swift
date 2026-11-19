@@ -290,4 +290,13 @@ struct BitwardenSdkCipherOperationsTests {
             try await ciphersClient.editCipher(.fixture(edit: false, id: "1"))
         }
     }
+
+    // MARK: Tests - FileUploadType
+
+    /// `FileUploadType(_:)` maps the SDK's attachment file upload type.
+    @Test
+    func fileUploadType_init() {
+        #expect(FileUploadType(AttachmentFileUploadType.azure) == .azure)
+        #expect(FileUploadType(AttachmentFileUploadType.direct) == .direct)
+    }
 }

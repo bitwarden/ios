@@ -370,6 +370,9 @@ class DefaultVaultRepository {
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
+    /// The API service used to upload files.
+    private let fileAPIService: FileAPIService
+
     /// The service used to manage syncing and updates to the user's folders.
     private let folderService: FolderService
 
@@ -413,6 +416,7 @@ class DefaultVaultRepository {
     ///   - configService: The service to get server-specified configuration and feature flags.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///   - fileAPIService: The API service used to upload files.
     ///   - folderService: The service used to manage syncing and updates to the user's folders.
     ///   - organizationService: The service used to manage syncing and updates to the user's organizations.
     ///   - policyService: The service for managing the polices for the user.
@@ -433,6 +437,7 @@ class DefaultVaultRepository {
         configService: ConfigService,
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
+        fileAPIService: FileAPIService,
         folderService: FolderService,
         organizationService: OrganizationService,
         policyService: PolicyService,
@@ -452,6 +457,7 @@ class DefaultVaultRepository {
         self.configService = configService
         self.environmentService = environmentService
         self.errorReporter = errorReporter
+        self.fileAPIService = fileAPIService
         self.folderService = folderService
         self.organizationService = organizationService
         self.policyService = policyService
@@ -552,6 +558,66 @@ class DefaultVaultRepository {
         }
 
         return updatedCipher
+    }
+
+    /// Saves an encrypted attachment to a cipher using the SDK. The SDK creates the attachment on
+    /// the server, then the attachment's file is uploaded. If the upload fails, the attachment is
+    /// deleted so the cipher isn't left with an attachment that has no file.
+    ///
+    /// - Parameters:
+    ///   - attachment: The encrypted attachment and its encrypted contents.
+    ///   - cipher: The cipher to add the attachment to.
+    /// - Returns: The updated cipher.
+    ///
+    private func saveAttachmentWithSdk(
+        _ attachment: AttachmentEncryptResult,
+        cipher: Cipher,
+    ) async throws -> CipherView {
+        guard let cipherId = cipher.id else { throw CipherAPIServiceError.updateMissingId }
+        guard let fileName = attachment.attachment.fileName,
+              let fileSize = attachment.attachment.size.flatMap(UInt64.init),
+              let key = attachment.attachment.key else {
+            throw BitwardenError.dataError("Missing encrypted attachment data")
+        }
+
+        let attachmentsClient = try await clientService.vault().attachments()
+        let createdAttachment = try await ServerError.mappingSdkApiErrors {
+            try await attachmentsClient.createAttachment(
+                cipherId: cipherId,
+                request: CreateAttachmentRequest(
+                    key: key,
+                    fileName: fileName,
+                    fileSize: fileSize,
+                    lastKnownRevisionDate: cipher.revisionDate,
+                ),
+            )
+        }
+
+        do {
+            guard let uploadUrl = URL(string: createdAttachment.uploadUrl) else {
+                throw BitwardenError.dataError("Invalid attachment upload URL")
+            }
+            try await fileAPIService.uploadCipherAttachment(
+                attachmentId: createdAttachment.attachmentId,
+                cipherId: cipherId,
+                data: attachment.contents,
+                fileName: fileName,
+                type: FileUploadType(createdAttachment.fileUploadType),
+                url: uploadUrl,
+            )
+        } catch {
+            do {
+                _ = try await attachmentsClient.deleteAttachment(
+                    cipherId: cipherId,
+                    attachmentId: createdAttachment.attachmentId,
+                )
+            } catch let cleanupError {
+                errorReporter.log(error: cleanupError)
+            }
+            throw error
+        }
+
+        return try await clientService.vault().ciphers().decrypt(cipher: createdAttachment.cipher)
     }
 
     /// Updates the collections of a cipher using the SDK. If the user no longer has access to the
@@ -756,6 +822,16 @@ extension DefaultVaultRepository: VaultRepository {
     }
 
     func deleteAttachment(withId attachmentId: String, cipherId: String) async throws -> CipherView? {
+        if await configService.getFeatureFlag(.sdkCipherOperations) {
+            let updatedCipher = try await ServerError.mappingSdkApiErrors {
+                try await clientService.vault().attachments().deleteAttachment(
+                    cipherId: cipherId,
+                    attachmentId: attachmentId,
+                )
+            }
+            return try await clientService.vault().ciphers().decrypt(cipher: updatedCipher)
+        }
+
         // Delete the attachment and then decrypt the resulting updated cipher.
         if let updatedCipher = try await cipherService.deleteAttachmentWithServer(
             attachmentId: attachmentId,
@@ -974,6 +1050,10 @@ extension DefaultVaultRepository: VaultRepository {
             attachment: attachmentView,
             buffer: fileData,
         )
+
+        if await configService.getFeatureFlag(.sdkCipherOperations) {
+            return try await saveAttachmentWithSdk(attachment, cipher: cipher)
+        }
 
         // Save the attachment to the cipher and return the updated cipher.
         let updatedCipher = try await cipherService.saveAttachmentWithServer(
