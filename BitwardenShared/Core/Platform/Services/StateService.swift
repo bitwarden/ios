@@ -2686,8 +2686,8 @@ extension DefaultStateService {
         )
     }
 
-    func clearAutofillActionCardDismissedForSession() async {
-        await setAutofillActionCardDismissedForSession(false)
+    func clearAutofillActionCardDismissal() async {
+        await setAutofillActionCardDismissedDate(nil)
     }
 
     func clearAutofillActionCardOptOut() async {

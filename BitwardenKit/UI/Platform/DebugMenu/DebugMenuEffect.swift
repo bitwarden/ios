@@ -3,7 +3,7 @@
 /// Effects that can be processed by a `DebugMenuProcessor`.
 ///
 enum DebugMenuEffect: Equatable {
-    /// Clears the dismissal of the vault's autofill action card for the current app session.
+    /// Clears the stored dismissal of the vault's autofill action card.
     case clearAutofillActionCardDismissal
 
     /// Clears the "Don't remind me again" opt-out of the vault's autofill action card.

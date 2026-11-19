@@ -17,9 +17,9 @@ public protocol DebugStateService: AnyObject { // sourcery: AutoMockable
         passwordFieldId: String,
     ) async throws
 
-    /// Clears the dismissal of the vault's autofill action card for the current app session, so the
-    /// card can be shown again.
-    func clearAutofillActionCardDismissedForSession() async
+    /// Clears the stored dismissal of the vault's autofill action card, so the card can be shown
+    /// again before its 24 hours are up.
+    func clearAutofillActionCardDismissal() async
 
     /// Clears the "Don't remind me again" opt-out of the vault's autofill action card, so the card
     /// can be shown again.

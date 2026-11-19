@@ -92,7 +92,7 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
     override func perform(_ effect: DebugMenuEffect) async {
         switch effect {
         case .clearAutofillActionCardDismissal:
-            await services.debugStateService.clearAutofillActionCardDismissedForSession()
+            await services.debugStateService.clearAutofillActionCardDismissal()
             state.toast = Toast(title: "Autofill banner dismissal reset")
         case .clearAutofillActionCardOptOut:
             await services.debugStateService.clearAutofillActionCardOptOut()
