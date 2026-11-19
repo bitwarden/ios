@@ -2,7 +2,7 @@ import XCTest
 
 @testable import BitwardenKit
 
-class EnvironmentURLDataTests: XCTestCase {
+class EnvironmentURLDataTests: XCTestCase { // swiftlint:disable:this type_body_length
     // MARK: Tests
 
     /// `changeEmailURL` returns the change email URL for the base URL.
@@ -318,5 +318,30 @@ class EnvironmentURLDataTests: XCTestCase {
         XCTAssertEqual(subject.fillAssistRulesUrl, fillAssistURL)
         XCTAssertEqual(subject.api, URL(string: "https://api.example.com"))
         XCTAssertEqual(subject.base, URL(string: "https://vault.example.com"))
+    }
+
+    /// `isFedRamp` is `true` for the production Gov URLs and the FedRAMP dev and staging hosts.
+    func test_isFedRamp_true() {
+        for url in [
+            "https://vault.bitwarden-gov.com",
+            "https://fedramp.usdev.bitwarden.pw",
+            "https://vault.gw.dev.bitwarden.pw",
+            "https://vault.gw.stg.bitwarden.pw",
+        ] {
+            XCTAssertTrue(EnvironmentURLData(base: URL(string: url)).isFedRamp, url)
+        }
+    }
+
+    /// `isFedRamp` is `false` for the US, EU, internal and self-hosted URLs, and when there is no base URL.
+    func test_isFedRamp_false() {
+        for url in [
+            "https://vault.bitwarden.com",
+            "https://vault.bitwarden.eu",
+            "https://vault.usdev.bitwarden.pw",
+            "https://vault.example.com",
+        ] {
+            XCTAssertFalse(EnvironmentURLData(base: URL(string: url)).isFedRamp, url)
+        }
+        XCTAssertFalse(EnvironmentURLData(base: nil).isFedRamp)
     }
 }
