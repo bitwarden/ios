@@ -1554,6 +1554,12 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     /// A subject containing the app theme.
     private var appThemeSubject: CurrentValueSubject<AppTheme, Never>
 
+    /// A subject containing the time the user last dismissed the vault's autofill action card.
+    private var autofillActionCardDismissedSubject: CurrentValueSubject<Date?, Never>
+
+    /// A subject containing whether the user opted out of the vault's autofill action card.
+    private var autofillActionCardOptedOutSubject: CurrentValueSubject<Bool, Never>
+
     /// A subject containing the connect to watch value.
     private var connectToWatchByUserIdSubject = CurrentValueSubject<[String: Bool], Never>([:])
 
@@ -1615,6 +1621,8 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         self.userSessionKeychainRepository = userSessionKeychainRepository
 
         appThemeSubject = CurrentValueSubject(AppTheme(appSettingsStore.appTheme))
+        autofillActionCardDismissedSubject = CurrentValueSubject(appSettingsStore.autofillActionCardDismissedDate())
+        autofillActionCardOptedOutSubject = CurrentValueSubject(appSettingsStore.autofillActionCardOptedOut())
         showWebIconsSubject = CurrentValueSubject(!appSettingsStore.disableWebIcons)
 
         Task {
@@ -2771,8 +2779,26 @@ extension DefaultStateService: UserSessionStateService {
 // MARK: Autofill
 
 extension DefaultStateService: AutofillStateService {
+    func autofillActionCardDismissedDatePublisher() async -> AnyPublisher<Date?, Never> {
+        autofillActionCardDismissedSubject.eraseToAnyPublisher()
+    }
+
+    func autofillActionCardOptedOutPublisher() async -> AnyPublisher<Bool, Never> {
+        autofillActionCardOptedOutSubject.eraseToAnyPublisher()
+    }
+
     func getLastRequestToTurnOnCredentialProvider() async -> Date? {
         appSettingsStore.lastRequestToTurnOnCredentialProvider()
+    }
+
+    func setAutofillActionCardDismissedDate(_ date: Date?) async {
+        appSettingsStore.setAutofillActionCardDismissedDate(date)
+        autofillActionCardDismissedSubject.send(date)
+    }
+
+    func setAutofillActionCardOptedOut(_ optedOut: Bool) async {
+        appSettingsStore.setAutofillActionCardOptedOut(optedOut)
+        autofillActionCardOptedOutSubject.send(optedOut)
     }
 
     func setLastRequestToTurnOnCredentialProvider(_ date: Date?) async {

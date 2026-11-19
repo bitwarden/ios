@@ -31,6 +31,28 @@ struct ASSettingsMediatorTests {
         )
     }
 
+    // MARK: openCredentialProviderAppSettings Tests
+
+    /// `openCredentialProviderAppSettings()` delegates to the proxy.
+    @Test
+    @available(iOS 17, *)
+    func openCredentialProviderAppSettings_delegates() async throws {
+        try await subject.openCredentialProviderAppSettings()
+
+        #expect(asSettingsHelperProxy.openCredentialProviderAppSettingsCalled)
+    }
+
+    /// `openCredentialProviderAppSettings()` rethrows errors from the proxy.
+    @Test
+    @available(iOS 17, *)
+    func openCredentialProviderAppSettings_rethrowsError() async {
+        asSettingsHelperProxy.openCredentialProviderAppSettingsThrowableError = BitwardenTestError.example
+
+        await #expect(throws: BitwardenTestError.example) {
+            try await subject.openCredentialProviderAppSettings()
+        }
+    }
+
     // MARK: openVerificationCodeAppSettings Tests
 
     /// `openVerificationCodeAppSettings()` delegates to the proxy.

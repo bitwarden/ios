@@ -138,6 +138,39 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(publishedValues, [.default, .dark])
     }
 
+    /// `autofillActionCardDismissedDatePublisher()` publishes the time the autofill action card
+    /// was dismissed, and the time is persisted in the app settings store.
+    func test_autofillActionCardDismissedDatePublisher() async {
+        let date = Date(year: 2026, month: 1, day: 1)
+        var publishedValues = [Date?]()
+        let publisher = await subject.autofillActionCardDismissedDatePublisher()
+            .sink { publishedValues.append($0) }
+        defer { publisher.cancel() }
+
+        await subject.setAutofillActionCardDismissedDate(date)
+        XCTAssertEqual(appSettingsStore.autofillActionCardDismissedDateValue, date)
+
+        await subject.setAutofillActionCardDismissedDate(nil)
+
+        XCTAssertEqual(publishedValues, [nil, date, nil])
+        XCTAssertNil(appSettingsStore.autofillActionCardDismissedDateValue)
+    }
+
+    /// `autofillActionCardOptedOutPublisher()` publishes whether the user opted out of the autofill
+    /// action card, including when it's set and cleared.
+    func test_autofillActionCardOptedOutPublisher() async {
+        var publishedValues = [Bool]()
+        let publisher = await subject.autofillActionCardOptedOutPublisher()
+            .sink { publishedValues.append($0) }
+        defer { publisher.cancel() }
+
+        await subject.setAutofillActionCardOptedOut(true)
+        await subject.setAutofillActionCardOptedOut(false)
+
+        XCTAssertEqual(publishedValues, [false, true, false])
+        XCTAssertFalse(appSettingsStore.autofillActionCardOptedOutValue)
+    }
+
     /// `clearPins()` clears the user's pins.
     func test_clearPins() async throws {
         let account = Account.fixture()
@@ -2138,6 +2171,15 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let date2 = Date(year: 2023, month: 12, day: 2)
         try await subject.setLastSyncTime(date2, userId: "1")
         XCTAssertEqual(appSettingsStore.lastSyncTimeByUserId["1"], date2)
+    }
+
+    /// `setAutofillActionCardOptedOut(_:)` stores the value in the app settings store.
+    func test_setAutofillActionCardOptedOut() async {
+        await subject.setAutofillActionCardOptedOut(true)
+        XCTAssertTrue(appSettingsStore.autofillActionCardOptedOutValue)
+
+        await subject.setAutofillActionCardOptedOut(false)
+        XCTAssertFalse(appSettingsStore.autofillActionCardOptedOutValue)
     }
 
     /// `setLastRequestToTurnOnCredentialProvider(_:)` stores the date in the app settings store.

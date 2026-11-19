@@ -11,6 +11,15 @@ extension Constants {
     /// The app review prompt delay in nanoseconds.
     static let appReviewPromptDelay: UInt64 = 3_000_000_000
 
+    /// The number of seconds the vault's autofill action card stays hidden after the user dismisses
+    /// it (24 hours).
+    static let autofillActionCardDismissDuration: TimeInterval = 24 * 60 * 60
+
+    /// The number of seconds to wait after autofill is turned on before repopulating the credential
+    /// identity store. Writing to the store immediately after the credential provider is enabled
+    /// fails with `ASCredentialIdentityStoreErrorDomain` code 0.
+    static let autofillCredentialStoreUpdateDelay: TimeInterval = 2
+
     /// The aspect ratio of a payment card, per the ISO/IEC 7810 ID-1 (CR-80) format: 85.60 mm by
     /// 53.98 mm.
     static let cardAspectRatio = 85.6 / 53.98
