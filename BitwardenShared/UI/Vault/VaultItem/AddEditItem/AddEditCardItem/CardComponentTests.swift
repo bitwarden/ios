@@ -27,6 +27,8 @@ class CardComponentBrandTests: BitwardenTestCase {
         XCTAssertEqual(CardComponent.Brand.maestro.icon.name, SharedAsset.Icons.Cards.maestro.name)
         XCTAssertEqual(CardComponent.Brand.unionPay.icon.name, SharedAsset.Icons.Cards.unionPay.name)
         XCTAssertEqual(CardComponent.Brand.ruPay.icon.name, SharedAsset.Icons.Cards.ruPay.name)
+        XCTAssertEqual(CardComponent.Brand.dinaCard.icon.name, SharedAsset.Icons.card24.name)
+        XCTAssertEqual(CardComponent.Brand.mir.icon.name, SharedAsset.Icons.card24.name)
         XCTAssertEqual(CardComponent.Brand.other.icon.name, SharedAsset.Icons.card24.name)
     }
 
