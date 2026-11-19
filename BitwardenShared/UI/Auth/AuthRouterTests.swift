@@ -487,16 +487,18 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(biometricsRepository.getBiometricUnlockStatusReceivedUserId, "1")
     }
 
-    /// `handleAndRoute(_:)` redirects `.didCompleteAuth` to `.vaultUnlockSetup` when biometrics
-    /// aren't available, since unlock with PIN can still be set up.
+    /// `handleAndRoute(_:)` skips the vault unlock setup step and redirects `.didCompleteAuth` to
+    /// `.autofillSetup` when biometrics aren't available, since the step only offers biometric
+    /// unlock.
     func test_handleAndRoute_didCompleteAuth_pendingAccountSetupOnboarding_noBiometrics() async {
         authRepository.activeAccount = .fixture()
+        autofillCredentialService.isAutofillCredentialsEnabled = false
         biometricsRepository.getBiometricUnlockStatusReturnValue = .notAvailable
         stateService.pendingAccountSetupOnboarding["1"] = true
 
         let route = await subject.handleAndRoute(.didCompleteAuth)
 
-        XCTAssertEqual(route, .vaultUnlockSetup(.createAccount))
+        XCTAssertEqual(route, .autofillSetup)
     }
 
     /// `handleAndRoute(_:)` redirects `.didCompleteAuth` to `.autofillSetup` when biometric unlock
@@ -513,18 +515,18 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(stateService.pendingAccountSetupOnboarding["1"], false)
     }
 
-    /// `handleAndRoute(_:)` redirects `.didCompleteAuth` to `.autofillSetup` when PIN unlock is
-    /// already turned on but autofill is off.
-    func test_handleAndRoute_didCompleteAuth_pendingAccountSetupOnboarding_pinOn_autofillOff() async {
+    /// `handleAndRoute(_:)` redirects `.didCompleteAuth` to `.vaultUnlockSetup` when PIN unlock is
+    /// already turned on but biometric unlock is available and off, since the step only depends on
+    /// biometric unlock.
+    func test_handleAndRoute_didCompleteAuth_pendingAccountSetupOnboarding_pinOn_biometricsOff() async {
         authRepository.activeAccount = .fixture()
         authRepository.pinUnlockAvailabilityResult = .success(["1": true])
-        autofillCredentialService.isAutofillCredentialsEnabled = false
         biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: false)
         stateService.pendingAccountSetupOnboarding["1"] = true
 
         let route = await subject.handleAndRoute(.didCompleteAuth)
 
-        XCTAssertEqual(route, .autofillSetup)
+        XCTAssertEqual(route, .vaultUnlockSetup(.createAccount))
     }
 
     /// `handleAndRoute(_:)` redirects `.didCompleteAuth` to `.complete` when unlock and autofill
@@ -547,7 +549,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
     func test_handleAndRoute_didCompleteAuth_pendingAccountSetupOnboarding_allOn_rehydration() async {
         authRepository.activeAccount = .fixture()
         autofillCredentialService.isAutofillCredentialsEnabled = true
-        authRepository.pinUnlockAvailabilityResult = .success(["1": true])
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
         rehydrationHelper.getSavedRehydratableTargetResult = .success(.viewCipher(cipherId: "1"))
         stateService.pendingAccountSetupOnboarding["1"] = true
 
@@ -556,30 +558,17 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(route, .completeWithRehydration(.viewCipher(cipherId: "1")))
     }
 
-    /// `handleAndRoute(_:)` treats biometric unlock as off and logs the error when getting the
+    /// `handleAndRoute(_:)` skips the vault unlock setup step and logs the error when getting the
     /// biometric unlock status throws.
     func test_handleAndRoute_didCompleteAuth_pendingAccountSetupOnboarding_biometricsError() async {
         authRepository.activeAccount = .fixture()
+        autofillCredentialService.isAutofillCredentialsEnabled = false
         biometricsRepository.getBiometricUnlockStatusThrowableError = BitwardenTestError.example
         stateService.pendingAccountSetupOnboarding["1"] = true
 
         let route = await subject.handleAndRoute(.didCompleteAuth)
 
-        XCTAssertEqual(route, .vaultUnlockSetup(.createAccount))
-        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
-    }
-
-    /// `handleAndRoute(_:)` treats PIN unlock as off and logs the error when checking whether PIN
-    /// unlock is available throws.
-    func test_handleAndRoute_didCompleteAuth_pendingAccountSetupOnboarding_pinError() async {
-        authRepository.activeAccount = .fixture()
-        authRepository.pinUnlockAvailabilityResult = .failure(BitwardenTestError.example)
-        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: false)
-        stateService.pendingAccountSetupOnboarding["1"] = true
-
-        let route = await subject.handleAndRoute(.didCompleteAuth)
-
-        XCTAssertEqual(route, .vaultUnlockSetup(.createAccount))
+        XCTAssertEqual(route, .autofillSetup)
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 

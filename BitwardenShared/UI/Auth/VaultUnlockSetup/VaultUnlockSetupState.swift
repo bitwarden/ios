@@ -87,6 +87,11 @@ struct VaultUnlockSetupState: Equatable {
     /// Whether pin unlock is turned on.
     var isPinUnlockOn = false
 
+    /// Whether the PIN unlock option is shown. This is hidden in account setup onboarding when
+    /// account setup onboarding on sign-in is enabled, since the user's organization policies that
+    /// may restrict PIN unlock might not be synced yet.
+    var shouldShowPinUnlock = true
+
     // MARK: Computed Properties
 
     /// Whether biometric unlock (Face ID / Touch ID) is turned on.
@@ -102,6 +107,15 @@ struct VaultUnlockSetupState: Equatable {
     /// Whether the continue button is enabled.
     var isContinueButtonEnabled: Bool {
         isBiometricUnlockOn || isPinUnlockOn
+    }
+
+    /// The message to display below the title.
+    var message: String {
+        if shouldShowPinUnlock {
+            Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
+        } else {
+            Localizations.youCanAlsoSetUpOtherUnlockOptionsAnytimeInSettingsAccountSecurity
+        }
     }
 
     /// The title to display in the navigation bar.
@@ -121,9 +135,10 @@ struct VaultUnlockSetupState: Equatable {
 
     /// The available unlock methods to show in the UI.
     var unlockMethods: [UnlockMethod] {
+        let pinUnlockMethods: [UnlockMethod] = shouldShowPinUnlock ? [.pin] : []
         guard case let .available(biometricsType, _) = biometricsStatus else {
-            return [.pin]
+            return pinUnlockMethods
         }
-        return [.biometrics(biometricsType), .pin]
+        return [.biometrics(biometricsType)] + pinUnlockMethods
     }
 }
