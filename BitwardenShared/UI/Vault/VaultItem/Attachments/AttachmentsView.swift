@@ -35,9 +35,6 @@ struct AttachmentsView: View {
                 await store.perform(.save)
             }
         }
-        .task {
-            await store.perform(.loadPremiumStatus)
-        }
         .onChange(of: store.state.url) { newValue in
             guard let url = newValue else { return }
             openURL(url)

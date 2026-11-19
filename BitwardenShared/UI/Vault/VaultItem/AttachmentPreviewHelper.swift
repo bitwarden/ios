@@ -12,9 +12,11 @@ protocol AttachmentPreviewHelper { // sourcery: AutoMockable
     /// - Parameters:
     ///   - attachment: The attachment to preview.
     ///   - cipher: The cipher that owns the attachment.
+    ///   - handleNavigateToPremiumUpgrade: A closure called to navigate to the Premium upgrade flow.
     func showPreview(
         for attachment: AttachmentView,
         cipher: CipherView,
+        handleNavigateToPremiumUpgrade: @escaping () async -> Void,
     ) async
 }
 
@@ -55,7 +57,15 @@ class DefaultAttachmentPreviewHelper: AttachmentPreviewHelper {
     func showPreview(
         for attachment: AttachmentView,
         cipher: CipherView,
+        handleNavigateToPremiumUpgrade: @escaping () async -> Void,
     ) async {
+        // Previewing attachments requires Premium, so the upgrade alert is shown before anything is
+        // downloaded or displayed, including files that can't be previewed.
+        guard await services.vaultRepository.doesActiveAccountHavePremium() else {
+            coordinator.showAlert(.attachmentPreviewUnavailable(action: handleNavigateToPremiumUpgrade))
+            return
+        }
+
         // Files that can't be previewed aren't downloaded here. The preview screen shows its
         // unsupported or too large state right away, and the file is only downloaded if the user
         // taps Download.

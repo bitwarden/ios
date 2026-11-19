@@ -62,40 +62,6 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.fileData, data)
     }
 
-    /// `perform(_:)` with `.loadPremiumStatus` shows the Premium upgrade alert if the user lacks Premium.
-    @MainActor
-    func test_perform_loadPremiumStatus() async throws {
-        vaultRepository.doesActiveAccountHavePremiumResult = false
-
-        await subject.perform(.loadPremiumStatus)
-
-        XCTAssertFalse(subject.state.hasPremium)
-        XCTAssertEqual(coordinator.alertShown.last, .attachmentsUnavailable(action: {}))
-    }
-
-    /// `perform(_:)` with `.loadPremiumStatus` does not show an alert when the user has Premium.
-    @MainActor
-    func test_perform_loadPremiumStatus_hasPremium() async throws {
-        vaultRepository.doesActiveAccountHavePremiumResult = true
-
-        await subject.perform(.loadPremiumStatus)
-
-        XCTAssertTrue(subject.state.hasPremium)
-        XCTAssertNil(coordinator.alertShown.last)
-    }
-
-    /// `perform(_:)` with `.loadPremiumStatus` navigates to Premium upgrade when tapping the upgrade button.
-    @MainActor
-    func test_perform_loadPremiumStatus_tapUpgrade() async throws {
-        vaultRepository.doesActiveAccountHavePremiumResult = false
-
-        await subject.perform(.loadPremiumStatus)
-
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.upgradeToPremium)
-        XCTAssertTrue(premiumUpgradeHelper.navigateToPremiumUpgradeCalled)
-    }
-
     /// `perform(_:)` with `.save` saves the attachment and updates the view.
     @MainActor
     func test_perform_save() async throws {
@@ -153,6 +119,20 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.alertShown.last, .attachmentsUnavailable(action: {}))
     }
 
+    /// `perform(_:)` with `.save` navigates to Premium upgrade when tapping the upgrade button on the
+    /// alert shown to a user who doesn't have Premium.
+    @MainActor
+    func test_perform_save_noPremium_tapUpgrade() async throws {
+        subject.state.fileName = "only cool people can see this file.txt"
+        vaultRepository.doesActiveAccountHavePremiumResult = false
+
+        await subject.perform(.save)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapAction(title: Localizations.upgradeToPremium)
+        XCTAssertTrue(premiumUpgradeHelper.navigateToPremiumUpgradeCalled)
+    }
+
     /// `perform(_:)` with `.save` shows an alert if the file is too large.
     @MainActor
     func test_perform_save_tooLarge() async throws {
@@ -179,6 +159,24 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         waitFor(attachmentPreviewHelper.showPreviewReceivedArguments != nil)
         XCTAssertEqual(attachmentPreviewHelper.showPreviewReceivedArguments?.attachment, .fixture())
         XCTAssertEqual(attachmentPreviewHelper.showPreviewReceivedArguments?.cipher, subject.state.cipher)
+    }
+
+    /// `.receive(_:)` with `.attachmentTapped(_)` passes a closure to the attachment preview helper
+    /// that navigates to the Premium upgrade flow.
+    @MainActor
+    func test_receive_attachmentTapped_navigateToPremiumUpgrade() throws {
+        subject.state.cipher = .fixture()
+
+        subject.receive(.attachmentTapped(.fixture()))
+
+        waitFor(attachmentPreviewHelper.showPreviewCalled)
+        let handleNavigateToPremiumUpgrade = try XCTUnwrap(
+            attachmentPreviewHelper.showPreviewReceivedArguments?.handleNavigateToPremiumUpgrade,
+        )
+
+        Task { await handleNavigateToPremiumUpgrade() }
+
+        waitFor(premiumUpgradeHelper.navigateToPremiumUpgradeCalled)
     }
 
     /// `receive(_:)` with `.chooseFilePressed` navigates to the document browser.
