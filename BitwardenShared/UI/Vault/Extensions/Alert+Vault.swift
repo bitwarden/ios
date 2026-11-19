@@ -239,12 +239,20 @@ extension Alert {
     /// with an option to upgrade.
     ///
     /// - Parameters:
+    ///   - isInAppUpgradeAvailable: Whether the in-app Premium upgrade is available, which
+    ///     determines the title of the upgrade action.
     ///   - action: A closure to execute on upgrading to Premium.
     /// - Returns: The alert shown when a non-Premium user tries to send a file.
     static func fileSendPremiumRequired(
+        isInAppUpgradeAvailable: Bool,
         action: @escaping () -> Void,
     ) -> Alert {
-        let preferredAction = AlertAction(title: Localizations.upgradeToPremium, style: .default) { _, _ in action() }
+        let preferredAction = AlertAction(
+            title: premiumUpgradeActionTitle(isInAppUpgradeAvailable: isInAppUpgradeAvailable),
+            style: .default,
+        ) { _, _ in
+            action()
+        }
         let alert = Alert(
             title: Localizations.premiumSubscriptionRequired,
             message: Localizations.sendFilePremiumRequired,
@@ -402,12 +410,20 @@ extension Alert {
     /// lack of Premium subscription.
     ///
     /// - Parameters:
+    ///   - isInAppUpgradeAvailable: Whether the in-app Premium upgrade is available, which
+    ///     determines the title of the upgrade action.
     ///   - action: A closure to execute on upgrading to Premium.
     /// - Returns: The alert when "Specific People" is unavailable.
     static func specificPeopleUnavailable(
+        isInAppUpgradeAvailable: Bool,
         action: @escaping () -> Void,
     ) -> Alert {
-        let preferredAction = AlertAction(title: Localizations.upgradeToPremium, style: .default) { _, _ in action() }
+        let preferredAction = AlertAction(
+            title: premiumUpgradeActionTitle(isInAppUpgradeAvailable: isInAppUpgradeAvailable),
+            style: .default,
+        ) { _, _ in
+            action()
+        }
         let alert = Alert(
             title: Localizations.premiumSubscriptionRequired,
             message: Localizations.sharingWithSpecificPeopleIsPremiumFeatureDescriptionLong,
