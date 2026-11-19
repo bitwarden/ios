@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - SeederError
 
-/// The errors thrown by `SeederClient`. None of them carry the seeder's host or credentials.
+/// The errors thrown by `SeederClient`.
 ///
 enum SeederError: LocalizedError, CustomStringConvertible {
     /// The request never got a response. Only the error's domain and code are kept, because its
@@ -32,17 +32,13 @@ enum SeederError: LocalizedError, CustomStringConvertible {
         }
     }
 
-    /// XCTest reports a thrown error by its localized description.
+    /// The message XCTest shows when a test throws this error.
     var errorDescription: String? { description }
 }
 
 // MARK: - SeederClient
 
-/// Creates and removes server data for one test through the seeder API. Everything it creates is
-/// tracked under one play ID.
-///
-/// Requests block the calling thread. Tests are synchronous because XCTest can't stop an `async`
-/// test at a failed assertion: the test hangs until its time allowance runs out.
+/// A client for the seeder API that creates one test's server data and deletes it afterwards.
 ///
 final class SeederClient {
     // MARK: Types
@@ -101,7 +97,7 @@ final class SeederClient {
     /// The suite's configuration.
     private let configuration: E2EConfiguration
 
-    /// The ID every request is tracked under.
+    /// The play ID the seeder tracks this client's data under.
     let playID: String
 
     /// The session used to perform the requests.
@@ -113,7 +109,7 @@ final class SeederClient {
     ///
     /// - Parameters:
     ///   - configuration: The suite's configuration.
-    ///   - playID: The ID every request is tracked under.
+    ///   - playID: The play ID the seeder tracks this client's data under.
     ///
     init(configuration: E2EConfiguration, playID: String = UUID().uuidString) {
         self.configuration = configuration
@@ -133,8 +129,8 @@ final class SeederClient {
     ///   - account: The account that owns the item.
     ///
     func addLoginItem(_ item: SeededLoginItem, for account: SeededAccount) throws {
-        let _: IgnoredResult = try seed(
-            template: "UserLoginCipherScene",
+        let _: IgnoredResult = try runScene(
+            "UserLoginCipherScene",
             arguments: UserLoginCipherArguments(
                 userId: account.userId,
                 base64EncodedUserKey: account.base64EncodedUserKey,
@@ -152,8 +148,8 @@ final class SeederClient {
     ///
     func createFreeUser() throws -> SeededAccount {
         let password = "E2e-\(UUID().uuidString)"
-        let response: SeedResponse<SingleUserResult> = try seed(
-            template: "SingleUserScene",
+        let response: SeedResponse<SingleUserResult> = try runScene(
+            "SingleUserScene",
             arguments: SingleUserArguments(
                 email: Self.requestedEmail,
                 password: password,
@@ -181,10 +177,15 @@ final class SeederClient {
 
     // MARK: Private
 
-    /// Runs a scene.
+    /// Runs a seeder scene, which creates server data from a template.
     ///
-    private func seed<Arguments: Encodable, Result: Decodable>(
-        template: String,
+    /// - Parameters:
+    ///   - template: The name of the scene to run.
+    ///   - arguments: The scene's arguments.
+    /// - Returns: The seeder's response.
+    ///
+    private func runScene<Arguments: Encodable, Result: Decodable>(
+        _ template: String,
         arguments: Arguments,
     ) throws -> SeedResponse<Result> {
         let body = try JSONEncoder().encode(SeedRequest(template: template, arguments: arguments))
