@@ -80,6 +80,9 @@ class DefaultAutofillPromptService: AutofillPromptService {
     /// The service used to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
+    /// The service used to know whether the app is in the foreground.
+    private let notificationCenterService: NotificationCenterService
+
     /// The subject publishing whether autofill is turned on, or `nil` if it hasn't been checked.
     private let isAutofillEnabledSubject = CurrentValueSubject<Bool?, Never>(nil)
 
@@ -99,6 +102,7 @@ class DefaultAutofillPromptService: AutofillPromptService {
     ///     system for autofill.
     ///   - autofillStateService: The service used to get and set state around autofill.
     ///   - errorReporter: The service used to report non-fatal errors.
+    ///   - notificationCenterService: The service used to know whether the app is in the foreground.
     ///   - vaultTimeoutService: The service used to determine whether the vault is locked.
     ///   - credentialStoreUpdateDelay: The number of seconds to wait after autofill is turned on
     ///     before repopulating the credential identity store.
@@ -110,6 +114,7 @@ class DefaultAutofillPromptService: AutofillPromptService {
         autofillCredentialService: AutofillCredentialService,
         autofillStateService: AutofillStateService,
         errorReporter: ErrorReporter,
+        notificationCenterService: NotificationCenterService,
         vaultTimeoutService: VaultTimeoutService,
         credentialStoreUpdateDelay: TimeInterval = Constants.autofillCredentialStoreUpdateDelay,
     ) {
@@ -120,6 +125,7 @@ class DefaultAutofillPromptService: AutofillPromptService {
         self.autofillStateService = autofillStateService
         self.credentialStoreUpdateDelay = credentialStoreUpdateDelay
         self.errorReporter = errorReporter
+        self.notificationCenterService = notificationCenterService
         self.vaultTimeoutService = vaultTimeoutService
     }
 
@@ -186,6 +192,23 @@ class DefaultAutofillPromptService: AutofillPromptService {
 
     // MARK: Private
 
+    /// Returns whether the active account's vault is unlocked.
+    ///
+    /// - Returns: `true` if there's an active account and its vault is unlocked.
+    ///
+    private func isActiveVaultUnlocked() async -> Bool {
+        do {
+            let userId = try await activeAccountStateProvider.getActiveAccountId()
+            return await !vaultTimeoutService.isLocked(userId: userId)
+        } catch StateServiceError.noActiveAccount {
+            // No-op: nothing to populate without an active account.
+            return false
+        } catch {
+            errorReporter.log(error: error)
+            return false
+        }
+    }
+
     /// Opens the AutoFill provider settings in the Settings app.
     ///
     /// - Returns: The URL of the app's page in the Settings app if the AutoFill provider settings
@@ -202,29 +225,35 @@ class DefaultAutofillPromptService: AutofillPromptService {
         }
     }
 
-    /// Repopulates the credential identity store, after a short delay, if the active account's
-    /// vault is unlocked. If it's locked, the store is populated when the vault is unlocked.
+    /// Repopulates the credential identity store after a short delay, if the active account's
+    /// vault is unlocked. If it's locked, the store is populated when the vault is unlocked. This
+    /// runs in its own task so callers, like the app's foreground handling, aren't held up.
     ///
     private func updateCredentialsInStoreIfUnlocked() async {
-        do {
-            let userId = try await activeAccountStateProvider.getActiveAccountId()
-            guard await !vaultTimeoutService.isLocked(userId: userId) else { return }
-            // The identity store rejects writes made right after the credential provider is turned
-            // on, so wait briefly before repopulating it. This runs in its own task so callers,
-            // like the app's foreground handling, aren't held up by the delay.
-            Task { [autofillCredentialService, credentialStoreUpdateDelay] in
-                do {
-                    try await Task.sleep(nanoseconds: UInt64(credentialStoreUpdateDelay * 1_000_000_000))
-                } catch {
-                    // The task was cancelled, so skip repopulating the store.
-                    return
-                }
-                await autofillCredentialService.updateCredentialsInStore()
-            }
-        } catch StateServiceError.noActiveAccount {
-            // No-op: nothing to populate without an active account.
-        } catch {
-            errorReporter.log(error: error)
+        guard await isActiveVaultUnlocked() else { return }
+        Task { [weak self] in
+            await self?.updateCredentialsInStoreWhenReady()
         }
+    }
+
+    /// Waits until the credential identity store can be written to, then repopulates it. The store
+    /// rejects writes made right after the credential provider is turned on and while the app is in
+    /// the background, so this waits for the delay and then for the app to be in the foreground.
+    /// The vault is checked again before writing, since it may have locked in the meantime.
+    ///
+    private func updateCredentialsInStoreWhenReady() async {
+        do {
+            try await Task.sleep(nanoseconds: UInt64(credentialStoreUpdateDelay * 1_000_000_000))
+        } catch {
+            // The task was cancelled, so skip repopulating the store.
+            return
+        }
+
+        for await isInForeground in notificationCenterService.isInForegroundPublisher() where isInForeground {
+            break
+        }
+
+        guard await isActiveVaultUnlocked() else { return }
+        await autofillCredentialService.updateCredentialsInStore()
     }
 }

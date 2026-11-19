@@ -12,13 +12,14 @@ import UIKit
 // MARK: - AutofillPromptServiceTests
 
 @MainActor
-struct AutofillPromptServiceTests {
+struct AutofillPromptServiceTests { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     let appContextHelper: MockAppContextHelper
     let asSettingsMediator: MockASSettingsMediator
     let autofillCredentialService: MockAutofillCredentialService
     let errorReporter: MockErrorReporter
+    let notificationCenterService: MockNotificationCenterService
     let stateService: MockStateService
     let subject: DefaultAutofillPromptService
     let vaultTimeoutService: MockVaultTimeoutService
@@ -30,6 +31,7 @@ struct AutofillPromptServiceTests {
         asSettingsMediator = MockASSettingsMediator()
         autofillCredentialService = MockAutofillCredentialService()
         errorReporter = MockErrorReporter()
+        notificationCenterService = MockNotificationCenterService()
         stateService = MockStateService()
         vaultTimeoutService = MockVaultTimeoutService()
 
@@ -42,6 +44,7 @@ struct AutofillPromptServiceTests {
             autofillCredentialService: autofillCredentialService,
             autofillStateService: stateService,
             errorReporter: errorReporter,
+            notificationCenterService: notificationCenterService,
             vaultTimeoutService: vaultTimeoutService,
             credentialStoreUpdateDelay: 0,
         )
@@ -96,6 +99,43 @@ struct AutofillPromptServiceTests {
         try await waitForAsync { autofillCredentialService.updateCredentialsInStoreCalled }
     }
 
+    /// `refreshAutofillStatus()` waits for the app to return to the foreground before repopulating
+    /// the credential identity store, since writes fail while the app is in the background.
+    @Test
+    func refreshAutofillStatus_offToOn_backgroundedDuringDelay_waitsForForeground() async throws {
+        notificationCenterService.isInForegroundSubject.send(false)
+        autofillCredentialService.isAutofillCredentialsEnabled = false
+        await subject.refreshAutofillStatus()
+
+        autofillCredentialService.isAutofillCredentialsEnabled = true
+        await subject.refreshAutofillStatus()
+        // Give the delayed update a chance to run while the app is in the background.
+        try await Task.sleep(nanoseconds: 100_000_000)
+        #expect(!autofillCredentialService.updateCredentialsInStoreCalled)
+
+        notificationCenterService.isInForegroundSubject.send(true)
+
+        try await waitForAsync { autofillCredentialService.updateCredentialsInStoreCalled }
+    }
+
+    /// `refreshAutofillStatus()` doesn't repopulate the credential identity store if the vault
+    /// locks while the update is pending, since the store is populated again on unlock.
+    @Test
+    func refreshAutofillStatus_offToOn_vaultLockedDuringDelay_doesNotUpdateCredentialsInStore() async throws {
+        notificationCenterService.isInForegroundSubject.send(false)
+        autofillCredentialService.isAutofillCredentialsEnabled = false
+        await subject.refreshAutofillStatus()
+
+        autofillCredentialService.isAutofillCredentialsEnabled = true
+        await subject.refreshAutofillStatus()
+        vaultTimeoutService.isClientLocked["1"] = true
+        notificationCenterService.isInForegroundSubject.send(true)
+        // Give the pending update a chance to run after returning to the foreground.
+        try await Task.sleep(nanoseconds: 100_000_000)
+
+        #expect(!autofillCredentialService.updateCredentialsInStoreCalled)
+    }
+
     /// `refreshAutofillStatus()` returns without waiting for the delayed credential identity store
     /// repopulation, so callers like the app's foreground handling aren't held up.
     @Test
@@ -107,6 +147,7 @@ struct AutofillPromptServiceTests {
             autofillCredentialService: autofillCredentialService,
             autofillStateService: stateService,
             errorReporter: errorReporter,
+            notificationCenterService: notificationCenterService,
             vaultTimeoutService: vaultTimeoutService,
             credentialStoreUpdateDelay: 60,
         )
