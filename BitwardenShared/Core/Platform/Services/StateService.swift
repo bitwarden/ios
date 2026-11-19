@@ -2686,6 +2686,14 @@ extension DefaultStateService {
         )
     }
 
+    func clearAutofillActionCardDismissal() async {
+        await setAutofillActionCardDismissedDate(nil)
+    }
+
+    func clearAutofillActionCardOptOut() async {
+        await setAutofillActionCardOptedOut(false)
+    }
+
     func clearFillAssistCache() async throws {
         let userId = try getActiveAccountUserId()
         appSettingsStore.setFillAssistCachedData(nil, userId: userId)

@@ -169,6 +169,14 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         try addFillAssistDebugRuleResult.get()
     }
 
+    func clearAutofillActionCardDismissal() async {
+        autofillActionCardDismissedSubject.send(nil)
+    }
+
+    func clearAutofillActionCardOptOut() async {
+        autofillActionCardOptedOut = false
+    }
+
     func clearFillAssistCache() async throws {
         clearFillAssistCacheCalled = true
         try clearFillAssistCacheResult.get()
