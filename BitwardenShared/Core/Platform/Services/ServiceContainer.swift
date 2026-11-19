@@ -1008,6 +1008,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let cipherEncryptionMediator = DefaultCipherEncryptionMediator(
             cipherService: cipherService,
             clientService: clientService,
+            configService: configService,
         )
 
         let vaultRepository = DefaultVaultRepository(
@@ -1052,6 +1053,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             fido2CredentialStore: Fido2CredentialStoreService(
                 cipherService: cipherService,
                 clientService: clientService,
+                configService: configService,
                 errorReporter: errorReporter,
                 stateService: stateService,
                 syncService: syncService,
@@ -1061,6 +1063,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let fido2CredentialStore = Fido2CredentialStoreService(
             cipherService: cipherService,
             clientService: clientService,
+            configService: configService,
             errorReporter: errorReporter,
             stateService: stateService,
             syncService: syncService,

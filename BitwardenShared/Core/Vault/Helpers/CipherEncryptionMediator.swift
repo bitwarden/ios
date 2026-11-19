@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 
 /// A mediator that helps with some cipher operations involving encryption.
@@ -45,6 +46,9 @@ class DefaultCipherEncryptionMediator: CipherEncryptionMediator {
     /// The service that handles common client functionality such as encryption and decryption.
     private let clientService: ClientService
 
+    /// The service to get server-specified configuration and feature flags.
+    private let configService: ConfigService
+
     /// The delegate to be used by the `CipherEncryptionMediator`.
     private weak var delegate: CipherEncryptionMediatorDelegate?
 
@@ -52,9 +56,15 @@ class DefaultCipherEncryptionMediator: CipherEncryptionMediator {
     /// - Parameters:
     ///   - cipherService: The service used to manage syncing and updates to the user's ciphers.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
-    init(cipherService: CipherService, clientService: ClientService) {
+    ///   - configService: The service to get server-specified configuration and feature flags.
+    init(
+        cipherService: CipherService,
+        clientService: ClientService,
+        configService: ConfigService,
+    ) {
         self.cipherService = cipherService
         self.clientService = clientService
+        self.configService = configService
     }
 
     // MARK: Methods
@@ -63,7 +73,16 @@ class DefaultCipherEncryptionMediator: CipherEncryptionMediator {
         let cipherEncryptionContext = try await clientService.vault().ciphers().encrypt(cipherView: cipherView)
 
         let didAddCipherKey = cipherView.key == nil && cipherEncryptionContext.cipher.key != nil
-        if didAddCipherKey {
+        if didAddCipherKey, await configService.getFeatureFlag(.sdkCipherOperations) {
+            // The SDK generates its own cipher key when saving the cipher, so re-encrypt the saved
+            // cipher to return the cipher with the key that was saved to the server. The SDK's edit
+            // request doesn't include the collection IDs or deleted date, so keep the caller's
+            // values for those in case the caller is changing them.
+            let updatedCipherView = try await clientService.vault().ciphers().editCipher(cipherView)
+                .update(collectionIds: cipherView.collectionIds)
+                .update(deletedDate: cipherView.deletedDate)
+            return try await clientService.vault().ciphers().encrypt(cipherView: updatedCipherView).cipher
+        } else if didAddCipherKey {
             try await cipherService.updateCipherWithServer(
                 cipherEncryptionContext.cipher,
                 encryptedByKeyId: cipherEncryptionContext.encryptedByKeyId,
@@ -86,6 +105,11 @@ class DefaultCipherEncryptionMediator: CipherEncryptionMediator {
         let cipherEncryptionContext = try await clientService.vault().ciphers().encrypt(cipherView: cipherView)
         guard cipherEncryptionContext.cipher.key != nil else {
             return cipherView
+        }
+
+        if await configService.getFeatureFlag(.sdkCipherOperations) {
+            // The SDK generates the cipher key when saving the cipher and returns the saved cipher.
+            return try await clientService.vault().ciphers().editCipher(cipherView)
         }
 
         try await cipherService.updateCipherWithServer(
