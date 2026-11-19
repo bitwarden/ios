@@ -94,7 +94,7 @@ final class SeederClient {
     // MARK: Type Properties
 
     /// The email requested for every seeded user. The seeder replaces it with a unique one.
-    private static let requestedEmail = "e2e@example.com"
+    private static let requestedEmail = "bitwarden-e2e@example.com"
 
     // MARK: Properties
 
