@@ -16,6 +16,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var accountSetupAutofill = [String: AccountSetupProgress]()
     var accountSetupAutofillError: Error?
     var accountSetupImportLogins = [String: AccountSetupProgress]()
+    var accountSetupImportLoginsError: Error?
     var accountSetupVaultUnlock = [String: AccountSetupProgress]()
     var accountTokens: Account.AccountTokens?
     var accountVolatileData: [String: AccountVolatileData] = [:]
@@ -595,6 +596,9 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
 
     func setAccountSetupImportLogins(_ importLoginsSetup: AccountSetupProgress?, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
+        if let accountSetupImportLoginsError {
+            throw accountSetupImportLoginsError
+        }
         accountSetupImportLogins[userId] = importLoginsSetup
     }
 

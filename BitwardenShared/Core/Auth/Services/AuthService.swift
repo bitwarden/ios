@@ -733,10 +733,14 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
         if isNewAccount {
             do {
-                let isAutofillEnabled = await credentialIdentityStore.isAutofillEnabled()
-                try await stateService.setAccountSetupAutofill(isAutofillEnabled ? .complete : .incomplete)
+                if await !configService.getFeatureFlag(.accountSetupOnboardingOnSignIn) {
+                    // Without account setup onboarding on sign-in, these drive the onboarding steps
+                    // shown after creating an account.
+                    let isAutofillEnabled = await credentialIdentityStore.isAutofillEnabled()
+                    try await stateService.setAccountSetupAutofill(isAutofillEnabled ? .complete : .incomplete)
+                    try await stateService.setAccountSetupVaultUnlock(.incomplete)
+                }
                 try await stateService.setAccountSetupImportLogins(.incomplete)
-                try await stateService.setAccountSetupVaultUnlock(.incomplete)
             } catch {
                 errorReporter.log(error: error)
             }
@@ -1065,6 +1069,8 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             // Get the config so it gets updated for this particular user.
             await configService.getConfig(forceRefresh: true, isPreAuth: false)
 
+            await markAccountSetupOnboardingPendingIfNeeded(userId: account.profile.userId)
+
             return identityTokenResponse
         } catch let error as IdentityTokenRequestError {
             if case let .twoFactorRequired(_, masterPasswordPolicyResponseModel, ssoToken) = error {
@@ -1114,6 +1120,22 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             }
             // Re-throw the error.
             throw error
+        }
+    }
+
+    /// Marks account setup onboarding as pending if this is the first login for the account on this
+    /// device, so the onboarding steps are evaluated once the user completes authentication.
+    ///
+    /// - Parameter userId: The user ID of the account that logged in.
+    ///
+    private func markAccountSetupOnboardingPendingIfNeeded(userId: String) async {
+        guard await configService.getFeatureFlag(.accountSetupOnboardingOnSignIn) else { return }
+        do {
+            if try await stateService.getPendingAccountSetupOnboarding(userId: userId) == nil {
+                try await stateService.setPendingAccountSetupOnboarding(true, userId: userId)
+            }
+        } catch {
+            errorReporter.log(error: error)
         }
     }
 

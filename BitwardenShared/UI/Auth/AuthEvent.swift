@@ -28,6 +28,12 @@ public enum AuthEvent: Equatable {
     ///
     case didCompleteAuth
 
+    /// When the user completes the vault unlock setup step of account setup onboarding (either by
+    /// continuing or choosing to set it up later). The router continues onboarding with the autofill
+    /// setup step, if needed, before completing auth.
+    ///
+    case didCompleteVaultUnlockSetup
+
     /// When the router should check the lock status of an account and propose a route.
     ///
     /// - Parameters:

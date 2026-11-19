@@ -9,6 +9,7 @@ class VaultUnlockSetupProcessor: StateProcessor<VaultUnlockSetupState, VaultUnlo
     // MARK: Types
 
     typealias Services = DefaultVaultUnlockSetupHelper.Services
+        & HasConfigService
 
     // MARK: Private Properties
 
@@ -70,19 +71,21 @@ class VaultUnlockSetupProcessor: StateProcessor<VaultUnlockSetupState, VaultUnlo
 
     // MARK: Private
 
-    /// Continues the set up unlock flow by navigating to autofill setup.
+    /// Continues the set up unlock flow. In account setup onboarding, this continues to the next
+    /// onboarding step. In settings, this marks the vault unlock setup progress complete and
+    /// dismisses the view.
     ///
     private func continueFlow() async {
-        do {
-            try await services.stateService.setAccountSetupVaultUnlock(.complete)
-        } catch {
-            services.errorReporter.log(error: error)
-        }
-
         switch state.accountSetupFlow {
         case .createAccount:
-            await coordinator.handleEvent(.didCompleteAuth)
+            await updateAccountSetupVaultUnlockProgressIfNeeded(.complete)
+            await coordinator.handleEvent(.didCompleteVaultUnlockSetup)
         case .settings:
+            do {
+                try await services.stateService.setAccountSetupVaultUnlock(.complete)
+            } catch {
+                services.errorReporter.log(error: error)
+            }
             coordinator.navigate(to: .dismiss)
         }
     }
@@ -103,12 +106,8 @@ class VaultUnlockSetupProcessor: StateProcessor<VaultUnlockSetupState, VaultUnlo
     ///
     private func showSetUpLaterAlert() {
         coordinator.showAlert(.setUpUnlockMethodLater {
-            do {
-                try await self.services.stateService.setAccountSetupVaultUnlock(.setUpLater)
-            } catch {
-                self.services.errorReporter.log(error: error)
-            }
-            await self.coordinator.handleEvent(.didCompleteAuth)
+            await self.updateAccountSetupVaultUnlockProgressIfNeeded(.setUpLater)
+            await self.coordinator.handleEvent(.didCompleteVaultUnlockSetup)
         })
     }
 
@@ -132,5 +131,20 @@ class VaultUnlockSetupProcessor: StateProcessor<VaultUnlockSetupState, VaultUnlo
             enabled: enabled,
             showAlert: coordinator.showAlert,
         )
+    }
+
+    /// Updates the vault unlock setup progress when the step is completed in account setup
+    /// onboarding, so it isn't shown again. This is only needed if account setup onboarding on
+    /// sign-in is disabled, since the stored progress then determines which steps are shown.
+    ///
+    /// - Parameter progress: The vault unlock setup progress to set.
+    ///
+    private func updateAccountSetupVaultUnlockProgressIfNeeded(_ progress: AccountSetupProgress) async {
+        guard await !services.configService.getFeatureFlag(.accountSetupOnboardingOnSignIn) else { return }
+        do {
+            try await services.stateService.setAccountSetupVaultUnlock(progress)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
     }
 }
