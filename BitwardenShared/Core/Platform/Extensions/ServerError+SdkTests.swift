@@ -93,6 +93,8 @@ struct ServerErrorSdkTests {
     /// `ServerError`.
     @Test(arguments: [
         BitwardenSdk.BitwardenError.Cipher(.Api(message: Self.outOfDateMessage)),
+        BitwardenSdk.BitwardenError.CreateAttachment(.Api(message: Self.outOfDateMessage)),
+        BitwardenSdk.BitwardenError.DeleteAttachment(.Api(message: Self.outOfDateMessage)),
         BitwardenSdk.BitwardenError.DeleteCipher(.Api(message: Self.outOfDateMessage)),
         BitwardenSdk.BitwardenError.RestoreCipher(.Api(message: Self.outOfDateMessage)),
     ])
