@@ -39,6 +39,10 @@ actor SdkLocalUserDataKeyStateRepository: BitwardenSdk.LocalUserDataKeyStateRepo
             .values.map { LocalUserDataKeyState($0) }
     }
 
+    nonisolated func listIter(batchSize: UInt32) throws -> LocalUserDataKeyStateIterator {
+        SdkLocalUserDataKeyStateIterator(repository: self)
+    }
+
     func remove(id: String) async throws {
         try await stateService.removeLocalUserDataKeyState(id: id, userId: userId)
     }
@@ -64,5 +68,39 @@ actor SdkLocalUserDataKeyStateRepository: BitwardenSdk.LocalUserDataKeyStateRepo
             values.mapValues { UserKeyData(localUserDataKeyState: $0) },
             userId: userId,
         )
+    }
+}
+
+// MARK: - SdkLocalUserDataKeyStateIterator
+
+/// `LocalUserDataKeyStateIterator` implementation that returns every item of the repository's
+/// `list()` as one batch. The state service reads a user's items all at once, so reading them
+/// lazily would not save memory.
+///
+actor SdkLocalUserDataKeyStateIterator: LocalUserDataKeyStateIterator {
+    // MARK: Properties
+
+    /// Whether the batch has been returned.
+    private var isFinished = false
+
+    /// The repository whose items are returned.
+    private let repository: SdkLocalUserDataKeyStateRepository
+
+    // MARK: Initialization
+
+    /// Initializes a `SdkLocalUserDataKeyStateIterator`.
+    ///
+    /// - Parameter repository: The repository whose items are returned.
+    ///
+    init(repository: SdkLocalUserDataKeyStateRepository) {
+        self.repository = repository
+    }
+
+    // MARK: LocalUserDataKeyStateIterator
+
+    func next() async throws -> [LocalUserDataKeyState]? {
+        guard !isFinished else { return nil }
+        isFinished = true
+        return try await repository.list()
     }
 }

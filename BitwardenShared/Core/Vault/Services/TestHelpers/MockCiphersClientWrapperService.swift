@@ -1,12 +1,18 @@
 // swiftlint:disable identifier_name
 
 import BitwardenSdk
+import BitwardenSdkMocks
 import Combine
 import Foundation
 
 @testable import BitwardenShared
 
 class MockCiphersClientWrapperService: CiphersClientWrapperService {
+    var cipherListItemsChunkSize: UInt32??
+    var cipherListItemsResult: Result<CipherListItemSequence, Error> = .success(
+        CipherListItemSequence(stream: MockCipherListStreamProtocol()),
+    )
+
     var decryptAndProcessCiphersInBatchBatchSize: Int?
     var decryptAndProcessCiphersInBatchCiphers: [Cipher] = []
     /// The `CipherListView` to be used in the `onCipher` closure
@@ -20,6 +26,11 @@ class MockCiphersClientWrapperService: CiphersClientWrapperService {
     var decryptAndProcessCiphersInBatchPreFilterCallCount: Int = 0
     /// Counts how many times `onCipher` was called in the `decryptAndProcessCiphersInBatch` function.
     var decryptAndProcessCiphersInBatchOnCipherCallCount: Int = 0
+
+    func cipherListItems(chunkSize: UInt32?) async throws -> CipherListItemSequence {
+        cipherListItemsChunkSize = chunkSize
+        return try cipherListItemsResult.get()
+    }
 
     func decryptAndProcessCiphersInBatch(
         batchSize: Int,

@@ -42,6 +42,17 @@ class CiphersClientWrapperServiceTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `cipherListItems(chunkSize:)` returns a sequence over the SDK's cipher list stream.
+    func test_cipherListItems() async throws {
+        let stream = CipherListStream(noHandle: CipherListStream.NoHandle())
+        clientService.mockVault.clientCiphers.listStreamReturnValue = stream
+
+        let sequence = try await subject.cipherListItems(chunkSize: 100)
+
+        XCTAssertIdentical(sequence.stream, stream)
+        XCTAssertEqual(clientService.mockVault.clientCiphers.listStreamReceivedChunkSize, 100)
+    }
+
     /// `decryptAndProcessCiphersInBatch(batchSize:ciphers:onCipher:)` decrypts ciphers in batches by the size
     /// and executes the `onCipher` closure per each decrypted cipher.
     func test_decryptAndProcessCiphersInBatch() async {

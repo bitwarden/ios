@@ -91,6 +91,20 @@ final class SdkLocalUserDataKeyStateRepositoryTests {
         #expect(results.contains(where: { $0.wrappedKey == "key2" }))
     }
 
+    /// `listIter(batchSize:)` returns an iterator with every stored value in one batch, then `nil`.
+    @Test
+    func listIter_returnsAllValuesInOneBatch() async throws {
+        try await subject.set(id: "k1", value: LocalUserDataKeyState(wrappedKey: "key1"))
+        try await subject.set(id: "k2", value: LocalUserDataKeyState(wrappedKey: "key2"))
+
+        let iterator = try subject.listIter(batchSize: 1)
+        let batch = try await iterator.next()
+        let end = try await iterator.next()
+
+        #expect(batch?.map(\.wrappedKey).sorted() == ["key1", "key2"])
+        #expect(end == nil)
+    }
+
     /// `remove(id:)` removes a stored value.
     @Test
     func remove_deletesValue() async throws {
