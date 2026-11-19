@@ -76,7 +76,17 @@ class AttachmentsViewTests: BitwardenTestCase {
     func test_fileNameExtension_displayed() throws {
         processor.state.fileName = "photo.jpg"
         processor.state.fileNameExtension = ".jpg"
+        processor.state.isMobileAttachmentUpdatesEnabled = true
         XCTAssertNoThrow(try subject.inspect().find(text: ".jpg"))
+    }
+
+    /// The file name text field isn't displayed when the mobile attachment updates feature is disabled.
+    @MainActor
+    func test_fileNameTextField_hiddenWhenFeatureDisabled() throws {
+        processor.state.fileName = "photo.jpg"
+        processor.state.fileNameExtension = ".jpg"
+        processor.state.isMobileAttachmentUpdatesEnabled = false
+        XCTAssertThrowsError(try subject.inspect().find(viewWithAccessibilityIdentifier: "AttachmentFileNameEntry"))
     }
 
     /// The file name text field isn't displayed until a file has been chosen.
@@ -90,6 +100,7 @@ class AttachmentsViewTests: BitwardenTestCase {
     func test_fileNameTextField_updated() throws {
         processor.state.fileName = "photo.jpg"
         processor.state.fileNameExtension = ".jpg"
+        processor.state.isMobileAttachmentUpdatesEnabled = true
         let textField = try subject.inspect()
             .find(viewWithAccessibilityIdentifier: "AttachmentFileNameEntry")
             .find(ViewType.TextField.self)
