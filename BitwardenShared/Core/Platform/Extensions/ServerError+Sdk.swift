@@ -65,8 +65,11 @@ extension BitwardenSdk.BitwardenError {
     /// a cipher operation in the SDK.
     var apiErrorMessage: String? {
         switch self {
-        case let .CreateCipher(.Api(message)),
-             let .EditCipher(.Api(message)):
+        case let .Cipher(.Api(message)),
+             let .CreateCipher(.Api(message)),
+             let .DeleteCipher(.Api(message)),
+             let .EditCipher(.Api(message)),
+             let .RestoreCipher(.Api(message)):
             message
         default:
             nil

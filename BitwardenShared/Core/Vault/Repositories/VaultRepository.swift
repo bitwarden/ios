@@ -486,6 +486,29 @@ class DefaultVaultRepository {
 
         return updatedCipher
     }
+
+    /// Updates the collections of a cipher using the SDK. If the user no longer has access to the
+    /// cipher after the update, the cipher is removed from local storage.
+    ///
+    /// - Parameter cipherView: The cipher with the updated collection IDs.
+    ///
+    private func updateCipherCollectionsWithSdk(_ cipherView: CipherView) async throws {
+        guard let id = cipherView.id else { throw CipherAPIServiceError.updateMissingId }
+
+        do {
+            _ = try await ServerError.mappingSdkApiErrors {
+                try await clientService.vault().ciphers().updateCollection(
+                    cipherId: id,
+                    collectionIds: cipherView.collectionIds,
+                )
+            }
+        } catch BitwardenSdk.BitwardenError.EditCipher(.MissingField) {
+            // The server doesn't return the cipher if the user no longer has access to it after
+            // the update. The SDK treats this as an error after the server has applied the update,
+            // so remove the cipher from local storage.
+            try await cipherService.deleteCipherWithLocalStorage(id: id)
+        }
+    }
 }
 
 extension DefaultVaultRepository: VaultRepository {
@@ -549,6 +572,18 @@ extension DefaultVaultRepository: VaultRepository {
             }
 
             preparedCiphers.append(cipherView)
+        }
+
+        if await configService.getFeatureFlag(.sdkCipherOperations) {
+            guard !preparedCiphers.isEmpty else { return }
+            _ = try await ServerError.mappingSdkApiErrors {
+                try await clientService.vault().ciphers().shareCiphersBulk(
+                    cipherViews: preparedCiphers,
+                    organizationId: newOrganizationId,
+                    collectionIds: newCollectionIds,
+                )
+            }
+            return
         }
 
         // Use the SDK to prepare and encrypt all ciphers for bulk share.
@@ -629,6 +664,13 @@ extension DefaultVaultRepository: VaultRepository {
     }
 
     func deleteCipher(_ id: String) async throws {
+        if await configService.getFeatureFlag(.sdkCipherOperations) {
+            try await ServerError.mappingSdkApiErrors {
+                try await clientService.vault().ciphers().delete(cipherId: id)
+            }
+            return
+        }
+
         try await cipherService.deleteCipherWithServer(id: id)
     }
 
@@ -825,6 +867,14 @@ extension DefaultVaultRepository: VaultRepository {
 
     func restoreCipher(_ cipher: BitwardenSdk.CipherView) async throws {
         guard let id = cipher.id else { throw CipherAPIServiceError.updateMissingId }
+
+        if await configService.getFeatureFlag(.sdkCipherOperations) {
+            _ = try await ServerError.mappingSdkApiErrors {
+                try await clientService.vault().ciphers().restore(cipherId: id)
+            }
+            return
+        }
+
         let restoredCipher = cipher.update(deletedDate: nil)
         let encryptCipher = try await cipherEncryptionMediator.encryptAndUpdateCipher(restoredCipher)
         try await cipherService.restoreCipherWithServer(id: id, encryptCipher)
@@ -873,6 +923,20 @@ extension DefaultVaultRepository: VaultRepository {
             }
         }
 
+        if await configService.getFeatureFlag(.sdkCipherOperations) {
+            // The SDK moves the cipher to the organization, adds it to the collections, and
+            // shares it with the server.
+            _ = try await ServerError.mappingSdkApiErrors { [cipherView] in
+                try await clientService.vault().ciphers().shareCipher(
+                    cipherView: cipherView,
+                    organizationId: newOrganizationId,
+                    collectionIds: newCollectionIds,
+                    originalCipherView: nil,
+                )
+            }
+            return
+        }
+
         let organizationCipher = try await clientService.vault().ciphers()
             .moveToOrganization(
                 cipher: cipherView,
@@ -891,6 +955,14 @@ extension DefaultVaultRepository: VaultRepository {
 
     func softDeleteCipher(_ cipher: CipherView) async throws {
         guard let id = cipher.id else { throw CipherAPIServiceError.updateMissingId }
+
+        if await configService.getFeatureFlag(.sdkCipherOperations) {
+            try await ServerError.mappingSdkApiErrors {
+                try await clientService.vault().ciphers().softDelete(cipherId: id)
+            }
+            return
+        }
+
         let softDeletedCipher = cipher.update(deletedDate: timeProvider.presentTime)
         let encryptedCipher = try await cipherEncryptionMediator.encryptAndUpdateCipher(softDeletedCipher)
         try await cipherService.softDeleteCipherWithServer(id: id, encryptedCipher)
@@ -930,6 +1002,11 @@ extension DefaultVaultRepository: VaultRepository {
     func updateCipherCollections(_ cipherView: CipherView) async throws {
         if await shouldUnarchiveCipherOnUpdate(cipherView) {
             try await updateCipherCollections(cipherView.update(archivedDate: nil))
+            return
+        }
+
+        if await configService.getFeatureFlag(.sdkCipherOperations) {
+            try await updateCipherCollectionsWithSdk(cipherView)
             return
         }
 
