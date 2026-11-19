@@ -46,12 +46,12 @@ struct VaultListProcessorAutofillActionCardTests {
 
     // MARK: Tests
 
-    /// `perform(_:)` with `.dismissAutofillActionCard` dismisses the card for the session.
+    /// `perform(_:)` with `.dismissAutofillActionCard` dismisses the card for 24 hours.
     @Test
     func perform_dismissAutofillActionCard() async {
         await subject.perform(.dismissAutofillActionCard)
 
-        #expect(autofillPromptService.dismissVaultActionCardForSessionCalled)
+        #expect(autofillPromptService.dismissVaultActionCardCalled)
         #expect(!autofillPromptService.optOutOfVaultActionCardCalled)
     }
 
@@ -61,7 +61,7 @@ struct VaultListProcessorAutofillActionCardTests {
         await subject.perform(.optOutOfAutofillActionCard)
 
         #expect(autofillPromptService.optOutOfVaultActionCardCalled)
-        #expect(!autofillPromptService.dismissVaultActionCardForSessionCalled)
+        #expect(!autofillPromptService.dismissVaultActionCardCalled)
     }
 
     /// `perform(_:)` with `.streamAutofillActionCard` refreshes the autofill status and streams
