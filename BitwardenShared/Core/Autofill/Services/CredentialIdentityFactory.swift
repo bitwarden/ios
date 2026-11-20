@@ -56,6 +56,18 @@ struct DefaultCredentialIdentityFactory: CredentialIdentityFactory {
 
     // MARK: Private
 
+    /// Returns the URI with an `https://` scheme added if it doesn't already have a scheme.
+    ///
+    /// `httpsNormalized()` isn't used because it would also add `https://` before URIs with a
+    /// non-web scheme, such as app URIs (e.g. `iosapp://`), and remove trailing slashes.
+    ///
+    /// - Parameter uri: The login URI.
+    /// - Returns: The URI unchanged if it has a scheme, otherwise the URI prefixed with `https://`.
+    ///
+    private func addingHttpsSchemeIfNeeded(to uri: String) -> String {
+        uri.contains("://") ? uri : "https://" + uri
+    }
+
     /// Gets the service identifier based on the first login uri, if there's one.
     private func createServiceIdentifierFromFirstLoginUri(of cipher: CipherView) -> ASCredentialServiceIdentifier? {
         let uris = cipher.login?.uris?.filter { $0.match != .never && $0.uri.isEmptyOrNil == false }
@@ -74,7 +86,7 @@ struct DefaultCredentialIdentityFactory: CredentialIdentityFactory {
         // The system doesn't match a `.URL` service identifier without a scheme (e.g. `www.example.com`)
         // to the website, so add one to an exact match URI that doesn't have one.
         // This is "best effort" fix because we don't know for sure the scheme should be `https://`.
-        let urlIdentifier = firstUri.match == .exact && !uriString.contains("://") ? "https://" + uriString : uriString
+        let urlIdentifier = firstUri.match == .exact ? addingHttpsSchemeIfNeeded(to: uriString) : uriString
         return ASCredentialServiceIdentifier(identifier: urlIdentifier, type: .URL)
     }
 
@@ -96,11 +108,9 @@ struct DefaultCredentialIdentityFactory: CredentialIdentityFactory {
             return nil
         }
 
-        // A URI without a scheme (e.g. `www.example.com`) can't be parsed for its host, so add one
-        // before parsing. `httpsNormalized()` isn't used because it would also add `https://` before
-        // app URIs (e.g. `iosapp://`), which would then be parsed as a web URI.
-        let trimmedUri = uri.trimmingCharacters(in: .whitespaces)
-        let uriWithScheme = trimmedUri.contains("://") ? trimmedUri : "https://" + trimmedUri
+        // A URI with surrounding whitespace or without a scheme (e.g. `www.example.com`) may not be
+        // parsed for its host, so trim it and add a scheme before parsing.
+        let uriWithScheme = addingHttpsSchemeIfNeeded(to: uri.trimmingCharacters(in: .whitespacesAndNewlines))
 
         guard let url = URL(string: uriWithScheme),
               let scheme = url.scheme?.lowercased(),

@@ -603,14 +603,14 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertEqual(passwordIdentity.serviceIdentifier.type, ASCredentialServiceIdentifier.IdentifierType.domain)
     }
 
-    /// `tryCreatePasswordCredentialIdentity(from:)` ignores leading and trailing whitespace in the
-    /// login URI.
+    /// `tryCreatePasswordCredentialIdentity(from:)` ignores leading and trailing whitespace and
+    /// newlines in the login URI.
     func test_tryCreatePasswordCredentialIdentity_uriWithWhitespace() throws {
         let cipher = CipherView.fixture(
             login: .fixture(
                 password: "1234",
                 uris: [
-                    .fixture(uri: "  www.example.com  ", match: .domain),
+                    .fixture(uri: "  www.example.com\n", match: .domain),
                 ],
                 username: "test",
             ),
