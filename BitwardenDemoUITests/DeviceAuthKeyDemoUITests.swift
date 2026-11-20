@@ -6,7 +6,13 @@ import XCTest
 /// Environment variables (pass with `SIMCTL_CHILD_<NAME>` on `simctl launch`):
 /// - `DEMO_EMAIL`: the email of the new account. Defaults to a time-based address.
 /// - `DEMO_SERVER_URL`: the self-hosted server URL. Defaults to `https://localhost:8080`.
+/// - `DEMO_NAME`: the name of the new account. Defaults to "DAK Demo".
 /// - `DEMO_PAUSE`: seconds to pause on key screens (for the video). Defaults to 1.
+/// - `DEMO_RESTART`: set to 1 to terminate and start the app for the unlock flow. The default is
+///   "Lock now" in the settings, which keeps the app on screen.
+///
+/// The test prints `DEMO-RECORD-START` when the environment is set and the app is on the landing
+/// screen, and `DEMO-RECORD-STOP` after the last screen. `demo.sh` records the video in between.
 ///
 /// The shell side must post the Face ID match notification while the test waits for the vault.
 final class DeviceAuthKeyDemoUITests: XCTestCase {
@@ -26,9 +32,13 @@ final class DeviceAuthKeyDemoUITests: XCTestCase {
         step("launched, email \(email)")
 
         setSelfHostedEnvironment()
+        marker("DEMO-RECORD-START")
+        Thread.sleep(forTimeInterval: 5)
         signUpWithDeviceAuthKey()
         lockAndUnlock()
         logOutAndLogIn()
+        marker("DEMO-RECORD-STOP")
+        Thread.sleep(forTimeInterval: 3)
         step("ALL FLOWS PASSED")
     }
 
@@ -54,10 +64,17 @@ final class DeviceAuthKeyDemoUITests: XCTestCase {
     func signUpWithDeviceAuthKey() {
         tap("CreateAccountButton")
         type("EmailAddressEntry", email)
-        type("NameEntry", "DAK Demo")
+        let name = env["DEMO_NAME"] ?? "DAK Demo"
+        type("NameEntry", name)
+        let typedName = waitFor("NameEntry").value as? String
+        XCTAssertEqual(typedName, name, "the name field does not hold the name")
+        hold("start-registration")
         tap("ContinueButton")
         let button = waitFor("CreateAccountWithDeviceAuthKeyButton", timeout: 30, scroll: true)
-        hold("complete-registration")
+        // The master password section is collapsed behind a low-emphasis control.
+        waitFor("UseMasterPasswordInsteadButton")
+        XCTAssertFalse(app.secureTextFields["MasterPasswordEntry"].exists, "master password field is shown")
+        hold("signup", seconds: max(pause, 1) * 2)
         button.tap()
         step("tapped create account with device auth key")
 
@@ -73,8 +90,14 @@ final class DeviceAuthKeyDemoUITests: XCTestCase {
     }
 
     func lockAndUnlock() {
-        app.terminate()
-        app.launch()
+        if env["DEMO_RESTART"] == "1" {
+            app.terminate()
+            app.launch()
+        } else {
+            tap("Settings")
+            tap("Account security")
+            waitFor("Lock now", scroll: true).tap()
+        }
         let button = waitFor("UnlockWithDeviceAuthKeyButton", timeout: 30)
         XCTAssertFalse(app.secureTextFields["MasterPasswordEntry"].exists, "master password field is shown")
         hold("unlock-screen", seconds: 3)
@@ -118,6 +141,12 @@ final class DeviceAuthKeyDemoUITests: XCTestCase {
 
     func step(_ message: String) {
         print("DEMO: \(message)")
+        fflush(stdout)
+    }
+
+    /// Prints a marker line for `demo.sh`.
+    func marker(_ name: String) {
+        print(name)
         fflush(stdout)
     }
 
