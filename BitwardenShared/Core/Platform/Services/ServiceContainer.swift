@@ -656,7 +656,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let deviceAuthKeyService = DefaultDeviceAuthKeyService(
             activeAccountStateProvider: stateService,
             clientService: clientService,
-            configService: configService,
             deviceAuthKeychainRepository: keychainRepository,
             environmentService: environmentService,
             stateService: stateService,

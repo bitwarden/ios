@@ -704,40 +704,39 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         preAuthForcePasswordResetReason = nil
 
         // Sign the server's challenge with the device auth key, then get the identity token.
-        let assertion = try await deviceAuthKeyService.assertDeviceAuthKeyForLogin(email: email)
+        let login = try await deviceAuthKeyService.assertDeviceAuthKeyForLogin(email: email)
         let response = try await getIdentityTokenResponse(
             authenticationMethod: .webAuthn(
-                token: assertion.token,
-                deviceResponse: assertion.deviceResponse,
+                token: login.assertion.token,
+                deviceResponse: login.assertion.deviceResponse,
             ),
             email: email,
         )
 
         // The server returns the PRF key set that was registered with the device auth key. Keep it
         // for the next unlock. If the server didn't return one, use the key set from this device.
+        let encryptedPrivateKey: String?
+        let encryptedUserKey: String?
         if let prfOption = response.userDecryptionOptions?.webAuthnPrfOption {
             try await deviceAuthKeyService.setDeviceAuthKeyPrfKeySet(
                 encryptedPrivateKey: prfOption.encryptedPrivateKey,
                 encryptedUserKey: prfOption.encryptedUserKey,
-                userId: assertion.userId,
+                userId: login.userId,
             )
-            return DeviceAuthKeyUnlockData(
-                encryptedPrivateKey: prfOption.encryptedPrivateKey,
-                encryptedUserKey: prfOption.encryptedUserKey,
-                prfOutput: assertion.prfOutput,
-            )
+            encryptedPrivateKey = prfOption.encryptedPrivateKey
+            encryptedUserKey = prfOption.encryptedUserKey
+        } else {
+            let metadata = try await deviceAuthKeyService.getDeviceAuthKeyMetadata(userId: login.userId)
+            encryptedPrivateKey = metadata?.encryptedPrivateKey
+            encryptedUserKey = metadata?.encryptedUserKey
         }
-
-        guard let metadata = try await deviceAuthKeyService.getDeviceAuthKeyMetadata(userId: assertion.userId),
-              let encryptedPrivateKey = metadata.encryptedPrivateKey,
-              let encryptedUserKey = metadata.encryptedUserKey
-        else {
-            throw DeviceAuthKeyError.prfNotEnabledOnServer
+        guard let encryptedPrivateKey, let encryptedUserKey else {
+            throw DeviceAuthKeyError.missingPrfKeySet
         }
         return DeviceAuthKeyUnlockData(
             encryptedPrivateKey: encryptedPrivateKey,
             encryptedUserKey: encryptedUserKey,
-            prfOutput: assertion.prfOutput,
+            prfOutput: login.assertion.prfOutput,
         )
     }
 

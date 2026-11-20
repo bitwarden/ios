@@ -70,26 +70,15 @@ extension ASPasskeyAssertionCredential {
     ///   - clientDataHash: The hash of the client data JSON from the authentication request.
     ///
     convenience init(assertionResult: GetAssertionResult, rpId: String, clientDataHash: Data) {
-        if #available(iOSApplicationExtension 18.0, *) {
-            self.init(
-                userHandle: assertionResult.userHandle,
-                relyingParty: rpId,
-                signature: assertionResult.signature,
-                clientDataHash: clientDataHash,
-                authenticatorData: assertionResult.authenticatorData,
-                credentialID: assertionResult.credentialId,
-                extensionOutput: nil, // TODO: PM-26177 once SDK is updated for full PRF support we can include this
-            )
-        } else {
-            self.init(
-                userHandle: assertionResult.userHandle,
-                relyingParty: rpId,
-                signature: assertionResult.signature,
-                clientDataHash: clientDataHash,
-                authenticatorData: assertionResult.authenticatorData,
-                credentialID: assertionResult.credentialId,
-            )
-        }
+        self.init(
+            userHandle: assertionResult.userHandle,
+            relyingParty: rpId,
+            signature: assertionResult.signature,
+            clientDataHash: clientDataHash,
+            authenticatorData: assertionResult.authenticatorData,
+            credentialID: assertionResult.credentialId,
+            prfOutput: nil, // TODO: PM-26177 once SDK is updated for full PRF support we can include this
+        )
     }
 
     /// Creates a passkey assertion credential from a Bitwarden SDK device auth key assertion result.
@@ -102,30 +91,52 @@ extension ASPasskeyAssertionCredential {
     ///   - clientDataHash: The hash of the client data JSON from the authentication request.
     ///
     convenience init(assertionResult: DeviceAuthKeyGetAssertionResult, rpId: String, clientDataHash: Data) {
+        self.init(
+            userHandle: assertionResult.userHandle,
+            relyingParty: rpId,
+            signature: assertionResult.signature,
+            clientDataHash: clientDataHash,
+            authenticatorData: assertionResult.authenticatorData,
+            credentialID: assertionResult.credentialId,
+            prfOutput: assertionResult.extensions.prf?.results,
+        )
+    }
+
+    /// Creates a passkey assertion credential, with the PRF output on iOS 18+.
+    ///
+    private convenience init(
+        userHandle: Data,
+        relyingParty: String,
+        signature: Data,
+        clientDataHash: Data,
+        authenticatorData: Data,
+        credentialID: Data,
+        prfOutput: PrfOutputValues?,
+    ) {
         if #available(iOS 18.0, iOSApplicationExtension 18.0, *) {
-            let prfOutput = assertionResult.extensions.prf.map { prf in
+            let prf = prfOutput.map { output in
                 ASAuthorizationPublicKeyCredentialPRFAssertionOutput(
-                    first: SymmetricKey(data: prf.results.first),
-                    second: prf.results.second.map { SymmetricKey(data: $0) },
+                    first: SymmetricKey(data: output.first),
+                    second: output.second.map { SymmetricKey(data: $0) },
                 )
             }
             self.init(
-                userHandle: assertionResult.userHandle,
-                relyingParty: rpId,
-                signature: assertionResult.signature,
+                userHandle: userHandle,
+                relyingParty: relyingParty,
+                signature: signature,
                 clientDataHash: clientDataHash,
-                authenticatorData: assertionResult.authenticatorData,
-                credentialID: assertionResult.credentialId,
-                extensionOutput: prfOutput.map { ASPasskeyAssertionCredentialExtensionOutput(largeBlob: nil, prf: $0) },
+                authenticatorData: authenticatorData,
+                credentialID: credentialID,
+                extensionOutput: prf.map { ASPasskeyAssertionCredentialExtensionOutput(largeBlob: nil, prf: $0) },
             )
         } else {
             self.init(
-                userHandle: assertionResult.userHandle,
-                relyingParty: rpId,
-                signature: assertionResult.signature,
+                userHandle: userHandle,
+                relyingParty: relyingParty,
+                signature: signature,
                 clientDataHash: clientDataHash,
-                authenticatorData: assertionResult.authenticatorData,
-                credentialID: assertionResult.credentialId,
+                authenticatorData: authenticatorData,
+                credentialID: credentialID,
             )
         }
     }

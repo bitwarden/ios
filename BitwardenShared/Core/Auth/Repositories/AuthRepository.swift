@@ -106,7 +106,7 @@ protocol AuthRepository: AnyObject {
     func hasMasterPassword() async throws -> Bool
 
     /// Whether the account uses the device auth key instead of a master password to log in and
-    /// unlock. This is always `false` if the device auth key feature is off.
+    /// unlock.
     ///
     /// - Parameter userId: The user Id to be mapped to an account. Defaults to the active account if `nil`.
     /// - Returns: Whether the account is a device auth key account.
@@ -639,9 +639,11 @@ extension DefaultAuthRepository: AuthRepository {
         let isUnlockWithBiometricOn: Bool = await (
             try? biometricsRepository.getBiometricUnlockStatus(userId: userId).isEnabled
         ) ?? false
+        if hasMasterPassword || isUnlockWithPinOn || isUnlockWithBiometricOn {
+            return true
+        }
         // An account that unlocks with the device auth key can be locked without any of the above.
-        let isDeviceAuthKeyAccount = await isDeviceAuthKeyAccount(userId: userId)
-        return hasMasterPassword || isUnlockWithPinOn || isUnlockWithBiometricOn || isDeviceAuthKeyAccount
+        return await isDeviceAuthKeyAccount(userId: userId)
     }
 
     func canVerifyMasterPassword(userId: String? = nil) async throws -> Bool {

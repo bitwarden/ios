@@ -3,6 +3,7 @@ import BitwardenKit
 import BitwardenResources
 @preconcurrency import BitwardenSdk
 import Combine
+import CryptoKit
 import Foundation
 import OSLog
 
@@ -211,13 +212,8 @@ class CompleteRegistrationProcessor: StateProcessor<// swiftlint:disable:this ty
         do {
             coordinator.showLoadingOverlay(title: Localizations.creatingAccount)
 
-            let password: String
-            if let deviceAuthKeySignupPassword {
-                password = deviceAuthKeySignupPassword
-            } else {
-                password = try makeRandomMasterPassword()
-                deviceAuthKeySignupPassword = password
-            }
+            let password = deviceAuthKeySignupPassword ?? makeRandomMasterPassword()
+            deviceAuthKeySignupPassword = password
 
             if !state.didCreateAccount {
                 try await createAccount(password: password, passwordHint: "")
@@ -252,8 +248,8 @@ class CompleteRegistrationProcessor: StateProcessor<// swiftlint:disable:this ty
             await coordinator.handleEvent(.didCompleteAuth)
             coordinator.navigate(to: .dismiss)
         } catch {
-            if !error.isDeviceAuthKeyBiometryCancellation {
-                services.errorReporter.log(error: error)
+            if !error.isDeviceAuthKeyCancellation {
+                Logger.processor.error("Device auth key signup failed: \(error)")
             }
             guard state.didCreateAccount else {
                 await coordinator.showErrorAlert(error: error) {
@@ -277,16 +273,8 @@ class CompleteRegistrationProcessor: StateProcessor<// swiftlint:disable:this ty
 
     /// Makes a random master password with 256 bits of entropy.
     ///
-    private func makeRandomMasterPassword() throws -> String {
-        var bytes = [UInt8](repeating: 0, count: 32)
-        let status = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
-        guard status == errSecSuccess else {
-            throw BitwardenError.generalError(
-                type: "Random Master Password",
-                message: "SecRandomCopyBytes failed with status \(status).",
-            )
-        }
-        return Data(bytes).base64EncodedString()
+    private func makeRandomMasterPassword() -> String {
+        SymmetricKey(size: .bits256).withUnsafeBytes { Data(Array($0)) }.base64EncodedString()
     }
 
     /// Performs an API request to create the user's account.

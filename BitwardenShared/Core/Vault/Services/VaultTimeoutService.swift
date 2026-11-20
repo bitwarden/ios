@@ -294,8 +294,12 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
             let isBiometricsEnabled = try await biometricsRepository.getBiometricUnlockStatus(userId: userId).isEnabled
             let isPinEnabled = try await isPinUnlockAvailable(userId: userId)
             // A device auth key account can lock without a master password, PIN or biometrics.
-            let isDeviceAuthKeyAccount = await deviceAuthKeyService.isPasswordlessAccount(userId: userId)
-            guard isPinEnabled || isBiometricsEnabled || isDeviceAuthKeyAccount else {
+            let canUnlock = if isPinEnabled || isBiometricsEnabled {
+                true
+            } else {
+                await deviceAuthKeyService.isPasswordlessAccount(userId: userId)
+            }
+            guard canUnlock else {
                 // If the user doesn't have a master password and hasn't enabled a pin or
                 // biometrics, their timeout action needs to be logout.
                 try await stateService.setTimeoutAction(action: .logout, userId: userId)

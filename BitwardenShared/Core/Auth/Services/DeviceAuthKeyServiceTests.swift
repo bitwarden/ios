@@ -13,11 +13,7 @@ final class DeviceAuthKeyServiceTests: BitwardenTestCase {
     // MARK: Properties
 
     var activeAccountStateProvider: MockActiveAccountStateProvider!
-    var clientService: MockClientService!
-    var configService: MockConfigService!
     var deviceAuthKeychainRepository: MockDeviceAuthKeychainRepository!
-    var environmentService: MockEnvironmentService!
-    var stateService: MockStateService!
     var subject: DefaultDeviceAuthKeyService!
 
     // MARK: Setup & Teardown
@@ -26,19 +22,14 @@ final class DeviceAuthKeyServiceTests: BitwardenTestCase {
         super.setUp()
 
         activeAccountStateProvider = MockActiveAccountStateProvider()
-        clientService = MockClientService()
-        configService = MockConfigService()
         deviceAuthKeychainRepository = MockDeviceAuthKeychainRepository()
-        environmentService = MockEnvironmentService()
-        stateService = MockStateService()
 
         subject = DefaultDeviceAuthKeyService(
             activeAccountStateProvider: activeAccountStateProvider,
-            clientService: clientService,
-            configService: configService,
+            clientService: MockClientService(),
             deviceAuthKeychainRepository: deviceAuthKeychainRepository,
-            environmentService: environmentService,
-            stateService: stateService,
+            environmentService: MockEnvironmentService(),
+            stateService: MockStateService(),
             systemDevice: MockSystemDevice(),
         )
     }
@@ -47,11 +38,7 @@ final class DeviceAuthKeyServiceTests: BitwardenTestCase {
         super.tearDown()
 
         activeAccountStateProvider = nil
-        clientService = nil
-        configService = nil
         deviceAuthKeychainRepository = nil
-        environmentService = nil
-        stateService = nil
         subject = nil
     }
 
@@ -60,7 +47,6 @@ final class DeviceAuthKeyServiceTests: BitwardenTestCase {
     /// `deleteDeviceAuthKey(userId:)` successfully deletes the device auth key from the keychain repository.
     ///
     func test_deleteDeviceAuthKey_success() async throws {
-        deviceAuthKeychainRepository.getDeviceAuthKeyMetadataReturnValue = nil
         try await subject.deleteDeviceAuthKey(userId: "userId123")
 
         XCTAssertEqual(deviceAuthKeychainRepository.deleteDeviceAuthKeyCallsCount, 1)
@@ -71,7 +57,6 @@ final class DeviceAuthKeyServiceTests: BitwardenTestCase {
     ///
     func test_deleteDeviceAuthKey_throwsError() async throws {
         let expectedError = BitwardenTestError.example
-        deviceAuthKeychainRepository.getDeviceAuthKeyMetadataReturnValue = nil
         deviceAuthKeychainRepository.deleteDeviceAuthKeyThrowableError = expectedError
 
         await assertAsyncThrows(error: expectedError) {

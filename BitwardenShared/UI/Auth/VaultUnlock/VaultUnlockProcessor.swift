@@ -263,8 +263,8 @@ class VaultUnlockProcessor: StateProcessor<
             coordinator.navigate(to: .landing)
         } catch {
             // Don't count the attempt or log out: the device auth key is the only way to unlock.
-            guard !error.isDeviceAuthKeyBiometryCancellation else { return }
-            services.errorReporter.log(error: error)
+            guard !error.isDeviceAuthKeyCancellation else { return }
+            Logger.processor.error("Device auth key unlock failed: \(error)")
             coordinator.showAlert(.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
                 message: Localizations.theDeviceAuthKeyCouldNotBeUsedDescriptionLong,

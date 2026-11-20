@@ -2,7 +2,6 @@ import BitwardenKit
 import BitwardenSdk
 import Combine
 import Foundation
-import LocalAuthentication
 import OSLog
 
 // MARK: - DeviceAuthKeyService
@@ -84,8 +83,8 @@ protocol DeviceAuthKeyService { // sourcery: AutoMockable
     ///
     func hasDeviceAuthKey(email: String) async -> Bool
 
-    /// Whether the device auth key feature is on, the account has a device auth key that can
-    /// unlock the vault, and the user doesn't know the account's master password.
+    /// Whether the account has a device auth key that can unlock the vault, and the user doesn't
+    /// know the account's master password.
     ///
     /// - Parameter userId: The user ID for the account.
     /// - Returns: Whether the account is a device auth key account.
@@ -153,14 +152,8 @@ extension DeviceAuthKeyService {
 /// The result of signing a WebAuthn login challenge with the device auth key.
 ///
 struct DeviceAuthKeyLoginResult: Equatable, Sendable {
-    /// The `deviceResponse` value of the identity token request.
-    let deviceResponse: String
-
-    /// The base64 encoded PRF output of the device auth key.
-    let prfOutput: String
-
-    /// The `token` value of the identity token request.
-    let token: String
+    /// The values for the identity token request and the PRF output.
+    let assertion: DeviceAuthKeyLoginAssertion
 
     /// The ID of the user that owns the device auth key.
     let userId: String
@@ -177,9 +170,6 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
 
     /// The service that handles common client functionality such as encryption and decryption.
     private let clientService: ClientService
-
-    /// The service to get server-specified configuration.
-    private let configService: ConfigService
 
     /// Repository for managing device auth keys in the keychain.
     private let deviceAuthKeychainRepository: DeviceAuthKeychainRepository
@@ -203,7 +193,6 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
     /// - Parameters:
     ///   - activeAccountStateProvider: The provider for the active account state.
     ///   - clientService: The service that handles common client functionality.
-    ///   - configService: The service to get server-specified configuration.
     ///   - deviceAuthKeychainRepository: The repository for managing device auth keys in the keychain.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - stateService: The service used by the application to manage account state.
@@ -212,7 +201,6 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
     init(
         activeAccountStateProvider: ActiveAccountStateProvider,
         clientService: ClientService,
-        configService: ConfigService,
         deviceAuthKeychainRepository: DeviceAuthKeychainRepository,
         environmentService: EnvironmentService,
         stateService: StateService,
@@ -220,7 +208,6 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
     ) {
         self.activeAccountStateProvider = activeAccountStateProvider
         self.clientService = clientService
-        self.configService = configService
         self.deviceAuthKeychainRepository = deviceAuthKeychainRepository
         self.environmentService = environmentService
         self.stateService = stateService
@@ -259,18 +246,11 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
             deviceAuthKeychainRepository: deviceAuthKeychainRepository,
             userId: userId,
         )
-        let assertion = try await store.rethrowingRecordReadError {
-            try await clientService.platform(isPreAuth: true)
-                .fido2()
-                .deviceAuthKeyAuthenticator(credentialStore: store)
-                .assertDeviceAuthKeyForLogin(webVaultUrl: environmentService.webVaultURL.absoluteString)
-        }
-        return DeviceAuthKeyLoginResult(
-            deviceResponse: assertion.deviceResponse,
-            prfOutput: assertion.prfOutput,
-            token: assertion.token,
-            userId: userId,
-        )
+        let assertion = try await clientService.platform(isPreAuth: true)
+            .fido2()
+            .deviceAuthKeyAuthenticator(credentialStore: store)
+            .assertDeviceAuthKeyForLogin(webVaultUrl: environmentService.webVaultURL.absoluteString)
+        return DeviceAuthKeyLoginResult(assertion: assertion, userId: userId)
     }
 
     func createDeviceAuthKey(
@@ -304,14 +284,11 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
                 kdf: account.kdf.sdkKdf,
             )
 
-        guard var metadata = try await deviceAuthKeychainRepository.getDeviceAuthKeyMetadata(userId: resolvedUserId)
-        else {
-            throw DeviceAuthKeyError.missingOrInvalidKey
+        try await updateMetadata(userId: resolvedUserId) { metadata in
+            metadata.encryptedPrivateKey = keySet.encryptedDecapsulationKey
+            metadata.encryptedUserKey = keySet.encapsulatedDownstreamKey
+            metadata.isPasswordlessAccount = isPasswordlessAccount
         }
-        metadata.encryptedPrivateKey = keySet.encryptedDecapsulationKey
-        metadata.encryptedUserKey = keySet.encapsulatedDownstreamKey
-        metadata.isPasswordlessAccount = isPasswordlessAccount
-        try await deviceAuthKeychainRepository.setDeviceAuthKeyMetadata(metadata, userId: resolvedUserId)
         try await deviceAuthKeychainRepository.setDeviceAuthKeyUserId(resolvedUserId, email: account.profile.email)
 
         var curVal = deviceAuthKeySubject.value
@@ -351,12 +328,10 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
             userId: resolvedUserId,
         )
         // Reading the record asks the user for biometrics.
-        let prfOutput = try await store.rethrowingRecordReadError {
-            try await clientService.platform(for: resolvedUserId, isPreAuth: false)
-                .fido2()
-                .deviceAuthKeyAuthenticator(credentialStore: store)
-                .getPrfOutput()
-        }
+        let prfOutput = try await clientService.platform(for: resolvedUserId, isPreAuth: false)
+            .fido2()
+            .deviceAuthKeyAuthenticator(credentialStore: store)
+            .getPrfOutput()
         return DeviceAuthKeyUnlockData(
             encryptedPrivateKey: encryptedPrivateKey,
             encryptedUserKey: encryptedUserKey,
@@ -377,7 +352,7 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
     }
 
     func isPasswordlessAccount(userId: String?) async -> Bool {
-        guard await configService.getFeatureFlag(.deviceAuthKey) else { return false }
+        // Not behind the feature flag: a passwordless account has no other way to unlock.
         do {
             let resolvedUserId = try await activeAccountStateProvider.userIdOrActive(userId)
             let metadata = try await deviceAuthKeychainRepository.getDeviceAuthKeyMetadata(userId: resolvedUserId)
@@ -393,13 +368,10 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
         userId: String?,
     ) async throws {
         let resolvedUserId = try await activeAccountStateProvider.userIdOrActive(userId)
-        guard var metadata = try await deviceAuthKeychainRepository.getDeviceAuthKeyMetadata(userId: resolvedUserId)
-        else {
-            throw DeviceAuthKeyError.missingOrInvalidKey
+        try await updateMetadata(userId: resolvedUserId) { metadata in
+            metadata.encryptedPrivateKey = encryptedPrivateKey
+            metadata.encryptedUserKey = encryptedUserKey
         }
-        metadata.encryptedPrivateKey = encryptedPrivateKey
-        metadata.encryptedUserKey = encryptedUserKey
-        try await deviceAuthKeychainRepository.setDeviceAuthKeyMetadata(metadata, userId: resolvedUserId)
     }
 
     // MARK: Publishers
@@ -407,12 +379,33 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
     func deviceAuthKeyPublisher() -> AnyPublisher<[String: Bool], Never> {
         deviceAuthKeySubject.eraseToAnyPublisher()
     }
+
+    // MARK: Private
+
+    /// Changes the stored metadata of the device auth key. Writes it only if it changed.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID for the account.
+    ///   - change: The change to make.
+    ///
+    private func updateMetadata(
+        userId: String,
+        _ change: (inout DeviceAuthKeyKeychainMetadata) -> Void,
+    ) async throws {
+        guard let metadata = try await deviceAuthKeychainRepository.getDeviceAuthKeyMetadata(userId: userId) else {
+            throw DeviceAuthKeyError.missingOrInvalidKey
+        }
+        var updated = metadata
+        change(&updated)
+        guard updated != metadata else { return }
+        try await deviceAuthKeychainRepository.setDeviceAuthKeyMetadata(updated, userId: userId)
+    }
 }
 
 // MARK: - DeviceAuthKeyError
 
 /// Errors that can occur when working with device auth keys.
-enum DeviceAuthKeyError: Error, Equatable {
+enum DeviceAuthKeyError: Error {
     /// A device auth key already exists for the user.
     case alreadyExists
 
@@ -421,21 +414,19 @@ enum DeviceAuthKeyError: Error, Equatable {
 
     /// The PRF key set that unlocks the vault with the device auth key is missing.
     case missingPrfKeySet
-
-    /// The server didn't return a PRF key set for the device auth key after login.
-    case prfNotEnabledOnServer
 }
 
 // MARK: - Error + DeviceAuthKey
 
 extension Error {
-    /// Whether the user cancelled or failed the biometric check that guards the device auth key.
-    var isDeviceAuthKeyBiometryCancellation: Bool {
-        guard let error = self as? KeychainServiceError, case let .osStatusError(status) = error else {
+    /// Whether the user cancelled the biometric check that guards the device auth key.
+    var isDeviceAuthKeyCancellation: Bool {
+        guard let error = self as? BitwardenSdk.BitwardenError,
+              case .DeviceAuthKey(.UserCancelled) = error
+        else {
             return false
         }
-        return [errSecAuthFailed, errSecUserCanceled, kLAErrorAppCancel, kLAErrorSystemCancel, kLAErrorUserCancel]
-            .contains(status)
+        return true
     }
 }
 
@@ -448,9 +439,6 @@ final class DefaultDeviceAuthKeyStore: DeviceAuthKeyStore, @unchecked Sendable {
 
     /// Repository for managing device auth keys in the keychain.
     private let deviceAuthKeychainRepository: DeviceAuthKeychainRepository
-
-    /// The error of the last failed record read, such as a cancelled biometrics prompt.
-    private var recordReadError: Error?
 
     /// The ID of the user that owns the device auth key.
     private let userId: String
@@ -519,9 +507,9 @@ final class DefaultDeviceAuthKeyStore: DeviceAuthKeyStore, @unchecked Sendable {
         let keychainRecord: DeviceAuthKeyKeychainRecord?
         do {
             keychainRecord = try await deviceAuthKeychainRepository.getDeviceAuthKey(userId: userId)
-        } catch {
-            recordReadError = error
-            throw error
+        } catch let KeychainServiceError.osStatusError(status) where status == errSecUserCanceled {
+            // The SDK returns this error as is, so the app can tell a cancel from a failure.
+            throw DeviceAuthKeyCallbackError.UserCancelled
         }
         guard let keychainRecord else { return nil }
         return DeviceAuthKeyRecord(
@@ -538,21 +526,5 @@ final class DefaultDeviceAuthKeyStore: DeviceAuthKeyStore, @unchecked Sendable {
 
     func deleteRecordAndMetadata() async throws {
         try await deviceAuthKeychainRepository.deleteDeviceAuthKey(userId: userId)
-    }
-
-    // MARK: Methods
-
-    /// Runs an SDK call that uses this store. If the call fails after a failed record read, this
-    /// throws the record read error instead, because the SDK replaces it with a generic error.
-    ///
-    /// - Parameter operation: The SDK call.
-    /// - Returns: The result of the SDK call.
-    ///
-    func rethrowingRecordReadError<T>(_ operation: () async throws -> T) async throws -> T {
-        do {
-            return try await operation()
-        } catch {
-            throw recordReadError ?? error
-        }
     }
 }
