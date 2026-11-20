@@ -59,8 +59,13 @@ final class DeviceAuthKeyDemoUITests: XCTestCase {
 
         setSelfHostedEnvironment()
         signUpWithDeviceAuthKey(turnOnAutofill: true)
-        // A lock and unlock syncs the device auth key into the iOS passkey list.
+        // A lock and unlock syncs the device auth key into the iOS passkey list. The sync waits for
+        // a return to the foreground, which a fresh launch never sends.
         lockAndUnlock()
+        XCUIDevice.shared.press(.home)
+        Thread.sleep(forTimeInterval: 2)
+        app.activate()
+        Thread.sleep(forTimeInterval: 5)
 
         let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
         safari.terminate()
@@ -72,6 +77,14 @@ final class DeviceAuthKeyDemoUITests: XCTestCase {
         hold("safari-login", seconds: max(pause, 1) * 2)
         passkeyButton.tap()
         step("tapped log in with passkey")
+        if env["DEMO_DEBUG_SHEET"] == "1" {
+            for index in 1 ... 6 {
+                hold("sheet-debug-\(index)", seconds: 2)
+            }
+            let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+            print("DEMO-DEBUG springboard:\n\(springboard.debugDescription)")
+            print("DEMO-DEBUG safari:\n\(safari.debugDescription)")
+        }
 
         // The iOS passkey sheet offers the device auth key from Bitwarden.
         let sheetButton = systemButton(["Continue", "Sign In", "Use Passkey"], timeout: 30)
@@ -131,10 +144,15 @@ final class DeviceAuthKeyDemoUITests: XCTestCase {
         // Autofill setup screen, then the vault.
         let turnOnLater = element("Turn on later", timeout: 60)
         if turnOnLater.exists, turnOnAutofill {
+            // iOS asks to allow Bitwarden as the passkey provider. The setup screen can stay open
+            // afterwards, so leave it with "Turn on later".
             tap("Continue")
-            systemButton(["Allow", "Turn On", "Use"], timeout: 15).tap()
+            let allow = systemButton(["Allow", "Turn On", "Use", "Turn On AutoFill"], timeout: 15)
+            print("DEMO-DEBUG allow button: \(allow.debugDescription)")
+            allow.tap()
             step("turned on autofill")
-        } else if turnOnLater.exists {
+        }
+        if element("Turn on later", timeout: 5).exists {
             turnOnLater.tap()
             tap("Confirm")
         }
@@ -201,7 +219,6 @@ final class DeviceAuthKeyDemoUITests: XCTestCase {
             XCUIApplication(bundleIdentifier: "com.apple.springboard"),
             XCUIApplication(bundleIdentifier: "com.apple.mobilesafari"),
             XCUIApplication(bundleIdentifier: "com.apple.AuthenticationServicesCore.AuthenticationServicesAgent"),
-            app,
         ]
         let predicate = NSPredicate(format: "label IN %@", labels)
         let deadline = Date().addingTimeInterval(timeout)
