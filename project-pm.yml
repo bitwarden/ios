@@ -94,6 +94,20 @@ schemes:
         - path: TestPlans/Bitwarden-Default.xctestplan
           defaultPlan: true
         - path: TestPlans/Bitwarden-Unit.xctestplan
+  BitwardenE2ETests:
+    build:
+      targets:
+        Bitwarden: all
+        BitwardenE2ETests: [test]
+    test:
+      config: Debug
+      language: en
+      region: US
+      targets:
+        - BitwardenE2ETests
+      testPlans:
+        - path: TestPlans/Bitwarden-E2E.xctestplan
+          defaultPlan: true
   BitwardenNotificationExtension:
     build:
       targets:
@@ -296,6 +310,20 @@ targets:
       - target: BitwardenKit/TestHelpers
     randomExecutionOrder: true
 
+  BitwardenE2ETests:
+    type: bundle.ui-testing
+    platform: iOS
+    configFiles:
+      Debug: Configs/BitwardenE2ETests.xcconfig
+      Release: Configs/BitwardenE2ETests.xcconfig
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: Bitwarden
+    sources:
+      - path: BitwardenE2ETests
+    dependencies:
+      - target: Bitwarden
   BitwardenNotificationExtension:
     type: app-extension
     platform: iOS

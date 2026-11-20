@@ -94,6 +94,13 @@ inclusive_language:
     - masterPassword
 
 custom_rules:
+  e2e_app_launch:
+    name: "E2E App Launch"
+    included: "BitwardenE2ETests/.*\\.swift"
+    excluded: "BitwardenE2ETests/Support/XCUIApplication\\+Launch\\.swift"
+    regex: "\\.(launch|activate)\\(\\)"
+    message: "Tests must not launch the app. E2ETestCase launches it with a clean state; use relaunchKeepingState() to restart it."
+    severity: error
   style_guide_font:
     name: "Style Guide Font"
     regex: "(.font\\(.system)"

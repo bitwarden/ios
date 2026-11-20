@@ -74,6 +74,9 @@ fastlane/README.md
 # Local xcconfig
 Configs/Local*.xcconfig
 
+# Local end-to-end test configuration
+.e2e.env
+
 # Local export options
 Configs/export_options.plist
 

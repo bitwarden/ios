@@ -32,6 +32,13 @@ class DataStore {
         return managedObjectModel
     }()
 
+    /// The location of the persisted store, in the app group container.
+    static var persistedStoreURL: URL {
+        FileManager.default
+            .containerURL(forSecurityApplicationGroupIdentifier: Bundle.main.groupIdentifier)!
+            .appendingPathComponent("Bitwarden.sqlite")
+    }
+
     // MARK: Properties
 
     /// A managed object context which executes on a background queue.
@@ -62,15 +69,11 @@ class DataStore {
         self.errorReporter = errorReporter
 
         persistentContainer = NSPersistentContainer(name: "Bitwarden", managedObjectModel: Self.managedObjectModel)
-        let storeDescription: NSPersistentStoreDescription
-        switch storeType {
+        let storeDescription = switch storeType {
         case .memory:
-            storeDescription = NSPersistentStoreDescription(url: URL(fileURLWithPath: "/dev/null"))
+            NSPersistentStoreDescription(url: URL(fileURLWithPath: "/dev/null"))
         case .persisted:
-            let storeURL = FileManager.default
-                .containerURL(forSecurityApplicationGroupIdentifier: Bundle.main.groupIdentifier)!
-                .appendingPathComponent("Bitwarden.sqlite")
-            storeDescription = NSPersistentStoreDescription(url: storeURL)
+            NSPersistentStoreDescription(url: Self.persistedStoreURL)
         }
         persistentContainer.persistentStoreDescriptions = [storeDescription]
         persistentContainer.loadPersistentStores { _, error in

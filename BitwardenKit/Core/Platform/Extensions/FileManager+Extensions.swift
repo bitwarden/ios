@@ -1,6 +1,6 @@
 import Foundation
 
-extension FileManager {
+public extension FileManager {
     /// Returns a URL for the directory containing flight recorder logs.
     ///
     /// - Returns: A URL for a directory to store flight recorder logs, or `nil` if the container URL is unavailable.
