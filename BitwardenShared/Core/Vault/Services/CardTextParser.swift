@@ -24,10 +24,18 @@ final class DefaultCardTextParser: CardTextParser {
         pattern: #"(?<!\d)(\d[ \-]?){12,18}\d(?!\d)"#,
     )
 
-    /// Regex that matches an expiry date in MM/YY or MM/YYYY format.
+    /// Regex that matches an expiry date in MM/YY or MM/YYYY format. A three digit year is rejected
+    /// as OCR noise.
     private static let expiryRegex = try? NSRegularExpression(
-        pattern: #"\b(0?[1-9]|1[0-2])\s*/\s*(\d{2,4})\b"#,
+        pattern: #"\b(0?[1-9]|1[0-2])\s*/\s*(\d{2}|\d{4})\b"#,
     )
+
+    /// The most digits a payment card number can have.
+    private static let maximumCardNumberDigits = 19
+
+    /// The fewest digits a payment card number can have. Also separates a card number from an
+    /// expiry, which carries at most six digits.
+    private static let minimumCardNumberDigits = 13
 
     // MARK: CardTextParser
 
@@ -89,7 +97,8 @@ final class DefaultCardTextParser: CardTextParser {
         let matchRange = Range(match.range, in: line)!
         let raw = String(line[matchRange])
         let digits = raw.filter(\.isNumber)
-        guard digits.count >= 13, digits.count <= 19 else { return nil }
+        guard digits.count >= Self.minimumCardNumberDigits,
+              digits.count <= Self.maximumCardNumberDigits else { return nil }
         // Reject sequences that look like dates or years (e.g. 8-digit numbers that match no Luhn prefix)
         guard !looksLikeDateOrYear(digits) else { return nil }
         guard isLuhnValid(digits), hasValidLength(digits) else { return nil }
@@ -97,8 +106,14 @@ final class DefaultCardTextParser: CardTextParser {
     }
 
     /// Extracts an expiry month (1–12) and 4-digit year from a line of text.
+    ///
+    /// Lines carrying a card number's worth of digits are skipped: OCR often reads a digit or a
+    /// group separator within a card number as `/`, so `"5/33 6195 0371 5702"` would otherwise parse
+    /// as May 2033.
     private func extractExpiry(from line: String) -> (month: Int, year: String)? {
-        guard let regex = Self.expiryRegex else { return nil }
+        guard let regex = Self.expiryRegex,
+              line.filter(\.isNumber).count < Self.minimumCardNumberDigits
+        else { return nil }
         let range = NSRange(line.startIndex..., in: line)
         let allMatches = regex.matches(in: line, range: range)
         guard let match = allMatches.last,
