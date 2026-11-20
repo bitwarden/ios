@@ -39,4 +39,36 @@ protocol DeviceAuthKeychainRepository { // sourcery: AutoMockable
         metadata: DeviceAuthKeyKeychainMetadata,
         userId: String,
     ) async throws
+
+    /// Gets the ID of the user that has a device auth key on this device for an email address.
+    /// This value stays in the keychain after the user logs out.
+    ///
+    /// - Parameter email: The user's email address.
+    /// - Returns: The user ID, or `nil` if there's no device auth key for the email.
+    ///
+    func getDeviceAuthKeyUserId(email: String) async throws -> String?
+
+    /// Stores the device auth key metadata for a user in the keychain.
+    ///
+    /// - Parameters:
+    ///   - metadata: The metadata of device auth key to store.
+    ///   - userId: The user's ID, used to get back the device auth key later on.
+    ///
+    func setDeviceAuthKeyMetadata(_ metadata: DeviceAuthKeyKeychainMetadata, userId: String) async throws
+
+    /// Stores the device auth key secrets for a user in the keychain.
+    ///
+    /// - Parameters:
+    ///   - record: The device auth key, including the secrets, to store.
+    ///   - userId: The user's ID, used to get back the device auth key later on.
+    ///
+    func setDeviceAuthKeyRecord(_ record: DeviceAuthKeyKeychainRecord, userId: String) async throws
+
+    /// Stores the ID of the user that has a device auth key on this device for an email address.
+    ///
+    /// - Parameters:
+    ///   - userId: The user's ID, or `nil` to remove the entry.
+    ///   - email: The user's email address.
+    ///
+    func setDeviceAuthKeyUserId(_ userId: String?, email: String) async throws
 }

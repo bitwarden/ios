@@ -126,6 +126,9 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     /// The service to get server-specified configuration.
     private let configService: ConfigService
 
+    /// The service used to create and use the device auth key.
+    private let deviceAuthKeyService: DeviceAuthKeyService
+
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
@@ -158,6 +161,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     ///   - biometricsRepository: The service to use system biometrics for vault unlock.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - configService: The service to get server-specified configuration.
+    ///   - deviceAuthKeyService: The service used to create and use the device auth key.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - policyService: The service for managing the polices for the user.
@@ -170,6 +174,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         biometricsRepository: BiometricsRepository,
         clientService: ClientService,
         configService: ConfigService,
+        deviceAuthKeyService: DeviceAuthKeyService,
         errorReporter: ErrorReporter,
         flightRecorder: FlightRecorder,
         policyService: PolicyService,
@@ -181,6 +186,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         self.biometricsRepository = biometricsRepository
         self.clientService = clientService
         self.configService = configService
+        self.deviceAuthKeyService = deviceAuthKeyService
         self.errorReporter = errorReporter
         self.flightRecorder = flightRecorder
         self.policyService = policyService
@@ -287,7 +293,12 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         guard hasMasterPassword else {
             let isBiometricsEnabled = try await biometricsRepository.getBiometricUnlockStatus(userId: userId).isEnabled
             let isPinEnabled = try await isPinUnlockAvailable(userId: userId)
-            guard isPinEnabled || isBiometricsEnabled else {
+            // An account that unlocks with the device auth key can be locked without a master
+            // password, PIN or biometrics unlock.
+            let isDeviceAuthKeyAccount = await configService.isDeviceAuthKeyEnabled()
+                ? await deviceAuthKeyService.isPasswordlessAccount(userId: userId)
+                : false
+            guard isPinEnabled || isBiometricsEnabled || isDeviceAuthKeyAccount else {
                 // If the user doesn't have a master password and hasn't enabled a pin or
                 // biometrics, their timeout action needs to be logout.
                 try await stateService.setTimeoutAction(action: .logout, userId: userId)

@@ -57,6 +57,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
             biometricsRepository: biometricsRepository,
             clientService: clientService,
             configService: configService,
+            deviceAuthKeyService: MockDeviceAuthKeyService.withDefaults(),
             errorReporter: errorReporter,
             flightRecorder: flightRecorder,
             policyService: policyService,

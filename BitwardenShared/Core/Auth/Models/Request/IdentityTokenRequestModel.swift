@@ -14,6 +14,13 @@ struct IdentityTokenRequestModel {
 
         /// The user is authenticating with a username and password.
         case password(username: String, password: String)
+
+        /// The user is authenticating with a WebAuthn login credential, such as the device auth key.
+        ///
+        /// - Parameters:
+        ///   - token: The token from the server's assertion options response.
+        ///   - deviceResponse: The JSON encoded `AuthenticatorAssertionRawResponse`.
+        case webAuthn(token: String, deviceResponse: String)
     }
 
     // MARK: Properties
@@ -74,6 +81,12 @@ extension IdentityTokenRequestModel: FormURLEncodedRequestBody {
                 URLQueryItem(name: "grant_type", value: "password"),
                 URLQueryItem(name: "username", value: username),
                 URLQueryItem(name: "password", value: password),
+            ])
+        case let .webAuthn(token, deviceResponse):
+            queryItems.append(contentsOf: [
+                URLQueryItem(name: "grant_type", value: "webauthn"),
+                URLQueryItem(name: "token", value: token),
+                URLQueryItem(name: "deviceResponse", value: deviceResponse),
             ])
         }
 

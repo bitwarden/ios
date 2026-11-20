@@ -13,7 +13,11 @@ final class DeviceAuthKeyServiceTests: BitwardenTestCase {
     // MARK: Properties
 
     var activeAccountStateProvider: MockActiveAccountStateProvider!
+    var clientService: MockClientService!
     var deviceAuthKeychainRepository: MockDeviceAuthKeychainRepository!
+    var environmentService: MockEnvironmentService!
+    var errorReporter: MockErrorReporter!
+    var stateService: MockStateService!
     var subject: DefaultDeviceAuthKeyService!
 
     // MARK: Setup & Teardown
@@ -22,11 +26,20 @@ final class DeviceAuthKeyServiceTests: BitwardenTestCase {
         super.setUp()
 
         activeAccountStateProvider = MockActiveAccountStateProvider()
+        clientService = MockClientService()
         deviceAuthKeychainRepository = MockDeviceAuthKeychainRepository()
+        environmentService = MockEnvironmentService()
+        errorReporter = MockErrorReporter()
+        stateService = MockStateService()
 
         subject = DefaultDeviceAuthKeyService(
             activeAccountStateProvider: activeAccountStateProvider,
+            clientService: clientService,
             deviceAuthKeychainRepository: deviceAuthKeychainRepository,
+            environmentService: environmentService,
+            errorReporter: errorReporter,
+            stateService: stateService,
+            systemDevice: MockSystemDevice(),
         )
     }
 
@@ -34,66 +47,34 @@ final class DeviceAuthKeyServiceTests: BitwardenTestCase {
         super.tearDown()
 
         activeAccountStateProvider = nil
+        clientService = nil
         deviceAuthKeychainRepository = nil
+        environmentService = nil
+        errorReporter = nil
+        stateService = nil
         subject = nil
     }
 
-    // MARK: Tests - assertDeviceAuthKey
+    // MARK: Tests - DeviceAuthKeyCrypto
 
-    /// `assertDeviceAuthKey(for:recordIdentifier:userId:)` throws notImplemented error.
+    /// `DeviceAuthKeyCrypto.prfKey(hmacSecret:)` returns a base64 encoded 64-byte key.
     ///
-    func test_assertDeviceAuthKey_throwsNotImplemented() async throws {
-        let allowedCredentials = [
-            Data(repeating: 2, count: 32),
-            Data(repeating: 5, count: 32),
-        ]
-        let passkeyParameters = MockPasskeyCredentialRequestParameters(allowedCredentials: allowedCredentials)
-        let request = GetAssertionRequest(fido2RequestParameters: passkeyParameters)
-
-        await assertAsyncThrows(error: DeviceAuthKeyError.notImplemented) {
-            _ = try await subject.assertDeviceAuthKey(
-                for: request,
-                recordIdentifier: "record123",
-                userId: "userId123",
-            )
-        }
+    func test_prfKey_length() throws {
+        let key = try DeviceAuthKeyCrypto.prfKey(hmacSecret: Data(repeating: 1, count: 32))
+        XCTAssertEqual(Data(base64Encoded: key)?.count, 64)
     }
 
-    // MARK: Tests - createDeviceAuthKey
-
-    /// `createDeviceAuthKey(masterPasswordHash:overwrite:userId:)` sends an event on the publisher when called.
-    func test_createDeviceAuthKey_publisher() async throws {
-        var publishedValues = [[String: Bool]]()
-
-        let publisher = subject.deviceAuthKeyPublisher()
-            .sink(receiveValue: { value in
-                publishedValues.append(value)
-            })
-        defer { publisher.cancel() }
-
-        // TODO: PM-26177 Once the create flow is working, this can become a `try` instead of `try?`
-        _ = try? await subject.createDeviceAuthKey(
-            masterPasswordHash: "hashedPassword",
-            overwrite: false,
-            userId: "userId123",
-        )
-
+    /// `DeviceAuthKeyCrypto.webAuthnOrigin(for:)` keeps a port that isn't the default port.
+    ///
+    func test_webAuthnOrigin() throws {
         XCTAssertEqual(
-            publishedValues.last,
-            ["userId123": true],
+            try DeviceAuthKeyCrypto.webAuthnOrigin(for: XCTUnwrap(URL(string: "https://localhost:8080/"))),
+            "https://localhost:8080",
         )
-    }
-
-    /// `createDeviceAuthKey(masterPasswordHash:overwrite:userId:)` throws notImplemented error.
-    ///
-    func test_createDeviceAuthKey_throwsNotImplemented() async throws {
-        await assertAsyncThrows(error: DeviceAuthKeyError.notImplemented) {
-            _ = try await subject.createDeviceAuthKey(
-                masterPasswordHash: "hashedPassword",
-                overwrite: false,
-                userId: "userId123",
-            )
-        }
+        XCTAssertEqual(
+            try DeviceAuthKeyCrypto.webAuthnOrigin(for: XCTUnwrap(URL(string: "https://vault.bitwarden.com:443"))),
+            "https://vault.bitwarden.com",
+        )
     }
 
     // MARK: Tests - deleteDeviceAuthKey
@@ -101,6 +82,7 @@ final class DeviceAuthKeyServiceTests: BitwardenTestCase {
     /// `deleteDeviceAuthKey(userId:)` successfully deletes the device auth key from the keychain repository.
     ///
     func test_deleteDeviceAuthKey_success() async throws {
+        deviceAuthKeychainRepository.getDeviceAuthKeyMetadataReturnValue = nil
         try await subject.deleteDeviceAuthKey(userId: "userId123")
 
         XCTAssertEqual(deviceAuthKeychainRepository.deleteDeviceAuthKeyCallsCount, 1)
@@ -111,6 +93,7 @@ final class DeviceAuthKeyServiceTests: BitwardenTestCase {
     ///
     func test_deleteDeviceAuthKey_throwsError() async throws {
         let expectedError = BitwardenTestError.example
+        deviceAuthKeychainRepository.getDeviceAuthKeyMetadataReturnValue = nil
         deviceAuthKeychainRepository.deleteDeviceAuthKeyThrowableError = expectedError
 
         await assertAsyncThrows(error: expectedError) {

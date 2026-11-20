@@ -35,6 +35,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var hasLockedAllVaults = false
     var hasManuallyLocked = false
     var hasMasterPasswordResult = Result<Bool, Error>.success(true)
+    var isDeviceAuthKeyAccountResult = false
     var isLockedResult: Result<Bool, Error> = .success(true)
     var isPinUnlockAvailableResult: Result<Bool, Error> = .success(false)
     var isUserManagedByOrganizationResult: Result<Bool, Error> = .success(false)
@@ -92,6 +93,10 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var unlockVaultWithBiometricsResult: Result<Void, Error> = .success(())
     var unlockVaultWithAuthVaultKeyCalled = false
     var unlockVaultWithAuthVaultKeyResult: Result<Void, Error> = .success(())
+    var unlockVaultWithDeviceAuthKeyCalled = false
+    var unlockVaultWithDeviceAuthKeyResult: Result<Void, Error> = .success(())
+    var unlockVaultWithDeviceAuthKeyUnlockData: DeviceAuthKeyUnlockData?
+
     var unlockVaultWithDeviceKeyCalled = false
     var unlockVaultWithDeviceKeyResult: Result<Void, Error> = .success(())
     var unlockVaultWithKeyConnectorKeyCalled = false
@@ -236,6 +241,10 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
 
     func hasMasterPassword() async throws -> Bool {
         try hasMasterPasswordResult.get()
+    }
+
+    func isDeviceAuthKeyAccount(userId: String?) async -> Bool {
+        isDeviceAuthKeyAccountResult
     }
 
     func isLocked(userId: String?) async throws -> Bool {
@@ -389,6 +398,12 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     func unlockVaultWithAuthenticatorVaultKey(userId: String) async throws {
         unlockVaultWithAuthVaultKeyCalled = true
         try unlockVaultWithAuthVaultKeyResult.get()
+    }
+
+    func unlockVaultWithDeviceAuthKey(unlockData: DeviceAuthKeyUnlockData?) async throws {
+        unlockVaultWithDeviceAuthKeyCalled = true
+        unlockVaultWithDeviceAuthKeyUnlockData = unlockData
+        try unlockVaultWithDeviceAuthKeyResult.get()
     }
 
     func unlockVaultWithDeviceKey() async throws {

@@ -149,6 +149,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             clientCertificateService: clientCertificateService,
             clientService: clientService,
             configService: configService,
+            deviceAuthKeyService: MockDeviceAuthKeyService.withDefaults(),
             environmentService: environmentService,
             errorReporter: errorReporter,
             fillAssistRepository: fillAssistRepository,

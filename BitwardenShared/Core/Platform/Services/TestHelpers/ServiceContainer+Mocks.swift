@@ -35,7 +35,7 @@ extension ServiceContainer {
         clientService: ClientService = MockClientService(),
         configService: ConfigService = MockConfigService(),
         deviceAPIService: DeviceAPIService? = nil,
-        deviceAuthKeyService: DeviceAuthKeyService = MockDeviceAuthKeyService(),
+        deviceAuthKeyService: DeviceAuthKeyService = MockDeviceAuthKeyService.withDefaults(),
         environmentService: EnvironmentService = MockEnvironmentService(),
         errorReportBuilder: ErrorReportBuilder = MockErrorReportBuilder(),
         errorReporter: ErrorReporter = MockErrorReporter(),

@@ -75,6 +75,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             clientService: clientService,
             configService: configService,
             credentialIdentityStore: credentialIdentityStore,
+            deviceAuthKeyService: MockDeviceAuthKeyService.withDefaults(),
             environmentService: environmentService,
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,

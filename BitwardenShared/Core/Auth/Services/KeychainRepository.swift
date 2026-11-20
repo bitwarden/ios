@@ -24,6 +24,10 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
     /// The keychain item for the device auth key metadata.
     case deviceAuthKeyMetadata(userId: String)
 
+    /// The keychain item for the index of users that have a device auth key on this device,
+    /// keyed by email. It lets a logged out user find their device auth key again.
+    case deviceAuthKeyUserIds
+
     /// The keychain item for device key.
     case deviceKey(userId: String)
 
@@ -71,6 +75,7 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
              .authenticatorVaultKey,
              .clientCertificateIdentity,
              .deviceAuthKeyMetadata,
+             .deviceAuthKeyUserIds,
              .deviceKey,
              .fillAssistRulesFingerprint,
              .lastActiveBootEpoch,
@@ -96,6 +101,7 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
         case .biometrics,
              .deviceAuthKey,
              .deviceAuthKeyMetadata,
+             .deviceAuthKeyUserIds,
              .deviceKey,
              .lastActiveBootEpoch,
              .lastActiveMonotonicTime,
@@ -134,6 +140,8 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
             "deviceAuthKey_" + id
         case let .deviceAuthKeyMetadata(userId: id):
             "deviceAuthKeyMetadata_" + id
+        case .deviceAuthKeyUserIds:
+            "deviceAuthKeyUserIds"
         case let .fillAssistRulesFingerprint(userId):
             "fillAssistRulesFingerprint_\(userId)"
         case let .lastActiveBootEpoch(userId):
@@ -531,6 +539,10 @@ extension DefaultKeychainRepository: DeviceAuthKeychainRepository {
         }
     }
 
+    func getDeviceAuthKeyUserId(email: String) async throws -> String? {
+        try await getDeviceAuthKeyUserIds()[email.lowercased()]
+    }
+
     func setDeviceAuthKey(
         record: DeviceAuthKeyKeychainRecord,
         metadata: DeviceAuthKeyKeychainMetadata,
@@ -538,11 +550,35 @@ extension DefaultKeychainRepository: DeviceAuthKeychainRepository {
     ) async throws {
         // We want to set metadata last because that's what's used to determine if we're in a
         // consistent state.
-        try await keychainServiceFacade.setValue(record, for: BitwardenKeychainItem.deviceAuthKey(userId: userId))
+        try await setDeviceAuthKeyRecord(record, userId: userId)
+        try await setDeviceAuthKeyMetadata(metadata, userId: userId)
+    }
+
+    func setDeviceAuthKeyMetadata(_ metadata: DeviceAuthKeyKeychainMetadata, userId: String) async throws {
         try await keychainServiceFacade.setValue(
             metadata,
             for: BitwardenKeychainItem.deviceAuthKeyMetadata(userId: userId),
         )
+    }
+
+    func setDeviceAuthKeyRecord(_ record: DeviceAuthKeyKeychainRecord, userId: String) async throws {
+        try await keychainServiceFacade.setValue(record, for: BitwardenKeychainItem.deviceAuthKey(userId: userId))
+    }
+
+    func setDeviceAuthKeyUserId(_ userId: String?, email: String) async throws {
+        var userIds = try await getDeviceAuthKeyUserIds()
+        userIds[email.lowercased()] = userId
+        try await keychainServiceFacade.setValue(userIds, for: BitwardenKeychainItem.deviceAuthKeyUserIds)
+    }
+
+    /// Gets the index of users that have a device auth key on this device, keyed by email.
+    ///
+    private func getDeviceAuthKeyUserIds() async throws -> [String: String] {
+        do {
+            return try await keychainServiceFacade.getValue(for: BitwardenKeychainItem.deviceAuthKeyUserIds)
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
+            return [:]
+        }
     }
 }
 

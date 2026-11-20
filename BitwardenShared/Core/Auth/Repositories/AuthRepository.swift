@@ -105,6 +105,14 @@ protocol AuthRepository: AnyObject {
     ///
     func hasMasterPassword() async throws -> Bool
 
+    /// Whether the account uses the device auth key instead of a master password to log in and
+    /// unlock. This is always `false` if the device auth key feature is off.
+    ///
+    /// - Parameter userId: The user Id to be mapped to an account. Defaults to the active account if `nil`.
+    /// - Returns: Whether the account is a device auth key account.
+    ///
+    func isDeviceAuthKeyAccount(userId: String?) async -> Bool
+
     /// Checks the locked status of a user vault by user id.
     ///
     ///  - Parameter userId: The userId of the account.
@@ -262,6 +270,14 @@ protocol AuthRepository: AnyObject {
     /// Attempts to unlock the user's vault with biometrics.
     ///
     func unlockVaultWithBiometrics() async throws
+
+    /// Attempts to unlock the user's vault with the device auth key.
+    ///
+    /// - Parameter unlockData: The data to unlock the vault, if the device auth key was already
+    ///   read (after a login with the device auth key). If `nil`, the device auth key is read from
+    ///   the keychain, which asks the user for biometrics.
+    ///
+    func unlockVaultWithDeviceAuthKey(unlockData: DeviceAuthKeyUnlockData?) async throws
 
     /// Attempts to unlock the user's vault with the stored device key.
     ///
@@ -469,6 +485,9 @@ class DefaultAuthRepository {
     /// The service to get server-specified configuration.
     private let configService: ConfigService
 
+    /// The service used to create and use the device auth key.
+    private let deviceAuthKeyService: DeviceAuthKeyService
+
     /// The service used by the application to manage the environment settings.
     private let environmentService: EnvironmentService
 
@@ -528,6 +547,7 @@ class DefaultAuthRepository {
     ///   - clientCertificateService: The service used to manage client certificates for mTLS authentication.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - configService: The service to get server-specified configuration.
+    ///   - deviceAuthKeyService: The service used to create and use the device auth key.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - fillAssistRepository: The repository used to manage cached Fill Assist targeting rules.
@@ -555,6 +575,7 @@ class DefaultAuthRepository {
         clientCertificateService: ClientCertificateService,
         clientService: ClientService,
         configService: ConfigService,
+        deviceAuthKeyService: DeviceAuthKeyService,
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         fillAssistRepository: FillAssistRepository,
@@ -580,6 +601,7 @@ class DefaultAuthRepository {
         self.clientCertificateService = clientCertificateService
         self.clientService = clientService
         self.configService = configService
+        self.deviceAuthKeyService = deviceAuthKeyService
         self.environmentService = environmentService
         self.errorReporter = errorReporter
         self.fillAssistRepository = fillAssistRepository
@@ -617,7 +639,9 @@ extension DefaultAuthRepository: AuthRepository {
         let isUnlockWithBiometricOn: Bool = await (
             try? biometricsRepository.getBiometricUnlockStatus(userId: userId).isEnabled
         ) ?? false
-        return hasMasterPassword || isUnlockWithPinOn || isUnlockWithBiometricOn
+        // An account that unlocks with the device auth key can be locked without any of the above.
+        let isDeviceAuthKeyAccount = await isDeviceAuthKeyAccount(userId: userId)
+        return hasMasterPassword || isUnlockWithPinOn || isUnlockWithBiometricOn || isDeviceAuthKeyAccount
     }
 
     func canVerifyMasterPassword(userId: String? = nil) async throws -> Bool {
@@ -821,6 +845,11 @@ extension DefaultAuthRepository: AuthRepository {
         let account = try await getAccount()
         guard let decryptionOptions = account.profile.userDecryptionOptions else { return true }
         return decryptionOptions.hasMasterPassword
+    }
+
+    func isDeviceAuthKeyAccount(userId: String?) async -> Bool {
+        guard await configService.isDeviceAuthKeyEnabled() else { return false }
+        return await deviceAuthKeyService.isPasswordlessAccount(userId: userId)
     }
 
     func isLocked(userId: String?) async throws -> Bool {
@@ -1083,6 +1112,22 @@ extension DefaultAuthRepository: AuthRepository {
     func unlockVaultWithBiometrics() async throws {
         let decryptedUserKey = try await biometricsRepository.getUserAuthKey()
         try await unlockVault(method: .decryptedKey(decryptedUserKey: decryptedUserKey))
+    }
+
+    func unlockVaultWithDeviceAuthKey(unlockData: DeviceAuthKeyUnlockData?) async throws {
+        let unlockData = if let unlockData {
+            unlockData
+        } else {
+            try await deviceAuthKeyService.getDeviceAuthKeyUnlockData(userId: nil)
+        }
+
+        // The SDK has no unlock method for a PRF key set. The key set uses the same wrapping as the
+        // trusted device keys, so the device key method unlocks it with the stretched PRF key.
+        try await unlockVault(method: .deviceKey(
+            deviceKey: unlockData.prfKey,
+            protectedDevicePrivateKey: unlockData.encryptedPrivateKey,
+            deviceProtectedUserKey: unlockData.encryptedUserKey,
+        ))
     }
 
     func unlockVaultWithDeviceKey() async throws {

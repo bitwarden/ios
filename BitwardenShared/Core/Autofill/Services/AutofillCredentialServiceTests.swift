@@ -680,12 +680,11 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             recordIdentifier: "dak-record-identifier",
         )
         let passkeyRequest = ASPasskeyCredentialRequest.fixture(credentialIdentity: passkeyIdentity)
-        let expectedAssertionResult = GetAssertionResult(
+        let expectedAssertionResult = DeviceAuthKeyGetAssertionResult(
             credentialId: Data(repeating: 2, count: 3),
             authenticatorData: Data(repeating: 2, count: 4),
             signature: Data(repeating: 2, count: 5),
             userHandle: Data(repeating: 2, count: 6),
-            selectedCredential: SelectedCredential.fixture(),
             extensions: GetAssertionExtensionsOutput(
                 prf: GetAssertionPrfOutput(
                     results: PrfOutputValues(
@@ -718,8 +717,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertEqual(result.authenticatorData, expectedAssertionResult.authenticatorData)
         XCTAssertEqual(result.credentialID, expectedAssertionResult.credentialId)
 
-        // TODO: PM-26177 once SDK is updated for full PRF support we can include this
-        XCTAssertNil(result.extensionOutput)
+        XCTAssertNotNil(result.extensionOutput?.prf)
     }
 
     /// `provideFido2Credential(for:autofillCredentialServiceDelegate:fido2UserVerificationMediatorDelegate:)`
@@ -747,7 +745,6 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             cipherId: "dak-record-identifier",
         )
 
-        deviceAuthKeyService.assertDeviceAuthKeyReturnValue = expectedAssertionResult
         fido2AuthenticatorMock.getAssertionReturnValue = expectedAssertionResult
 
         _ = try await subject.provideFido2Credential(

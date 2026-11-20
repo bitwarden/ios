@@ -213,6 +213,14 @@ protocol AuthService {
         isAuthenticated: Bool,
     ) async throws -> (String, String)
 
+    /// Login with the device auth key that is stored on this device for the user. This asks the
+    /// user for biometrics to read the device auth key from the keychain.
+    ///
+    /// - Parameter email: The user's email address.
+    /// - Returns: The data to unlock the vault with the device auth key.
+    ///
+    func loginWithDeviceAuthKey(email: String) async throws -> DeviceAuthKeyUnlockData
+
     /// Login with the master password.
     ///
     /// - Parameters:
@@ -340,6 +348,9 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     /// The store which makes credential identities available to the system for AutoFill suggestions.
     private let credentialIdentityStore: CredentialIdentityStore
 
+    /// The service used to create and use the device auth key.
+    private let deviceAuthKeyService: DeviceAuthKeyService
+
     /// The service used by the application to manage the environment settings.
     private let environmentService: EnvironmentService
 
@@ -422,6 +433,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     ///   - configService: The service to get server-specified configuration.
     ///   - credentialIdentityStore: The store which makes credential identities available to the
     ///     system for AutoFill suggestions.
+    ///   - deviceAuthKeyService: The service used to create and use the device auth key.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - keychainRepository: The repository used to manages keychain items.
@@ -437,6 +449,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         clientService: ClientService,
         configService: ConfigService,
         credentialIdentityStore: CredentialIdentityStore = SafeCredentialIdentityStore(),
+        deviceAuthKeyService: DeviceAuthKeyService,
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         keychainRepository: KeychainRepository,
@@ -451,6 +464,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         self.clientService = clientService
         self.configService = configService
         self.credentialIdentityStore = credentialIdentityStore
+        self.deviceAuthKeyService = deviceAuthKeyService
         self.environmentService = environmentService
         self.errorReporter = errorReporter
         self.keychainRepository = keychainRepository
@@ -685,6 +699,55 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         return (loginWithDeviceData.privateKey, key)
     }
 
+    func loginWithDeviceAuthKey(email: String) async throws -> DeviceAuthKeyUnlockData {
+        // Clean any stored value in case the user changes account
+        preAuthForcePasswordResetReason = nil
+
+        // Get the challenge from the server and sign it with the device auth key.
+        let assertionOptions = try await authAPIService.getWebAuthnLoginAssertionOptions()
+        let assertion = try await deviceAuthKeyService.assertDeviceAuthKeyForLogin(
+            challenge: assertionOptions.options.challenge,
+            rpId: assertionOptions.options.rpId,
+            email: email,
+        )
+
+        // Get the identity token to log in to Bitwarden.
+        let response = try await getIdentityTokenResponse(
+            authenticationMethod: .webAuthn(
+                token: assertionOptions.token,
+                deviceResponse: assertion.deviceResponse,
+            ),
+            email: email,
+        )
+
+        // The server returns the PRF key set that was registered with the device auth key. Keep it
+        // for the next unlock. If the server didn't return one, use the key set from this device.
+        if let prfOption = response.userDecryptionOptions?.webAuthnPrfOption {
+            try await deviceAuthKeyService.setDeviceAuthKeyPrfKeySet(
+                encryptedPrivateKey: prfOption.encryptedPrivateKey,
+                encryptedUserKey: prfOption.encryptedUserKey,
+                userId: assertion.userId,
+            )
+            return DeviceAuthKeyUnlockData(
+                encryptedPrivateKey: prfOption.encryptedPrivateKey,
+                encryptedUserKey: prfOption.encryptedUserKey,
+                prfKey: assertion.prfKey,
+            )
+        }
+
+        guard let metadata = try await deviceAuthKeyService.getDeviceAuthKeyMetadata(userId: assertion.userId),
+              let encryptedPrivateKey = metadata.encryptedPrivateKey,
+              let encryptedUserKey = metadata.encryptedUserKey
+        else {
+            throw DeviceAuthKeyError.prfNotEnabledOnServer
+        }
+        return DeviceAuthKeyUnlockData(
+            encryptedPrivateKey: encryptedPrivateKey,
+            encryptedUserKey: encryptedUserKey,
+            prfKey: assertion.prfKey,
+        )
+    }
+
     func loginWithMasterPassword(
         _ masterPassword: String,
         username: String,
@@ -801,6 +864,9 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
         if response.userDecryptionOptions?.hasMasterPassword == false,
            response.userDecryptionOptions?.keyConnectorOption == nil {
+            // An account that uses the device auth key instead of a master password must not be
+            // asked to set a master password.
+            guard await !deviceAuthKeyService.isPasswordlessAccount(userId: nil) else { return false }
             throw AuthError.requireSetPassword
         }
 

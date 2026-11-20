@@ -41,6 +41,13 @@ protocol AuthAPIService {
     ///
     func getPendingLoginRequests() async throws -> [LoginRequest]
 
+    /// Retrieves the parameters for logging in with a WebAuthn login credential, such as the
+    /// device auth key. This doesn't need an authenticated user.
+    ///
+    /// - Returns: The assertion options and the token to send with the assertion.
+    ///
+    func getWebAuthnLoginAssertionOptions() async throws -> WebAuthnLoginAssertionOptionsResponse
+
     /// Retrieves the parameters for creating a new WebAuthn credential.
     ///
     /// - Parameters:
@@ -129,6 +136,10 @@ extension APIService: AuthAPIService {
     func getPendingLoginRequests() async throws -> [LoginRequest] {
         // Filter the response to only show the non-expired, non-answered requests.
         try await apiService.send(PendingLoginsRequest()).data.filter { !$0.isAnswered && !$0.isExpired }
+    }
+
+    func getWebAuthnLoginAssertionOptions() async throws -> WebAuthnLoginAssertionOptionsResponse {
+        try await identityService.send(WebAuthnLoginGetAssertionOptionsRequest())
     }
 
     func getWebAuthnCredentialCreationOptions(

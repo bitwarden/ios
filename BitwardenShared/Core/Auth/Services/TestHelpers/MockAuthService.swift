@@ -48,6 +48,11 @@ class MockAuthService: AuthService {
     var loginWithDeviceIsAuthenticated: Bool?
     var loginWithDeviceResult: Result<(String, String), Error> = .success(("", ""))
 
+    var loginWithDeviceAuthKeyEmail: String?
+    var loginWithDeviceAuthKeyResult: Result<DeviceAuthKeyUnlockData, Error> = .success(
+        DeviceAuthKeyUnlockData(encryptedPrivateKey: "private", encryptedUserKey: "user", prfKey: "prf"),
+    )
+
     var loginWithMasterPasswordPassword: String?
     var loginWithMasterPasswordUsername: String?
     var loginWithMasterPasswordIsNewAccount = false
@@ -125,6 +130,11 @@ class MockAuthService: AuthService {
         initiateLoginWithDeviceEmail = email
         initiateLoginWithDeviceType = type
         return try initiateLoginWithDeviceResult.get()
+    }
+
+    func loginWithDeviceAuthKey(email: String) async throws -> DeviceAuthKeyUnlockData {
+        loginWithDeviceAuthKeyEmail = email
+        return try loginWithDeviceAuthKeyResult.get()
     }
 
     func loginWithDevice(

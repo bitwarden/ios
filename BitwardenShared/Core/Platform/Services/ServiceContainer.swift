@@ -653,6 +653,16 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             stateService: stateService,
         )
 
+        let deviceAuthKeyService = DefaultDeviceAuthKeyService(
+            activeAccountStateProvider: stateService,
+            clientService: clientService,
+            deviceAuthKeychainRepository: keychainRepository,
+            environmentService: environmentService,
+            errorReporter: errorReporter,
+            stateService: stateService,
+            systemDevice: UIDevice.current,
+        )
+
         let biometricsService = DefaultBiometricsService()
         let biometricsRepository = DefaultBiometricsRepository(
             biometricsService: biometricsService,
@@ -759,6 +769,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             biometricsRepository: biometricsRepository,
             clientService: clientService,
             configService: configService,
+            deviceAuthKeyService: deviceAuthKeyService,
             errorReporter: errorReporter,
             flightRecorder: flightRecorder,
             policyService: policyService,
@@ -844,6 +855,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             authAPIService: apiService,
             clientService: clientService,
             configService: configService,
+            deviceAuthKeyService: deviceAuthKeyService,
             environmentService: environmentService,
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,
@@ -872,6 +884,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientCertificateService: clientCertificateService,
             clientService: clientService,
             configService: configService,
+            deviceAuthKeyService: deviceAuthKeyService,
             environmentService: environmentService,
             errorReporter: errorReporter,
             fillAssistRepository: fillAssistRepository,
@@ -1066,11 +1079,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             syncService: syncService,
         )
         #endif
-
-        let deviceAuthKeyService = DefaultDeviceAuthKeyService(
-            activeAccountStateProvider: stateService,
-            deviceAuthKeychainRepository: keychainRepository,
-        )
 
         let credentialIdentityFactory = DefaultCredentialIdentityFactory()
         let autofillCredentialService = DefaultAutofillCredentialService(

@@ -15,6 +15,15 @@ public protocol ClientFido2Service: AnyObject { // sourcery: AutoMockable
         credentialStore: Fido2CredentialStore,
     ) -> ClientFido2ClientProtocol
 
+    /// Returns the `ClientDeviceAuthKeyAuthenticator` to perform Fido2 authenticator tasks with the
+    /// device auth key.
+    /// - Parameter credentialStore: `DeviceAuthKeyStore` with the platform side logic to store the
+    ///   device auth key.
+    /// - Returns: The `ClientDeviceAuthKeyAuthenticator` to create and assert the device auth key.
+    func deviceAuthKeyAuthenticator(
+        credentialStore: DeviceAuthKeyStore,
+    ) -> ClientDeviceAuthKeyAuthenticatorProtocol
+
     /// Gets the `CipherView` Fido2 credentials returning an array of `Fido2CredentialAutofillView`
     /// - Parameter cipherView: `CipherView` containing the Fido2 credentials.
     /// - Returns: An array of Fido2 credentials of type `Fido2CredentialAutofillView`.
@@ -39,6 +48,12 @@ extension ClientFido2: ClientFido2Service {
         credentialStore: Fido2CredentialStore,
     ) -> ClientFido2ClientProtocol {
         client(userInterface: userInterface, credentialStore: credentialStore) as ClientFido2Client
+    }
+
+    public func deviceAuthKeyAuthenticator(
+        credentialStore: DeviceAuthKeyStore,
+    ) -> ClientDeviceAuthKeyAuthenticatorProtocol {
+        deviceAuthKeyAuthenticator(credentialStore: credentialStore) as ClientDeviceAuthKeyAuthenticator
     }
 
     public func vaultAuthenticator(
