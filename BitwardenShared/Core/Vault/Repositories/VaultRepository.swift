@@ -490,6 +490,8 @@ class DefaultVaultRepository {
             .decryptListWithFailures(ciphers: logins)
             .successes
             .compactMap { cipherListView -> String? in
+                // TODO: PM-47259 - Revisit matching only the first AutoFill URI when
+                // `CredentialIdentityFactory` registers more of the login's URIs.
                 // Match the first AutoFill URI, using the same rules as `CredentialIdentityFactory`.
                 // It's the only URI the login's credential identity is registered under. URIs are
                 // compared with a default `https://` scheme and without a trailing slash, so a login
