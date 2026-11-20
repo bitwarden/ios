@@ -341,7 +341,7 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertTrue(identities.isEmpty)
     }
 
-    /// `createCredentialIdentities(from:accountHasPremium:)` uses the base domain as a `.domain`
+    /// `createCredentialIdentities(from:accountHasPremium:)` uses the host as a `.domain`
     /// service identifier for both identities when the login URI doesn't have a scheme and uses
     /// the default match type.
     func test_createCredentialIdentities_uriWithoutScheme() async throws {
@@ -364,12 +364,12 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
         let oneTimeCodeIdentity = try XCTUnwrap(identities[0] as? ASOneTimeCodeCredentialIdentity)
         let passwordIdentity = try XCTUnwrap(identities[1] as? ASPasswordCredentialIdentity)
 
-        XCTAssertEqual(oneTimeCodeIdentity.serviceIdentifier.identifier, "example.com")
+        XCTAssertEqual(oneTimeCodeIdentity.serviceIdentifier.identifier, "www.example.com")
         XCTAssertEqual(
             oneTimeCodeIdentity.serviceIdentifier.type,
             ASCredentialServiceIdentifier.IdentifierType.domain,
         )
-        XCTAssertEqual(passwordIdentity.serviceIdentifier.identifier, "example.com")
+        XCTAssertEqual(passwordIdentity.serviceIdentifier.identifier, "www.example.com")
         XCTAssertEqual(
             passwordIdentity.serviceIdentifier.type,
             ASCredentialServiceIdentifier.IdentifierType.domain,
@@ -444,7 +444,7 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertEqual(passwordIdentity.serviceIdentifier.type, ASCredentialServiceIdentifier.IdentifierType.domain)
     }
 
-    /// `tryCreatePasswordCredentialIdentity(from:)` uses the base domain as a `.domain` service
+    /// `tryCreatePasswordCredentialIdentity(from:)` uses the host as a `.domain` service
     /// identifier when the login URI has an `http://` scheme and a path.
     func test_tryCreatePasswordCredentialIdentity_httpScheme() throws {
         let cipher = CipherView.fixture(
@@ -586,7 +586,7 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertEqual(passwordIdentity.recordIdentifier, cipher.id)
     }
 
-    /// `tryCreatePasswordCredentialIdentity(from:)` uses the lowercased base domain as a `.domain`
+    /// `tryCreatePasswordCredentialIdentity(from:)` uses the lowercased host as a `.domain`
     /// service identifier when the login URI contains uppercase characters.
     func test_tryCreatePasswordCredentialIdentity_uppercaseUri() throws {
         let cipher = CipherView.fixture(
@@ -599,7 +599,7 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
             ),
         )
         let passwordIdentity = try XCTUnwrap(subject.tryCreatePasswordCredentialIdentity(from: cipher))
-        XCTAssertEqual(passwordIdentity.serviceIdentifier.identifier, "example.com")
+        XCTAssertEqual(passwordIdentity.serviceIdentifier.identifier, "www.example.com")
         XCTAssertEqual(passwordIdentity.serviceIdentifier.type, ASCredentialServiceIdentifier.IdentifierType.domain)
     }
 
@@ -616,11 +616,11 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
             ),
         )
         let passwordIdentity = try XCTUnwrap(subject.tryCreatePasswordCredentialIdentity(from: cipher))
-        XCTAssertEqual(passwordIdentity.serviceIdentifier.identifier, "example.com")
+        XCTAssertEqual(passwordIdentity.serviceIdentifier.identifier, "www.example.com")
         XCTAssertEqual(passwordIdentity.serviceIdentifier.type, ASCredentialServiceIdentifier.IdentifierType.domain)
     }
 
-    /// `tryCreatePasswordCredentialIdentity(from:)` uses the base domain as a `.domain` service
+    /// `tryCreatePasswordCredentialIdentity(from:)` uses the host as a `.domain` service
     /// identifier when the login URI doesn't have a scheme.
     func test_tryCreatePasswordCredentialIdentity_uriWithoutScheme() throws {
         let cipher = CipherView.fixture(
@@ -633,7 +633,7 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
             ),
         )
         let passwordIdentity = try XCTUnwrap(subject.tryCreatePasswordCredentialIdentity(from: cipher))
-        XCTAssertEqual(passwordIdentity.serviceIdentifier.identifier, "example.com")
+        XCTAssertEqual(passwordIdentity.serviceIdentifier.identifier, "www.example.com")
         XCTAssertEqual(passwordIdentity.serviceIdentifier.type, ASCredentialServiceIdentifier.IdentifierType.domain)
     }
 
