@@ -21,7 +21,7 @@ class ASPasskeyCredentialRequestExtensionsTests: BitwardenTestCase {
             credentialIdentity: .fixture(),
             clientDataHash: Data(capacity: 32),
             userVerificationPreference: .preferred,
-            supportedAlgorithms: [-7],
+            supportedAlgorithms: [.ES256],
             extensionInput: ASPasskeyAssertionCredentialExtensionInput(
                 prf: .inputValues(
                     .saltInput1(salt1, saltInput2: salt2),
@@ -60,7 +60,7 @@ class ASPasskeyCredentialRequestExtensionsTests: BitwardenTestCase {
             credentialIdentity: .fixture(),
             clientDataHash: Data(capacity: 16),
             userVerificationPreference: .preferred,
-            supportedAlgorithms: [-7],
+            supportedAlgorithms: [.ES256],
         )
         request.setExcludedCredentials([
             ASAuthorizationPlatformPublicKeyCredentialDescriptor(credentialID: data),
@@ -87,7 +87,7 @@ class ASPasskeyCredentialRequestExtensionsTests: BitwardenTestCase {
             credentialIdentity: .fixture(),
             clientDataHash: Data(capacity: 16),
             userVerificationPreference: .preferred,
-            supportedAlgorithms: [-7],
+            supportedAlgorithms: [.ES256],
         )
         request.setExcludedCredentials([])
         let excludedList = request.excludedCredentialsList()
@@ -103,7 +103,7 @@ class ASPasskeyCredentialRequestExtensionsTests: BitwardenTestCase {
             credentialIdentity: .fixture(),
             clientDataHash: Data(capacity: 16),
             userVerificationPreference: .preferred,
-            supportedAlgorithms: [-7],
+            supportedAlgorithms: [.ES256],
         )
         request.setExcludedCredentials(nil)
         let excludedList = request.excludedCredentialsList()
