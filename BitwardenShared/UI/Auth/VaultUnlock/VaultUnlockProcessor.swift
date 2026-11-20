@@ -61,8 +61,8 @@ class VaultUnlockProcessor: StateProcessor<
         case .appeared:
             // Check this first, so a device auth key account doesn't show the master password
             // field while the rest of the state loads.
-            if await services.authRepository.isDeviceAuthKeyAccount(userId: nil) {
-                state.isDeviceAuthKeyAccount = true
+            state.isDeviceAuthKeyAccount = await services.authRepository.isDeviceAuthKeyAccount(userId: nil)
+            if state.isDeviceAuthKeyAccount {
                 state.shouldShowPasswordOrPinFields = false
             }
             await refreshProfileState()
@@ -111,9 +111,8 @@ class VaultUnlockProcessor: StateProcessor<
     ///
     private func checkIfShouldShowPasswordOrPinFields() async {
         do {
-            // A device auth key account has a master password on the server, but the user doesn't
-            // know it. Show the device auth key button in place of the master password field.
-            state.isDeviceAuthKeyAccount = await services.authRepository.isDeviceAuthKeyAccount(userId: nil)
+            // A device auth key account has a master password on the server that the user doesn't
+            // know, so it shows the device auth key button in place of the password field.
             let hasMasterPassword = try await services.authRepository.hasMasterPassword()
             state.shouldShowPasswordOrPinFields = (hasMasterPassword && !state.isDeviceAuthKeyAccount)
                 || state.unlockMethod == .pin
@@ -263,13 +262,12 @@ class VaultUnlockProcessor: StateProcessor<
             services.errorReporter.log(error: error)
             coordinator.navigate(to: .landing)
         } catch {
-            // Always show the failure (for example biometrics that failed or were cancelled). The
-            // user isn't logged out, because there's no other way to log in to this account.
-            // Don't use the error reporter here: it stops the app in DEBUG builds.
-            Logger.processor.error("Device auth key unlock failed: \(error)")
+            // Don't count the attempt or log out: the device auth key is the only way to unlock.
+            guard !error.isDeviceAuthKeyBiometryCancellation else { return }
+            services.errorReporter.log(error: error)
             coordinator.showAlert(.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: Localizations.theDeviceAuthKeyCouldNotBeUsedDescriptionLong + "\n\n(\(error))",
+                message: Localizations.theDeviceAuthKeyCouldNotBeUsedDescriptionLong,
             ))
         }
     }
@@ -310,9 +308,8 @@ class VaultUnlockProcessor: StateProcessor<
 
             let hasMasterPassword = try? await services.authRepository.hasMasterPassword()
             let isPinEnabled = try? await services.authRepository.isPinUnlockAvailable()
-            let isDeviceAuthKeyAccount = await services.authRepository.isDeviceAuthKeyAccount(userId: nil)
             if hasMasterPassword == nil || hasMasterPassword == false, isPinEnabled == false,
-               !isDeviceAuthKeyAccount {
+               !state.isDeviceAuthKeyAccount {
                 // If biometrics is enabled, but the auth key doesn't exist and the user doesn't
                 // have a master password or PIN, log the user out.
                 await logoutUser(userInitiated: false)

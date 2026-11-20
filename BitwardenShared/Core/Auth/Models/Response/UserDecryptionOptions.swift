@@ -30,7 +30,4 @@ struct WebAuthnPrfUserDecryptionOption: Codable, Equatable, Hashable {
 
     /// The user key, encapsulated with the public key of the key set.
     let encryptedUserKey: String
-
-    /// The base64url encoded ID of the credential.
-    let credentialId: String?
 }

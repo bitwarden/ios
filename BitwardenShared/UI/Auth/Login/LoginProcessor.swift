@@ -3,7 +3,6 @@ import BitwardenKit
 import BitwardenResources
 import BitwardenSdk
 import Foundation
-import OSLog
 
 // MARK: - LoginProcessor
 
@@ -115,30 +114,20 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
         } catch let error as URLError {
             await handleErrorResponse(error)
         } catch {
-            // The device auth key could not be read or used, for example because biometrics
-            // failed or were cancelled. Always show this, so the failure isn't silent.
-            showDeviceAuthKeyErrorAlert(error)
+            guard !error.isDeviceAuthKeyBiometryCancellation else { return }
+            services.errorReporter.log(error: error)
+            coordinator.showAlert(.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.theDeviceAuthKeyCouldNotBeUsedDescriptionLong,
+            ))
         }
-    }
-
-    /// Shows an alert for an error that occurred while using the device auth key.
-    ///
-    /// - Parameter error: The error that occurred.
-    ///
-    private func showDeviceAuthKeyErrorAlert(_ error: Error) {
-        // Don't use the error reporter here: it stops the app in DEBUG builds.
-        Logger.processor.error("Device auth key login failed: \(error)")
-        coordinator.showAlert(.defaultAlert(
-            title: Localizations.anErrorHasOccurred,
-            message: Localizations.theDeviceAuthKeyCouldNotBeUsedDescriptionLong + "\n\n(\(error))",
-        ))
     }
 
     /// Updates the state to show or hide the "Log in with device auth key" button, based on
     /// whether a device auth key for the user exists on this device.
     ///
     private func refreshDeviceAuthKeyAvailability() async {
-        guard await services.configService.isDeviceAuthKeyEnabled(isPreAuth: true) else {
+        guard await services.configService.getFeatureFlag(.deviceAuthKey, isPreAuth: true) else {
             state.isLoginWithDeviceAuthKeyVisible = false
             return
         }

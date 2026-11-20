@@ -29,8 +29,14 @@ extension FeatureFlag: @retroactive CaseIterable {
         rawValue: "debug-disable-self-host-premium-check",
     )
 
-    /// Flag to enable/disable Device Auth Key flows.
-    static let deviceAuthKey = FeatureFlag(rawValue: "pm-27581-device-auth-key")
+    /// Flag to enable/disable Device Auth Key flows. On in DEBUG builds unless the server sends it.
+    static let deviceAuthKey: FeatureFlag = {
+        #if DEBUG
+        FeatureFlag(rawValue: "pm-27581-device-auth-key", initialValue: .bool(true))
+        #else
+        FeatureFlag(rawValue: "pm-27581-device-auth-key")
+        #endif
+    }()
 
     /// An SDK flag that enables individual cipher encryption.
     static let enableCipherKeyEncryption = FeatureFlag(rawValue: "enableCipherKeyEncryption")

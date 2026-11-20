@@ -5,6 +5,24 @@ import BitwardenSdk
 extension ASPasskeyCredentialRequest {
     // MARK: Methods
 
+    /// Gets the PRF input of this assertion request for the SDK. The salts stay raw: the SDK applies
+    /// the WebAuthn PRF hash.
+    /// - Returns: The assertion extension input, or `nil` if the request has no PRF input.
+    func assertionPrfExtensionsInput() -> GetAssertionExtensionsInput? {
+        guard #available(iOS 18.0, *),
+              case let .assertion(assertionInput) = extensionInput,
+              let prf = assertionInput.prf
+        else {
+            return nil
+        }
+        return GetAssertionExtensionsInput(
+            prf: GetAssertionPrfInput(
+                eval: prf.inputValues.map(PrfInputValues.init(inputValues:)),
+                evalByCredential: prf.perCredentialInputValues?.mapValues(PrfInputValues.init(inputValues:)),
+            ),
+        )
+    }
+
     /// Gets the excluded credentials list from this request.
     /// - Returns: An array of `PublicKeyCredentialDescriptor` for excluded credentials based on this request.
     func excludedCredentialsList() -> [PublicKeyCredentialDescriptor]? {
@@ -33,5 +51,15 @@ extension ASPasskeyCredentialRequest {
             return []
         }
         return [PublicKeyCredentialParameters.es256()]
+    }
+}
+
+// MARK: - PrfInputValues
+
+@available(iOS 18.0, *)
+extension PrfInputValues {
+    /// Creates the SDK PRF input values from the PRF salts of a passkey request.
+    init(inputValues: ASAuthorizationPublicKeyCredentialPRFAssertionInput.InputValues) {
+        self.init(first: inputValues.saltInput1, second: inputValues.saltInput2)
     }
 }

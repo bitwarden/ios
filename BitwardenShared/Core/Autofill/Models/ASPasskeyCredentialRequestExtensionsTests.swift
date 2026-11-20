@@ -9,6 +9,46 @@ import XCTest
 class ASPasskeyCredentialRequestExtensionsTests: BitwardenTestCase {
     // MARK: Tests
 
+    /// `assertionPrfExtensionsInput()` maps the PRF salts of the request without hashing them.
+    func test_assertionPrfExtensionsInput() throws {
+        guard #available(iOS 18.0, *) else {
+            throw XCTSkip("Skipped on iOS < 18.0")
+        }
+        let salt1 = Data(repeating: 1, count: 32)
+        let salt2 = Data(repeating: 2, count: 32)
+        let credentialId = Data(repeating: 3, count: 16)
+        let request = ASPasskeyCredentialRequest(
+            credentialIdentity: .fixture(),
+            clientDataHash: Data(capacity: 32),
+            userVerificationPreference: .preferred,
+            supportedAlgorithms: [-7],
+            extensionInput: ASPasskeyAssertionCredentialExtensionInput(
+                prf: .inputValues(
+                    .saltInput1(salt1, saltInput2: salt2),
+                    perCredentialInputValues: [credentialId: .saltInput1(salt2)],
+                ),
+            ),
+        )
+
+        XCTAssertEqual(
+            request.assertionPrfExtensionsInput(),
+            GetAssertionExtensionsInput(
+                prf: GetAssertionPrfInput(
+                    eval: PrfInputValues(first: salt1, second: salt2),
+                    evalByCredential: [credentialId: PrfInputValues(first: salt2, second: nil)],
+                ),
+            ),
+        )
+    }
+
+    /// `assertionPrfExtensionsInput()` returns `nil` when the request has no PRF input.
+    func test_assertionPrfExtensionsInput_nilWithoutPrf() throws {
+        guard #available(iOS 17.0, *) else {
+            throw XCTSkip("Skipped on iOS < 17.0")
+        }
+        XCTAssertNil(ASPasskeyCredentialRequest.fixture().assertionPrfExtensionsInput())
+    }
+
     /// `excludedCredentialsList()` gets the excluded credential list using the
     /// `PublicKeyCredentialDescriptor`.
     func test_excludedCredentialsList() throws {

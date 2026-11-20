@@ -14,9 +14,9 @@ final class DeviceAuthKeyServiceTests: BitwardenTestCase {
 
     var activeAccountStateProvider: MockActiveAccountStateProvider!
     var clientService: MockClientService!
+    var configService: MockConfigService!
     var deviceAuthKeychainRepository: MockDeviceAuthKeychainRepository!
     var environmentService: MockEnvironmentService!
-    var errorReporter: MockErrorReporter!
     var stateService: MockStateService!
     var subject: DefaultDeviceAuthKeyService!
 
@@ -27,17 +27,17 @@ final class DeviceAuthKeyServiceTests: BitwardenTestCase {
 
         activeAccountStateProvider = MockActiveAccountStateProvider()
         clientService = MockClientService()
+        configService = MockConfigService()
         deviceAuthKeychainRepository = MockDeviceAuthKeychainRepository()
         environmentService = MockEnvironmentService()
-        errorReporter = MockErrorReporter()
         stateService = MockStateService()
 
         subject = DefaultDeviceAuthKeyService(
             activeAccountStateProvider: activeAccountStateProvider,
             clientService: clientService,
+            configService: configService,
             deviceAuthKeychainRepository: deviceAuthKeychainRepository,
             environmentService: environmentService,
-            errorReporter: errorReporter,
             stateService: stateService,
             systemDevice: MockSystemDevice(),
         )
@@ -48,9 +48,9 @@ final class DeviceAuthKeyServiceTests: BitwardenTestCase {
 
         activeAccountStateProvider = nil
         clientService = nil
+        configService = nil
         deviceAuthKeychainRepository = nil
         environmentService = nil
-        errorReporter = nil
         stateService = nil
         subject = nil
     }

@@ -669,7 +669,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
     }
 
     /// `provideFido2Credential(for:autofillCredentialServiceDelegate:fido2UserVerificationMediatorDelegate:)`
-    /// succeeds with device auth key.
+    /// succeeds with device auth key and passes the PRF input of the request to it.
     func test_provideFido2Credential_succeeds_deviceAuthKey() async throws {
         guard #available(iOS 18.0, *) else {
             throw XCTSkip("Skipped on iOS < 18.0")
@@ -679,7 +679,14 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         let passkeyIdentity = ASPasskeyCredentialIdentity.fixture(
             recordIdentifier: "dak-record-identifier",
         )
-        let passkeyRequest = ASPasskeyCredentialRequest.fixture(credentialIdentity: passkeyIdentity)
+        let prfSalt = Data(repeating: 7, count: 32)
+        let passkeyRequest = ASPasskeyCredentialRequest(
+            credentialIdentity: passkeyIdentity,
+            clientDataHash: Data(capacity: 32),
+            userVerificationPreference: .discouraged,
+            supportedAlgorithms: [],
+            extensionInput: ASPasskeyAssertionCredentialExtensionInput(prf: .inputValues(.saltInput1(prfSalt))),
+        )
         let expectedAssertionResult = DeviceAuthKeyGetAssertionResult(
             credentialId: Data(repeating: 2, count: 3),
             authenticatorData: Data(repeating: 2, count: 4),
@@ -718,6 +725,12 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertEqual(result.credentialID, expectedAssertionResult.credentialId)
 
         XCTAssertNotNil(result.extensionOutput?.prf)
+        XCTAssertEqual(
+            deviceAuthKeyService.assertDeviceAuthKeyReceivedArguments?.request.extensions,
+            GetAssertionExtensionsInput(
+                prf: GetAssertionPrfInput(eval: PrfInputValues(first: prfSalt, second: nil), evalByCredential: nil),
+            ),
+        )
     }
 
     /// `provideFido2Credential(for:autofillCredentialServiceDelegate:fido2UserVerificationMediatorDelegate:)`

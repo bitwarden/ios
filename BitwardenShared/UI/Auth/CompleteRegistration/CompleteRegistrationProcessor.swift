@@ -102,7 +102,10 @@ class CompleteRegistrationProcessor: StateProcessor<// swiftlint:disable:this ty
     override func perform(_ effect: CompleteRegistrationEffect) async {
         switch effect {
         case .appeared:
-            state.isDeviceAuthKeySignupAvailable = await services.configService.isDeviceAuthKeyEnabled(isPreAuth: true)
+            state.isDeviceAuthKeySignupAvailable = await services.configService.getFeatureFlag(
+                .deviceAuthKey,
+                isPreAuth: true,
+            )
             await setRegion()
             await verifyUserEmail()
         case .completeRegistration:
@@ -249,9 +252,9 @@ class CompleteRegistrationProcessor: StateProcessor<// swiftlint:disable:this ty
             await coordinator.handleEvent(.didCompleteAuth)
             coordinator.navigate(to: .dismiss)
         } catch {
-            // Don't use the error reporter here: it stops the app in DEBUG builds, and the alert
-            // below already shows the error.
-            Logger.processor.error("Device auth key signup failed: \(error)")
+            if !error.isDeviceAuthKeyBiometryCancellation {
+                services.errorReporter.log(error: error)
+            }
             guard state.didCreateAccount else {
                 await coordinator.showErrorAlert(error: error) {
                     await self.completeRegistrationWithDeviceAuthKey()
@@ -261,8 +264,7 @@ class CompleteRegistrationProcessor: StateProcessor<// swiftlint:disable:this ty
             // The account exists, but only this screen knows its password. Let the user try again.
             coordinator.showAlert(.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: Localizations.theDeviceAuthKeyCouldNotBeCreatedDescriptionLong
-                    + "\n\n" + error.localizedDescription,
+                message: Localizations.theDeviceAuthKeyCouldNotBeCreatedDescriptionLong,
                 alertActions: [
                     AlertAction(title: Localizations.tryAgain, style: .default) { _ in
                         await self.completeRegistrationWithDeviceAuthKey()
@@ -277,8 +279,12 @@ class CompleteRegistrationProcessor: StateProcessor<// swiftlint:disable:this ty
     ///
     private func makeRandomMasterPassword() throws -> String {
         var bytes = [UInt8](repeating: 0, count: 32)
-        guard SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes) == errSecSuccess else {
-            throw DeviceAuthKeyError.missingOrInvalidKey
+        let status = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
+        guard status == errSecSuccess else {
+            throw BitwardenError.generalError(
+                type: "Random Master Password",
+                message: "SecRandomCopyBytes failed with status \(status).",
+            )
         }
         return Data(bytes).base64EncodedString()
     }

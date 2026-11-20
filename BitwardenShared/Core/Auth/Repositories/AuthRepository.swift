@@ -848,8 +848,7 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func isDeviceAuthKeyAccount(userId: String?) async -> Bool {
-        guard await configService.isDeviceAuthKeyEnabled() else { return false }
-        return await deviceAuthKeyService.isPasswordlessAccount(userId: userId)
+        await deviceAuthKeyService.isPasswordlessAccount(userId: userId)
     }
 
     func isLocked(userId: String?) async throws -> Bool {

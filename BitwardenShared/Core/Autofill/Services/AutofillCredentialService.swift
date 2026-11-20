@@ -438,9 +438,17 @@ class DefaultAutofillCredentialService {
            let recordIdentifier = credentialIdentity.recordIdentifier,
            let deviceAuthKeyMetadata = try await deviceAuthKeyService.getDeviceAuthKeyMetadata(userId: userId),
            recordIdentifier == deviceAuthKeyMetadata.cipherId {
-            // The credential request is for the device auth key, so we serve that up.
+            // The credential request is for the device auth key, so we serve that up. Pass the PRF
+            // input on, so a web vault can unlock with the device auth key.
+            let deviceAuthKeyRequest = GetAssertionRequest(
+                rpId: request.rpId,
+                clientDataHash: request.clientDataHash,
+                allowList: request.allowList,
+                options: request.options,
+                extensions: passkeyRequest.assertionPrfExtensionsInput(),
+            )
             if let deviceResult = try await deviceAuthKeyService.assertDeviceAuthKey(
-                for: request,
+                for: deviceAuthKeyRequest,
                 recordIdentifier: recordIdentifier,
                 userId: userId,
             ) {

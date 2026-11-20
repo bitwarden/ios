@@ -3,6 +3,7 @@ import BitwardenSdk
 import Combine
 import CryptoKit
 import Foundation
+import LocalAuthentication
 import OSLog
 
 // MARK: - DeviceAuthKeyService
@@ -92,8 +93,8 @@ protocol DeviceAuthKeyService { // sourcery: AutoMockable
     ///
     func hasDeviceAuthKey(email: String) async -> Bool
 
-    /// Whether the account has a device auth key that can unlock the vault, and the user doesn't
-    /// know the account's master password.
+    /// Whether the device auth key feature is on, the account has a device auth key that can
+    /// unlock the vault, and the user doesn't know the account's master password.
     ///
     /// - Parameter userId: The user ID for the account.
     /// - Returns: Whether the account is a device auth key account.
@@ -184,6 +185,9 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
     /// The service that handles common client functionality such as encryption and decryption.
     private let clientService: ClientService
 
+    /// The service to get server-specified configuration.
+    private let configService: ConfigService
+
     /// Repository for managing device auth keys in the keychain.
     private let deviceAuthKeychainRepository: DeviceAuthKeychainRepository
 
@@ -192,9 +196,6 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
 
     /// The service used by the application to manage the environment settings.
     private let environmentService: EnvironmentService
-
-    /// The service used by the application to report non-fatal errors.
-    private let errorReporter: ErrorReporter
 
     /// The service used by the application to manage account state.
     private let stateService: StateService
@@ -209,26 +210,26 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
     /// - Parameters:
     ///   - activeAccountStateProvider: The provider for the active account state.
     ///   - clientService: The service that handles common client functionality.
+    ///   - configService: The service to get server-specified configuration.
     ///   - deviceAuthKeychainRepository: The repository for managing device auth keys in the keychain.
     ///   - environmentService: The service used by the application to manage the environment settings.
-    ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - stateService: The service used by the application to manage account state.
     ///   - systemDevice: The object used by the application to retrieve information about this device.
     ///
     init(
         activeAccountStateProvider: ActiveAccountStateProvider,
         clientService: ClientService,
+        configService: ConfigService,
         deviceAuthKeychainRepository: DeviceAuthKeychainRepository,
         environmentService: EnvironmentService,
-        errorReporter: ErrorReporter,
         stateService: StateService,
         systemDevice: SystemDevice,
     ) {
         self.activeAccountStateProvider = activeAccountStateProvider
         self.clientService = clientService
+        self.configService = configService
         self.deviceAuthKeychainRepository = deviceAuthKeychainRepository
         self.environmentService = environmentService
-        self.errorReporter = errorReporter
         self.stateService = stateService
         self.systemDevice = systemDevice
     }
@@ -296,10 +297,6 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
             .fido2()
             .deviceAuthKeyAuthenticator(credentialStore: store)
             .assertDeviceAuthKey(request: request)
-
-        #if DEBUG
-        await logPrfSaltComparison(record: record, rpId: request.rpId, store: store)
-        #endif
 
         let deviceResponse = WebAuthnLoginAssertionDeviceResponse(
             id: assertion.credentialId.base64urlEncodedString(),
@@ -424,6 +421,7 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
     }
 
     func isPasswordlessAccount(userId: String?) async -> Bool {
+        guard await configService.getFeatureFlag(.deviceAuthKey) else { return false }
         do {
             let resolvedUserId = try await activeAccountStateProvider.userIdOrActive(userId)
             let metadata = try await deviceAuthKeychainRepository.getDeviceAuthKeyMetadata(userId: resolvedUserId)
@@ -453,60 +451,6 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
     func deviceAuthKeyPublisher() -> AnyPublisher<[String: Bool], Never> {
         deviceAuthKeySubject.eraseToAnyPublisher()
     }
-
-    // MARK: Private
-
-    #if DEBUG
-    /// POC diagnostics: compares the PRF output that the SDK's assertion returns for the input
-    /// `sha256("passwordless-login")` with the PRF output that SDK creation used for the key set.
-    /// It only logs the first bytes of a hash of each value.
-    ///
-    private func logPrfSaltComparison(
-        record: DeviceAuthKeyKeychainRecord,
-        rpId: String,
-        store: DefaultDeviceAuthKeyStore,
-    ) async {
-        func tag(_ data: Data) -> String {
-            Data(SHA256.hash(data: data)).prefix(4).asHexString()
-        }
-        do {
-            let prfInput = Data(SHA256.hash(data: Data(DeviceAuthKeyCrypto.prfSaltInput.utf8)))
-            let request = GetAssertionRequest(
-                rpId: rpId,
-                clientDataHash: Data(repeating: 0, count: 32),
-                allowList: nil,
-                options: Options(rk: false, uv: .required),
-                extensions: GetAssertionExtensionsInput(
-                    prf: GetAssertionPrfInput(
-                        eval: PrfInputValues(first: prfInput, second: nil),
-                        evalByCredential: nil,
-                    ),
-                ),
-            )
-            let assertion = try await clientService.platform(isPreAuth: true)
-                .fido2()
-                .deviceAuthKeyAuthenticator(credentialStore: store)
-                .assertDeviceAuthKey(request: request)
-            let creationPrf = DeviceAuthKeyCrypto.prfOutput(hmacSecret: record.hmacSecret)
-            let webAuthnSalt = Data(SHA256.hash(data: Data("WebAuthn PRF\0".utf8) + prfInput))
-            let webAuthnPrf = Data(HMAC<SHA256>.authenticationCode(
-                for: webAuthnSalt,
-                using: SymmetricKey(data: record.hmacSecret),
-            ))
-            guard let assertionPrf = assertion.extensions.prf?.results.first else {
-                Logger.application.log("DAK-PRF-CHECK: the SDK assertion returned no PRF output")
-                return
-            }
-            let line = "DAK-PRF-CHECK: sdkAssertion=\(tag(assertionPrf)) appCreationValue=\(tag(creationPrf))"
-                + " webAuthnValue=\(tag(webAuthnPrf))"
-                + " assertionEqualsCreation=\(assertionPrf == creationPrf)"
-                + " assertionEqualsWebAuthn=\(assertionPrf == webAuthnPrf)"
-            Logger.application.log("\(line, privacy: .public)")
-        } catch {
-            Logger.application.error("DAK-PRF-CHECK: failed: \(error)")
-        }
-    }
-    #endif
 }
 
 // MARK: - DeviceAuthKeyError
@@ -525,11 +469,19 @@ enum DeviceAuthKeyError: Error, Equatable {
     /// The PRF key set that unlocks the vault with the device auth key is missing.
     case missingPrfKeySet
 
-    /// The requested functionality has not yet been implemented.
-    case notImplemented
-
     /// The server didn't return a PRF key set for the device auth key after login.
     case prfNotEnabledOnServer
+}
+
+// MARK: - Error + DeviceAuthKey
+
+extension Error {
+    /// Whether the user cancelled or failed the biometric check that guards the device auth key.
+    var isDeviceAuthKeyBiometryCancellation: Bool {
+        guard case let KeychainServiceError.osStatusError(status) = self else { return false }
+        return [errSecAuthFailed, errSecUserCanceled, kLAErrorAppCancel, kLAErrorSystemCancel, kLAErrorUserCancel]
+            .contains(status)
+    }
 }
 
 // MARK: - DeviceAuthKeyCrypto
