@@ -20,33 +20,24 @@ struct CompleteRegistrationView: View {
 
     var body: some View {
         VStack(spacing: 24) {
-            IllustratedMessageView(
-                image: Asset.Images.Illustrations.lock,
-                title: Localizations.chooseYourMasterPassword,
-                message: Localizations.chooseAUniqueAndStrongPasswordToKeepYourInformationSafe,
-            )
-            .padding(.top, 12)
-
-            learnMoreSection
-
-            VStack(spacing: 8) {
-                ContentBlock {
-                    passwordField
-
-                    retypePassword
-
-                    passwordHint
-                }
-
-                checkBreachesToggle
-            }
-
-            createAccountButton
-
             if store.state.isDeviceAuthKeySignupAvailable {
                 deviceAuthKeySection
+
+                if store.state.isMasterPasswordSectionExpanded {
+                    masterPasswordSection
+                }
+            } else {
+                IllustratedMessageView(
+                    image: Asset.Images.Illustrations.lock,
+                    title: Localizations.chooseYourMasterPassword,
+                    message: Localizations.chooseAUniqueAndStrongPasswordToKeepYourInformationSafe,
+                )
+                .padding(.top, 12)
+
+                masterPasswordSection
             }
         }
+        .animation(.default, value: store.state.isMasterPasswordSectionExpanded)
         .animation(.default, value: store.state.passwordStrengthScore)
         .navigationBar(
             title: Localizations.createAccount,
@@ -191,21 +182,48 @@ struct CompleteRegistrationView: View {
         .textFieldConfiguration(.password)
     }
 
-    /// The section to create the account without a master password, protected by a device auth key.
-    private var deviceAuthKeySection: some View {
+    /// The primary section when device auth key signup is on: create the account with this
+    /// device, and a low-emphasis control that shows the master password section.
+    @ViewBuilder private var deviceAuthKeySection: some View {
+        IllustratedMessageView(
+            image: Asset.Images.Illustrations.biometricsPhone,
+            title: Localizations.protectYourAccountWithThisDevice,
+            message: Localizations.createAccountWithThisDeviceDescriptionLong,
+        )
+        .padding(.top, 12)
+
         VStack(spacing: 12) {
             AsyncButton(Localizations.createAccountWithThisDevice) {
                 await store.perform(.completeRegistrationWithDeviceAuthKey)
             }
             .accessibilityIdentifier("CreateAccountWithDeviceAuthKeyButton")
-            .buttonStyle(.secondary())
+            .buttonStyle(.primary())
 
-            Text(Localizations.createAccountWithThisDeviceDescriptionLong)
-                .styleGuide(.footnote)
-                .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
-                .multilineTextAlignment(.center)
-                .accessibilityIdentifier("CreateAccountWithDeviceAuthKeyDescription")
+            Button(Localizations.useAMasterPasswordInstead) {
+                store.send(.toggleMasterPasswordSection)
+            }
+            .accessibilityIdentifier("UseMasterPasswordInsteadButton")
+            .buttonStyle(.bitwardenBorderless)
         }
+    }
+
+    /// The section to create the account with a master password.
+    @ViewBuilder private var masterPasswordSection: some View {
+        learnMoreSection
+
+        VStack(spacing: 8) {
+            ContentBlock {
+                passwordField
+
+                retypePassword
+
+                passwordHint
+            }
+
+            checkBreachesToggle
+        }
+
+        createAccountButton
     }
 
     /// The button pressed when the user attempts to create the account.

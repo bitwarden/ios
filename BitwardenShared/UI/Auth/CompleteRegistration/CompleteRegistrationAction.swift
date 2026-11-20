@@ -29,6 +29,10 @@ enum CompleteRegistrationAction: Equatable {
     /// An action to toggle the data breach check.
     case toggleCheckDataBreaches(Bool)
 
+    /// The user tapped the control that shows or hides the master password section, when the
+    /// device auth key is the primary way to create the account.
+    case toggleMasterPasswordSection
+
     /// An action to toggle whether passwords in text fields are visible.
     case togglePasswordVisibility(Bool)
 }

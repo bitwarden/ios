@@ -31,6 +31,10 @@ struct CompleteRegistrationState: Equatable, Sendable {
     /// device auth key.
     var isDeviceAuthKeySignupAvailable = false
 
+    /// Whether the master password section is visible when the device auth key is the primary way
+    /// to create the account. The section is always visible when device auth key signup is off.
+    var isMasterPasswordSectionExpanded = false
+
     /// Whether the check for data breaches toggle is on.
     var isCheckDataBreachesToggleOn: Bool = true
 

@@ -127,6 +127,8 @@ class CompleteRegistrationProcessor: StateProcessor<// swiftlint:disable:this ty
             state.toast = toast
         case let .toggleCheckDataBreaches(newValue):
             state.isCheckDataBreachesToggleOn = newValue
+        case .toggleMasterPasswordSection:
+            state.isMasterPasswordSectionExpanded.toggle()
         case let .togglePasswordVisibility(newValue):
             state.arePasswordsVisible = newValue
         case .learnMoreTapped:
