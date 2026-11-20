@@ -522,6 +522,8 @@
 "EmailRequiredParenthesis" = "Email (required)";
 "DomainNameRequiredParenthesis" = "Domain name (required)";
 "APIKeyRequiredParenthesis" = "API key (required)";
+"DomainName" = "Domain name";
+"APIKey" = "API key";
 "Service" = "Service";
 "AddyIo" = "addy.io";
 "FirefoxRelay" = "Firefox Relay";

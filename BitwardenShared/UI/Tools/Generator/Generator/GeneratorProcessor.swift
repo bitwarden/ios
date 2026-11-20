@@ -113,6 +113,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         var generateValueBehavior: GenerateValueBehavior? = action.shouldGenerateNewValue
             ? .generateNewValue(shouldSave: true)
             : nil
+        var shouldShowRequiredFieldAlert = false
 
         switch action {
         case .clearUrl:
@@ -140,8 +141,9 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         case let .generatorTypeChanged(generatorType):
             state.generatorType = generatorType
         case .refreshGeneratedValue:
-            // Generating a new value happens below.
-            break
+            // Generating a new value happens below. Only alert about empty required fields when
+            // the user explicitly asked for a new value.
+            shouldShowRequiredFieldAlert = true
         case .showPasswordHistory:
             coordinator.navigate(to: .generatorHistory)
         case let .sliderEditingChanged(_, isEditing):
@@ -201,7 +203,10 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             generateValueTask = Task {
                 switch generateValueBehavior {
                 case let .generateNewValue(shouldSave):
-                    await generateValue(shouldSavePassword: shouldSave)
+                    await generateValue(
+                        shouldSavePassword: shouldSave,
+                        shouldShowRequiredFieldAlert: shouldShowRequiredFieldAlert,
+                    )
                 case .saveExistingValue:
                     await saveExistingGeneratedValue()
                 }
@@ -275,10 +280,16 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
 
     /// Generate a new username.
     ///
-    func generateUsername() async {
+    /// - Parameter shouldShowRequiredFieldAlert: Whether to show an alert naming the first empty
+    ///     required field if a username can't be generated.
+    ///
+    func generateUsername(shouldShowRequiredFieldAlert: Bool = false) async {
         state.generatedValue = Constants.defaultGeneratedUsername
         do {
             guard let usernameGeneratorRequest = try state.usernameState.usernameGeneratorRequest() else {
+                if shouldShowRequiredFieldAlert, let fieldName = state.usernameState.missingRequiredFieldName {
+                    coordinator.showAlert(.validationFieldRequired(fieldName: fieldName))
+                }
                 return
             }
 
@@ -297,10 +308,13 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
 
     /// Generates a new value based on the current settings.
     ///
-    /// - Parameter shouldSavePassword: Whether a generated password should be saved. This is
+    /// - Parameters:
+    ///   - shouldSavePassword: Whether a generated password should be saved. This is
     ///     ignored if not generating a password.
+    ///   - shouldShowRequiredFieldAlert: Whether to show an alert naming the first empty required
+    ///     field if a username can't be generated. This is ignored if not generating a username.
     ///
-    func generateValue(shouldSavePassword: Bool) async {
+    func generateValue(shouldSavePassword: Bool, shouldShowRequiredFieldAlert: Bool = false) async {
         do {
             // Wait for the generator options to finish loading before generating a value.
             try await loadGeneratorOptionsTask?.value
@@ -324,7 +338,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
                     await generateUsername()
                 }
             case .username:
-                await generateUsername()
+                await generateUsername(shouldShowRequiredFieldAlert: shouldShowRequiredFieldAlert)
             }
         } catch {
             services.errorReporter.log(error: error)

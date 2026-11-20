@@ -291,6 +291,52 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(coordinator.errorAlertsShown as? [UsernameGeneratorError], [UsernameGeneratorError()])
     }
 
+    /// `receive(_:)` with `.refreshGeneratedValue` shows a required field alert if a required
+    /// catch-all email field is empty.
+    @MainActor
+    func test_receive_refreshGeneratedValue_username_catchAllMissingDomain() {
+        subject.state.generatorType = .username
+        subject.state.usernameState.usernameGeneratorType = .catchAllEmail
+
+        subject.receive(.refreshGeneratedValue)
+
+        waitFor { !coordinator.alertShown.isEmpty }
+        XCTAssertEqual(coordinator.alertShown, [.validationFieldRequired(fieldName: "Domain name")])
+        XCTAssertEqual(subject.state.generatedValue, "-")
+        XCTAssertNil(generatorRepository.usernameGeneratorRequest)
+    }
+
+    /// `receive(_:)` with `.refreshGeneratedValue` shows a required field alert if a required
+    /// forwarded email field is empty.
+    @MainActor
+    func test_receive_refreshGeneratedValue_username_forwardedEmailMissingAPIKey() {
+        subject.state.generatorType = .username
+        subject.state.usernameState.usernameGeneratorType = .forwardedEmail
+        subject.state.usernameState.forwardedEmailService = .duckDuckGo
+
+        subject.receive(.refreshGeneratedValue)
+
+        waitFor { !coordinator.alertShown.isEmpty }
+        XCTAssertEqual(coordinator.alertShown, [.validationFieldRequired(fieldName: "API key")])
+        XCTAssertEqual(subject.state.generatedValue, "-")
+        XCTAssertNil(generatorRepository.usernameGeneratorRequest)
+    }
+
+    /// `receive(_:)` with `.usernameGeneratorTypeChanged` doesn't show a required field alert if a
+    /// required field is empty, since the user hasn't had a chance to fill it in yet.
+    @MainActor
+    func test_receive_usernameGeneratorTypeChanged_missingRequiredField_noAlert() {
+        subject.state.generatorType = .username
+        subject.state.usernameState.forwardedEmailService = .duckDuckGo
+
+        subject.receive(.usernameGeneratorTypeChanged(.forwardedEmail))
+
+        waitFor { generatorRepository.usernameGenerationOptions.type == .forwardedEmail }
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+        XCTAssertEqual(subject.state.generatedValue, "-")
+        XCTAssertNil(generatorRepository.usernameGeneratorRequest)
+    }
+
     /// If an error occurs loading the generator options, an alert is shown and a new value isn't generated.
     @MainActor
     func test_generateValue_loadGeneratorOptionsError() async {

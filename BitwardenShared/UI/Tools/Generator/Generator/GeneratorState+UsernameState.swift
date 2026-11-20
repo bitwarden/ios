@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 
 extension GeneratorState {
@@ -141,26 +142,44 @@ extension GeneratorState.UsernameState {
     /// Returns whether the inputs for generating the username are valid and a new username can be
     /// generated.
     var canGenerateUsername: Bool {
+        missingRequiredFieldName == nil
+    }
+
+    /// Returns the localized name of the first required field that is empty and prevents a
+    /// username from being generated, or `nil` if all required fields are filled in.
+    var missingRequiredFieldName: String? {
         switch usernameGeneratorType {
         case .catchAllEmail:
-            !domain.isEmpty
+            domain.isEmpty ? Localizations.domainName : nil
         case .plusAddressedEmail,
              .randomWord:
-            true
+            nil
         case .forwardedEmail:
             switch forwardedEmailService {
             case .addyIO:
-                [addyIOAPIAccessToken, addyIODomainName].allSatisfy { !$0.isEmpty }
+                if addyIOAPIAccessToken.isEmpty {
+                    Localizations.apiAccessToken
+                } else if addyIODomainName.isEmpty {
+                    Localizations.domainName
+                } else {
+                    nil
+                }
             case .duckDuckGo:
-                !duckDuckGoAPIKey.isEmpty
+                duckDuckGoAPIKey.isEmpty ? Localizations.apiKey : nil
             case .fastmail:
-                !fastmailAPIKey.isEmpty
+                fastmailAPIKey.isEmpty ? Localizations.apiKey : nil
             case .firefoxRelay:
-                !firefoxRelayAPIAccessToken.isEmpty
+                firefoxRelayAPIAccessToken.isEmpty ? Localizations.apiAccessToken : nil
             case .forwardEmail:
-                [forwardEmailAPIToken, forwardEmailDomainName].allSatisfy { !$0.isEmpty }
+                if forwardEmailAPIToken.isEmpty {
+                    Localizations.apiKey
+                } else if forwardEmailDomainName.isEmpty {
+                    Localizations.domainName
+                } else {
+                    nil
+                }
             case .simpleLogin:
-                !simpleLoginAPIKey.isEmpty
+                simpleLoginAPIKey.isEmpty ? Localizations.apiKey : nil
             }
         }
     }
