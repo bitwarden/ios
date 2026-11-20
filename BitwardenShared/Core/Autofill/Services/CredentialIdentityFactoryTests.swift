@@ -651,6 +651,7 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
         )
         let passwordIdentity = try XCTUnwrap(subject.tryCreatePasswordCredentialIdentity(from: cipher))
         XCTAssertEqual(passwordIdentity.serviceIdentifier.identifier, "localhost")
+        XCTAssertEqual(passwordIdentity.serviceIdentifier.type, ASCredentialServiceIdentifier.IdentifierType.domain)
     }
 
     /// `tryCreatePasswordCredentialIdentity(from:)` returns `nil` when login username is empty.

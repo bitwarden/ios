@@ -73,6 +73,7 @@ struct DefaultCredentialIdentityFactory: CredentialIdentityFactory {
 
         // The system doesn't match a `.URL` service identifier without a scheme (e.g. `www.example.com`)
         // to the website, so add one to an exact match URI that doesn't have one.
+        // This is "best effort" fix because we don't know for sure the scheme should be `https://`.
         let urlIdentifier = firstUri.match == .exact && !uriString.contains("://") ? "https://" + uriString : uriString
         return ASCredentialServiceIdentifier(identifier: urlIdentifier, type: .URL)
     }
