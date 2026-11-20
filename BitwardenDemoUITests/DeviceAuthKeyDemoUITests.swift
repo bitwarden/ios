@@ -10,6 +10,7 @@ import XCTest
 /// - `DEMO_PAUSE`: seconds to pause on key screens (for the video). Defaults to 1.
 /// - `DEMO_RESTART`: set to 1 to terminate and start the app for the unlock flow. The default is
 ///   "Lock now" in the settings, which keeps the app on screen.
+/// - `DEMO_SKIP_UNLOCK`: set to 1 to skip the lock + unlock flow.
 ///
 /// The test prints `DEMO-RECORD-START` when the environment is set and the app is on the landing
 /// screen, and `DEMO-RECORD-STOP` after the last screen. `demo.sh` records the video in between.
@@ -37,7 +38,9 @@ final class DeviceAuthKeyDemoUITests: XCTestCase {
         marker("DEMO-RECORD-START")
         Thread.sleep(forTimeInterval: 5)
         signUpWithDeviceAuthKey()
-        lockAndUnlock()
+        if env["DEMO_SKIP_UNLOCK"] != "1" {
+            lockAndUnlock()
+        }
         logOutAndLogIn()
         marker("DEMO-RECORD-STOP")
         Thread.sleep(forTimeInterval: 3)
@@ -65,11 +68,11 @@ final class DeviceAuthKeyDemoUITests: XCTestCase {
 
     func signUpWithDeviceAuthKey() {
         tap("CreateAccountButton")
-        type("EmailAddressEntry", email)
         let name = env["DEMO_NAME"] ?? "DAK Demo"
         type("NameEntry", name)
         let typedName = waitFor("NameEntry").value as? String
         XCTAssertEqual(typedName, name, "the name field does not hold the name")
+        type("EmailAddressEntry", email)
         hold("start-registration")
         tap("ContinueButton")
         let button = waitFor("CreateAccountWithDeviceAuthKeyButton", timeout: 30, scroll: true)
