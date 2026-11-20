@@ -3,6 +3,7 @@ import BitwardenKit
 import BitwardenResources
 import BitwardenSdk
 import Foundation
+import OSLog
 
 // MARK: - LoginProcessor
 
@@ -125,7 +126,8 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     /// - Parameter error: The error that occurred.
     ///
     private func showDeviceAuthKeyErrorAlert(_ error: Error) {
-        services.errorReporter.log(error: error)
+        // Don't use the error reporter here: it stops the app in DEBUG builds.
+        Logger.processor.error("Device auth key login failed: \(error)")
         coordinator.showAlert(.defaultAlert(
             title: Localizations.anErrorHasOccurred,
             message: Localizations.theDeviceAuthKeyCouldNotBeUsedDescriptionLong + "\n\n(\(error))",

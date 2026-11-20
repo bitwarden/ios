@@ -247,7 +247,9 @@ class CompleteRegistrationProcessor: StateProcessor<// swiftlint:disable:this ty
             await coordinator.handleEvent(.didCompleteAuth)
             coordinator.navigate(to: .dismiss)
         } catch {
-            services.errorReporter.log(error: error)
+            // Don't use the error reporter here: it stops the app in DEBUG builds, and the alert
+            // below already shows the error.
+            Logger.processor.error("Device auth key signup failed: \(error)")
             guard state.didCreateAccount else {
                 await coordinator.showErrorAlert(error: error) {
                     await self.completeRegistrationWithDeviceAuthKey()

@@ -3,6 +3,7 @@ import BitwardenSdk
 import Combine
 import CryptoKit
 import Foundation
+import OSLog
 
 // MARK: - DeviceAuthKeyService
 
@@ -296,6 +297,10 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
             .deviceAuthKeyAuthenticator(credentialStore: store)
             .assertDeviceAuthKey(request: request)
 
+        #if DEBUG
+        await logPrfSaltComparison(record: record, rpId: request.rpId, store: store)
+        #endif
+
         let deviceResponse = WebAuthnLoginAssertionDeviceResponse(
             id: assertion.credentialId.base64urlEncodedString(),
             rawId: assertion.credentialId.base64urlEncodedString(),
@@ -413,7 +418,7 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
             }
             return try await deviceAuthKeychainRepository.getDeviceAuthKeyMetadata(userId: userId) != nil
         } catch {
-            errorReporter.log(error: error)
+            Logger.application.error("Device auth key lookup failed: \(error)")
             return false
         }
     }
@@ -448,6 +453,60 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
     func deviceAuthKeyPublisher() -> AnyPublisher<[String: Bool], Never> {
         deviceAuthKeySubject.eraseToAnyPublisher()
     }
+
+    // MARK: Private
+
+    #if DEBUG
+    /// POC diagnostics: compares the PRF output that the SDK's assertion returns for the input
+    /// `sha256("passwordless-login")` with the PRF output that SDK creation used for the key set.
+    /// It only logs the first bytes of a hash of each value.
+    ///
+    private func logPrfSaltComparison(
+        record: DeviceAuthKeyKeychainRecord,
+        rpId: String,
+        store: DefaultDeviceAuthKeyStore,
+    ) async {
+        func tag(_ data: Data) -> String {
+            Data(SHA256.hash(data: data)).prefix(4).asHexString()
+        }
+        do {
+            let prfInput = Data(SHA256.hash(data: Data(DeviceAuthKeyCrypto.prfSaltInput.utf8)))
+            let request = GetAssertionRequest(
+                rpId: rpId,
+                clientDataHash: Data(repeating: 0, count: 32),
+                allowList: nil,
+                options: Options(rk: false, uv: .required),
+                extensions: GetAssertionExtensionsInput(
+                    prf: GetAssertionPrfInput(
+                        eval: PrfInputValues(first: prfInput, second: nil),
+                        evalByCredential: nil,
+                    ),
+                ),
+            )
+            let assertion = try await clientService.platform(isPreAuth: true)
+                .fido2()
+                .deviceAuthKeyAuthenticator(credentialStore: store)
+                .assertDeviceAuthKey(request: request)
+            let creationPrf = DeviceAuthKeyCrypto.prfOutput(hmacSecret: record.hmacSecret)
+            let webAuthnSalt = Data(SHA256.hash(data: Data("WebAuthn PRF\0".utf8) + prfInput))
+            let webAuthnPrf = Data(HMAC<SHA256>.authenticationCode(
+                for: webAuthnSalt,
+                using: SymmetricKey(data: record.hmacSecret),
+            ))
+            guard let assertionPrf = assertion.extensions.prf?.results.first else {
+                Logger.application.log("DAK-PRF-CHECK: the SDK assertion returned no PRF output")
+                return
+            }
+            let line = "DAK-PRF-CHECK: sdkAssertion=\(tag(assertionPrf)) appCreationValue=\(tag(creationPrf))"
+                + " webAuthnValue=\(tag(webAuthnPrf))"
+                + " assertionEqualsCreation=\(assertionPrf == creationPrf)"
+                + " assertionEqualsWebAuthn=\(assertionPrf == webAuthnPrf)"
+            Logger.application.log("\(line, privacy: .public)")
+        } catch {
+            Logger.application.error("DAK-PRF-CHECK: failed: \(error)")
+        }
+    }
+    #endif
 }
 
 // MARK: - DeviceAuthKeyError

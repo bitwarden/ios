@@ -259,7 +259,8 @@ class VaultUnlockProcessor: StateProcessor<
         } catch {
             // Always show the failure (for example biometrics that failed or were cancelled). The
             // user isn't logged out, because there's no other way to log in to this account.
-            services.errorReporter.log(error: error)
+            // Don't use the error reporter here: it stops the app in DEBUG builds.
+            Logger.processor.error("Device auth key unlock failed: \(error)")
             coordinator.showAlert(.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
                 message: Localizations.theDeviceAuthKeyCouldNotBeUsedDescriptionLong + "\n\n(\(error))",
