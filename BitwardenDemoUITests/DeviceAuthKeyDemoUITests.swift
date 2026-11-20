@@ -11,6 +11,7 @@ import XCTest
 /// - `DEMO_RESTART`: set to 1 to terminate and start the app for the unlock flow. The default is
 ///   "Lock now" in the settings, which keeps the app on screen.
 /// - `DEMO_SKIP_UNLOCK`: set to 1 to skip the lock + unlock flow.
+/// - `DEMO_FLOW`: `crossdevice` runs `testCrossDeviceSignIn` instead of `testDeviceAuthKeyFlows`.
 ///
 /// The test prints `DEMO-RECORD-START` when the environment is set and the app is on the landing
 /// screen, and `DEMO-RECORD-STOP` after the last screen. `demo.sh` records the video in between.
@@ -27,7 +28,8 @@ final class DeviceAuthKeyDemoUITests: XCTestCase {
         continueAfterFailure = false
     }
 
-    func testDeviceAuthKeyFlows() {
+    func testDeviceAuthKeyFlows() throws {
+        try XCTSkipIf(env["DEMO_FLOW"] == "crossdevice")
         app.terminate()
         app.launch()
         step("launched, email \(email)")
@@ -45,6 +47,49 @@ final class DeviceAuthKeyDemoUITests: XCTestCase {
         marker("DEMO-RECORD-STOP")
         Thread.sleep(forTimeInterval: 3)
         step("ALL FLOWS PASSED")
+    }
+
+    /// Signs up, turns on Bitwarden as the passkey provider, then logs in to the web vault in
+    /// Safari with the device auth key, as a passkey. Records only the Safari part.
+    func testCrossDeviceSignIn() throws {
+        try XCTSkipUnless(env["DEMO_FLOW"] == "crossdevice")
+        app.terminate()
+        app.launch()
+        step("launched, email \(email)")
+
+        setSelfHostedEnvironment()
+        signUpWithDeviceAuthKey(turnOnAutofill: true)
+        // A lock and unlock syncs the device auth key into the iOS passkey list.
+        lockAndUnlock()
+
+        let safari = XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
+        safari.terminate()
+        try safari.open(XCTUnwrap(URL(string: env["DEMO_WEB_VAULT_URL"] ?? "https://localhost:8080/#/login")))
+        let passkeyButton = safari.webViews.buttons["Log in with passkey"]
+        XCTAssertTrue(passkeyButton.waitForExistence(timeout: 60), "web vault login page not shown")
+        Thread.sleep(forTimeInterval: 2)
+        marker("DEMO-RECORD-START")
+        hold("safari-login", seconds: max(pause, 1) * 2)
+        passkeyButton.tap()
+        step("tapped log in with passkey")
+
+        // The iOS passkey sheet offers the device auth key from Bitwarden.
+        let sheetButton = systemButton(["Continue", "Sign In", "Use Passkey"], timeout: 30)
+        hold("passkey-sheet", seconds: max(pause, 1) * 2)
+        sheetButton.tap()
+        step("approved the passkey sheet")
+
+        // The web vault logs in, and the PRF output unlocks the vault.
+        let vault = safari.webViews.staticTexts.matching(
+            NSPredicate(format: "label IN %@", ["All vaults", "Vaults", "All items"]),
+        ).firstMatch
+        if !vault.waitForExistence(timeout: 90) {
+            print("DEMO-FAIL: web vault not unlocked\n\(safari.debugDescription)")
+            XCTFail("web vault not unlocked")
+        }
+        hold("web-vault", seconds: 4)
+        marker("DEMO-RECORD-STOP")
+        step("CROSS DEVICE PASSED")
     }
 
     // MARK: Flows
@@ -66,7 +111,7 @@ final class DeviceAuthKeyDemoUITests: XCTestCase {
         step("self-hosted environment saved")
     }
 
-    func signUpWithDeviceAuthKey() {
+    func signUpWithDeviceAuthKey(turnOnAutofill: Bool = false) {
         tap("CreateAccountButton")
         let name = env["DEMO_NAME"] ?? "DAK Demo"
         type("NameEntry", name)
@@ -85,7 +130,11 @@ final class DeviceAuthKeyDemoUITests: XCTestCase {
 
         // Autofill setup screen, then the vault.
         let turnOnLater = element("Turn on later", timeout: 60)
-        if turnOnLater.exists {
+        if turnOnLater.exists, turnOnAutofill {
+            tap("Continue")
+            systemButton(["Allow", "Turn On", "Use"], timeout: 15).tap()
+            step("turned on autofill")
+        } else if turnOnLater.exists {
             turnOnLater.tap()
             tap("Confirm")
         }
@@ -142,6 +191,32 @@ final class DeviceAuthKeyDemoUITests: XCTestCase {
                 allow.tap()
             }
         }
+    }
+
+    /// Finds a button in a system sheet or alert, which Safari, SpringBoard or the
+    /// AuthenticationServices agent can own.
+    @discardableResult
+    func systemButton(_ labels: [String], timeout: TimeInterval) -> XCUIElement {
+        let owners = [
+            XCUIApplication(bundleIdentifier: "com.apple.springboard"),
+            XCUIApplication(bundleIdentifier: "com.apple.mobilesafari"),
+            XCUIApplication(bundleIdentifier: "com.apple.AuthenticationServicesCore.AuthenticationServicesAgent"),
+            app,
+        ]
+        let predicate = NSPredicate(format: "label IN %@", labels)
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            for owner in owners {
+                let button = owner.buttons.matching(predicate).firstMatch
+                if button.exists, button.isHittable {
+                    return button
+                }
+            }
+            Thread.sleep(forTimeInterval: 0.5)
+        }
+        print("DEMO-FAIL: none of \(labels) found\n\(owners.map(\.debugDescription).joined(separator: "\n"))")
+        XCTFail("none of \(labels) found")
+        return app.buttons.matching(predicate).firstMatch
     }
 
     func step(_ message: String) {

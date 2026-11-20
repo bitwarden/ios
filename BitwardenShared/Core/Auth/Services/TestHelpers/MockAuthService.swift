@@ -50,7 +50,7 @@ class MockAuthService: AuthService {
 
     var loginWithDeviceAuthKeyEmail: String?
     var loginWithDeviceAuthKeyResult: Result<DeviceAuthKeyUnlockData, Error> = .success(
-        DeviceAuthKeyUnlockData(encryptedPrivateKey: "private", encryptedUserKey: "user", prfKey: "prf"),
+        DeviceAuthKeyUnlockData(encryptedPrivateKey: "private", encryptedUserKey: "user", prfOutput: "prf"),
     )
 
     var loginWithMasterPasswordPassword: String?

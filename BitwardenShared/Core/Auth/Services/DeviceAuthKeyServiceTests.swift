@@ -55,28 +55,6 @@ final class DeviceAuthKeyServiceTests: BitwardenTestCase {
         subject = nil
     }
 
-    // MARK: Tests - DeviceAuthKeyCrypto
-
-    /// `DeviceAuthKeyCrypto.prfKey(hmacSecret:)` returns a base64 encoded 64-byte key.
-    ///
-    func test_prfKey_length() throws {
-        let key = try DeviceAuthKeyCrypto.prfKey(hmacSecret: Data(repeating: 1, count: 32))
-        XCTAssertEqual(Data(base64Encoded: key)?.count, 64)
-    }
-
-    /// `DeviceAuthKeyCrypto.webAuthnOrigin(for:)` keeps a port that isn't the default port.
-    ///
-    func test_webAuthnOrigin() throws {
-        XCTAssertEqual(
-            try DeviceAuthKeyCrypto.webAuthnOrigin(for: XCTUnwrap(URL(string: "https://localhost:8080/"))),
-            "https://localhost:8080",
-        )
-        XCTAssertEqual(
-            try DeviceAuthKeyCrypto.webAuthnOrigin(for: XCTUnwrap(URL(string: "https://vault.bitwarden.com:443"))),
-            "https://vault.bitwarden.com",
-        )
-    }
-
     // MARK: Tests - deleteDeviceAuthKey
 
     /// `deleteDeviceAuthKey(userId:)` successfully deletes the device auth key from the keychain repository.

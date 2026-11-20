@@ -24,6 +24,8 @@ extension BitwardenSdk.InitUserCryptoMethod {
             "PIN Envelope"
         case .pinState:
             "PIN State"
+        case .webAuthnPrf:
+            "WebAuthn PRF"
         }
     }
 }

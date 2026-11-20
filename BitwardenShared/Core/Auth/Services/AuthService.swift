@@ -703,18 +703,11 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         // Clean any stored value in case the user changes account
         preAuthForcePasswordResetReason = nil
 
-        // Get the challenge from the server and sign it with the device auth key.
-        let assertionOptions = try await authAPIService.getWebAuthnLoginAssertionOptions()
-        let assertion = try await deviceAuthKeyService.assertDeviceAuthKeyForLogin(
-            challenge: assertionOptions.options.challenge,
-            rpId: assertionOptions.options.rpId,
-            email: email,
-        )
-
-        // Get the identity token to log in to Bitwarden.
+        // Sign the server's challenge with the device auth key, then get the identity token.
+        let assertion = try await deviceAuthKeyService.assertDeviceAuthKeyForLogin(email: email)
         let response = try await getIdentityTokenResponse(
             authenticationMethod: .webAuthn(
-                token: assertionOptions.token,
+                token: assertion.token,
                 deviceResponse: assertion.deviceResponse,
             ),
             email: email,
@@ -731,7 +724,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             return DeviceAuthKeyUnlockData(
                 encryptedPrivateKey: prfOption.encryptedPrivateKey,
                 encryptedUserKey: prfOption.encryptedUserKey,
-                prfKey: assertion.prfKey,
+                prfOutput: assertion.prfOutput,
             )
         }
 
@@ -744,7 +737,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         return DeviceAuthKeyUnlockData(
             encryptedPrivateKey: encryptedPrivateKey,
             encryptedUserKey: encryptedUserKey,
-            prfKey: assertion.prfKey,
+            prfOutput: assertion.prfOutput,
         )
     }
 

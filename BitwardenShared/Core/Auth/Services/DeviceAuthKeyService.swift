@@ -1,7 +1,6 @@
 import BitwardenKit
 import BitwardenSdk
 import Combine
-import CryptoKit
 import Foundation
 import LocalAuthentication
 import OSLog
@@ -27,20 +26,12 @@ protocol DeviceAuthKeyService { // sourcery: AutoMockable
     ) async throws -> DeviceAuthKeyGetAssertionResult?
 
     /// Signs a WebAuthn login challenge from the server with the device auth key of a logged out
-    /// user. This reads the device auth key from the keychain one time, which asks the user for
-    /// biometrics.
+    /// user. This reads the device auth key from the keychain, which asks the user for biometrics.
     ///
-    /// - Parameters:
-    ///   - challenge: The base64url encoded challenge from the server's assertion options.
-    ///   - rpId: The relying party ID from the server's assertion options, if any.
-    ///   - email: The email of the user that logs in.
-    /// - Returns: The assertion for the token request and the PRF key to unlock the vault after login.
+    /// - Parameter email: The email of the user that logs in.
+    /// - Returns: The values for the token request and the PRF output to unlock the vault.
     ///
-    func assertDeviceAuthKeyForLogin(
-        challenge: String,
-        rpId: String?,
-        email: String,
-    ) async throws -> DeviceAuthKeyLoginAssertion
+    func assertDeviceAuthKeyForLogin(email: String) async throws -> DeviceAuthKeyLoginResult
 
     /// Create device auth key with PRF encryption key.
     ///
@@ -157,17 +148,19 @@ extension DeviceAuthKeyService {
     }
 }
 
-// MARK: - DeviceAuthKeyLoginAssertion
+// MARK: - DeviceAuthKeyLoginResult
 
 /// The result of signing a WebAuthn login challenge with the device auth key.
 ///
-struct DeviceAuthKeyLoginAssertion: Equatable, Sendable {
-    /// The JSON encoded `AuthenticatorAssertionRawResponse` for the `deviceResponse` value of the
-    /// identity token request.
+struct DeviceAuthKeyLoginResult: Equatable, Sendable {
+    /// The `deviceResponse` value of the identity token request.
     let deviceResponse: String
 
-    /// The base64 encoded 64-byte symmetric key stretched from the device auth key's PRF output.
-    let prfKey: String
+    /// The base64 encoded PRF output of the device auth key.
+    let prfOutput: String
+
+    /// The `token` value of the identity token request.
+    let token: String
 
     /// The ID of the user that owns the device auth key.
     let userId: String
@@ -258,61 +251,24 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
             .assertDeviceAuthKey(request: request)
     }
 
-    func assertDeviceAuthKeyForLogin(
-        challenge: String,
-        rpId: String?,
-        email: String,
-    ) async throws -> DeviceAuthKeyLoginAssertion {
+    func assertDeviceAuthKeyForLogin(email: String) async throws -> DeviceAuthKeyLoginResult {
         guard let userId = try await deviceAuthKeychainRepository.getDeviceAuthKeyUserId(email: email) else {
             throw DeviceAuthKeyError.missingOrInvalidKey
         }
-        // Read the record one time, so the user only gets one biometrics prompt for both the
-        // assertion and the PRF key.
-        guard let record = try await deviceAuthKeychainRepository.getDeviceAuthKey(userId: userId) else {
-            throw DeviceAuthKeyError.missingOrInvalidKey
-        }
-
-        // The origin has to be the web vault's origin, which is what the server allows for WebAuthn
-        // and what the SDK used in the `clientDataJSON` when it created the device auth key.
-        let origin = try DeviceAuthKeyCrypto.webAuthnOrigin(for: environmentService.webVaultURL)
-        let clientDataJson = Data(
-            #"{"type":"webauthn.get","challenge":"\#(challenge)","origin":"\#(origin)","crossOrigin":false}"#.utf8,
-        )
-
         let store = DefaultDeviceAuthKeyStore(
-            cachedRecord: record,
             deviceAuthKeychainRepository: deviceAuthKeychainRepository,
             userId: userId,
         )
-        let request = GetAssertionRequest(
-            rpId: rpId ?? record.rpId,
-            clientDataHash: Data(SHA256.hash(data: clientDataJson)),
-            allowList: nil,
-            options: Options(rk: false, uv: .required),
-            // The PRF output from the SDK's assertion doesn't match the PRF output that the SDK used
-            // when it created the key set, so the app derives the PRF key from the record instead.
-            extensions: nil,
-        )
-        let assertion = try await clientService.platform(isPreAuth: true)
-            .fido2()
-            .deviceAuthKeyAuthenticator(credentialStore: store)
-            .assertDeviceAuthKey(request: request)
-
-        let deviceResponse = WebAuthnLoginAssertionDeviceResponse(
-            id: assertion.credentialId.base64urlEncodedString(),
-            rawId: assertion.credentialId.base64urlEncodedString(),
-            response: WebAuthnLoginAssertionDeviceResponse.Response(
-                authenticatorData: assertion.authenticatorData.base64urlEncodedString(),
-                clientDataJSON: clientDataJson.base64urlEncodedString(),
-                signature: assertion.signature.base64urlEncodedString(),
-                userHandle: assertion.userHandle.base64urlEncodedString(),
-            ),
-        )
-        let deviceResponseData = try JSONEncoder().encode(deviceResponse)
-
-        return try DeviceAuthKeyLoginAssertion(
-            deviceResponse: String(decoding: deviceResponseData, as: UTF8.self),
-            prfKey: DeviceAuthKeyCrypto.prfKey(hmacSecret: record.hmacSecret),
+        let assertion = try await store.rethrowingRecordReadError {
+            try await clientService.platform(isPreAuth: true)
+                .fido2()
+                .deviceAuthKeyAuthenticator(credentialStore: store)
+                .assertDeviceAuthKeyForLogin(webVaultUrl: environmentService.webVaultURL.absoluteString)
+        }
+        return DeviceAuthKeyLoginResult(
+            deviceResponse: assertion.deviceResponse,
+            prfOutput: assertion.prfOutput,
+            token: assertion.token,
             userId: userId,
         )
     }
@@ -337,7 +293,7 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
         )
         // The SDK creates the passkey, makes the PRF key set, registers both with the server, and
         // saves the record and its metadata through the store.
-        try await clientService.platform(for: resolvedUserId, isPreAuth: false)
+        let keySet = try await clientService.platform(for: resolvedUserId, isPreAuth: false)
             .fido2()
             .deviceAuthKeyAuthenticator(credentialStore: store)
             .createDeviceAuthKey(
@@ -348,17 +304,10 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
                 kdf: account.kdf.sdkKdf,
             )
 
-        // The SDK doesn't return the key set that it registered with the server. The record is
-        // still in memory, so make a key set for this device from the same PRF output. This avoids
-        // a biometrics prompt and a sync right after creation.
-        guard let record = store.createdRecord,
-              var metadata = try await deviceAuthKeychainRepository.getDeviceAuthKeyMetadata(userId: resolvedUserId)
+        guard var metadata = try await deviceAuthKeychainRepository.getDeviceAuthKeyMetadata(userId: resolvedUserId)
         else {
             throw DeviceAuthKeyError.missingOrInvalidKey
         }
-        let keySet = try await clientService.crypto(for: resolvedUserId).makePrfUserKeySet(
-            prf: DeviceAuthKeyCrypto.prfOutput(hmacSecret: record.hmacSecret).base64EncodedString(),
-        )
         metadata.encryptedPrivateKey = keySet.encryptedDecapsulationKey
         metadata.encryptedUserKey = keySet.encapsulatedDownstreamKey
         metadata.isPasswordlessAccount = isPasswordlessAccount
@@ -397,14 +346,21 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
         else {
             throw DeviceAuthKeyError.missingPrfKeySet
         }
+        let store = DefaultDeviceAuthKeyStore(
+            deviceAuthKeychainRepository: deviceAuthKeychainRepository,
+            userId: resolvedUserId,
+        )
         // Reading the record asks the user for biometrics.
-        guard let record = try await deviceAuthKeychainRepository.getDeviceAuthKey(userId: resolvedUserId) else {
-            throw DeviceAuthKeyError.missingOrInvalidKey
+        let prfOutput = try await store.rethrowingRecordReadError {
+            try await clientService.platform(for: resolvedUserId, isPreAuth: false)
+                .fido2()
+                .deviceAuthKeyAuthenticator(credentialStore: store)
+                .getPrfOutput()
         }
-        return try DeviceAuthKeyUnlockData(
+        return DeviceAuthKeyUnlockData(
             encryptedPrivateKey: encryptedPrivateKey,
             encryptedUserKey: encryptedUserKey,
-            prfKey: DeviceAuthKeyCrypto.prfKey(hmacSecret: record.hmacSecret),
+            prfOutput: prfOutput,
         )
     }
 
@@ -460,9 +416,6 @@ enum DeviceAuthKeyError: Error, Equatable {
     /// A device auth key already exists for the user.
     case alreadyExists
 
-    /// The web vault URL can't be used as a WebAuthn origin.
-    case invalidWebVaultUrl
-
     /// The device auth key is missing or invalid.
     case missingOrInvalidKey
 
@@ -478,113 +431,12 @@ enum DeviceAuthKeyError: Error, Equatable {
 extension Error {
     /// Whether the user cancelled or failed the biometric check that guards the device auth key.
     var isDeviceAuthKeyBiometryCancellation: Bool {
-        guard case let KeychainServiceError.osStatusError(status) = self else { return false }
+        guard let error = self as? KeychainServiceError, case let .osStatusError(status) = error else {
+            return false
+        }
         return [errSecAuthFailed, errSecUserCanceled, kLAErrorAppCancel, kLAErrorSystemCancel, kLAErrorUserCancel]
             .contains(status)
     }
-}
-
-// MARK: - DeviceAuthKeyCrypto
-
-/// The PRF key derivation for the device auth key.
-///
-/// The SDK has no API to unlock the vault from a PRF output, and the PRF output from the SDK's
-/// `assertDeviceAuthKey` doesn't match the PRF output that the SDK's `createDeviceAuthKey` used for
-/// the key set (see NOTES.md, "PRF salt mismatch"). So the app repeats what creation did:
-///
-/// 1. PRF output = `HMAC-SHA256(key: hmacSecret, message: SHA256("passwordless-login"))`.
-/// 2. PRF key = `HKDF-Expand(prk: output, info: "enc", 32) || HKDF-Expand(prk: output, info: "mac", 32)`,
-///    which is the SDK's `derive_symmetric_key_from_prf`.
-///
-enum DeviceAuthKeyCrypto {
-    /// The PRF salt input that the SDK hard-codes when it creates the device auth key.
-    static let prfSaltInput = "passwordless-login"
-
-    /// Computes the PRF output that the SDK used to make the key set when it created the device auth key.
-    ///
-    /// - Parameter hmacSecret: The HMAC secret (`CredRandom`) from the device auth key record.
-    /// - Returns: The 32-byte PRF output.
-    ///
-    static func prfOutput(hmacSecret: Data) -> Data {
-        let salt = Data(SHA256.hash(data: Data(prfSaltInput.utf8)))
-        let output = HMAC<SHA256>.authenticationCode(for: salt, using: SymmetricKey(data: hmacSecret))
-        return Data(output)
-    }
-
-    /// Computes the stretched symmetric key that wraps the private key of the PRF key set.
-    ///
-    /// - Parameter hmacSecret: The HMAC secret (`CredRandom`) from the device auth key record.
-    /// - Returns: The base64 encoded 64-byte key (32-byte encryption key, then 32-byte MAC key).
-    ///
-    static func prfKey(hmacSecret: Data) throws -> String {
-        guard !hmacSecret.isEmpty else { throw DeviceAuthKeyError.missingOrInvalidKey }
-        let prk = SymmetricKey(data: prfOutput(hmacSecret: hmacSecret))
-        let encKey = HKDF<SHA256>.expand(pseudoRandomKey: prk, info: Data("enc".utf8), outputByteCount: 32)
-        let macKey = HKDF<SHA256>.expand(pseudoRandomKey: prk, info: Data("mac".utf8), outputByteCount: 32)
-        let key = encKey.withUnsafeBytes { Data($0) } + macKey.withUnsafeBytes { Data($0) }
-        return key.base64EncodedString()
-    }
-
-    /// Builds the WebAuthn origin for a web vault URL the same way the SDK does: scheme, host and
-    /// the port if it isn't the default port for the scheme.
-    ///
-    /// - Parameter webVaultURL: The web vault URL of the environment.
-    /// - Returns: The origin for the `clientDataJSON`.
-    ///
-    static func webAuthnOrigin(for webVaultURL: URL) throws -> String {
-        guard let scheme = webVaultURL.scheme?.lowercased(), let host = webVaultURL.host?.lowercased() else {
-            throw DeviceAuthKeyError.invalidWebVaultUrl
-        }
-        var origin = "\(scheme)://\(host)"
-        if let port = webVaultURL.port {
-            let isDefaultPort = (scheme == "https" && port == 443) || (scheme == "http" && port == 80)
-            if !isDefaultPort {
-                origin += ":\(port)"
-            }
-        }
-        return origin
-    }
-}
-
-// MARK: - WebAuthnLoginAssertionDeviceResponse
-
-/// The `AuthenticatorAssertionRawResponse` that the server expects in the `deviceResponse` value of
-/// a `webauthn` grant token request. All binary values are base64url encoded.
-///
-struct WebAuthnLoginAssertionDeviceResponse: Encodable, Equatable {
-    // MARK: Types
-
-    /// The authenticator's response to the assertion request.
-    struct Response: Encodable, Equatable {
-        /// The authenticator data.
-        let authenticatorData: String
-
-        /// The client data JSON that the signature covers.
-        let clientDataJSON: String
-
-        /// The signature over the authenticator data and the client data hash.
-        let signature: String
-
-        /// The WebAuthn user handle.
-        let userHandle: String
-    }
-
-    // MARK: Properties
-
-    /// The client extension results. These are always empty, the PRF output never leaves the device.
-    let extensions = [String: String]()
-
-    /// The base64url encoded credential ID.
-    let id: String
-
-    /// The base64url encoded credential ID.
-    let rawId: String
-
-    /// The authenticator's response to the assertion request.
-    let response: Response
-
-    /// The credential type.
-    let type = "public-key"
 }
 
 // MARK: - DefaultDeviceAuthKeyStore
@@ -594,14 +446,11 @@ struct WebAuthnLoginAssertionDeviceResponse: Encodable, Equatable {
 final class DefaultDeviceAuthKeyStore: DeviceAuthKeyStore, @unchecked Sendable {
     // MARK: Properties
 
-    /// A record that was already read from the keychain, to avoid a second biometrics prompt.
-    private let cachedRecord: DeviceAuthKeyKeychainRecord?
-
-    /// The record that the SDK created through this store, if any.
-    private(set) var createdRecord: DeviceAuthKeyKeychainRecord?
-
     /// Repository for managing device auth keys in the keychain.
     private let deviceAuthKeychainRepository: DeviceAuthKeychainRepository
+
+    /// The error of the last failed record read, such as a cancelled biometrics prompt.
+    private var recordReadError: Error?
 
     /// The ID of the user that owns the device auth key.
     private let userId: String
@@ -611,16 +460,13 @@ final class DefaultDeviceAuthKeyStore: DeviceAuthKeyStore, @unchecked Sendable {
     /// Creates a new `DefaultDeviceAuthKeyStore`.
     ///
     /// - Parameters:
-    ///   - cachedRecord: A record that was already read from the keychain.
     ///   - deviceAuthKeychainRepository: Repository for managing device auth keys in the keychain.
     ///   - userId: The ID of the user that owns the device auth key.
     ///
     init(
-        cachedRecord: DeviceAuthKeyKeychainRecord? = nil,
         deviceAuthKeychainRepository: DeviceAuthKeychainRepository,
         userId: String,
     ) {
-        self.cachedRecord = cachedRecord
         self.deviceAuthKeychainRepository = deviceAuthKeychainRepository
         self.userId = userId
     }
@@ -637,7 +483,6 @@ final class DefaultDeviceAuthKeyStore: DeviceAuthKeyStore, @unchecked Sendable {
             userId: record.userId,
         )
         try await deviceAuthKeychainRepository.setDeviceAuthKeyRecord(keychainRecord, userId: userId)
-        createdRecord = keychainRecord
     }
 
     func createMetadata(metadata: DeviceAuthKeyMetadata) async throws {
@@ -671,10 +516,12 @@ final class DefaultDeviceAuthKeyStore: DeviceAuthKeyStore, @unchecked Sendable {
     }
 
     func getRecord() async throws -> DeviceAuthKeyRecord? {
-        let keychainRecord: DeviceAuthKeyKeychainRecord? = if let record = cachedRecord ?? createdRecord {
-            record
-        } else {
-            try await deviceAuthKeychainRepository.getDeviceAuthKey(userId: userId)
+        let keychainRecord: DeviceAuthKeyKeychainRecord?
+        do {
+            keychainRecord = try await deviceAuthKeychainRepository.getDeviceAuthKey(userId: userId)
+        } catch {
+            recordReadError = error
+            throw error
         }
         guard let keychainRecord else { return nil }
         return DeviceAuthKeyRecord(
@@ -691,5 +538,21 @@ final class DefaultDeviceAuthKeyStore: DeviceAuthKeyStore, @unchecked Sendable {
 
     func deleteRecordAndMetadata() async throws {
         try await deviceAuthKeychainRepository.deleteDeviceAuthKey(userId: userId)
+    }
+
+    // MARK: Methods
+
+    /// Runs an SDK call that uses this store. If the call fails after a failed record read, this
+    /// throws the record read error instead, because the SDK replaces it with a generic error.
+    ///
+    /// - Parameter operation: The SDK call.
+    /// - Returns: The result of the SDK call.
+    ///
+    func rethrowingRecordReadError<T>(_ operation: () async throws -> T) async throws -> T {
+        do {
+            return try await operation()
+        } catch {
+            throw recordReadError ?? error
+        }
     }
 }

@@ -1120,12 +1120,10 @@ extension DefaultAuthRepository: AuthRepository {
             try await deviceAuthKeyService.getDeviceAuthKeyUnlockData(userId: nil)
         }
 
-        // The SDK has no unlock method for a PRF key set. The key set uses the same wrapping as the
-        // trusted device keys, so the device key method unlocks it with the stretched PRF key.
-        try await unlockVault(method: .deviceKey(
-            deviceKey: unlockData.prfKey,
-            protectedDevicePrivateKey: unlockData.encryptedPrivateKey,
-            deviceProtectedUserKey: unlockData.encryptedUserKey,
+        try await unlockVault(method: .webAuthnPrf(
+            prfOutput: unlockData.prfOutput,
+            encryptedPrivateKey: unlockData.encryptedPrivateKey,
+            encryptedUserKey: unlockData.encryptedUserKey,
         ))
     }
 
