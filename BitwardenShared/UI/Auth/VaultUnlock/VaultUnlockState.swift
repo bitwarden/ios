@@ -25,6 +25,10 @@ struct VaultUnlockState: Equatable {
     /// The user's email for the active account.
     let email: String
 
+    /// Whether the account uses the device auth key instead of a master password, so the view
+    /// shows the button to unlock with the device auth key in place of the master password field.
+    var isDeviceAuthKeyAccount = false
+
     /// Whether the view is being displayed in the app extension.
     var isInAppExtension = false
 

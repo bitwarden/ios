@@ -83,6 +83,20 @@ struct LoginView: View {
             .accessibilityIdentifier("LogInWithMasterPasswordButton")
             .buttonStyle(.primary())
 
+            if store.state.isLoginWithDeviceAuthKeyVisible {
+                AsyncButton {
+                    await store.perform(.loginWithDeviceAuthKeyPressed)
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(decorative: SharedAsset.Icons.key16)
+                            .imageStyle(.accessoryIcon16(scaleWithFont: true))
+                        Text(Localizations.logInWithDeviceAuthKey)
+                    }
+                }
+                .accessibilityIdentifier("LogInWithDeviceAuthKeyButton")
+                .buttonStyle(.secondary())
+            }
+
             if store.state.isLoginWithDeviceVisible {
                 Button {
                     store.send(.loginWithDevicePressed)

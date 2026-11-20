@@ -57,6 +57,7 @@ class CompleteRegistrationProcessor: StateProcessor<// swiftlint:disable:this ty
         & HasAuthService
         & HasClientService
         & HasConfigService
+        & HasDeviceAuthKeyService
         & HasEnvironmentService
         & HasErrorReporter
         & HasStateService
@@ -65,6 +66,14 @@ class CompleteRegistrationProcessor: StateProcessor<// swiftlint:disable:this ty
 
     /// The coordinator that handles navigation.
     private let coordinator: AnyCoordinator<AuthRoute, AuthEvent>
+
+    /// The random master password of an account that is being created with a device auth key.
+    /// The user never sees it. It only stays in memory until the device auth key exists.
+    private var deviceAuthKeySignupPassword: String?
+
+    /// Whether the user was logged in and the vault was unlocked while creating an account with a
+    /// device auth key.
+    private var didLoginForDeviceAuthKeySignup = false
 
     /// The services used by the processor.
     private let services: Services
@@ -93,10 +102,13 @@ class CompleteRegistrationProcessor: StateProcessor<// swiftlint:disable:this ty
     override func perform(_ effect: CompleteRegistrationEffect) async {
         switch effect {
         case .appeared:
+            state.isDeviceAuthKeySignupAvailable = await services.configService.isDeviceAuthKeyEnabled(isPreAuth: true)
             await setRegion()
             await verifyUserEmail()
         case .completeRegistration:
             await checkPasswordAndCompleteRegistration()
+        case .completeRegistrationWithDeviceAuthKey:
+            await completeRegistrationWithDeviceAuthKey()
         }
     }
 
@@ -180,8 +192,103 @@ class CompleteRegistrationProcessor: StateProcessor<// swiftlint:disable:this ty
         }
     }
 
+    /// Creates the user's account without a master password that the user knows, and protects it
+    /// with a device auth key.
+    ///
+    /// The server needs a master password to register an account, so this generates a random one.
+    /// It's used one time to register, log in, unlock, and verify the user when the SDK registers
+    /// the device auth key. Then it's dropped. If a step fails, the user can try again, and the
+    /// flow continues from the step that failed.
+    ///
+    private func completeRegistrationWithDeviceAuthKey() async {
+        defer { coordinator.hideLoadingOverlay() }
+
+        do {
+            coordinator.showLoadingOverlay(title: Localizations.creatingAccount)
+
+            let password: String
+            if let deviceAuthKeySignupPassword {
+                password = deviceAuthKeySignupPassword
+            } else {
+                password = try makeRandomMasterPassword()
+                deviceAuthKeySignupPassword = password
+            }
+
+            if !state.didCreateAccount {
+                try await createAccount(password: password, passwordHint: "")
+            }
+
+            if !didLoginForDeviceAuthKeySignup {
+                try await services.authService.loginWithMasterPassword(
+                    password,
+                    username: state.userEmail,
+                    isNewAccount: true,
+                )
+                try await services.authRepository.unlockVaultWithPassword(password: password)
+                didLoginForDeviceAuthKeySignup = true
+            }
+
+            try await services.deviceAuthKeyService.createDeviceAuthKey(
+                masterPassword: password,
+                isPasswordlessAccount: true,
+                overwrite: true,
+                userId: nil,
+            )
+            deviceAuthKeySignupPassword = nil
+
+            // The account already unlocks with the device auth key, so skip the screen that asks
+            // the user to set up biometrics or PIN unlock.
+            do {
+                try await services.stateService.setAccountSetupVaultUnlock(.complete)
+            } catch {
+                services.errorReporter.log(error: error)
+            }
+
+            await coordinator.handleEvent(.didCompleteAuth)
+            coordinator.navigate(to: .dismiss)
+        } catch {
+            services.errorReporter.log(error: error)
+            guard state.didCreateAccount else {
+                await coordinator.showErrorAlert(error: error) {
+                    await self.completeRegistrationWithDeviceAuthKey()
+                }
+                return
+            }
+            // The account exists, but only this screen knows its password. Let the user try again.
+            coordinator.showAlert(.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.theDeviceAuthKeyCouldNotBeCreatedDescriptionLong
+                    + "\n\n" + error.localizedDescription,
+                alertActions: [
+                    AlertAction(title: Localizations.tryAgain, style: .default) { _ in
+                        await self.completeRegistrationWithDeviceAuthKey()
+                    },
+                    AlertAction(title: Localizations.cancel, style: .cancel),
+                ],
+            ))
+        }
+    }
+
+    /// Makes a random master password with 256 bits of entropy.
+    ///
+    private func makeRandomMasterPassword() throws -> String {
+        var bytes = [UInt8](repeating: 0, count: 32)
+        guard SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes) == errSecSuccess else {
+            throw DeviceAuthKeyError.missingOrInvalidKey
+        }
+        return Data(bytes).base64EncodedString()
+    }
+
     /// Performs an API request to create the user's account.
-    private func createAccount() async throws { // swiftlint:disable:this function_body_length
+    ///
+    /// - Parameters:
+    ///   - password: The master password for the account.
+    ///   - passwordHint: The master password hint for the account.
+    ///
+    private func createAccount( // swiftlint:disable:this function_body_length
+        password: String,
+        passwordHint: String,
+    ) async throws {
         guard await services.configService.getFeatureFlag(
             .accountEncryptionV2PasswordRegistration,
             isPreAuth: true,
@@ -191,13 +298,13 @@ class CompleteRegistrationProcessor: StateProcessor<// swiftlint:disable:this ty
 
             let keys = try await services.clientService.auth(isPreAuth: true).makeRegisterKeys(
                 email: state.userEmail,
-                password: state.passwordText,
+                password: password,
                 kdf: kdfConfig.sdkKdf,
             )
 
             let hashedPassword = try await services.clientService.auth(isPreAuth: true).hashPassword(
                 email: state.userEmail,
-                password: state.passwordText,
+                password: password,
                 kdfParams: kdfConfig.sdkKdf,
                 purpose: .serverAuthorization,
             )
@@ -211,7 +318,7 @@ class CompleteRegistrationProcessor: StateProcessor<// swiftlint:disable:this ty
                         masterPasswordAuthenticationHash: hashedPassword,
                         salt: state.userEmail,
                     ),
-                    masterPasswordHint: state.passwordHintText,
+                    masterPasswordHint: passwordHint,
                     masterPasswordUnlock: MasterPasswordUnlockDataRequestModel(
                         kdf: kdfConfig,
                         masterKeyWrappedUserKey: keys.encryptedUserKey,
@@ -233,8 +340,8 @@ class CompleteRegistrationProcessor: StateProcessor<// swiftlint:disable:this ty
                 request: UserMasterPasswordRegistrationRequest(
                     email: state.userEmail,
                     salt: state.userEmail,
-                    masterPassword: state.passwordText,
-                    masterPasswordHint: state.passwordHintText.nilIfEmpty,
+                    masterPassword: password,
+                    masterPasswordHint: passwordHint.nilIfEmpty,
                     emailVerificationToken: state.emailVerificationToken,
                     salesAssistedToken: nil,
                     organizationUserId: nil,
@@ -272,7 +379,7 @@ class CompleteRegistrationProcessor: StateProcessor<// swiftlint:disable:this ty
 
             coordinator.showLoadingOverlay(title: Localizations.creatingAccount)
 
-            try await createAccount()
+            try await createAccount(password: state.passwordText, passwordHint: state.passwordHintText)
 
             try await services.authService.loginWithMasterPassword(
                 state.passwordText,

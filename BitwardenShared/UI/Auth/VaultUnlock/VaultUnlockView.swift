@@ -88,6 +88,10 @@ struct VaultUnlockView: View {
                 textField
             }
 
+            if store.state.isDeviceAuthKeyAccount {
+                deviceAuthKeySection
+            }
+
             VStack(spacing: 12) {
                 biometricAuthButton
                 if store.state.shouldShowPasswordOrPinFields {
@@ -131,6 +135,29 @@ struct VaultUnlockView: View {
                 biometricUnlockText(biometryType)
             }
             .buttonStyle(.secondary(shouldFillWidth: true))
+        }
+    }
+
+    /// The section to unlock the vault with the device auth key, for an account without a master password.
+    @ViewBuilder private var deviceAuthKeySection: some View {
+        VStack(spacing: 12) {
+            Text(Localizations.thisAccountHasNoMasterPasswordDescriptionLong)
+                .styleGuide(.body)
+                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
+                .multilineTextAlignment(.center)
+                .accessibilityIdentifier("DeviceAuthKeyUnlockDescription")
+
+            Text(Localizations.loggedInAsOn(store.state.email, store.state.webVaultHost))
+                .styleGuide(.footnote)
+                .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
+                .multilineTextAlignment(.center)
+                .accessibilityIdentifier("DeviceAuthKeyUserAndEnvironmentDataLabel")
+
+            AsyncButton(Localizations.unlockWithDeviceAuthKey) {
+                await store.perform(.unlockVaultWithDeviceAuthKey)
+            }
+            .buttonStyle(.primary(shouldFillWidth: true))
+            .accessibilityIdentifier("UnlockWithDeviceAuthKeyButton")
         }
     }
 

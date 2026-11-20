@@ -16,6 +16,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
         & HasAuthService
         & HasConfigService
         & HasDeviceAPIService
+        & HasDeviceAuthKeyService
         & HasErrorReporter
         & HasPolicyService
 
@@ -56,7 +57,10 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     override func perform(_ effect: LoginEffect) async {
         switch effect {
         case .appeared:
+            await refreshDeviceAuthKeyAvailability()
             await refreshKnownDevice()
+        case .loginWithDeviceAuthKeyPressed:
+            await loginWithDeviceAuthKey()
         case .loginWithMasterPasswordPressed:
             await loginWithMasterPassword()
         }
@@ -84,6 +88,61 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     }
 
     // MARK: Private Methods
+
+    /// Attempts to log the user in and unlock the vault with the device auth key on this device.
+    ///
+    private func loginWithDeviceAuthKey() async {
+        // Hide the loading overlay when exiting this method, in case it hasn't been hidden yet.
+        defer { coordinator.hideLoadingOverlay() }
+
+        do {
+            coordinator.showLoadingOverlay(title: Localizations.loggingIn)
+
+            // Login. This asks for biometrics to read the device auth key.
+            let unlockData = try await services.authService.loginWithDeviceAuthKey(email: state.username)
+
+            // Unlock the vault with the PRF key from the same device auth key.
+            try await services.authRepository.unlockVaultWithDeviceAuthKey(unlockData: unlockData)
+
+            // Complete the login flow.
+            coordinator.hideLoadingOverlay()
+            await coordinator.handleEvent(.didCompleteAuth)
+        } catch let error as IdentityTokenRequestError {
+            await handleErrorResponse(error)
+        } catch let error as ServerError {
+            await handleErrorResponse(error)
+        } catch let error as URLError {
+            await handleErrorResponse(error)
+        } catch {
+            // The device auth key could not be read or used, for example because biometrics
+            // failed or were cancelled. Always show this, so the failure isn't silent.
+            showDeviceAuthKeyErrorAlert(error)
+        }
+    }
+
+    /// Shows an alert for an error that occurred while using the device auth key.
+    ///
+    /// - Parameter error: The error that occurred.
+    ///
+    private func showDeviceAuthKeyErrorAlert(_ error: Error) {
+        services.errorReporter.log(error: error)
+        coordinator.showAlert(.defaultAlert(
+            title: Localizations.anErrorHasOccurred,
+            message: Localizations.theDeviceAuthKeyCouldNotBeUsedDescriptionLong + "\n\n(\(error))",
+        ))
+    }
+
+    /// Updates the state to show or hide the "Log in with device auth key" button, based on
+    /// whether a device auth key for the user exists on this device.
+    ///
+    private func refreshDeviceAuthKeyAvailability() async {
+        guard await services.configService.isDeviceAuthKeyEnabled(isPreAuth: true) else {
+            state.isLoginWithDeviceAuthKeyVisible = false
+            return
+        }
+        state.isLoginWithDeviceAuthKeyVisible = await services.deviceAuthKeyService
+            .hasDeviceAuthKey(email: state.username)
+    }
 
     /// Attempts to log the user in with the email address and password values found in `state`.
     ///

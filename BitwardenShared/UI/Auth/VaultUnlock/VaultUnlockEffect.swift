@@ -10,6 +10,9 @@ enum VaultUnlockEffect: Equatable {
     /// The button to unlock the vault was pressed.
     case unlockVault
 
+    /// The button to unlock the vault with the device auth key was pressed.
+    case unlockVaultWithDeviceAuthKey
+
     /// The button to unlock the vault with biometrics was pressed.
     case unlockVaultWithBiometrics
 }

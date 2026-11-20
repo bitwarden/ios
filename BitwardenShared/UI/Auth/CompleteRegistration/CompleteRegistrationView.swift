@@ -42,6 +42,10 @@ struct CompleteRegistrationView: View {
             }
 
             createAccountButton
+
+            if store.state.isDeviceAuthKeySignupAvailable {
+                deviceAuthKeySection
+            }
         }
         .animation(.default, value: store.state.passwordStrengthScore)
         .navigationBar(
@@ -185,6 +189,23 @@ struct CompleteRegistrationView: View {
             ),
         )
         .textFieldConfiguration(.password)
+    }
+
+    /// The section to create the account without a master password, protected by a device auth key.
+    private var deviceAuthKeySection: some View {
+        VStack(spacing: 12) {
+            AsyncButton(Localizations.createAccountWithThisDevice) {
+                await store.perform(.completeRegistrationWithDeviceAuthKey)
+            }
+            .accessibilityIdentifier("CreateAccountWithDeviceAuthKeyButton")
+            .buttonStyle(.secondary())
+
+            Text(Localizations.createAccountWithThisDeviceDescriptionLong)
+                .styleGuide(.footnote)
+                .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
+                .multilineTextAlignment(.center)
+                .accessibilityIdentifier("CreateAccountWithDeviceAuthKeyDescription")
+        }
     }
 
     /// The button pressed when the user attempts to create the account.

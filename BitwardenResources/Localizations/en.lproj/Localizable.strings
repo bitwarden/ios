@@ -1286,3 +1286,11 @@
 "ForYourSecurityDontShareOrSendDescriptionLong" = "For your security, don’t share or send this file over unsecured channels (like email), and delete it when you’re done.";
 /* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
 "CreateLogin" = "Create login";
+/* Button on the create account screen that creates an account without a master password. The account is protected by a device auth key. */
+"CreateAccountWithThisDevice" = "Create account with this device";
+"CreateAccountWithThisDeviceDescriptionLong" = "No master password. A device auth key that is bound to this device and protected by biometrics logs you in and unlocks your vault.";
+"LogInWithDeviceAuthKey" = "Log in with device auth key";
+"UnlockWithDeviceAuthKey" = "Unlock with device auth key";
+"ThisAccountHasNoMasterPasswordDescriptionLong" = "This account has no master password. Unlock your vault with the device auth key on this device.";
+"TheDeviceAuthKeyCouldNotBeUsedDescriptionLong" = "The device auth key could not be used. Check that biometrics are set up on this device and try again.";
+"TheDeviceAuthKeyCouldNotBeCreatedDescriptionLong" = "Your account was created, but the device auth key could not be created. Try again to finish. Without the device auth key you can’t log in to this account again.";

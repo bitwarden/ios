@@ -69,6 +69,8 @@ class VaultUnlockProcessor: StateProcessor<
             await showExtensionKdfMemoryWarningIfNecessary {
                 await self.unlockVault()
             }
+        case .unlockVaultWithDeviceAuthKey:
+            await unlockWithDeviceAuthKey()
         case .unlockVaultWithBiometrics:
             await showExtensionKdfMemoryWarningIfNecessary {
                 await self.unlockWithBiometrics()
@@ -103,8 +105,12 @@ class VaultUnlockProcessor: StateProcessor<
     ///
     private func checkIfShouldShowPasswordOrPinFields() async {
         do {
+            // A device auth key account has a master password on the server, but the user doesn't
+            // know it. Show the device auth key button in place of the master password field.
+            state.isDeviceAuthKeyAccount = await services.authRepository.isDeviceAuthKeyAccount(userId: nil)
             let hasMasterPassword = try await services.authRepository.hasMasterPassword()
-            state.shouldShowPasswordOrPinFields = hasMasterPassword || state.unlockMethod == .pin
+            state.shouldShowPasswordOrPinFields = (hasMasterPassword && !state.isDeviceAuthKeyAccount)
+                || state.unlockMethod == .pin
         } catch {
             services.errorReporter.log(error: error)
             state.shouldShowPasswordOrPinFields = true
@@ -238,6 +244,29 @@ class VaultUnlockProcessor: StateProcessor<
         }
     }
 
+    /// Attempts to unlock the vault with the device auth key. This asks for biometrics to read the
+    /// device auth key from the keychain.
+    ///
+    private func unlockWithDeviceAuthKey() async {
+        do {
+            try await services.authRepository.unlockVaultWithDeviceAuthKey(unlockData: nil)
+            await coordinator.handleEvent(.didCompleteAuth)
+            state.unsuccessfulUnlockAttemptsCount = 0
+            await services.userSessionStateService.setUnsuccessfulUnlockAttempts(0)
+        } catch let error as StateServiceError {
+            services.errorReporter.log(error: error)
+            coordinator.navigate(to: .landing)
+        } catch {
+            // Always show the failure (for example biometrics that failed or were cancelled). The
+            // user isn't logged out, because there's no other way to log in to this account.
+            services.errorReporter.log(error: error)
+            coordinator.showAlert(.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.theDeviceAuthKeyCouldNotBeUsedDescriptionLong + "\n\n(\(error))",
+            ))
+        }
+    }
+
     /// Attempts to unlock the vault with the user's biometrics
     ///
     private func unlockWithBiometrics() async {
@@ -274,7 +303,9 @@ class VaultUnlockProcessor: StateProcessor<
 
             let hasMasterPassword = try? await services.authRepository.hasMasterPassword()
             let isPinEnabled = try? await services.authRepository.isPinUnlockAvailable()
-            if hasMasterPassword == nil || hasMasterPassword == false, isPinEnabled == false {
+            let isDeviceAuthKeyAccount = await services.authRepository.isDeviceAuthKeyAccount(userId: nil)
+            if hasMasterPassword == nil || hasMasterPassword == false, isPinEnabled == false,
+               !isDeviceAuthKeyAccount {
                 // If biometrics is enabled, but the auth key doesn't exist and the user doesn't
                 // have a master password or PIN, log the user out.
                 await logoutUser(userInitiated: false)

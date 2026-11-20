@@ -11,6 +11,10 @@ struct LoginState: Equatable {
     /// A flag indicating if the master password should be revealed or not.
     var isMasterPasswordRevealed: Bool = false
 
+    /// A flag indicating if the login with device auth key button should be displayed or not.
+    /// It's displayed when a device auth key for the user exists on this device.
+    var isLoginWithDeviceAuthKeyVisible: Bool = false
+
     /// A flag indicating if the login with device button should be displayed or not.
     var isLoginWithDeviceVisible: Bool = false
 

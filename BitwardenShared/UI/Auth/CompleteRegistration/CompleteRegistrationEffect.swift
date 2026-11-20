@@ -8,4 +8,8 @@ enum CompleteRegistrationEffect: Equatable {
 
     /// The user pressed `Submit` on the `CompleteRegistrationView`, attempting to create an account.
     case completeRegistration
+
+    /// The user pressed the button to create an account without a master password. The account
+    /// is protected by a device auth key.
+    case completeRegistrationWithDeviceAuthKey
 }

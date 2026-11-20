@@ -27,6 +27,10 @@ struct CompleteRegistrationState: Equatable, Sendable {
     /// Whether the user came from email AppLink
     var fromEmail: Bool = false
 
+    /// Whether the user can create an account without a master password, which is protected by a
+    /// device auth key.
+    var isDeviceAuthKeySignupAvailable = false
+
     /// Whether the check for data breaches toggle is on.
     var isCheckDataBreachesToggleOn: Bool = true
 
