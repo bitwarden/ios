@@ -6,22 +6,6 @@ import XCTest
 class StringTests: BitwardenTestCase {
     // MARK: Tests
 
-    /// `addingHttpsSchemeIfNeeded()` adds an `https://` scheme when no scheme is present.
-    func test_addingHttpsSchemeIfNeeded_addsHttpsScheme() {
-        XCTAssertEqual("example.com".addingHttpsSchemeIfNeeded(), "https://example.com")
-        XCTAssertEqual("www.example.com".addingHttpsSchemeIfNeeded(), "https://www.example.com")
-        XCTAssertEqual("localhost:8080".addingHttpsSchemeIfNeeded(), "https://localhost:8080")
-        XCTAssertEqual("example.com/path/".addingHttpsSchemeIfNeeded(), "https://example.com/path/")
-    }
-
-    /// `addingHttpsSchemeIfNeeded()` returns the string unchanged when a scheme is present.
-    func test_addingHttpsSchemeIfNeeded_preservesExistingScheme() {
-        XCTAssertEqual("https://example.com/".addingHttpsSchemeIfNeeded(), "https://example.com/")
-        XCTAssertEqual("http://example.com".addingHttpsSchemeIfNeeded(), "http://example.com")
-        XCTAssertEqual("iosapp://com.example.app".addingHttpsSchemeIfNeeded(), "iosapp://com.example.app")
-        XCTAssertEqual("androidapp://com.example.app".addingHttpsSchemeIfNeeded(), "androidapp://com.example.app")
-    }
-
     /// `formattedCreditCardNumber()` formats valid credit card numbers with spaces every 4 digits.
     func test_formattedCreditCardNumber_withValidNumbers() {
         XCTAssertEqual("1234567890123456".formattedCreditCardNumber(), "1234 5678 9012 3456")

@@ -90,27 +90,6 @@ public extension String {
 
     // MARK: Methods
 
-    /// Returns a copy of the string with an `https://` scheme added if it doesn't already have a scheme.
-    ///
-    /// Unlike `httpsNormalized()`, any existing scheme is preserved, including non-HTTP schemes such
-    /// as app URIs (e.g. `iosapp://`), and the rest of the string, such as a trailing slash, is
-    /// unchanged.
-    ///
-    /// - Returns: The string prefixed with `https://` if it doesn't contain a scheme, or the
-    ///   original string otherwise.
-    ///
-    /// # Examples
-    /// ```swift
-    /// "example.com".addingHttpsSchemeIfNeeded()           // "https://example.com"
-    /// "example.com/".addingHttpsSchemeIfNeeded()          // "https://example.com/"
-    /// "http://example.com".addingHttpsSchemeIfNeeded()    // "http://example.com"
-    /// "iosapp://com.example".addingHttpsSchemeIfNeeded()  // "iosapp://com.example"
-    /// ```
-    ///
-    func addingHttpsSchemeIfNeeded() -> String {
-        contains("://") ? self : "https://" + self
-    }
-
     /// Formats a credit card number by inserting spaces every 4 digits.
     /// Only formats if the string contains only digits, otherwise returns the original string.
     ///
