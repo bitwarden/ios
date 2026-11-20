@@ -32,6 +32,8 @@ final class DeviceAuthKeyDemoUITests: XCTestCase {
         step("launched, email \(email)")
 
         setSelfHostedEnvironment()
+        // Let the "environment URLs have been saved" toast go away before the recording starts.
+        Thread.sleep(forTimeInterval: 5)
         marker("DEMO-RECORD-START")
         Thread.sleep(forTimeInterval: 5)
         signUpWithDeviceAuthKey()

@@ -59,6 +59,12 @@ class VaultUnlockProcessor: StateProcessor<
     override func perform(_ effect: VaultUnlockEffect) async {
         switch effect {
         case .appeared:
+            // Check this first, so a device auth key account doesn't show the master password
+            // field while the rest of the state loads.
+            if await services.authRepository.isDeviceAuthKeyAccount(userId: nil) {
+                state.isDeviceAuthKeyAccount = true
+                state.shouldShowPasswordOrPinFields = false
+            }
             await refreshProfileState()
             await checkIfPinUnlockIsAvailable()
             await checkIfShouldShowPasswordOrPinFields()
