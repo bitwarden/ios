@@ -32,7 +32,10 @@ struct VaultUnlockView: View {
 
     /// The view's navigation title.
     var navigationTitle: String {
-        store.state.unlockMethod == .pin
+        if store.state.isDeviceAuthKeyAccount, !store.state.shouldShowPasswordOrPinFields {
+            return Localizations.unlock
+        }
+        return store.state.unlockMethod == .pin
             ? Localizations.verifyPIN
             : Localizations.verifyMasterPassword
     }

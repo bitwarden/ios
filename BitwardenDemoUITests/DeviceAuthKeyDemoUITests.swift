@@ -103,8 +103,17 @@ final class DeviceAuthKeyDemoUITests: XCTestCase {
 
     // MARK: Helpers
 
+    /// Waits for the vault and closes the dialogs that cover it after a login.
     func waitForVault() {
         waitFor("My vault", timeout: 90)
+        let gotIt = element("OK, got it!", timeout: 4)
+        if gotIt.exists {
+            gotIt.tap()
+            let allow = XCUIApplication(bundleIdentifier: "com.apple.springboard").buttons["Allow"]
+            if allow.waitForExistence(timeout: 5) {
+                allow.tap()
+            }
+        }
     }
 
     func step(_ message: String) {
