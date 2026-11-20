@@ -1,0 +1,31 @@
+# Device auth key POC demo driver. A standalone UI test bundle that drives the installed
+# Bitwarden app by bundle identifier. It has no dependency on the app targets, so it builds
+# on its own: `mint run xcodegen --spec project-dakdemo.yml`.
+name: BitwardenDemoUITests
+options:
+  bundleIdPrefix: com.8bit.bitwarden
+  deploymentTarget:
+    iOS: 17.0
+configs:
+  Debug: debug
+  Release: release
+schemes:
+  BitwardenDemoUITests:
+    build:
+      targets:
+        BitwardenDemoUITests: [test]
+    test:
+      targets:
+        - BitwardenDemoUITests
+targets:
+  BitwardenDemoUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: BitwardenDemoUITests
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.8bit.bitwarden.demo-ui-tests
+        GENERATE_INFOPLIST_FILE: YES
+        SWIFT_VERSION: 5.0
+        TARGETED_DEVICE_FAMILY: 1
