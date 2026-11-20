@@ -299,7 +299,39 @@ public class AppProcessor {
         }
     }
 
+    /// Checks whether the vault already has a login with the same URI, username and password as a
+    /// save-password request. If it does, the login's credential identities are added to the identity
+    /// store so the system doesn't prompt to save the same credential again.
+    ///
+    /// The vault must be unlocked before calling this.
+    ///
+    /// - Parameters:
+    ///   - username: The username of the credential being saved.
+    ///   - password: The password of the credential being saved.
+    ///   - uri: The URI of the credential being saved.
+    /// - Returns: `true` if an identical login already exists, `false` otherwise.
+    ///
+    @available(iOSApplicationExtension 26.2, *)
+    public func registerExistingPasswordCredential(username: String, password: String, uri: String) async -> Bool {
+        guard let existingLogin = await services.vaultRepository.existingLogin(
+            matchingUri: uri,
+            username: username,
+            password: password,
+        ) else {
+            return false
+        }
+
+        if let cipherId = existingLogin.id {
+            await services.autofillCredentialService.upsertCredentialsInStore(forCipherId: cipherId)
+        }
+        return true
+    }
+
     /// Saves a password credential to the vault without showing UI.
+    ///
+    /// If a login with the same URI, username and password already exists, no new login is added.
+    /// In both cases the login's credential identities are added to the identity store before
+    /// returning, so the system doesn't prompt to save the same credential again.
     ///
     /// - Parameters:
     ///   - username: The username to save.
@@ -316,9 +348,16 @@ public class AppProcessor {
     ) async throws {
         try await unlockVaultWithNeverlockKey()
 
-        try await services.vaultRepository.addCipher(
+        guard await !registerExistingPasswordCredential(username: username, password: password, uri: uri) else {
+            return
+        }
+
+        let addedCipher = try await services.vaultRepository.addCipher(
             CipherView(username: username, password: password, uri: uri, name: name),
         )
+        if let cipherId = addedCipher.id {
+            await services.autofillCredentialService.upsertCredentialsInStore(forCipherId: cipherId)
+        }
     }
 
     /// Reprompts the user for their master password if the cipher for the user-requested credential
