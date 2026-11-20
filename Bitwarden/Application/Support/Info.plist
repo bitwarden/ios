@@ -123,6 +123,11 @@
 	<string>15.0</string>
 	<key>NFCReaderUsageDescription</key>
 	<string>Use Yubikeys for two-factor authentication.</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Scan QR codes and payment cards</string>
 	<key>NSFaceIDUsageDescription</key>
