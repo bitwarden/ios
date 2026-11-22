@@ -140,6 +140,8 @@ class VaultUnlockProcessor: StateProcessor<
            shouldAttemptAutomaticBiometricUnlock,
            services.application?.applicationState != .background {
             shouldAttemptAutomaticBiometricUnlock = false
+            await waitForCredentialProviderExtensionToAppear()
+            guard !Task.isCancelled else { return }
             await unlockWithBiometrics()
         } else {
             // Biometric unlock isn't being attempted automatically, so focus the master password
@@ -235,6 +237,17 @@ class VaultUnlockProcessor: StateProcessor<
                 return
             }
             coordinator.showAlert(alert)
+        }
+    }
+
+    /// Waits until the credential provider extension's view controller has appeared, so that the
+    /// automatic biometrics prompt isn't shown while the extension is still being presented.
+    /// Returns immediately outside of the credential provider extension.
+    ///
+    private func waitForCredentialProviderExtensionToAppear() async {
+        guard let delegate = appExtensionDelegate as? CredentialProviderExtensionDelegate else { return }
+        for await didAppear in delegate.getDidAppearPublisher() where didAppear {
+            return
         }
     }
 

@@ -155,6 +155,59 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertTrue(subject.state.shouldFocusPasswordOrPinField)
     }
 
+    /// `perform(_:)` with `.appeared` in the credential provider extension attempts automatic biometric
+    /// unlock right away when the extension has already appeared.
+    @available(iOS 17.0, *)
+    @MainActor
+    func test_perform_appeared_loadData_unlockWithBiometrics_credentialProviderExtensionAppeared() async {
+        let extensionDelegate = setUpAutomaticBiometricUnlockInCredentialProviderExtension()
+        extensionDelegate.didAppearPublisher.send(true)
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(authRepository.unlockVaultWithBiometricsCalled)
+        XCTAssertEqual(coordinator.events.last, .didCompleteAuth)
+    }
+
+    /// `perform(_:)` with `.appeared` in the credential provider extension doesn't attempt automatic
+    /// biometric unlock if the task is cancelled before the extension appears.
+    @available(iOS 17.0, *)
+    @MainActor
+    func test_perform_appeared_loadData_unlockWithBiometrics_credentialProviderExtensionCancelled() async throws {
+        let extensionDelegate = setUpAutomaticBiometricUnlockInCredentialProviderExtension()
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        try await waitForAsync { extensionDelegate.getDidAppearPublisherCalled }
+        task.cancel()
+        await task.value
+
+        XCTAssertFalse(authRepository.unlockVaultWithBiometricsCalled)
+        XCTAssertTrue(coordinator.events.isEmpty)
+    }
+
+    /// `perform(_:)` with `.appeared` in the credential provider extension waits for the extension
+    /// to appear before attempting automatic biometric unlock.
+    @available(iOS 17.0, *)
+    @MainActor
+    func test_perform_appeared_loadData_unlockWithBiometrics_waitsForCredentialProviderExtension() async throws {
+        let extensionDelegate = setUpAutomaticBiometricUnlockInCredentialProviderExtension()
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        defer { task.cancel() }
+
+        try await waitForAsync { extensionDelegate.getDidAppearPublisherCalled }
+        XCTAssertFalse(authRepository.unlockVaultWithBiometricsCalled)
+
+        extensionDelegate.didAppearPublisher.send(true)
+
+        try await waitForAsync { self.coordinator.events.last == .didCompleteAuth }
+        XCTAssertTrue(authRepository.unlockVaultWithBiometricsCalled)
+    }
+
     /// `perform(_:)` with `.appeared` doesn't focus the master password or PIN field when biometric
     /// unlock is attempted automatically and succeeds.
     @MainActor
@@ -1847,5 +1900,37 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.showProfileSwitcher()
 
         XCTAssertEqual(coordinator.routes, [.viewProfileSwitcher])
+    }
+
+    // MARK: Private
+
+    /// Sets up the subject to automatically attempt biometric unlock within the credential provider
+    /// extension.
+    ///
+    /// - Returns: The credential provider extension delegate used by the subject.
+    ///
+    @available(iOS 17.0, *)
+    @MainActor
+    private func setUpAutomaticBiometricUnlockInCredentialProviderExtension()
+        -> MockCredentialProviderExtensionDelegate {
+        let extensionDelegate = MockCredentialProviderExtensionDelegate()
+        subject = VaultUnlockProcessor(
+            appExtensionDelegate: extensionDelegate,
+            coordinator: coordinator.asAnyCoordinator(),
+            services: ServiceContainer.withMocks(
+                application: application,
+                authRepository: authRepository,
+                biometricsRepository: biometricsRepository,
+                errorReporter: errorReporter,
+                stateService: stateService,
+                userSessionStateService: userSessionStateService,
+            ),
+            state: VaultUnlockState(account: .fixture()),
+        )
+        stateService.activeAccount = .fixture()
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
+        authRepository.unlockVaultWithBiometricsResult = .success(())
+        subject.shouldAttemptAutomaticBiometricUnlock = true
+        return extensionDelegate
     }
 } // swiftlint:disable:this file_length

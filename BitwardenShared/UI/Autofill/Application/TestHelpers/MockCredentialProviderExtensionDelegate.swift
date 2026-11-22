@@ -20,6 +20,7 @@ class MockCredentialProviderExtensionDelegate: MockAppExtensionDelegate, Credent
     var releaseKeyboardAnchorCalled = false
     var extensionMode: CredentialProviderMode = .configureAutofill
     var didAppearPublisher = CurrentValueSubject<Bool, Never>(false)
+    var getDidAppearPublisherCalled = false
     var setMatchedExcludedCredentialFoundCalled = false
     var setUserInteractionRequiredCalled = false
 
@@ -53,7 +54,8 @@ class MockCredentialProviderExtensionDelegate: MockAppExtensionDelegate, Credent
     }
 
     func getDidAppearPublisher() -> AsyncPublisher<AnyPublisher<Bool, Never>> {
-        didAppearPublisher
+        getDidAppearPublisherCalled = true
+        return didAppearPublisher
             .eraseToAnyPublisher()
             .values
     }
