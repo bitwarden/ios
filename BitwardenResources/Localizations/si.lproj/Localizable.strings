@@ -28,7 +28,6 @@
 "FolderCreated" = "නව ෆෝල්ඩරය සාදන ලදී.";
 "FolderDeleted" = "ෆෝල්ඩරය මකා ඇත.";
 "FolderNone" = "බහාලුමක් නැත";
-"Folders" = "බහාලුම්";
 "FolderUpdated" = "ෆෝල්ඩරය සුරකින ලදී";
 "MyFolder" = "මගේ ෆෝල්ඩරය";
 "MyFolders" = "මගේ ෆෝල්ඩර";
@@ -262,12 +261,8 @@
 "ShowWebsiteIconsDescription" = "එක් එක් පිවිසුම අසල හඳුනාගත හැකි රූපයක් පෙන්වන්න.";
 "IconsUrl" = "නිරූපක සේවාදායක URL";
 "AutofillWithBitwarden" = "Bitwarden සමඟ ස්වයං පිරවුම් කරන්න";
-/* Section header and screen title for viewing/managing a cipher's collections. */
-"Collections" = "එකතු කිරීම්";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "බෙදාගත් ෆෝල්ඩර";
-/* Empty state message shown when a collection has no items. */
-"NoItemsCollection" = "මෙම එකතුවෙහි අයිතම නොමැත";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
 "NoItemsFolder" = "මෙම ෆෝල්ඩරයේ අයිතම නොමැත";
@@ -289,8 +284,6 @@
 "RegEx" = "නිත්‍ය ප්‍රකාශනය";
 "StartsWith" = "ආරම්භ වන්නේ";
 "MatchDetection" = "ගැළපුම් හඳුනාගැනීම";
-/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
-"Organization" = "සංවිධානය";
 "HoldYubikeyNearTop" = "ඔබගේ Yubikey උපාංගයේ ඉහළ කොටස අසල තබා ගන්න.";
 "TryAgain" = "නැවත උත්සාහ කරන්න";
 "YubiKeyInstructionIos" = "ඉදිරියට යාමට, ඔබගේ YubiKey NEO උපාංගයේ පිටුපසට තබා ගන්න.";
@@ -326,27 +319,17 @@
 "NoItemsToList" = "ලැයිස්තුගත කිරීමට අයිතම නොමැත.";
 "MoveDown" = "පහළට ගෙනයන්න";
 "MoveUp" = "ඉහළට ගෙනයන්න";
-/* Empty state message on the Collections screen shown when a user has no collections. */
-"NoCollectionsToList" = "ලැයිස්තුගත කිරීමට එකතු කිරීම් නොමැත.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "ලැයිස්තුගත කිරීමට බෙදාගත් ෆෝල්ඩර නොමැත.";
 "MovedItemToOrg" = "%1$@ %2$@ වෙත ගෙන යන ලදී.";
-/* Alert message shown when saving an item with no collection selected. */
-"SelectOneCollection" = "ඔබ අවම වශයෙන් එක් එකතුවක් තෝරා ගත යුතුය.";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "ඔබ අවම වශයෙන් එක් බෙදාගත් ෆෝල්ඩරයක් තෝරා ගත යුතුය.";
 "Share" = "බෙදාගන්න";
 "ShareAll" = "සියල්ල බෙදාගන්න";
-/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
-"MoveToOrganization" = "සංවිධානය වෙත ගෙනයන්න";
-/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+/* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "ලැයිස්තුගත කිරීමට සුරක්ෂිතාගාර නොමැත.";
-/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
-"NoOrgsToList" = "ලැයිස්තුගත කිරීමට සංවිධාන නොමැත.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "මෙම අයිතමය ගෙන යාමට ඔබ කැමති සුරක්ෂිතාගාරයක් තෝරන්න. වෙනත් සුරක්ෂිතාගාරයකට ගෙන යාමෙන් අයිතමයේ හිමිකාරිත්වය එම සංවිධානයට පැවරේ. එය ගෙන ගිය පසු ඔබ තවදුරටත් මෙම අයිතමයේ සෘජු හිමිකරු නොවනු ඇත.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
-"MoveToOrgDesc" = "මෙම අයිතමය ගෙන යාමට ඔබ කැමති සංවිධානයක් තෝරන්න. සංවිධානයකට ගෙන යාමෙන් අයිතමයේ හිමිකාරිත්වය එම සංවිධානයට පැවරේ. එය ගෙන ගිය පසු ඔබ තවදුරටත් මෙම අයිතමයේ සෘජු හිමිකරු නොවනු ඇත.";
 "NumberOfWords" = "වචන ගණන";
 "Passphrase" = "වාක්‍යාංශ මුරපදය";
 "WordSeparator" = "වචන වෙන් කරන්නා";
@@ -890,7 +873,6 @@
 "PersonalDetails" = "පුද්ගලික විස්තර";
 "ContactInfo" = "සම්බන්ධතා තොරතුරු";
 "Identification" = "හඳුනාගැනීම";
-"Owner" = "හිමිකරු";
 "VerifyYourIdentity" = "ඔබගේ අනන්‍යතාව සත්‍යාපනය කරන්න";
 "ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
@@ -908,13 +890,9 @@
 "ShowMore" = "තවත් පෙන්වන්න";
 "ShowLess" = "අඩුවෙන් පෙන්වන්න";
 "ItemNameX" = "අයිතම නම, %1$@";
-"OwnerX" = "හිමිකරු, %1$@";
 "VaultX" = "සුරක්ෂිතාගාරය, %1$@";
-/* VoiceOver accessibility label for a collection the item belongs to. */
-"CollectionX" = "එකතුව, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Shared folder, %1$@";
-"FolderX" = "ෆෝල්ඩරය, %1$@";
 "MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "%2$@ න් %1$@ අයිතමය";
 "ViewRecordedLogs" = "පටිගත කළ ලොග බලන්න";

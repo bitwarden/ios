@@ -28,7 +28,6 @@
 "FolderCreated" = "Naujas aplankas sukurtas.";
 "FolderDeleted" = "Aplankas ištrintas.";
 "FolderNone" = "Be aplanko";
-"Folders" = "Aplankai";
 "FolderUpdated" = "Aplankas išsaugotas";
 "MyFolder" = "Mano aplankas";
 "MyFolders" = "Mano aplankai";
@@ -262,12 +261,8 @@
 "ShowWebsiteIconsDescription" = "Prie kiekvieno prisijungimo parodykite atpažįstamą vaizdą.";
 "IconsUrl" = "Piktogramų serverio URL";
 "AutofillWithBitwarden" = "Automatinis pildymas naudojant „Bitwarden“";
-/* Section header and screen title for viewing/managing a cipher's collections. */
-"Collections" = "Rinkinys";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "Bendrinami aplankai";
-/* Empty state message shown when a collection has no items. */
-"NoItemsCollection" = "Šioje kolekcijoje nėra elementų";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "Šiame bendrinamame aplanke nėra elementų";
 "NoItemsFolder" = "Šiame aplanke nėra elementų";
@@ -289,8 +284,6 @@
 "RegEx" = "Reguliari išraiška";
 "StartsWith" = "Prasideda su";
 "MatchDetection" = "Atitikmens aptikimas";
-/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
-"Organization" = "Organizacija";
 "HoldYubikeyNearTop" = "Laikykite Yubikey šalia įrenginio viršaus.";
 "TryAgain" = "Bandyti dar kartą";
 "YubiKeyInstructionIos" = "Norėdami tęsti, laikykite YubiKey NEO prie įrenginio galinės dalies.";
@@ -326,27 +319,17 @@
 "NoItemsToList" = "Nėra rodytinų elementų.";
 "MoveDown" = "Perkelti žemyn";
 "MoveUp" = "Perkelti aukštyn";
-/* Empty state message on the Collections screen shown when a user has no collections. */
-"NoCollectionsToList" = "Aplankų nėra.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "Nėra bendrinamų aplankų, kuriuos būtų galima išvardyti.";
 "MovedItemToOrg" = "%1$@ perkelta į %2$@.";
-/* Alert message shown when saving an item with no collection selected. */
-"SelectOneCollection" = "Turite pasirinkti bent vieną kolekciją.";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "Turite pasirinkti bent vieną bendrinamą aplanką.";
 "Share" = "Dalintis";
 "ShareAll" = "Bendrinti viską";
-/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
-"MoveToOrganization" = "Pereikite į organizaciją";
-/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+/* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "Nėra saugyklų, kurias būtų galima išvardyti.";
-/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
-"NoOrgsToList" = "Organizacijų sąraše nėra.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Pasirinkite saugyklą, į kurią norite perkelti šį elementą. Perkėlus į kitą saugyklą, elemento nuosavybė perduodama tai organizacijai. Kai elementas bus perkeltas, nebegalėsite būti tiesioginis jo savininkas.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
-"MoveToOrgDesc" = "Pasirinkite organizaciją, į kurią norite perkelti šį elementą. Perkėlus į organizaciją, nuosavybės teisė į elementą perduodama tai organizacijai. Kai jis bus perkeltas, nebebūsite tiesioginis šio elemento savininkas.";
 "NumberOfWords" = "Žodžių skaičius";
 "Passphrase" = "Slapta frazė";
 "WordSeparator" = "Žodžių skirtukas";
@@ -890,7 +873,6 @@
 "PersonalDetails" = "Asmeniniai duomenys";
 "ContactInfo" = "Kontaktinė informacija";
 "Identification" = "Identifikavimas";
-"Owner" = "Savininkas";
 "VerifyYourIdentity" = "Patvirtinkite savo tapatybę";
 "ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
@@ -908,13 +890,9 @@
 "ShowMore" = "Rodyti daugiau";
 "ShowLess" = "Rodyti mažiau";
 "ItemNameX" = "Elemento pavadinimas, %1$@";
-"OwnerX" = "Savininkas, %1$@";
 "VaultX" = "Saugykla, %1$@";
-/* VoiceOver accessibility label for a collection the item belongs to. */
-"CollectionX" = "Kolekcija, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Bendrinamas aplankas, %1$@";
-"FolderX" = "Aplankas, %1$@";
 "MyFolderX" = "Mano aplankas, %1$@";
 "ItemXOfY" = "Elementas %1$@ iš %2$@";
 "ViewRecordedLogs" = "Peržiūrėti įrašytus žurnalus";
