@@ -27,6 +27,7 @@ class MockCredentialProviderExtensionDelegate: MockAppExtensionDelegate, Credent
     var setUserInteractionRequiredCalled = false
     var updateLoginForSavePasswordRequestCipher: CipherView?
     var updateLoginForSavePasswordRequestError: Error?
+    var updateLoginForSavePasswordRequestResult = true
 
     var flowWithUserInteraction: Bool = true
 
@@ -81,10 +82,11 @@ class MockCredentialProviderExtensionDelegate: MockAppExtensionDelegate, Credent
         return resolveSavePasswordRequestResult
     }
 
-    func updateLoginForSavePasswordRequest(_ cipher: CipherView) async throws {
+    func updateLoginForSavePasswordRequest(_ cipher: CipherView) async throws -> Bool {
         updateLoginForSavePasswordRequestCipher = cipher
         if let updateLoginForSavePasswordRequestError {
             throw updateLoginForSavePasswordRequestError
         }
+        return updateLoginForSavePasswordRequestResult
     }
 }

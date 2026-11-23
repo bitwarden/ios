@@ -275,6 +275,26 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertFalse(credentialProviderDelegate.didCancelCalled)
     }
 
+    /// `didCompleteAuth()` in the save-password-credential flow shows the chooser again when the
+    /// user doesn't confirm their master password for the chosen login.
+    @available(iOS 17.0, *)
+    @MainActor
+    func test_didCompleteAuth_appExtension_savePasswordCredential_chooseLogin_selectNotVerified() async throws {
+        let credentialProviderDelegate = makeChooseLoginDelegate(
+            logins: [.loginFixture(id: "1", login: .fixture(username: "user"), name: "Example")],
+        )
+        credentialProviderDelegate.updateLoginForSavePasswordRequestResult = false
+
+        subject.didCompleteAuth(rehydratableTarget: nil)
+        try await waitForAsync { [weak self] in !(self?.rootNavigator.alerts.isEmpty ?? true) }
+        try await XCTUnwrap(rootNavigator.alerts.last).tapAction(title: "Example (user)")
+
+        XCTAssertEqual(rootNavigator.alerts.count, 2)
+        XCTAssertEqual(rootNavigator.alerts.last?.title, Localizations.updateWhichLogin)
+        XCTAssertFalse(credentialProviderDelegate.didCancelCalled)
+        XCTAssertTrue(module.vaultCoordinator.routes.isEmpty)
+    }
+
     /// `didCompleteAuth()` in the save-password-credential flow logs the error and shows an error
     /// alert when updating the chosen login fails.
     @available(iOS 17.0, *)

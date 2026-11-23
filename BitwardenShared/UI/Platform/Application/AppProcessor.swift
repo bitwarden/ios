@@ -695,6 +695,10 @@ public extension AppProcessor {
         case .none:
             return .addNew
         case let .singleUpdateCandidate(cipher):
+            // A login protected by master password reprompt is never updated without the user.
+            guard try await !isRepromptRequired(for: cipher) else {
+                return .chooseLogin([cipher])
+            }
             try await updatePasswordCredential(cipher, password: password)
             return .completed
         case let .updateCandidates(ciphers):
@@ -755,6 +759,70 @@ public extension AppProcessor {
         )
         if let cipherId = cipher.id {
             await services.autofillCredentialService.upsertCredentialsInStore(forCipherId: cipherId)
+        }
+    }
+
+    /// Updates the login the user chose for a save-password request. If the login is protected by
+    /// master password reprompt, the user must enter their master password first.
+    ///
+    /// - Parameters:
+    ///   - cipher: The login the user chose to update.
+    ///   - password: The new password.
+    /// - Returns: `true` if the login was updated, or `false` if the user cancelled the master
+    ///   password prompt or entered an incorrect master password.
+    ///
+    @available(iOSApplicationExtension 26.2, *)
+    func updateChosenPasswordCredential(_ cipher: CipherView, password: String) async throws -> Bool {
+        if try await isRepromptRequired(for: cipher) {
+            guard await verifyMasterPasswordForReprompt() else { return false }
+        }
+        try await updatePasswordCredential(cipher, password: password)
+        return true
+    }
+
+    // MARK: Private
+
+    /// Returns whether the login requires the user to enter their master password before it's used.
+    ///
+    /// - Parameter cipher: The login to check.
+    /// - Returns: `true` if master password reprompt is required for the login.
+    ///
+    private func isRepromptRequired(for cipher: CipherView) async throws -> Bool {
+        guard let cipherId = cipher.id else { return false }
+        return try await services.vaultRepository.repromptRequiredForCipher(id: cipherId)
+    }
+
+    /// Asks the user for their master password and validates it.
+    ///
+    /// - Returns: `true` if the user entered their master password, or `false` if they cancelled or
+    ///   entered an incorrect one.
+    ///
+    private func verifyMasterPasswordForReprompt() async -> Bool {
+        guard let coordinator else { return false }
+        return await withCheckedContinuation { continuation in
+            coordinator.showAlert(.masterPasswordPrompt(
+                onCancelled: {
+                    continuation.resume(returning: false)
+                },
+                completion: { [weak self] password in
+                    guard let self else {
+                        continuation.resume(returning: false)
+                        return
+                    }
+                    do {
+                        guard try await services.authRepository.validatePassword(password) else {
+                            coordinator.showAlert(.defaultAlert(title: Localizations.invalidMasterPassword)) {
+                                continuation.resume(returning: false)
+                            }
+                            return
+                        }
+                        continuation.resume(returning: true)
+                    } catch {
+                        services.errorReporter.log(error: error)
+                        continuation.resume(returning: false)
+                    }
+                },
+            ))
         }
     }
 }

@@ -543,11 +543,33 @@ class DefaultVaultRepository {
         }
 
         let candidates = sameUsernameLogins.filter { $0.id.map(editableIds.contains) ?? false }
-        if candidates.count == 1, let candidateId = candidates[0].id, exactMatchIds.contains(candidateId) {
+        // Only update without asking when the login is saved for the same host. A match on the base
+        // domain (e.g. `mail.example.com` for `hr.example.com`) or an equivalent domain could be a
+        // different account, so the user confirms it.
+        if candidates.count == 1,
+           let candidateId = candidates[0].id,
+           exactMatchIds.contains(candidateId),
+           login(candidates[0], hasHostOf: uri) {
             return .singleUpdateCandidate(candidates[0])
         }
-        // Several candidates, or a single fuzzy match, need the user to confirm which to update.
+        // Several candidates, or a single match on another host, need the user to confirm which to update.
         return candidates.isEmpty ? .none : .updateCandidates(candidates)
+    }
+
+    /// Returns whether one of the login's AutoFill URIs has the same host as `uri`. URIs saved without
+    /// a scheme are treated as `https://`.
+    ///
+    /// - Parameters:
+    ///   - cipher: The login to check.
+    ///   - uri: The URI whose host the login must have.
+    /// - Returns: `true` if one of the login's URIs has the same host as `uri`.
+    ///
+    private func login(_ cipher: CipherView, hasHostOf uri: String) -> Bool {
+        guard let host = URL(string: uri)?.host?.lowercased() else { return false }
+        return cipher.login?.uris?.contains { loginUri in
+            guard loginUri.match != .never, let uri = loginUri.uri, !uri.isEmpty else { return false }
+            return URL(string: uri.httpsNormalized())?.host?.lowercased() == host
+        } ?? false
     }
 
     /// Downloads, re-encrypts, and re-uploads an attachment without an attachment key so that it

@@ -65,11 +65,14 @@ public protocol CredentialProviderExtensionDelegate: AppExtensionDelegate {
     func setUserInteractionRequired()
 
     /// Updates the chosen login's password with the credential from the save-password request, then
-    /// completes the request.
+    /// completes the request. If the login is protected by master password reprompt, the user must
+    /// enter their master password first.
     ///
     /// - Parameter cipher: The login the user chose to update.
+    /// - Returns: `true` if the login was updated, or `false` if the user didn't confirm their
+    ///   master password, in which case the request isn't completed.
     ///
-    func updateLoginForSavePasswordRequest(_ cipher: CipherView) async throws
+    func updateLoginForSavePasswordRequest(_ cipher: CipherView) async throws -> Bool
 }
 
 extension CredentialProviderExtensionDelegate {

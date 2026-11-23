@@ -911,6 +911,43 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(result, .singleUpdateCandidate(CipherView(cipher: existing)))
     }
 
+    /// `matchSavePasswordRequest(uri:username:password:)` asks the user to confirm, instead of
+    /// updating without asking, when the only matching login is saved for another host on the same
+    /// base domain.
+    func test_matchSavePasswordRequest_differentHost_updateCandidates() async {
+        let existing = Cipher.fixture(
+            id: "1",
+            login: .fixture(password: "old", uris: [.fixture(uri: "https://mail.example.com")], username: "user"),
+        )
+        prepareExistingLoginCiphers([existing])
+
+        let result = await subject.matchSavePasswordRequest(
+            uri: "https://hr.example.com/change-password",
+            username: "user",
+            password: "new",
+        )
+
+        XCTAssertEqual(result, .updateCandidates([CipherView(cipher: existing)]))
+    }
+
+    /// `matchSavePasswordRequest(uri:username:password:)` updates without asking when the only
+    /// matching login was saved without a scheme for the same host.
+    func test_matchSavePasswordRequest_sameHostWithoutScheme_singleUpdateCandidate() async {
+        let existing = Cipher.fixture(
+            id: "1",
+            login: .fixture(password: "old", uris: [.fixture(uri: "Example.com/login")], username: "user"),
+        )
+        prepareExistingLoginCiphers([existing])
+
+        let result = await subject.matchSavePasswordRequest(
+            uri: "https://example.com/update-password/",
+            username: "user",
+            password: "new",
+        )
+
+        XCTAssertEqual(result, .singleUpdateCandidate(CipherView(cipher: existing)))
+    }
+
     /// `matchSavePasswordRequest(uri:username:password:)` follows the match detection set on a login's
     /// URI, so a login set to match the exact URI doesn't match another page of the same site.
     func test_matchSavePasswordRequest_respectsUriMatchType() async {

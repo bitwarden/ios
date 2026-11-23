@@ -316,7 +316,11 @@ class AppCoordinator: Coordinator, HasRootNavigator { // swiftlint:disable:this 
             logins: logins,
             onSelect: { [weak self] login in
                 do {
-                    try await delegate.updateLoginForSavePasswordRequest(login)
+                    guard try await delegate.updateLoginForSavePasswordRequest(login) else {
+                        // The master password wasn't confirmed, so let the user choose again.
+                        self?.showChooseLoginToUpdatePassword(logins, delegate: delegate)
+                        return
+                    }
                 } catch {
                     self?.services.errorReporter.log(error: error)
                     self?.rootNavigator?.present(.defaultAlert(title: Localizations.anErrorHasOccurred)) {
