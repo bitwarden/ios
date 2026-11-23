@@ -64,7 +64,7 @@ class ClientBuilderTests: BitwardenTestCase {
     /// `buildClient()` looks up the current environment's client certificate and builds the client
     /// with it.
     func test_buildClient_withClientCertificate() async throws {
-        clientCertificateService.getClientCertificateIdentityReturnValue = try TestIdentity.make()
+        clientCertificateService.getClientCertificateIdentityReturnValue = try TestIdentity.makeSecIdentity()
 
         let builtClient = await subject.buildClient()
 
@@ -83,7 +83,7 @@ class ClientBuilderTests: BitwardenTestCase {
 
     /// `validateSettings(urls:)` looks up the client certificate by fingerprint and accepts a usable one.
     func test_validateSettings_withClientCertificate() async throws {
-        clientCertificateService.getClientCertificateIdentityFingerprintReturnValue = try TestIdentity.make()
+        clientCertificateService.getClientCertificateIdentityFingerprintReturnValue = try TestIdentity.makeSecIdentity()
 
         await assertAsyncDoesNotThrow {
             try await subject.validateSettings(urls: EnvironmentURLData(

@@ -459,7 +459,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `getClientCertificateIdentity(fingerprint:)` returns the identity from the facade.
     func test_getClientCertificateIdentity_returnsIdentity() async throws {
-        let identity = try TestIdentity.make()
+        let identity = try TestIdentity.makeSecIdentity()
         keychainServiceFacade.getIdentityReturnValue = identity
 
         let result = try await subject.getClientCertificateIdentity(fingerprint: "abc123")
@@ -484,7 +484,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `setClientCertificateIdentity(_:fingerprint:)` delegates to the facade with the correct item.
     func test_setClientCertificateIdentity_delegatesToFacade() async throws {
-        let identity = try TestIdentity.make()
+        let identity = try TestIdentity.makeSecIdentity()
 
         try await subject.setClientCertificateIdentity(identity, fingerprint: "abc123")
 
@@ -498,7 +498,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
     /// `setClientCertificateIdentity(_:fingerprint:)` rethrows errors from the facade.
     func test_setClientCertificateIdentity_throwsError() async throws {
         keychainServiceFacade.setIdentityThrowableError = KeychainServiceError.osStatusError(-1)
-        let identity = try TestIdentity.make()
+        let identity = try TestIdentity.makeSecIdentity()
 
         await assertAsyncThrows(error: KeychainServiceError.osStatusError(-1)) {
             try await subject.setClientCertificateIdentity(identity, fingerprint: "abc123")
