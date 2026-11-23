@@ -28,7 +28,6 @@
 "FolderCreated" = "Новая папка создана";
 "FolderDeleted" = "Папка удалена.";
 "FolderNone" = "Без папки";
-"Folders" = "Папки";
 "FolderUpdated" = "Папка сохранена";
 "MyFolder" = "Моя папка";
 "MyFolders" = "Мои папки";
@@ -262,12 +261,8 @@
 "ShowWebsiteIconsDescription" = "Отображать узнаваемое изображение рядом с каждым логином.";
 "IconsUrl" = "URL сервера значков";
 "AutofillWithBitwarden" = "Автозаполнение Bitwarden";
-/* Section header and screen title for viewing/managing a cipher's collections. */
-"Collections" = "Коллекции";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "Общие папки";
-/* Empty state message shown when a collection has no items. */
-"NoItemsCollection" = "В этой коллекции нет элементов";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "В этой общей папке нет элементов";
 "NoItemsFolder" = "В этой папке нет элементов";
@@ -289,8 +284,6 @@
 "RegEx" = "Регулярное выражение";
 "StartsWith" = "Начинается с";
 "MatchDetection" = "Обнаружение совпадений";
-/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
-"Organization" = "Организация";
 "HoldYubikeyNearTop" = "Удерживайте Yubikey в верхней части устройства.";
 "TryAgain" = "Попробуйте снова";
 "YubiKeyInstructionIos" = "Для продолжения, удерживайте YubiKey NEO у задней панели устройства.";
@@ -326,27 +319,17 @@
 "NoItemsToList" = "Нет элементов для отображения.";
 "MoveDown" = "Переместить ниже";
 "MoveUp" = "Переместить выше";
-/* Empty state message on the Collections screen shown when a user has no collections. */
-"NoCollectionsToList" = "Нет коллекций для отображения.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "Нет общих папок для отображения.";
 "MovedItemToOrg" = "%1$@ перемещено в %2$@.";
-/* Alert message shown when saving an item with no collection selected. */
-"SelectOneCollection" = "Необходимо выбрать хотя бы одну коллекцию.";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "Необходимо выбрать хотя бы одну общую папку.";
 "Share" = "Поделиться";
 "ShareAll" = "Поделиться всеми";
-/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
-"MoveToOrganization" = "Переместить в организацию";
-/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+/* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "Нет хранилища для отображения.";
-/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
-"NoOrgsToList" = "Нет организаций для отображения.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Выберите хранилище, в которое вы хотите переместить этот элемент. Перемещение в хранилище передает права на элемент этой организации. Вы больше не будете непосредственным владельцем этого элемента после его перемещения.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
-"MoveToOrgDesc" = "Выберите организацию, в которую вы хотите переместить этот элемент. При перемещении в организацию право собственности на элемент переходит к этой организации. Вы больше не будете прямым владельцем этого элемента после его перемещения.";
 "NumberOfWords" = "Количество слов";
 "Passphrase" = "Парольная фраза";
 "WordSeparator" = "Разделитель слов";
@@ -890,7 +873,6 @@
 "PersonalDetails" = "Личные данные";
 "ContactInfo" = "Контактная информация";
 "Identification" = "Идентификация";
-"Owner" = "Владелец";
 "VerifyYourIdentity" = "Подтвердите вашу личность";
 "ThisOperationIsNotAllowedOnThisAccount" = "Эта операция не разрешена для данного аккаунта";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "Произошла ошибка при попытке заблокировать текущего пользователя";
@@ -908,13 +890,9 @@
 "ShowMore" = "Больше";
 "ShowLess" = "Меньше";
 "ItemNameX" = "Название элемента %1$@";
-"OwnerX" = "Владелец %1$@";
 "VaultX" = "Хранилище %1$@";
-/* VoiceOver accessibility label for a collection the item belongs to. */
-"CollectionX" = "Коллекция %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Общая папка, %1$@";
-"FolderX" = "Папка %1$@";
 "MyFolderX" = "Моя папка, %1$@";
 "ItemXOfY" = "Элемент %1$@ из %2$@";
 "ViewRecordedLogs" = "Просмотр записанных логов";
