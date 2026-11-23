@@ -197,8 +197,8 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
         await updatePlanRow()
     }
 
-    /// Updates `hasPremium` and `showPlanRow` from the account's Premium status and the cached
-    /// subscription status.
+    /// Updates `hasPremium`, `showPlanRow`, and `showPlanBadge` from the account's Premium status,
+    /// the cached subscription status, and whether the Plan badge was dismissed.
     ///
     private func updatePlanRow() async {
         let hasPersonalSubscription = await services.billingService.hasPersonalSubscription()
@@ -214,5 +214,10 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
         state.showPlanRow = isPlanRowAvailable
             && !hasPremiumFromOrganizationOnly
             && !hasPremiumWithoutSubscription
+        let isPlanBadgeDismissed = await services.billingService.isPlanBadgeDismissed()
+        state.showPlanBadge = state.showPlanRow
+            && !hasPremium
+            && hasPersonalSubscription != true
+            && !isPlanBadgeDismissed
     }
 }

@@ -83,6 +83,25 @@ class SettingsViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .otherPressed)
     }
 
+    /// The plan button displays a badge when `showPlanBadge` is `true`.
+    @MainActor
+    func test_planButton_badge() throws {
+        processor.state.showPlanRow = true
+        processor.state.showPlanBadge = true
+        let button = try subject.inspect().find(button: Localizations.plan)
+        XCTAssertNoThrow(try button.find(BitwardenBadge.self))
+        XCTAssertNoThrow(try button.find(text: "1"))
+    }
+
+    /// The plan button doesn't display a badge when `showPlanBadge` is `false`.
+    @MainActor
+    func test_planButton_badgeHidden() throws {
+        processor.state.showPlanRow = true
+        processor.state.showPlanBadge = false
+        let button = try subject.inspect().find(button: Localizations.plan)
+        XCTAssertThrowsError(try button.find(BitwardenBadge.self))
+    }
+
     /// The plan button is hidden when `showPlanRow` is `false`.
     @MainActor
     func test_planButton_hidden() throws {
