@@ -180,6 +180,18 @@ class AppCoordinator: Coordinator, HasRootNavigator { // swiftlint:disable:this 
         showAuth(route)
     }
 
+    /// Navigates to the app extension's route to show once the user has authenticated, falling back
+    /// to the autofill list.
+    ///
+    private func navigateToAppExtensionAuthCompletionRoute() {
+        // Navigate to vault first to set up the childCoordinator.
+        if let appExtensionDelegate, let route = appExtensionDelegate.authCompletionRoute {
+            navigate(to: route)
+        } else {
+            navigate(to: .vault(.autofillList))
+        }
+    }
+
     /// Shows the auth route.
     ///
     /// - Parameter route: The auth route to show.
@@ -436,11 +448,18 @@ extension AppCoordinator: AuthCoordinatorDelegate {
 
         switch appContext {
         case .appExtension:
-            // Navigate to vault first to set up the childCoordinator.
-            if let appExtensionDelegate, let route = appExtensionDelegate.authCompletionRoute {
-                navigate(to: route)
+            if let credentialProviderExtensionDelegate = appExtensionDelegate as? CredentialProviderExtensionDelegate,
+               credentialProviderExtensionDelegate.isSavingPasswordCredential {
+                // Only show the add item screen once it's known that the save request can't be
+                // completed with an identical existing login, so the user can't save a duplicate.
+                Task {
+                    guard await !credentialProviderExtensionDelegate.completeSavePasswordRequestIfLoginExists() else {
+                        return
+                    }
+                    navigateToAppExtensionAuthCompletionRoute()
+                }
             } else {
-                navigate(to: .vault(.autofillList))
+                navigateToAppExtensionAuthCompletionRoute()
             }
         case .mainApp:
             showTab(route: .vault(.list))
