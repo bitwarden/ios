@@ -123,7 +123,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/bitwarden/sdk-swift",
       "state" : {
-        "revision" : "eef6857d3505a82c2191cb7949d4c5ffea7512a6"
+        "revision" : "42bea9a4f124391914bc84de0895d9c50efea1b0"
       }
     },
     {
