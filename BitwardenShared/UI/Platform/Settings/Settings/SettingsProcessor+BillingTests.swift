@@ -8,6 +8,8 @@ import Testing
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
+// swiftlint:disable file_length
+
 // MARK: - SettingsProcessorBillingTests
 
 @MainActor
@@ -63,45 +65,45 @@ struct SettingsProcessorBillingTests { // swiftlint:disable:this type_body_lengt
     /// visibility, Premium ownership, personal subscription, and badge dismissal.
     @Test(arguments: [
         PlanBadgeTestCase(
-            expectedShowPlanBadge: true,
             hasPersonalSubscription: nil,
             hasPremium: false,
             isDismissed: false,
+            isPlanBadgeShown: true,
             isRowShown: true,
         ),
         PlanBadgeTestCase(
-            expectedShowPlanBadge: true,
             hasPersonalSubscription: false,
             hasPremium: false,
             isDismissed: false,
+            isPlanBadgeShown: true,
             isRowShown: true,
         ),
         PlanBadgeTestCase(
-            expectedShowPlanBadge: false,
             hasPersonalSubscription: true,
             hasPremium: false,
             isDismissed: false,
+            isPlanBadgeShown: false,
             isRowShown: true,
         ),
         PlanBadgeTestCase(
-            expectedShowPlanBadge: false,
             hasPersonalSubscription: nil,
             hasPremium: true,
             isDismissed: false,
+            isPlanBadgeShown: false,
             isRowShown: true,
         ),
         PlanBadgeTestCase(
-            expectedShowPlanBadge: false,
             hasPersonalSubscription: nil,
             hasPremium: false,
             isDismissed: true,
+            isPlanBadgeShown: false,
             isRowShown: true,
         ),
         PlanBadgeTestCase(
-            expectedShowPlanBadge: false,
             hasPersonalSubscription: nil,
             hasPremium: false,
             isDismissed: false,
+            isPlanBadgeShown: false,
             isRowShown: false,
         ),
     ])
@@ -115,7 +117,7 @@ struct SettingsProcessorBillingTests { // swiftlint:disable:this type_body_lengt
         await subject.perform(.appeared)
 
         #expect(subject.state.showPlanRow == testCase.isRowShown)
-        #expect(subject.state.showPlanBadge == testCase.expectedShowPlanBadge)
+        #expect(subject.state.showPlanBadge == testCase.isPlanBadgeShown)
     }
 
     // MARK: Tests - perform(.appeared) — plan row
@@ -413,10 +415,10 @@ struct SettingsProcessorBillingTests { // swiftlint:disable:this type_body_lengt
 
 /// Input/output data for the `perform_appeared_planBadge` parameterized test.
 struct PlanBadgeTestCase: Sendable {
-    let expectedShowPlanBadge: Bool
     let hasPersonalSubscription: Bool?
     let hasPremium: Bool
     let isDismissed: Bool
+    let isPlanBadgeShown: Bool
     let isRowShown: Bool
 }
 
