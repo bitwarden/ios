@@ -302,6 +302,58 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertEqual(sshKeyItemState.keyFingerprint, "fingerprint")
     }
 
+    /// `update(password:timeProvider:)` updates the password and adds the previous password to the
+    /// history, newest first.
+    func test_update_password() {
+        let subject = CipherView.loginFixture(
+            login: .fixture(password: "old", username: "user"),
+            passwordHistory: [PasswordHistoryView(password: "older", lastUsedDate: Date(year: 2023, month: 1, day: 1))],
+        )
+
+        let updated = subject.update(password: "new", timeProvider: timeProvider)
+
+        XCTAssertEqual(updated.login?.password, "new")
+        XCTAssertEqual(updated.login?.passwordRevisionDate, now)
+        XCTAssertEqual(updated.login?.username, "user")
+        XCTAssertEqual(
+            updated.passwordHistory,
+            [
+                PasswordHistoryView(password: "old", lastUsedDate: now),
+                PasswordHistoryView(password: "older", lastUsedDate: Date(year: 2023, month: 1, day: 1)),
+            ],
+        )
+        XCTAssertEqual(updated.id, subject.id)
+        XCTAssertEqual(updated.name, subject.name)
+    }
+
+    /// `update(password:timeProvider:)` caps the password history, dropping the oldest entries.
+    func test_update_password_capsHistory() {
+        let history = (1 ... Constants.maxCipherPasswordHistoryCount).map { day in
+            PasswordHistoryView(password: "old\(day)", lastUsedDate: Date(year: 2023, month: 1, day: day))
+        }
+        let subject = CipherView.loginFixture(login: .fixture(password: "current"), passwordHistory: history)
+
+        let updated = subject.update(password: "new", timeProvider: timeProvider)
+
+        XCTAssertEqual(updated.passwordHistory?.count, Constants.maxCipherPasswordHistoryCount)
+        XCTAssertEqual(updated.passwordHistory?.first?.password, "current")
+        XCTAssertFalse(updated.passwordHistory?.contains { $0.password == "old1" } ?? true)
+    }
+
+    /// `update(password:timeProvider:)` returns the cipher unchanged when the password is the same.
+    func test_update_password_samePassword() {
+        let subject = CipherView.loginFixture(login: .fixture(password: "same"))
+
+        XCTAssertEqual(subject.update(password: "same", timeProvider: timeProvider), subject)
+    }
+
+    /// `update(password:timeProvider:)` returns the cipher unchanged when it isn't a login.
+    func test_update_password_notLogin() {
+        let subject = CipherView.fixture(login: nil, type: .secureNote)
+
+        XCTAssertEqual(subject.update(password: "new", timeProvider: timeProvider), subject)
+    }
+
     /// `update(archivedDate:)` updates the archived date and preserves all other properties.
     func test_update_archivedDate() {
         let originalCipher = CipherView.fixture(

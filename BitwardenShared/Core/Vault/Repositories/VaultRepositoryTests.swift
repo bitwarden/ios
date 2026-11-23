@@ -84,6 +84,10 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         subject = DefaultVaultRepository(
             cipherEncryptionMediator: cipherEncryptionMediator,
+            cipherMatchingHelperFactory: DefaultCipherMatchingHelperFactory(
+                settingsService: MockSettingsService(),
+                stateService: stateService,
+            ),
             cipherService: cipherService,
             clientService: clientService,
             collectionHelper: collectionHelper,
@@ -767,9 +771,9 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         }
     }
 
-    /// `existingLogin(matchingUri:username:password:)` returns the login with the same URI,
-    /// username and password.
-    func test_existingLogin() async {
+    /// `matchSavePasswordRequest(uri:username:password:)` returns `.identical` with the login that has
+    /// the same URI, username and password.
+    func test_matchSavePasswordRequest() async {
         let differentPassword = Cipher.fixture(
             id: "1",
             login: .fixture(password: "other", uris: [.fixture(uri: "https://example.com")], username: "user"),
@@ -780,36 +784,36 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
         prepareExistingLoginCiphers([differentPassword, match])
 
-        let result = await subject.existingLogin(
-            matchingUri: "https://example.com",
+        let result = await subject.matchSavePasswordRequest(
+            uri: "https://example.com",
             username: "user",
             password: "pass",
         )
 
-        XCTAssertEqual(result, CipherView(cipher: match))
+        XCTAssertEqual(result, .identical(CipherView(cipher: match)))
     }
 
-    /// `existingLogin(matchingUri:username:password:)` matches a login without a username when the
+    /// `matchSavePasswordRequest(uri:username:password:)` matches a login without a username when the
     /// username is empty.
-    func test_existingLogin_emptyUsername() async {
+    func test_matchSavePasswordRequest_emptyUsername() async {
         let match = Cipher.fixture(
             id: "1",
             login: .fixture(password: "pass", uris: [.fixture(uri: "https://example.com")], username: nil),
         )
         prepareExistingLoginCiphers([match])
 
-        let result = await subject.existingLogin(
-            matchingUri: "https://example.com",
+        let result = await subject.matchSavePasswordRequest(
+            uri: "https://example.com",
             username: "",
             password: "pass",
         )
 
-        XCTAssertEqual(result, CipherView(cipher: match))
+        XCTAssertEqual(result, .identical(CipherView(cipher: match)))
     }
 
-    /// `existingLogin(matchingUri:username:password:)` ignores archived and deleted logins and
+    /// `matchSavePasswordRequest(uri:username:password:)` ignores archived and deleted logins and
     /// non-login ciphers.
-    func test_existingLogin_ignoresHiddenAndNonLogins() async {
+    func test_matchSavePasswordRequest_ignoresHiddenAndNonLogins() async {
         let archived = Cipher.fixture(
             archivedDate: Date(),
             id: "3",
@@ -827,19 +831,19 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
         prepareExistingLoginCiphers([archived, deleted, secureNote])
 
-        let result = await subject.existingLogin(
-            matchingUri: "https://example.com",
+        let result = await subject.matchSavePasswordRequest(
+            uri: "https://example.com",
             username: "user",
             password: "pass",
         )
 
-        XCTAssertNil(result)
+        XCTAssertEqual(result, SavePasswordMatch.none)
         XCTAssertNil(cipherService.fetchCipherId)
     }
 
-    /// `existingLogin(matchingUri:username:password:)` skips URIs that are never used for AutoFill
-    /// when finding a login's first AutoFill URI.
-    func test_existingLogin_matchesFirstAutofillUri() async {
+    /// `matchSavePasswordRequest(uri:username:password:)` skips URIs that are never used for AutoFill
+    /// and empty URIs.
+    func test_matchSavePasswordRequest_skipsNeverAndEmptyUris() async {
         let match = Cipher.fixture(
             id: "1",
             login: .fixture(
@@ -854,54 +858,98 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
         prepareExistingLoginCiphers([match])
 
-        let result = await subject.existingLogin(
-            matchingUri: "https://example.com",
+        let result = await subject.matchSavePasswordRequest(
+            uri: "https://example.com",
             username: "user",
             password: "pass",
         )
 
-        XCTAssertEqual(result, CipherView(cipher: match))
+        XCTAssertEqual(result, .identical(CipherView(cipher: match)))
     }
 
-    /// `existingLogin(matchingUri:username:password:)` doesn't match a login where the URI isn't the
-    /// first AutoFill URI, since its credential identity is only registered for the first one.
-    func test_existingLogin_notFirstAutofillUri() async {
+    /// `matchSavePasswordRequest(uri:username:password:)` matches a login on any of its URIs, like
+    /// the AutoFill list does.
+    func test_matchSavePasswordRequest_matchesAnyLoginUri() async {
+        let match = Cipher.fixture(
+            id: "1",
+            login: .fixture(
+                password: "pass",
+                uris: [.fixture(uri: "https://other.com"), .fixture(uri: "https://example.com")],
+                username: "user",
+            ),
+        )
+        prepareExistingLoginCiphers([match])
+
+        let result = await subject.matchSavePasswordRequest(
+            uri: "https://example.com",
+            username: "user",
+            password: "pass",
+        )
+
+        XCTAssertEqual(result, .identical(CipherView(cipher: match)))
+    }
+
+    /// `matchSavePasswordRequest(uri:username:password:)` matches a login saved on a different page of
+    /// the same site, such as a change-password page reached from the sign-up page.
+    func test_matchSavePasswordRequest_differentPath() async {
+        let existing = Cipher.fixture(
+            id: "1",
+            login: .fixture(
+                password: "old",
+                uris: [.fixture(uri: "https://example.com/create-password/")],
+                username: "user",
+            ),
+        )
+        prepareExistingLoginCiphers([existing])
+
+        let result = await subject.matchSavePasswordRequest(
+            uri: "https://example.com/update-password/",
+            username: "user",
+            password: "new",
+        )
+
+        XCTAssertEqual(result, .singleUpdateCandidate(CipherView(cipher: existing)))
+    }
+
+    /// `matchSavePasswordRequest(uri:username:password:)` follows the match detection set on a login's
+    /// URI, so a login set to match the exact URI doesn't match another page of the same site.
+    func test_matchSavePasswordRequest_respectsUriMatchType() async {
         prepareExistingLoginCiphers([
             .fixture(
                 id: "1",
                 login: .fixture(
-                    password: "pass",
-                    uris: [.fixture(uri: "https://other.com"), .fixture(uri: "https://example.com")],
+                    password: "old",
+                    uris: [.fixture(uri: "https://example.com/create-password/", match: .exact)],
                     username: "user",
                 ),
             ),
         ])
 
-        let result = await subject.existingLogin(
-            matchingUri: "https://example.com",
+        let result = await subject.matchSavePasswordRequest(
+            uri: "https://example.com/update-password/",
             username: "user",
-            password: "pass",
+            password: "new",
         )
 
-        XCTAssertNil(result)
+        XCTAssertEqual(result, SavePasswordMatch.none)
         XCTAssertNil(cipherService.fetchCipherId)
     }
 
-    /// `existingLogin(matchingUri:username:password:)` matches a login whose URI was saved without a
+    /// `matchSavePasswordRequest(uri:username:password:)` matches a login whose URI was saved without a
     /// scheme or with a trailing slash, since it refers to the same site.
-    func test_existingLogin_uriWithoutSchemeOrWithTrailingSlash() async {
+    func test_matchSavePasswordRequest_uriWithoutSchemeOrWithTrailingSlash() async {
         let withoutScheme = Cipher.fixture(
             id: "1",
             login: .fixture(password: "pass", uris: [.fixture(uri: "www.example.com")], username: "user"),
         )
         prepareExistingLoginCiphers([withoutScheme])
 
-        var result = await subject.existingLogin(
-            matchingUri: "https://www.example.com",
+        var result = await subject.matchSavePasswordRequest(
+            uri: "https://www.example.com",
             username: "user",
             password: "pass",
         )
-        XCTAssertEqual(result, CipherView(cipher: withoutScheme))
+        XCTAssertEqual(result, .identical(CipherView(cipher: withoutScheme)))
 
         let withTrailingSlash = Cipher.fixture(
             id: "2",
@@ -909,36 +957,35 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
         prepareExistingLoginCiphers([withTrailingSlash])
 
-        result = await subject.existingLogin(
-            matchingUri: "https://www.example.com",
+        result = await subject.matchSavePasswordRequest(
+            uri: "https://www.example.com",
             username: "user",
             password: "pass",
         )
-        XCTAssertEqual(result, CipherView(cipher: withTrailingSlash))
+        XCTAssertEqual(result, .identical(CipherView(cipher: withTrailingSlash)))
     }
 
-    /// `existingLogin(matchingUri:username:password:)` doesn't match a login saved with an explicit
-    /// `http://` scheme for an `https://` request, since the scheme is part of the site.
-    func test_existingLogin_differentScheme() async {
-        prepareExistingLoginCiphers([
-            .fixture(
-                id: "1",
-                login: .fixture(password: "pass", uris: [.fixture(uri: "http://www.example.com")], username: "user"),
-            ),
-        ])
+    /// `matchSavePasswordRequest(uri:username:password:)` matches a login saved with an `http://`
+    /// scheme for an `https://` request when the login uses domain match detection.
+    func test_matchSavePasswordRequest_differentScheme() async {
+        let match = Cipher.fixture(
+            id: "1",
+            login: .fixture(password: "pass", uris: [.fixture(uri: "http://www.example.com")], username: "user"),
+        )
+        prepareExistingLoginCiphers([match])
 
-        let result = await subject.existingLogin(
-            matchingUri: "https://www.example.com",
+        let result = await subject.matchSavePasswordRequest(
+            uri: "https://www.example.com",
             username: "user",
             password: "pass",
         )
 
-        XCTAssertNil(result)
+        XCTAssertEqual(result, .identical(CipherView(cipher: match)))
     }
 
-    /// `existingLogin(matchingUri:username:password:)` returns `nil` without fully decrypting any
-    /// cipher when no login has the same URI and username.
-    func test_existingLogin_noCandidates() async {
+    /// `matchSavePasswordRequest(uri:username:password:)` returns `.none` without fully decrypting
+    /// any cipher when no login has the same URI and username.
+    func test_matchSavePasswordRequest_noCandidates() async {
         prepareExistingLoginCiphers([
             .fixture(
                 id: "1",
@@ -950,51 +997,51 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             ),
         ])
 
-        let result = await subject.existingLogin(
-            matchingUri: "https://example.com",
+        let result = await subject.matchSavePasswordRequest(
+            uri: "https://example.com",
             username: "user",
             password: "pass",
         )
 
-        XCTAssertNil(result)
+        XCTAssertEqual(result, SavePasswordMatch.none)
         XCTAssertNil(cipherService.fetchCipherId)
     }
 
-    /// `existingLogin(matchingUri:username:password:)` returns `nil` when the vault has no ciphers.
-    func test_existingLogin_noCiphers() async {
+    /// `matchSavePasswordRequest(uri:username:password:)` returns `.none` when the vault has no ciphers.
+    func test_matchSavePasswordRequest_noCiphers() async {
         cipherService.fetchAllCiphersResult = .success([])
 
-        let result = await subject.existingLogin(
-            matchingUri: "https://example.com",
+        let result = await subject.matchSavePasswordRequest(
+            uri: "https://example.com",
             username: "user",
             password: "pass",
         )
 
-        XCTAssertNil(result)
+        XCTAssertEqual(result, SavePasswordMatch.none)
     }
 
-    /// `existingLogin(matchingUri:username:password:)` doesn't match a login whose password is
-    /// canonically equivalent but byte-distinct, since a site may treat them as different passwords.
-    func test_existingLogin_canonicallyEquivalentPassword() async {
-        prepareExistingLoginCiphers([
-            .fixture(
-                id: "1",
-                login: .fixture(password: "\u{00E9}", uris: [.fixture(uri: "https://example.com")], username: "user"),
-            ),
-        ])
+    /// `matchSavePasswordRequest(uri:username:password:)` treats a login whose password is
+    /// canonically equivalent but byte-distinct as a different password, since a site may treat
+    /// them as different passwords.
+    func test_matchSavePasswordRequest_canonicallyEquivalentPassword() async {
+        let existing = Cipher.fixture(
+            id: "1",
+            login: .fixture(password: "\u{00E9}", uris: [.fixture(uri: "https://example.com")], username: "user"),
+        )
+        prepareExistingLoginCiphers([existing])
 
-        let result = await subject.existingLogin(
-            matchingUri: "https://example.com",
+        let result = await subject.matchSavePasswordRequest(
+            uri: "https://example.com",
             username: "user",
             password: "e\u{0301}",
         )
 
-        XCTAssertNil(result)
+        XCTAssertEqual(result, .singleUpdateCandidate(CipherView(cipher: existing)))
     }
 
-    /// `existingLogin(matchingUri:username:password:)` doesn't match a login whose username is
+    /// `matchSavePasswordRequest(uri:username:password:)` doesn't match a login whose username is
     /// canonically equivalent but byte-distinct.
-    func test_existingLogin_canonicallyEquivalentUsername() async {
+    func test_matchSavePasswordRequest_canonicallyEquivalentUsername() async {
         prepareExistingLoginCiphers([
             .fixture(
                 id: "1",
@@ -1002,29 +1049,129 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             ),
         ])
 
-        let result = await subject.existingLogin(
-            matchingUri: "https://example.com",
+        let result = await subject.matchSavePasswordRequest(
+            uri: "https://example.com",
             username: "e\u{0301}",
             password: "pass",
         )
 
-        XCTAssertNil(result)
+        XCTAssertEqual(result, SavePasswordMatch.none)
         XCTAssertNil(cipherService.fetchCipherId)
     }
 
-    /// `existingLogin(matchingUri:username:password:)` logs the error and returns `nil` when fetching
-    /// the ciphers fails.
-    func test_existingLogin_fetchError() async {
+    /// `matchSavePasswordRequest(uri:username:password:)` logs the error and returns `.none` when
+    /// fetching the ciphers fails.
+    func test_matchSavePasswordRequest_fetchError() async {
         cipherService.fetchAllCiphersResult = .failure(BitwardenTestError.example)
 
-        let result = await subject.existingLogin(
-            matchingUri: "https://example.com",
+        let result = await subject.matchSavePasswordRequest(
+            uri: "https://example.com",
             username: "user",
             password: "pass",
         )
 
-        XCTAssertNil(result)
+        XCTAssertEqual(result, SavePasswordMatch.none)
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `matchSavePasswordRequest(uri:username:password:)` returns `.singleUpdateCandidate` when
+    /// exactly one login has the same URI and username but a different password.
+    func test_matchSavePasswordRequest_singleUpdateCandidate() async {
+        let existing = Cipher.fixture(
+            id: "1",
+            login: .fixture(password: "old", uris: [.fixture(uri: "https://example.com")], username: "user"),
+        )
+        prepareExistingLoginCiphers([existing])
+
+        let result = await subject.matchSavePasswordRequest(
+            uri: "https://example.com",
+            username: "user",
+            password: "new",
+        )
+
+        XCTAssertEqual(result, .singleUpdateCandidate(CipherView(cipher: existing)))
+    }
+
+    /// `matchSavePasswordRequest(uri:username:password:)` returns `.updateCandidates` when several
+    /// logins have the same URI and username but a different password.
+    func test_matchSavePasswordRequest_multipleUpdateCandidates() async {
+        let first = Cipher.fixture(
+            id: "1",
+            login: .fixture(password: "old1", uris: [.fixture(uri: "https://example.com")], username: "user"),
+        )
+        let second = Cipher.fixture(
+            id: "2",
+            login: .fixture(password: "old2", uris: [.fixture(uri: "https://example.com")], username: "user"),
+        )
+        prepareExistingLoginCiphers([first, second])
+
+        let result = await subject.matchSavePasswordRequest(
+            uri: "https://example.com",
+            username: "user",
+            password: "new",
+        )
+
+        XCTAssertEqual(result, .updateCandidates([CipherView(cipher: first), CipherView(cipher: second)]))
+    }
+
+    /// `matchSavePasswordRequest(uri:username:password:)` returns every editable login for the URI
+    /// as `.updateCandidates` when the request has no username, even if there's only one.
+    func test_matchSavePasswordRequest_emptyUsername_updateCandidates() async {
+        let withUsername = Cipher.fixture(
+            id: "1",
+            login: .fixture(password: "old", uris: [.fixture(uri: "https://example.com")], username: "user"),
+        )
+        let otherSite = Cipher.fixture(
+            id: "2",
+            login: .fixture(password: "old", uris: [.fixture(uri: "https://other.com")], username: "user"),
+        )
+        prepareExistingLoginCiphers([withUsername, otherSite])
+
+        let result = await subject.matchSavePasswordRequest(
+            uri: "https://example.com",
+            username: "",
+            password: "new",
+        )
+
+        XCTAssertEqual(result, .updateCandidates([CipherView(cipher: withUsername)]))
+    }
+
+    /// `matchSavePasswordRequest(uri:username:password:)` never offers logins the user can't edit
+    /// for an update, and returns `.none` when no editable login is left.
+    func test_matchSavePasswordRequest_ignoresNonEditableLogins() async {
+        let readOnly = Cipher.fixture(
+            edit: false,
+            id: "1",
+            login: .fixture(password: "old", uris: [.fixture(uri: "https://example.com")], username: "user"),
+        )
+        prepareExistingLoginCiphers([readOnly])
+
+        var result = await subject.matchSavePasswordRequest(
+            uri: "https://example.com",
+            username: "user",
+            password: "new",
+        )
+        XCTAssertEqual(result, SavePasswordMatch.none)
+
+        result = await subject.matchSavePasswordRequest(
+            uri: "https://example.com",
+            username: "",
+            password: "new",
+        )
+        XCTAssertEqual(result, SavePasswordMatch.none)
+
+        let editable = Cipher.fixture(
+            id: "2",
+            login: .fixture(password: "old", uris: [.fixture(uri: "https://example.com")], username: "user"),
+        )
+        prepareExistingLoginCiphers([readOnly, editable])
+
+        result = await subject.matchSavePasswordRequest(
+            uri: "https://example.com",
+            username: "user",
+            password: "new",
+        )
+        XCTAssertEqual(result, .singleUpdateCandidate(CipherView(cipher: editable)))
     }
 
     /// `fetchCipher(withId:)` returns the cipher if it exists and `nil` otherwise.

@@ -969,6 +969,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             ),
         )
 
+        let cipherMatchingHelperFactory = DefaultCipherMatchingHelperFactory(
+            settingsService: settingsService,
+            stateService: stateService,
+        )
+
         let vaultListDirectorStrategyFactory = DefaultVaultListDirectorStrategyFactory(
             cipherService: cipherService,
             collectionService: collectionService,
@@ -981,10 +986,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
                 stateService: stateService,
             ),
             vaultListDataPreparator: DefaultVaultListDataPreparator(
-                cipherMatchingHelperFactory: DefaultCipherMatchingHelperFactory(
-                    settingsService: settingsService,
-                    stateService: stateService,
-                ),
+                cipherMatchingHelperFactory: cipherMatchingHelperFactory,
                 ciphersClientWrapperService: DefaultCiphersClientWrapperService(
                     clientService: clientService,
                     errorReporter: errorReporter,
@@ -1012,6 +1014,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         let vaultRepository = DefaultVaultRepository(
             cipherEncryptionMediator: cipherEncryptionMediator,
+            cipherMatchingHelperFactory: cipherMatchingHelperFactory,
             cipherService: cipherService,
             clientService: clientService,
             collectionHelper: collectionHelper,

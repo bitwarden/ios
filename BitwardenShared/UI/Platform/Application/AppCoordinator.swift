@@ -301,6 +301,38 @@ class AppCoordinator: Coordinator, HasRootNavigator { // swiftlint:disable:this 
         }
     }
 
+    /// Shows an action sheet asking the user which login to update with the password from a
+    /// save-password request.
+    ///
+    /// - Parameters:
+    ///   - logins: The logins the user can choose from.
+    ///   - delegate: The credential provider extension delegate handling the request.
+    ///
+    private func showChooseLoginToUpdatePassword(
+        _ logins: [CipherView],
+        delegate: CredentialProviderExtensionDelegate,
+    ) {
+        rootNavigator?.present(.chooseLoginToUpdatePassword(
+            logins: logins,
+            onSelect: { [weak self] login in
+                do {
+                    try await delegate.updateLoginForSavePasswordRequest(login)
+                } catch {
+                    self?.services.errorReporter.log(error: error)
+                    self?.rootNavigator?.present(.defaultAlert(title: Localizations.anErrorHasOccurred)) {
+                        delegate.didCancel()
+                    }
+                }
+            },
+            onSaveAsNew: { [weak self] in
+                self?.navigateToAppExtensionAuthCompletionRoute()
+            },
+            onCancel: {
+                delegate.didCancel()
+            },
+        ))
+    }
+
     /// Show the login request.
     ///
     /// - Parameter loginRequest: The login request to show.
@@ -451,12 +483,16 @@ extension AppCoordinator: AuthCoordinatorDelegate {
             if let credentialProviderExtensionDelegate = appExtensionDelegate as? CredentialProviderExtensionDelegate,
                credentialProviderExtensionDelegate.isSavingPasswordCredential {
                 // Only show the add item screen once it's known that the save request can't be
-                // completed with an identical existing login, so the user can't save a duplicate.
+                // completed with, or applied to, an existing login, so the user can't save a duplicate.
                 Task {
-                    guard await !credentialProviderExtensionDelegate.completeSavePasswordRequestIfLoginExists() else {
-                        return
+                    switch await credentialProviderExtensionDelegate.resolveSavePasswordRequest() {
+                    case .addNew:
+                        navigateToAppExtensionAuthCompletionRoute()
+                    case let .chooseLogin(logins):
+                        showChooseLoginToUpdatePassword(logins, delegate: credentialProviderExtensionDelegate)
+                    case .completed:
+                        break
                     }
-                    navigateToAppExtensionAuthCompletionRoute()
                 }
             } else {
                 navigateToAppExtensionAuthCompletionRoute()

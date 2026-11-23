@@ -22,6 +22,9 @@ enum AppProcessorError: Error {
 
     /// The operation to execute is invalid.
     case invalidOperation
+
+    /// A save-password request matches several logins, so the user needs to choose which to update.
+    case savePasswordRequiresUserInteraction
 }
 
 /// The `AppProcessor` processes actions received at the application level and contains the logic
@@ -296,67 +299,6 @@ public class AppProcessor {
             return try await services.generatorRepository.generatePassword(
                 settings: passwordOptions.passwordGeneratorRequest,
             )
-        }
-    }
-
-    /// Checks whether the vault already has a login with the same URI, username and password as a
-    /// save-password request. If it does, the login's credential identities are added to the identity
-    /// store so the system doesn't prompt to save the same credential again.
-    ///
-    /// The vault must be unlocked before calling this.
-    ///
-    /// - Parameters:
-    ///   - username: The username of the credential being saved.
-    ///   - password: The password of the credential being saved.
-    ///   - uri: The URI of the credential being saved.
-    /// - Returns: `true` if an identical login already exists, `false` otherwise.
-    ///
-    @available(iOSApplicationExtension 26.2, *)
-    public func registerExistingPasswordCredential(username: String, password: String, uri: String) async -> Bool {
-        guard let existingLogin = await services.vaultRepository.existingLogin(
-            matchingUri: uri,
-            username: username,
-            password: password,
-        ) else {
-            return false
-        }
-
-        if let cipherId = existingLogin.id {
-            await services.autofillCredentialService.upsertCredentialsInStore(forCipherId: cipherId)
-        }
-        return true
-    }
-
-    /// Saves a password credential to the vault without showing UI.
-    ///
-    /// If a login with the same URI, username and password already exists, no new login is added.
-    /// In both cases the login's credential identities are added to the identity store before
-    /// returning, so the system doesn't prompt to save the same credential again.
-    ///
-    /// - Parameters:
-    ///   - username: The username to save.
-    ///   - password: The password to save.
-    ///   - uri: The URI associated with the credential.
-    ///   - name: An optional display name; falls back to the URI's hostname.
-    ///
-    @available(iOSApplicationExtension 26.2, *)
-    public func savePasswordCredential(
-        username: String,
-        password: String,
-        uri: String,
-        name: String?,
-    ) async throws {
-        try await unlockVaultWithNeverlockKey()
-
-        guard await !registerExistingPasswordCredential(username: username, password: password, uri: uri) else {
-            return
-        }
-
-        let addedCipher = try await services.vaultRepository.addCipher(
-            CipherView(username: username, password: password, uri: uri, name: name),
-        )
-        if let cipherId = addedCipher.id {
-            await services.autofillCredentialService.upsertCredentialsInStore(forCipherId: cipherId)
         }
     }
 
@@ -710,6 +652,109 @@ extension AppProcessor {
         if let taskId = backgroundTaskId {
             services.application?.endBackgroundTask(taskId)
             backgroundTaskId = nil
+        }
+    }
+}
+
+// MARK: - Save Password Credential
+
+public extension AppProcessor {
+    /// Resolves a save-password request against the logins in the vault.
+    ///
+    /// - If a login with the same URI, username and password exists, its credential identities are
+    ///   added to the identity store so the system doesn't prompt to save it again.
+    /// - If exactly one editable login has the same URI and username, its password is updated.
+    /// - If several logins could be the one being updated, or the request has no username, the
+    ///   user needs to choose.
+    /// - Otherwise, a new login needs to be added.
+    ///
+    /// The vault must be unlocked before calling this.
+    ///
+    /// - Parameters:
+    ///   - username: The username of the credential being saved.
+    ///   - password: The password of the credential being saved.
+    ///   - uri: The URI of the credential being saved.
+    /// - Returns: How the request was resolved.
+    ///
+    @available(iOSApplicationExtension 26.2, *)
+    func resolveSavePasswordCredential(
+        username: String,
+        password: String,
+        uri: String,
+    ) async throws -> SavePasswordResolution {
+        switch await services.vaultRepository.matchSavePasswordRequest(
+            uri: uri,
+            username: username,
+            password: password,
+        ) {
+        case let .identical(cipher):
+            if let cipherId = cipher.id {
+                await services.autofillCredentialService.upsertCredentialsInStore(forCipherId: cipherId)
+            }
+            return .completed
+        case .none:
+            return .addNew
+        case let .singleUpdateCandidate(cipher):
+            try await updatePasswordCredential(cipher, password: password)
+            return .completed
+        case let .updateCandidates(ciphers):
+            return .chooseLogin(ciphers)
+        }
+    }
+
+    /// Saves a password credential to the vault without showing UI.
+    ///
+    /// The request is resolved with `resolveSavePasswordCredential(username:password:uri:)`. If a new
+    /// login is needed, it's added and its credential identities are added to the identity store,
+    /// so the system doesn't prompt to save the same credential again.
+    ///
+    /// - Parameters:
+    ///   - username: The username to save.
+    ///   - password: The password to save.
+    ///   - uri: The URI associated with the credential.
+    ///   - name: An optional display name; falls back to the URI's hostname.
+    /// - Throws: `AppProcessorError.savePasswordRequiresUserInteraction` if the user needs to choose
+    ///   which login to update.
+    ///
+    @available(iOSApplicationExtension 26.2, *)
+    func savePasswordCredential(
+        username: String,
+        password: String,
+        uri: String,
+        name: String?,
+    ) async throws {
+        try await unlockVaultWithNeverlockKey()
+
+        switch try await resolveSavePasswordCredential(username: username, password: password, uri: uri) {
+        case .addNew:
+            let addedCipher = try await services.vaultRepository.addCipher(
+                CipherView(username: username, password: password, uri: uri, name: name),
+            )
+            if let cipherId = addedCipher.id {
+                await services.autofillCredentialService.upsertCredentialsInStore(forCipherId: cipherId)
+            }
+        case .chooseLogin:
+            throw AppProcessorError.savePasswordRequiresUserInteraction
+        case .completed:
+            break
+        }
+    }
+
+    /// Updates an existing login's password for a save-password request. The previous password is
+    /// added to the login's password history, and the login's credential identities are added to the
+    /// identity store so the system doesn't prompt to save the credential again.
+    ///
+    /// - Parameters:
+    ///   - cipher: The login to update.
+    ///   - password: The new password.
+    ///
+    @available(iOSApplicationExtension 26.2, *)
+    func updatePasswordCredential(_ cipher: CipherView, password: String) async throws {
+        try await services.vaultRepository.updateCipher(
+            cipher.update(password: password, timeProvider: services.timeProvider),
+        )
+        if let cipherId = cipher.id {
+            await services.autofillCredentialService.upsertCredentialsInStore(forCipherId: cipherId)
         }
     }
 }

@@ -1,4 +1,5 @@
 import AuthenticationServices
+import BitwardenSdk
 import Combine
 import Foundation
 import TestHelpers
@@ -13,17 +14,19 @@ class MockCredentialProviderExtensionDelegate: MockAppExtensionDelegate, Credent
     /// Cast to `ASGeneratedPassword.Kind` inside `@available(iOS 26.2, *)` test code.
     var completeGeneratePasswordRequestKind: Any?
     var completeGeneratePasswordRequestPassword: String?
-    var completeIfLoginExistsCalled = false
-    var completeIfLoginExistsResult = false
     var completeOTPRequestCodeCalled: String?
     var completeRegistrationRequestMocker = InvocationMocker<ASPasskeyRegistrationCredential>()
     var completeSavePasswordRequestCalled = false
     var completeTextRequestTextToInsert: String?
     var releaseKeyboardAnchorCalled = false
+    var resolveSavePasswordRequestCalled = false
+    var resolveSavePasswordRequestResult = SavePasswordResolution.addNew
     var extensionMode: CredentialProviderMode = .configureAutofill
     var didAppearPublisher = CurrentValueSubject<Bool, Never>(false)
     var setMatchedExcludedCredentialFoundCalled = false
     var setUserInteractionRequiredCalled = false
+    var updateLoginForSavePasswordRequestCipher: CipherView?
+    var updateLoginForSavePasswordRequestError: Error?
 
     var flowWithUserInteraction: Bool = true
 
@@ -43,11 +46,6 @@ class MockCredentialProviderExtensionDelegate: MockAppExtensionDelegate, Credent
 
     func completeSavePasswordRequest() {
         completeSavePasswordRequestCalled = true
-    }
-
-    func completeSavePasswordRequestIfLoginExists() async -> Bool {
-        completeIfLoginExistsCalled = true
-        return completeIfLoginExistsResult
     }
 
     func completeRegistrationRequest(asPasskeyRegistrationCredential: ASPasskeyRegistrationCredential) {
@@ -76,5 +74,17 @@ class MockCredentialProviderExtensionDelegate: MockAppExtensionDelegate, Credent
 
     func setUserInteractionRequired() {
         setUserInteractionRequiredCalled = true
+    }
+
+    func resolveSavePasswordRequest() async -> SavePasswordResolution {
+        resolveSavePasswordRequestCalled = true
+        return resolveSavePasswordRequestResult
+    }
+
+    func updateLoginForSavePasswordRequest(_ cipher: CipherView) async throws {
+        updateLoginForSavePasswordRequestCipher = cipher
+        if let updateLoginForSavePasswordRequestError {
+            throw updateLoginForSavePasswordRequestError
+        }
     }
 }

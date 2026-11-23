@@ -1,4 +1,5 @@
 import AuthenticationServices
+import BitwardenSdk
 import Combine
 
 /// A delegate that is used to handle actions and retrieve information from within the credential provider extension.
@@ -35,15 +36,6 @@ public protocol CredentialProviderExtensionDelegate: AppExtensionDelegate {
     /// Completes the save password request.
     func completeSavePasswordRequest()
 
-    /// Completes the save password request if the vault already has a login with the same URI,
-    /// username and password as the credential being saved, so a duplicate isn't added.
-    ///
-    /// The vault must be unlocked before calling this.
-    ///
-    /// - Returns: `true` if the request was completed, `false` if the login still needs to be saved.
-    ///
-    func completeSavePasswordRequestIfLoginExists() async -> Bool
-
     /// Completes the text request with some text to insert.
     @available(iOSApplicationExtension 18.0, *)
     func completeTextRequest(text: String)
@@ -55,6 +47,15 @@ public protocol CredentialProviderExtensionDelegate: AppExtensionDelegate {
     /// no longer holds or reclaims first responder.
     func releaseKeyboardAnchor()
 
+    /// Resolves the save-password request against the logins in the vault, completing it if no
+    /// further input is needed (an identical login exists, or a single matching login was updated).
+    ///
+    /// The vault must be unlocked before calling this.
+    ///
+    /// - Returns: How the request was resolved.
+    ///
+    func resolveSavePasswordRequest() async -> SavePasswordResolution
+
     /// Marks that a credential matching one in the relying party's excluded credentials list was
     /// found and fails the registration request accordingly.
     @available(iOSApplicationExtension 18.0, *)
@@ -62,6 +63,13 @@ public protocol CredentialProviderExtensionDelegate: AppExtensionDelegate {
 
     /// Marks that user interaction is required.
     func setUserInteractionRequired()
+
+    /// Updates the chosen login's password with the credential from the save-password request, then
+    /// completes the request.
+    ///
+    /// - Parameter cipher: The login the user chose to update.
+    ///
+    func updateLoginForSavePasswordRequest(_ cipher: CipherView) async throws
 }
 
 extension CredentialProviderExtensionDelegate {
