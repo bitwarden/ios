@@ -765,8 +765,7 @@ extension AppProcessor: NotificationServiceDelegate {
 
 extension AppProcessor: SyncServiceDelegate {
     func onFetchSyncSucceeded(userId: String) async {
-        // Refresh the cached subscription status on every sync so it always reflects the current
-        // state without making a live API call where it is read.
+        // Refresh the cached subscription status on every sync so it reflects the current state.
         await services.billingService.refreshSubscriptionStatus(subscription: nil)
 
         // An upgrade the checkout's own sync didn't report has to be completed by whichever
