@@ -11,7 +11,7 @@ import Testing
 // MARK: - SettingsProcessorBillingTests
 
 @MainActor
-struct SettingsProcessorBillingTests {
+struct SettingsProcessorBillingTests { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     let billingService: MockBillingService
@@ -185,6 +185,48 @@ struct SettingsProcessorBillingTests {
         #expect(subject.state.showPlanRow == testCase.expectedShowPlanRow)
     }
 
+    /// `perform(_:)` with `.appeared` sets `showPlanRow` from the cached subscription status, then
+    /// refreshes the subscription status for a user with personal Premium and sets `showPlanRow`
+    /// from the refreshed status.
+    @Test(arguments: [
+        PlanRowRefreshTestCase(
+            cachedSubscriptionAfterRefresh: false,
+            cachedSubscriptionBeforeRefresh: nil,
+            expectedShowPlanRowAfterRefresh: false,
+            expectedShowPlanRowBeforeRefresh: true,
+        ),
+        PlanRowRefreshTestCase(
+            cachedSubscriptionAfterRefresh: false,
+            cachedSubscriptionBeforeRefresh: true,
+            expectedShowPlanRowAfterRefresh: false,
+            expectedShowPlanRowBeforeRefresh: true,
+        ),
+        PlanRowRefreshTestCase(
+            cachedSubscriptionAfterRefresh: true,
+            cachedSubscriptionBeforeRefresh: false,
+            expectedShowPlanRowAfterRefresh: true,
+            expectedShowPlanRowBeforeRefresh: false,
+        ),
+    ])
+    func perform_appeared_planRow_refreshesSubscriptionStatus(testCase: PlanRowRefreshTestCase) async {
+        billingService.hasPersonalSubscriptionReturnValue = testCase.cachedSubscriptionBeforeRefresh
+        configService.featureFlagsBool[.premiumUpgradePath] = true
+        stateService.doesActiveAccountHavePremiumPersonallyResult = true
+        vaultRepository.doesActiveAccountHavePremiumResult = true
+        var showPlanRowBeforeRefresh: Bool?
+        billingService.refreshSubscriptionStatusClosure = { _ in
+            showPlanRowBeforeRefresh = subject.state.showPlanRow
+            billingService.hasPersonalSubscriptionReturnValue = testCase.cachedSubscriptionAfterRefresh
+        }
+
+        await subject.perform(.appeared)
+
+        #expect(billingService.refreshSubscriptionStatusCallsCount == 1)
+        #expect(billingService.refreshSubscriptionStatusReceivedSubscription == nil)
+        #expect(showPlanRowBeforeRefresh == testCase.expectedShowPlanRowBeforeRefresh)
+        #expect(subject.state.showPlanRow == testCase.expectedShowPlanRowAfterRefresh)
+    }
+
     // MARK: Tests - perform(.appeared) — upgraded to Premium action card
 
     /// `perform(_:)` with `.appeared` sets `shouldShowUpgradedToPremiumActionCard` to the value
@@ -303,6 +345,17 @@ struct SettingsProcessorBillingTests {
         try await waitForAsync { billingService.setUpgradedToPremiumActionCardDismissedCallsCount == 1 }
         #expect(billingService.setUpgradedToPremiumActionCardDismissedCallsCount == 1)
     }
+}
+
+// MARK: - PlanRowRefreshTestCase
+
+/// Input/output data for the `perform_appeared_planRow_refreshesSubscriptionStatus` parameterized
+/// test.
+struct PlanRowRefreshTestCase: Sendable {
+    let cachedSubscriptionAfterRefresh: Bool
+    let cachedSubscriptionBeforeRefresh: Bool?
+    let expectedShowPlanRowAfterRefresh: Bool
+    let expectedShowPlanRowBeforeRefresh: Bool
 }
 
 // MARK: - PlanRowTestCase

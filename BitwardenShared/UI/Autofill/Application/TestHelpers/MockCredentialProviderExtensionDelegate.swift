@@ -13,6 +13,8 @@ class MockCredentialProviderExtensionDelegate: MockAppExtensionDelegate, Credent
     /// Cast to `ASGeneratedPassword.Kind` inside `@available(iOS 26.2, *)` test code.
     var completeGeneratePasswordRequestKind: Any?
     var completeGeneratePasswordRequestPassword: String?
+    var completeIfLoginExistsCalled = false
+    var completeIfLoginExistsResult = false
     var completeOTPRequestCodeCalled: String?
     var completeRegistrationRequestMocker = InvocationMocker<ASPasskeyRegistrationCredential>()
     var completeSavePasswordRequestCalled = false
@@ -41,6 +43,11 @@ class MockCredentialProviderExtensionDelegate: MockAppExtensionDelegate, Credent
 
     func completeSavePasswordRequest() {
         completeSavePasswordRequestCalled = true
+    }
+
+    func completeSavePasswordRequestIfLoginExists() async -> Bool {
+        completeIfLoginExistsCalled = true
+        return completeIfLoginExistsResult
     }
 
     func completeRegistrationRequest(asPasskeyRegistrationCredential: ASPasskeyRegistrationCredential) {

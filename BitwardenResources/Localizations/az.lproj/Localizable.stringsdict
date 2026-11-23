@@ -14,9 +14,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Bitwarden, %d seyf elementinin şifrəsini aça bilmədi.</string>
+        <string>Bitwarden, %d seyf elementini deşifrləyə bilmədi.</string>
         <key>other</key>
-        <string>Bitwarden, %d seyf elementinin şifrəsini aça bilmədi.</string>
+        <string>Bitwarden, %d seyf elementini deşifrləyə bilmədi.</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a master password in characters. -->

@@ -552,6 +552,26 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         waitFor(vaultRepository.fetchSyncCalled)
     }
 
+    /// `perform(_:)` with `.streamSyncComplete` lets a tap on an empty Archive group navigate to it
+    /// once a sync reveals that the user has Premium.
+    @MainActor
+    func test_perform_streamSyncComplete_archiveGroupNavigatesAfterPremiumGranted() async throws {
+        stateService.doesActiveAccountHavePremiumResult = true
+        let archiveItem = VaultListItem(id: "Archive", hasPremium: true, itemType: .group(.archive, 0))
+
+        let task = Task { [subject = self.subject] in
+            await subject?.perform(.streamSyncComplete)
+        }
+        defer { task.cancel() }
+        syncService.syncCompleteSubject.send(())
+        try await waitForAsync { self.subject.state.hasPremium }
+
+        await subject.perform(.itemPressed(archiveItem))
+
+        XCTAssertEqual(coordinator.routes.last, .group(.archive, filter: .allVaults))
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
     /// `perform(_:)` with `.streamSyncComplete` reloads the item types the user can create
     /// whenever a sync completes, so feature-flag or policy changes picked up by the sync are
     /// reflected without needing the screen to reappear.
@@ -591,6 +611,29 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         waitFor(subject.state.shouldShowPremiumUpgradeActionCard == true)
         XCTAssertTrue(subject.state.shouldShowPremiumUpgradeActionCard)
+    }
+
+    /// `perform(_:)` with `.streamSyncComplete` updates whether the user has Premium each time a
+    /// sync completes, not only when the stream starts.
+    @MainActor
+    func test_perform_streamSyncComplete_updatesHasPremium() {
+        subject.state.hasPremium = false
+        stateService.doesActiveAccountHavePremiumResult = false
+
+        let task = Task { [subject = self.subject] in
+            await subject?.perform(.streamSyncComplete)
+        }
+        defer { task.cancel() }
+        // The sync-complete subject replays on subscribe, so wait for that emission to be handled
+        // before sending a real one.
+        waitFor(stateService.doesActiveAccountHavePremiumCalled)
+
+        stateService.doesActiveAccountHavePremiumCalled = false
+        stateService.doesActiveAccountHavePremiumResult = true
+        syncService.syncCompleteSubject.send(())
+
+        waitFor(subject.state.hasPremium)
+        XCTAssertTrue(subject.state.hasPremium)
     }
 
     /// Loading the item types the user can create discards a stale result from an older,

@@ -146,6 +146,7 @@ extension DefaultKeyConnectorService: KeyConnectorService {
         let result = try await clientService.auth().registration().postKeysForKeyConnectorRegistration(
             keyConnectorUrl: keyConnectorUrl.absoluteString,
             ssoOrgIdentifier: orgIdentifier,
+            acceptOrganizationInvite: nil,
         )
 
         try await stateService.setAccountCryptographicState(result.accountCryptographicState)
