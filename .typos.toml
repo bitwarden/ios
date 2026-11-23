@@ -20,7 +20,6 @@ extend-exclude = [
 
 [default.extend-identifiers]
 # Brand names and technical identifiers
-attachementAdded = "attachementAdded"
 Bitwarden = "Bitwarden"
 Rotateable = "Rotateable"
 RotateableKeySet = "RotateableKeySet"
