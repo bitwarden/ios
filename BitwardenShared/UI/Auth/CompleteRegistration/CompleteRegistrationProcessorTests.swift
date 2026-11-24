@@ -416,6 +416,20 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.didCreateAccount)
     }
 
+    /// `perform(_:)` with `.completeRegistration` and V2 flag enabled sends a trimmed, lowercased
+    /// salt when the email contains uppercase characters or whitespace.
+    @MainActor
+    func test_perform_completeRegistration_mixedCaseEmail_normalizesSalt() async throws {
+        configService.featureFlagsBoolPreAuth[.accountEncryptionV2PasswordRegistration] = true
+        subject.state = .fixture(userEmail: " Test.User@Example.com ")
+
+        await subject.perform(.completeRegistration)
+
+        let request = try XCTUnwrap(mockRegistrationClient.postKeysForUserPasswordRegistrationReceivedRequest)
+        XCTAssertEqual(request.salt, "test.user@example.com")
+        XCTAssertTrue(subject.state.didCreateAccount)
+    }
+
     /// `perform(_:)` with `.completeRegistration` presents an alert when the password field is empty.
     @MainActor
     func test_perform_completeRegistration_emptyPassword() async {
@@ -617,6 +631,25 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             client.requests[0].url,
             URL(string: "https://example.com/identity/accounts/register/finish"),
         )
+        XCTAssertTrue(subject.state.didCreateAccount)
+    }
+
+    /// `perform(_:)` with `.completeRegistration` and V2 flag disabled sends a trimmed, lowercased
+    /// salt when the email contains uppercase characters or whitespace.
+    @MainActor
+    func test_perform_completeRegistration_v1_mixedCaseEmail_normalizesSalt() async throws {
+        configService.featureFlagsBoolPreAuth[.accountEncryptionV2PasswordRegistration] = false
+        client.result = .httpSuccess(testData: .registerFinishRequest)
+        subject.state = .fixture(userEmail: " Test.User@Example.com ")
+
+        await subject.perform(.completeRegistration)
+
+        let requestBody = try XCTUnwrap(client.requests.first?.body)
+        let json = try XCTUnwrap(JSONSerialization.jsonObject(with: requestBody) as? [String: Any])
+        let authentication = try XCTUnwrap(json["masterPasswordAuthentication"] as? [String: Any])
+        let unlock = try XCTUnwrap(json["masterPasswordUnlock"] as? [String: Any])
+        XCTAssertEqual(authentication["salt"] as? String, "test.user@example.com")
+        XCTAssertEqual(unlock["salt"] as? String, "test.user@example.com")
         XCTAssertTrue(subject.state.didCreateAccount)
     }
 

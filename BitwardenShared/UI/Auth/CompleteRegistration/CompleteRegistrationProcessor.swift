@@ -182,6 +182,11 @@ class CompleteRegistrationProcessor: StateProcessor<// swiftlint:disable:this ty
 
     /// Performs an API request to create the user's account.
     private func createAccount() async throws { // swiftlint:disable:this function_body_length
+        // The salt must be normalized to match the salt clients use when changing the master
+        // password. The email may come from a verification link that was started on another
+        // client, so it isn't guaranteed to have been normalized by the start registration screen.
+        let salt = state.userEmail.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+
         guard await services.configService.getFeatureFlag(
             .accountEncryptionV2PasswordRegistration,
             isPreAuth: true,
@@ -209,13 +214,13 @@ class CompleteRegistrationProcessor: StateProcessor<// swiftlint:disable:this ty
                     masterPasswordAuthentication: MasterPasswordAuthenticationDataRequestModel(
                         kdf: kdfConfig,
                         masterPasswordAuthenticationHash: hashedPassword,
-                        salt: state.userEmail,
+                        salt: salt,
                     ),
                     masterPasswordHint: state.passwordHintText,
                     masterPasswordUnlock: MasterPasswordUnlockDataRequestModel(
                         kdf: kdfConfig,
                         masterKeyWrappedUserKey: keys.encryptedUserKey,
-                        salt: state.userEmail,
+                        salt: salt,
                     ),
                     userAsymmetricKeys: KeysRequestModel(
                         encryptedPrivateKey: keys.keys.private,
@@ -232,7 +237,7 @@ class CompleteRegistrationProcessor: StateProcessor<// swiftlint:disable:this ty
             .postKeysForUserPasswordRegistration(
                 request: UserMasterPasswordRegistrationRequest(
                     email: state.userEmail,
-                    salt: state.userEmail,
+                    salt: salt,
                     masterPassword: state.passwordText,
                     masterPasswordHint: state.passwordHintText.nilIfEmpty,
                     emailVerificationToken: state.emailVerificationToken,
