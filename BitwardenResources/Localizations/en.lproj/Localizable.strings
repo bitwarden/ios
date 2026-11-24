@@ -1286,9 +1286,5 @@
 "ForYourSecurityDontShareOrSendDescriptionLong" = "For your security, don’t share or send this file over unsecured channels (like email), and delete it when you’re done.";
 /* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
 "CreateLogin" = "Create login";
-/* Title of the sheet shown when a password saved from Safari could update one of several existing logins, or when the saved password has no username. The user picks which login gets the new password. */
+/* Title of the list of existing logins shown when a password saved from Safari could update one of them. The user picks which login gets the new password. */
 "UpdateWhichLogin" = "Update which login?";
-/* Message of the sheet where the user picks which existing login gets the password saved from Safari. */
-"ChooseTheLoginToUpdateDescriptionLong" = "Choose the login to update with the new password.";
-/* Option in the sheet where the user picks which existing login gets the password saved from Safari. Saves the password as a new login instead of updating an existing one. */
-"SaveAsNewLogin" = "Save as new login";

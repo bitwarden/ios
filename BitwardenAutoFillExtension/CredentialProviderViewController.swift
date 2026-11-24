@@ -610,7 +610,7 @@ extension CredentialProviderViewController: CredentialProviderExtensionDelegate 
         cancel(error: ASExtensionError(.userInteractionRequired))
     }
 
-    func updateLoginForSavePasswordRequest(_ cipher: CipherView) async throws -> Bool {
+    func updateLoginForSavePasswordRequest(_ cipher: CipherView) async throws {
         guard #available(iOSApplicationExtension 26.2, *),
               case let .savePasswordCredential(request, _) = context?.extensionMode,
               let savePasswordRequest = request as? ASSavePasswordRequest,
@@ -622,10 +622,9 @@ extension CredentialProviderViewController: CredentialProviderExtensionDelegate 
             cipher,
             password: savePasswordRequest.credential.password,
         ) else {
-            return false
+            return
         }
         extensionContext.completeSavePasswordRequest(completionHandler: nil)
-        return true
     }
 }
 

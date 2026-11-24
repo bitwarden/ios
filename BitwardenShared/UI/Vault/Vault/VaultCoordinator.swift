@@ -224,6 +224,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             showAutofillList()
         case let .autofillListForGroup(group):
             showAutofillListForGroup(group)
+        case let .autofillListForSavePassword(loginIds):
+            showAutofillList(savePasswordLoginIds: Set(loginIds))
         case let .editItem(cipher):
             Task {
                 let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
@@ -311,13 +313,17 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
 
     /// Shows the autofill list screen.
     ///
-    private func showAutofillList() {
+    /// - Parameter savePasswordLoginIds: The IDs of the logins the user can choose from to update with
+    ///   the password from a save-password request, or `nil` to show the logins for autofill.
+    ///
+    private func showAutofillList(savePasswordLoginIds: Set<String>? = nil) {
         let processor = VaultAutofillListProcessor(
             appExtensionDelegate: appExtensionDelegate,
             coordinator: asAnyCoordinator(),
             services: services,
             state: VaultAutofillListState(
                 iconBaseURL: services.environmentService.iconsURL,
+                savePasswordLoginIds: savePasswordLoginIds,
             ),
         )
         let view = VaultAutofillListView(

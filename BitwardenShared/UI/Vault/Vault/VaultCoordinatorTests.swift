@@ -292,6 +292,18 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(view.store.state.group, .identity)
     }
 
+    /// `navigate(to:)` with `.autofillListForSavePassword` replaces the stack navigator's stack with
+    /// the autofill list, limited to the logins the user can choose from.
+    @MainActor
+    func test_navigateTo_autofillListForSavePassword() throws {
+        subject.navigate(to: .autofillListForSavePassword(loginIds: ["1", "2"]))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .replaced)
+        let view = try XCTUnwrap(action.view as? VaultAutofillListView)
+        XCTAssertEqual(view.store.state.savePasswordLoginIds, ["1", "2"])
+    }
+
     /// `navigate(to:)` with `.flightRecorderSettings` notifies the delegate to switch to the about
     /// screen in the settings tab.
     @MainActor

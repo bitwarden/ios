@@ -1,7 +1,5 @@
 import BitwardenKit
 import BitwardenKitMocks
-import BitwardenResources
-import struct BitwardenSdk.CipherView
 import TestHelpers
 import XCTest
 
@@ -246,103 +244,37 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertTrue(credentialProviderDelegate.resolveSavePasswordRequestCalled)
     }
 
-    /// `didCompleteAuth()` in the save-password-credential flow asks the user which login to update
-    /// when several logins match, and updates the one they choose.
+    /// `didCompleteAuth()` in the save-password-credential flow shows the autofill list limited to
+    /// the matching logins, so the user can choose which login to update.
     @available(iOS 17.0, *)
     @MainActor
-    func test_didCompleteAuth_appExtension_savePasswordCredential_chooseLogin_select() async throws {
-        let logins: [CipherView] = [
-            .loginFixture(id: "1", login: .fixture(username: "first"), name: "Example"),
-            .loginFixture(id: "2", login: .fixture(username: ""), name: "Example 2"),
-        ]
-        let credentialProviderDelegate = makeChooseLoginDelegate(logins: logins)
-
-        subject.didCompleteAuth(rehydratableTarget: nil)
-        try await waitForAsync { [weak self] in !(self?.rootNavigator.alerts.isEmpty ?? true) }
-
-        let alert = try XCTUnwrap(rootNavigator.alerts.last)
-        XCTAssertEqual(alert.title, Localizations.updateWhichLogin)
-        XCTAssertEqual(alert.preferredStyle, .actionSheet)
-        XCTAssertEqual(
-            alert.alertActions.map(\.title),
-            ["Example (first)", "Example 2", Localizations.saveAsNewLogin, Localizations.cancel],
+    func test_didCompleteAuth_appExtension_savePasswordCredential_chooseLogin() async throws {
+        let credentialProviderDelegate = MockCredentialProviderExtensionDelegate()
+        credentialProviderDelegate.authCompletionRoute = .vault(.autofillList)
+        credentialProviderDelegate.extensionMode = .savePasswordCredential(
+            MockSavePasswordRequestProxy(),
+            userInteraction: true,
+        )
+        credentialProviderDelegate.resolveSavePasswordRequestResult = .chooseLogin([
+            .loginFixture(id: "1"),
+            .loginFixture(id: "2"),
+        ])
+        subject = AppCoordinator(
+            appContext: .appExtension,
+            appExtensionDelegate: credentialProviderDelegate,
+            module: module,
+            rootNavigator: rootNavigator,
+            services: services,
         )
 
-        try await alert.tapAction(title: "Example (first)")
+        subject.didCompleteAuth(rehydratableTarget: nil)
 
-        XCTAssertEqual(credentialProviderDelegate.updateLoginForSavePasswordRequestCipher, logins[0])
-        XCTAssertTrue(module.vaultCoordinator.routes.isEmpty)
+        try await waitForAsync { [weak self] in
+            guard let self else { return false }
+            return module.vaultCoordinator.routes == [.autofillListForSavePassword(loginIds: ["1", "2"])]
+        }
+        XCTAssertTrue(rootNavigator.alerts.isEmpty)
         XCTAssertFalse(credentialProviderDelegate.didCancelCalled)
-    }
-
-    /// `didCompleteAuth()` in the save-password-credential flow shows the chooser again when the
-    /// user doesn't confirm their master password for the chosen login.
-    @available(iOS 17.0, *)
-    @MainActor
-    func test_didCompleteAuth_appExtension_savePasswordCredential_chooseLogin_selectNotVerified() async throws {
-        let credentialProviderDelegate = makeChooseLoginDelegate(
-            logins: [.loginFixture(id: "1", login: .fixture(username: "user"), name: "Example")],
-        )
-        credentialProviderDelegate.updateLoginForSavePasswordRequestResult = false
-
-        subject.didCompleteAuth(rehydratableTarget: nil)
-        try await waitForAsync { [weak self] in !(self?.rootNavigator.alerts.isEmpty ?? true) }
-        try await XCTUnwrap(rootNavigator.alerts.last).tapAction(title: "Example (user)")
-
-        XCTAssertEqual(rootNavigator.alerts.count, 2)
-        XCTAssertEqual(rootNavigator.alerts.last?.title, Localizations.updateWhichLogin)
-        XCTAssertFalse(credentialProviderDelegate.didCancelCalled)
-        XCTAssertTrue(module.vaultCoordinator.routes.isEmpty)
-    }
-
-    /// `didCompleteAuth()` in the save-password-credential flow logs the error and shows an error
-    /// alert when updating the chosen login fails.
-    @available(iOS 17.0, *)
-    @MainActor
-    func test_didCompleteAuth_appExtension_savePasswordCredential_chooseLogin_selectError() async throws {
-        let credentialProviderDelegate = makeChooseLoginDelegate(
-            logins: [.loginFixture(id: "1", login: .fixture(username: "user"), name: "Example")],
-        )
-        credentialProviderDelegate.updateLoginForSavePasswordRequestError = BitwardenTestError.example
-
-        subject.didCompleteAuth(rehydratableTarget: nil)
-        try await waitForAsync { [weak self] in !(self?.rootNavigator.alerts.isEmpty ?? true) }
-        try await XCTUnwrap(rootNavigator.alerts.last).tapAction(title: "Example (user)")
-
-        XCTAssertEqual(rootNavigator.alerts.last, .defaultAlert(title: Localizations.anErrorHasOccurred))
-        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
-        XCTAssertTrue(module.vaultCoordinator.routes.isEmpty)
-    }
-
-    /// `didCompleteAuth()` in the save-password-credential flow shows the add item screen when the
-    /// user chooses to save a new login instead of updating one.
-    @available(iOS 17.0, *)
-    @MainActor
-    func test_didCompleteAuth_appExtension_savePasswordCredential_chooseLogin_saveAsNew() async throws {
-        let credentialProviderDelegate = makeChooseLoginDelegate(logins: [.loginFixture(id: "1")])
-
-        subject.didCompleteAuth(rehydratableTarget: nil)
-        try await waitForAsync { [weak self] in !(self?.rootNavigator.alerts.isEmpty ?? true) }
-        try await XCTUnwrap(rootNavigator.alerts.last).tapAction(title: Localizations.saveAsNewLogin)
-
-        XCTAssertEqual(module.vaultCoordinator.routes, [.autofillList])
-        XCTAssertNil(credentialProviderDelegate.updateLoginForSavePasswordRequestCipher)
-    }
-
-    /// `didCompleteAuth()` in the save-password-credential flow cancels the request when the user
-    /// cancels choosing a login.
-    @available(iOS 17.0, *)
-    @MainActor
-    func test_didCompleteAuth_appExtension_savePasswordCredential_chooseLogin_cancel() async throws {
-        let credentialProviderDelegate = makeChooseLoginDelegate(logins: [.loginFixture(id: "1")])
-
-        subject.didCompleteAuth(rehydratableTarget: nil)
-        try await waitForAsync { [weak self] in !(self?.rootNavigator.alerts.isEmpty ?? true) }
-        try await XCTUnwrap(rootNavigator.alerts.last).tapAction(title: Localizations.cancel)
-
-        XCTAssertTrue(credentialProviderDelegate.didCancelCalled)
-        XCTAssertTrue(module.vaultCoordinator.routes.isEmpty)
-        XCTAssertNil(credentialProviderDelegate.updateLoginForSavePasswordRequestCipher)
     }
 
     /// `didCompleteAuth()` starts the tab coordinator and navigates to the vault list and the auth completion route.
@@ -998,33 +930,5 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
         XCTAssertTrue(module.globalModalCoordinator.isStarted)
         XCTAssertEqual(module.globalModalCoordinator.routes.last, .syncWithBrowser(vaultUrl: "https://example.com"))
-    }
-
-    // MARK: Private
-
-    /// Sets up `subject` in the app extension's save-password flow, with the save request resolving
-    /// to the user choosing between `logins`.
-    ///
-    /// - Parameter logins: The logins the user can choose from.
-    /// - Returns: The credential provider extension delegate used by `subject`.
-    ///
-    @available(iOS 17.0, *)
-    @MainActor
-    private func makeChooseLoginDelegate(logins: [CipherView]) -> MockCredentialProviderExtensionDelegate {
-        let credentialProviderDelegate = MockCredentialProviderExtensionDelegate()
-        credentialProviderDelegate.authCompletionRoute = .vault(.autofillList)
-        credentialProviderDelegate.extensionMode = .savePasswordCredential(
-            MockSavePasswordRequestProxy(),
-            userInteraction: true,
-        )
-        credentialProviderDelegate.resolveSavePasswordRequestResult = .chooseLogin(logins)
-        subject = AppCoordinator(
-            appContext: .appExtension,
-            appExtensionDelegate: credentialProviderDelegate,
-            module: module,
-            rootNavigator: rootNavigator,
-            services: services,
-        )
-        return credentialProviderDelegate
     }
 } // swiftlint:disable:this file_length

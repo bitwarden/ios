@@ -54,37 +54,6 @@ extension Alert {
         return alert
     }
 
-    /// An action sheet asking the user which existing login to update with a saved password.
-    ///
-    /// - Parameters:
-    ///   - logins: The logins the user can choose from.
-    ///   - onSelect: A closure that's called with the login the user chose.
-    ///   - onSaveAsNew: A closure that's called when the user chooses to save a new login instead.
-    ///   - onCancel: A closure that's called when the user cancels.
-    /// - Returns: The action sheet for choosing which login to update.
-    ///
-    static func chooseLoginToUpdatePassword(
-        logins: [CipherView],
-        onSelect: @MainActor @escaping (CipherView) async -> Void,
-        onSaveAsNew: @MainActor @escaping () async -> Void,
-        onCancel: @MainActor @escaping () async -> Void,
-    ) -> Alert {
-        let loginActions = logins.map { login in
-            let username = login.login?.username?.nilIfEmpty
-            let title = username.map { "\(login.name) (\($0))" } ?? login.name
-            return AlertAction(title: title, style: .default) { _ in await onSelect(login) }
-        }
-        return Alert(
-            title: Localizations.updateWhichLogin,
-            message: Localizations.chooseTheLoginToUpdateDescriptionLong,
-            preferredStyle: .actionSheet,
-            alertActions: loginActions + [
-                AlertAction(title: Localizations.saveAsNewLogin, style: .default) { _ in await onSaveAsNew() },
-                AlertAction(title: Localizations.cancel, style: .cancel) { _ in await onCancel() },
-            ],
-        )
-    }
-
     /// Returns an alert notifying the user that one or more items in their vault were unable to be
     /// decrypted.
     ///

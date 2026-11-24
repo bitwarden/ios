@@ -267,6 +267,29 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         }
     }
 
+    /// Returns the sections with only the logins the user can choose from when choosing a login to
+    /// update with the password from a save-password request. Otherwise, returns the sections
+    /// unchanged.
+    ///
+    /// - Parameters:
+    ///   - sections: The sections to filter.
+    ///   - isIncluded: Whether a cipher can be chosen.
+    /// - Returns: The sections, without the items that can't be chosen and without empty sections.
+    ///
+    private func filteredForSavePassword(
+        _ sections: [VaultListSection],
+        isIncluded: (CipherListView) -> Bool,
+    ) -> [VaultListSection] {
+        guard state.isChoosingLoginToUpdatePassword else { return sections }
+        return sections.compactMap { section in
+            let items = section.items.filter { item in
+                guard case let .cipher(cipher, _) = item.itemType else { return false }
+                return isIncluded(cipher)
+            }
+            return items.isEmpty ? nil : VaultListSection(id: section.id, items: items, name: section.name)
+        }
+    }
+
     /// Handles receiving a `ProfileSwitcherAction`.
     ///
     /// - Parameter action: The `ProfileSwitcherAction` to handle.
@@ -341,6 +364,13 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
 
     /// Navigates to the add item screen to create a new login.
     private func navigateToAddNewLogin() {
+        // When choosing a login to update, adding saves the password from the request as a new login,
+        // using the same prefilled add screen as when no login matches.
+        if state.isChoosingLoginToUpdatePassword,
+           case let .vault(saveAsNewLoginRoute) = appExtensionDelegate?.authCompletionRoute {
+            coordinator.navigate(to: saveAsNewLoginRoute)
+            return
+        }
         coordinator.navigate(to: .addItem(
             group: .login,
             newCipherOptions: createNewCipherOptions(),
@@ -389,7 +419,10 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
     ///     - data: The new search results data.
     ///
     private func searchResultsReceived(data: VaultListData) {
-        let sections = data.sections
+        let sections = filteredForSavePassword(data.sections) { cipher in
+            // Search covers the whole vault, so only offer logins the user can edit.
+            cipher.type.isLogin && cipher.edit
+        }
         state.ciphersForSearch = sections
         state.showNoResults = sections.isEmpty
         if state.isAutofillingTotpList, let section = sections.first, !section.items.isEmpty {
@@ -451,7 +484,9 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                     break
                 }
 
-                let sections = vaultListData.sections
+                let sections = filteredForSavePassword(vaultListData.sections) { [state] cipher in
+                    cipher.id.map { state.savePasswordLoginIds?.contains($0) ?? false } ?? false
+                }
                 if autofillListMode == .totp, !sections.isEmpty {
                     vaultItemsTotpExpirationManager?.configureTOTPRefreshScheduling(for: sections.flatMap(\.items))
                 }
@@ -506,6 +541,25 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         }
     }
 
+    /// Updates the chosen login with the password from the save-password request.
+    ///
+    /// - Parameter cipher: The login the user chose to update.
+    ///
+    private func updateLoginForSavePasswordRequest(_ cipher: CipherListView) async {
+        guard let credentialProviderExtensionDelegate, let cipherId = cipher.id else { return }
+        do {
+            guard let cipherView = try await services.vaultRepository.fetchCipher(withId: cipherId) else {
+                coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+                return
+            }
+            // If the user doesn't confirm their master password, the list stays so they can choose again.
+            try await credentialProviderExtensionDelegate.updateLoginForSavePasswordRequest(cipherView)
+        } catch {
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            services.errorReporter.log(error: error)
+        }
+    }
+
     /// Handles the user tapping a vault item in the list.
     ///
     /// - Parameter vaultItem: The `VaultListItem` that was tapped.
@@ -516,6 +570,8 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                 coordinator.showAlert(.cipherDecryptionFailure(cipherIds: [cipherId]) { stringToCopy in
                     self.services.pasteboardService.copy(stringToCopy)
                 })
+            } else if state.isChoosingLoginToUpdatePassword {
+                await updateLoginForSavePasswordRequest(cipher)
             } else if #available(iOSApplicationExtension 17.0, *),
                       let credentialProviderExtensionDelegate,
                       fido2CredentialAutofillView != nil

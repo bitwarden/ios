@@ -32,6 +32,13 @@ public enum VaultRoute: Equatable, Hashable {
     /// A route to the autofill list screen with a specified group.
     case autofillListForGroup(_ group: VaultListGroup)
 
+    /// A route to the autofill list screen, limited to the logins the user can choose from to update
+    /// with the password from a save-password request.
+    ///
+    /// - Parameter loginIds: The IDs of the logins the user can choose from.
+    ///
+    case autofillListForSavePassword(loginIds: [String])
+
     /// A route to dismiss the screen currently presented modally.
     ///
     /// - Parameter action: An optional `DismissAction` that is executed after the screen has been dismissed.

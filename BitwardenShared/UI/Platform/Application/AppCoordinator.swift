@@ -301,42 +301,6 @@ class AppCoordinator: Coordinator, HasRootNavigator { // swiftlint:disable:this 
         }
     }
 
-    /// Shows an action sheet asking the user which login to update with the password from a
-    /// save-password request.
-    ///
-    /// - Parameters:
-    ///   - logins: The logins the user can choose from.
-    ///   - delegate: The credential provider extension delegate handling the request.
-    ///
-    private func showChooseLoginToUpdatePassword(
-        _ logins: [CipherView],
-        delegate: CredentialProviderExtensionDelegate,
-    ) {
-        rootNavigator?.present(.chooseLoginToUpdatePassword(
-            logins: logins,
-            onSelect: { [weak self] login in
-                do {
-                    guard try await delegate.updateLoginForSavePasswordRequest(login) else {
-                        // The master password wasn't confirmed, so let the user choose again.
-                        self?.showChooseLoginToUpdatePassword(logins, delegate: delegate)
-                        return
-                    }
-                } catch {
-                    self?.services.errorReporter.log(error: error)
-                    self?.rootNavigator?.present(.defaultAlert(title: Localizations.anErrorHasOccurred)) {
-                        delegate.didCancel()
-                    }
-                }
-            },
-            onSaveAsNew: { [weak self] in
-                self?.navigateToAppExtensionAuthCompletionRoute()
-            },
-            onCancel: {
-                delegate.didCancel()
-            },
-        ))
-    }
-
     /// Show the login request.
     ///
     /// - Parameter loginRequest: The login request to show.
@@ -493,7 +457,7 @@ extension AppCoordinator: AuthCoordinatorDelegate {
                     case .addNew:
                         navigateToAppExtensionAuthCompletionRoute()
                     case let .chooseLogin(logins):
-                        showChooseLoginToUpdatePassword(logins, delegate: credentialProviderExtensionDelegate)
+                        navigate(to: .vault(.autofillListForSavePassword(loginIds: logins.compactMap(\.id))))
                     case .completed:
                         break
                     }

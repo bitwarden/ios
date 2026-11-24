@@ -36,42 +36,6 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertFalse(called)
     }
 
-    /// `chooseLoginToUpdatePassword(logins:onSelect:onSaveAsNew:onCancel:)` lists each login with its
-    /// username, followed by options to save a new login or cancel, and calls the matching closure.
-    func test_chooseLoginToUpdatePassword() async throws {
-        let logins: [CipherView] = [
-            .loginFixture(id: "1", login: .fixture(username: "user"), name: "Example"),
-            .loginFixture(id: "2", login: .fixture(username: nil), name: "Example 2"),
-        ]
-        var selected: CipherView?
-        var savedAsNew = false
-        var cancelled = false
-        let subject = Alert.chooseLoginToUpdatePassword(
-            logins: logins,
-            onSelect: { selected = $0 },
-            onSaveAsNew: { savedAsNew = true },
-            onCancel: { cancelled = true },
-        )
-
-        XCTAssertEqual(subject.title, Localizations.updateWhichLogin)
-        XCTAssertEqual(subject.message, Localizations.chooseTheLoginToUpdateDescriptionLong)
-        XCTAssertEqual(subject.preferredStyle, .actionSheet)
-        XCTAssertEqual(
-            subject.alertActions.map(\.title),
-            ["Example (user)", "Example 2", Localizations.saveAsNewLogin, Localizations.cancel],
-        )
-        XCTAssertEqual(subject.alertActions.first { $0.title == Localizations.cancel }?.style, .cancel)
-
-        try await subject.tapAction(title: "Example 2")
-        XCTAssertEqual(selected, logins[1])
-
-        try await subject.tapAction(title: Localizations.saveAsNewLogin)
-        XCTAssertTrue(savedAsNew)
-
-        try await subject.tapAction(title: Localizations.cancel)
-        XCTAssertTrue(cancelled)
-    }
-
     /// `cipherDecryptionFailure()` returns an `Alert` to notify the user that an item in their
     /// vault was unable to be decrypted for when a cipher which failed to decrypt is tapped.
     func test_cipherDecryptionFailure() async throws {
