@@ -68,6 +68,70 @@ class GetAssertionRequestTests: BitwardenTestCase {
     }
 }
 
+// MARK: - LoginUriViewTests
+
+class LoginUriViewTests: BitwardenTestCase {
+    // MARK: Tests
+
+    /// `credentialServiceIdentifier` is a `.domain` identifier with the lowercased host for a web URI
+    /// matched by domain, host, or the default match type.
+    func test_credentialServiceIdentifier_domain() throws {
+        for match in [.domain, .host, nil] as [BitwardenSdk.UriMatchType?] {
+            let subject = LoginUriView.fixture(uri: " HTTP://WWW.Example.com:8080/login ", match: match)
+            let serviceIdentifier = try XCTUnwrap(
+                subject.credentialServiceIdentifier,
+                "On \(String(describing: match))",
+            )
+            XCTAssertEqual(serviceIdentifier.identifier, "www.example.com")
+            XCTAssertEqual(serviceIdentifier.type, .domain)
+        }
+    }
+
+    /// `credentialServiceIdentifier` normalizes an exact match URI with `httpsNormalized()`, adding
+    /// an `https://` scheme if it doesn't have one and removing a trailing slash and surrounding
+    /// whitespace.
+    func test_credentialServiceIdentifier_exact() throws {
+        let cases = [
+            ("www.example.com/login", "https://www.example.com/login"),
+            ("https://www.example.com/login/", "https://www.example.com/login"),
+            ("http://www.example.com/login", "http://www.example.com/login"),
+            (" https://www.example.com/login \n", "https://www.example.com/login"),
+        ]
+        for (uri, expected) in cases {
+            let subject = LoginUriView.fixture(uri: uri, match: .exact)
+            let serviceIdentifier = try XCTUnwrap(subject.credentialServiceIdentifier, "On \(uri)")
+            XCTAssertEqual(serviceIdentifier.identifier, expected)
+            XCTAssertEqual(serviceIdentifier.type, .URL)
+        }
+    }
+
+    /// `credentialServiceIdentifier` is `nil` for a URI that isn't used for AutoFill, including a URI
+    /// that's only whitespace.
+    func test_credentialServiceIdentifier_nil() {
+        XCTAssertNil(LoginUriView.fixture(uri: nil, match: nil).credentialServiceIdentifier)
+        XCTAssertNil(LoginUriView.fixture(uri: "", match: .domain).credentialServiceIdentifier)
+        XCTAssertNil(LoginUriView.fixture(uri: "  \n", match: .exact).credentialServiceIdentifier)
+        XCTAssertNil(LoginUriView.fixture(uri: "https://example.com", match: .never).credentialServiceIdentifier)
+    }
+
+    /// `credentialServiceIdentifier` is a `.URL` identifier with the URI unchanged for a non-web URI,
+    /// or a URI matched by prefix or regular expression.
+    func test_credentialServiceIdentifier_url() throws {
+        let cases: [(String, BitwardenSdk.UriMatchType?)] = [
+            ("iosapp://com.example.app", nil),
+            ("ssh://server.example.com", .domain),
+            ("example.com/path", .startsWith),
+            ("^https://example\\.com", .regularExpression),
+        ]
+        for (uri, match) in cases {
+            let subject = LoginUriView.fixture(uri: uri, match: match)
+            let serviceIdentifier = try XCTUnwrap(subject.credentialServiceIdentifier, "On \(uri)")
+            XCTAssertEqual(serviceIdentifier.identifier, uri)
+            XCTAssertEqual(serviceIdentifier.type, .URL)
+        }
+    }
+}
+
 // MARK: - MakeCredentialRequestTests
 
 class MakeCredentialRequestTests: BitwardenTestCase {

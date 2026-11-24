@@ -47,6 +47,27 @@ class StringTests: BitwardenTestCase {
         XCTAssertEqual(subject.hexSHA256Hash, expected)
     }
 
+    /// `httpHost` returns the lowercased host of an `http` or `https` URI, treating a URI without a
+    /// scheme as `https`.
+    func test_httpHost() {
+        XCTAssertEqual("https://www.example.com/login".httpHost, "www.example.com")
+        XCTAssertEqual(" HTTP://WWW.Example.com:8080/login ".httpHost, "www.example.com")
+        XCTAssertEqual("www.example.com".httpHost, "www.example.com")
+        XCTAssertEqual("www.example.com:8080".httpHost, "www.example.com")
+        XCTAssertEqual("192.168.1.1".httpHost, "192.168.1.1")
+        XCTAssertEqual("192.168.1.1:8080".httpHost, "192.168.1.1")
+        XCTAssertEqual("localhost:8080/path".httpHost, "localhost")
+    }
+
+    /// `httpHost` returns `nil` for a URI that isn't an `http` or `https` URI with a host.
+    func test_httpHost_nil() {
+        XCTAssertNil("".httpHost)
+        XCTAssertNil("   ".httpHost)
+        XCTAssertNil("iosapp://com.example.app".httpHost)
+        XCTAssertNil("ssh://server.example.com".httpHost)
+        XCTAssertNil("^https://example\\.com".httpHost)
+    }
+
     /// `httpsNormalized()` adds HTTPS prefix when no scheme is present.
     func test_httpsNormalized_addsHttpsPrefix() {
         XCTAssertEqual("example.com".httpsNormalized(), "https://example.com")

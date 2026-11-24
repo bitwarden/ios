@@ -58,6 +58,29 @@ public extension String {
         return hashedData.map { String(format: "%02hhx", $0) }.joined()
     }
 
+    /// The lowercased host of the string as an `http` or `https` URI, or `nil` if it isn't one.
+    ///
+    /// Surrounding whitespace is ignored, and a string without a scheme (e.g. `www.example.com`) is
+    /// treated as an `https` URI. The host doesn't include the scheme, port, or path.
+    ///
+    /// # Examples
+    /// ```swift
+    /// "https://www.example.com/login".httpHost // "www.example.com"
+    /// "WWW.Example.com:8080".httpHost          // "www.example.com"
+    /// "iosapp://com.example.app".httpHost      // nil
+    /// ```
+    ///
+    var httpHost: String? {
+        // Add a scheme before parsing, since a URI without one (e.g. `192.168.1.1:8080`) may not be
+        // parsed as a URL.
+        guard let url = URL(string: trimmingCharacters(in: .whitespacesAndNewlines).httpsNormalized()),
+              url.hasHTTPScheme,
+              let host = url.host?.lowercased(), !host.isEmpty else {
+            return nil
+        }
+        return host
+    }
+
     /// A Boolean value indicating whether the string represents the "bitwarden" scheme for custom
     /// "bitwarden://" app URLs
     var isBitwardenAppScheme: Bool {

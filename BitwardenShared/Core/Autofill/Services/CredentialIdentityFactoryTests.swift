@@ -115,6 +115,49 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertEqual(passwordIdentity.recordIdentifier, cipher.id)
     }
 
+    /// `createCredentialIdentities(from:accountHasPremium:)` creates one time code and password
+    /// identities for each of the login's AutoFill URIs, including each unique service identifier
+    /// only once.
+    func test_createCredentialIdentities_multipleUris() async throws {
+        guard #available(iOS 18.0, *) else {
+            throw XCTSkip("iOS 18.0 is required to run this test.")
+        }
+
+        let cipher = CipherView.fixture(
+            login: .fixture(
+                password: "1234",
+                uris: [
+                    .fixture(uri: "https://example.com", match: .domain),
+                    .fixture(uri: "https://example.org/login", match: nil),
+                    .fixture(uri: "https://never.com", match: .never),
+                    .fixture(uri: "iosapp://com.example.app", match: nil),
+                    .fixture(uri: "https://example.com/login", match: .domain),
+                ],
+                username: "test",
+                totp: "1234",
+            ),
+        )
+        let identities = await subject.createCredentialIdentities(from: cipher, accountHasPremium: true)
+        XCTAssertEqual(identities.count, 6)
+
+        let oneTimeCodeIdentities = try identities[0 ..< 3].map { identity in
+            try XCTUnwrap(identity as? ASOneTimeCodeCredentialIdentity)
+        }
+        let passwordIdentities = try identities[3 ..< 6].map { identity in
+            try XCTUnwrap(identity as? ASPasswordCredentialIdentity)
+        }
+
+        let expectedIdentifiers = ["example.com", "example.org", "iosapp://com.example.app"]
+        let expectedTypes: [ASCredentialServiceIdentifier.IdentifierType] = [.domain, .domain, .URL]
+        XCTAssertEqual(oneTimeCodeIdentities.map(\.serviceIdentifier.identifier), expectedIdentifiers)
+        XCTAssertEqual(oneTimeCodeIdentities.map(\.serviceIdentifier.type), expectedTypes)
+        XCTAssertEqual(oneTimeCodeIdentities.map(\.recordIdentifier), Array(repeating: cipher.id, count: 3))
+        XCTAssertEqual(passwordIdentities.map(\.serviceIdentifier.identifier), expectedIdentifiers)
+        XCTAssertEqual(passwordIdentities.map(\.serviceIdentifier.type), expectedTypes)
+        XCTAssertEqual(passwordIdentities.map(\.recordIdentifier), Array(repeating: cipher.id, count: 3))
+        XCTAssertEqual(passwordIdentities.map(\.user), Array(repeating: "test", count: 3))
+    }
+
     /// `createCredentialIdentities(from:)` returns no credentials if the cipher view uris
     /// has match `.never`.
     func test_createCredentialIdentities_noCredentialsOnMatchNever() async throws {
@@ -376,9 +419,9 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
         )
     }
 
-    /// `tryCreatePasswordCredentialIdentity(from:)` uses an iOS app URI unchanged as a `.URL`
+    /// `createPasswordCredentialIdentities(from:)` uses an iOS app URI unchanged as a `.URL`
     /// service identifier.
-    func test_tryCreatePasswordCredentialIdentity_appUri() throws {
+    func test_createPasswordCredentialIdentities_appUri() throws {
         let cipher = CipherView.fixture(
             login: .fixture(
                 password: "1234",
@@ -388,14 +431,14 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                 username: "test",
             ),
         )
-        let passwordIdentity = try XCTUnwrap(subject.tryCreatePasswordCredentialIdentity(from: cipher))
+        let passwordIdentity = try XCTUnwrap(subject.createPasswordCredentialIdentities(from: cipher).first)
         XCTAssertEqual(passwordIdentity.serviceIdentifier.identifier, "iosapp://com.example.app")
         XCTAssertEqual(passwordIdentity.serviceIdentifier.type, ASCredentialServiceIdentifier.IdentifierType.URL)
     }
 
-    /// `tryCreatePasswordCredentialIdentity(from:)` uses the login URI unchanged as a `.URL`
+    /// `createPasswordCredentialIdentities(from:)` uses the login URI unchanged as a `.URL`
     /// service identifier when the login URI has match `exact`.
-    func test_tryCreatePasswordCredentialIdentity_exactMatch() throws {
+    func test_createPasswordCredentialIdentities_exactMatch() throws {
         let cipher = CipherView.fixture(
             login: .fixture(
                 password: "1234",
@@ -405,14 +448,14 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                 username: "test",
             ),
         )
-        let passwordIdentity = try XCTUnwrap(subject.tryCreatePasswordCredentialIdentity(from: cipher))
+        let passwordIdentity = try XCTUnwrap(subject.createPasswordCredentialIdentities(from: cipher).first)
         XCTAssertEqual(passwordIdentity.serviceIdentifier.identifier, "https://www.example.com/login")
         XCTAssertEqual(passwordIdentity.serviceIdentifier.type, ASCredentialServiceIdentifier.IdentifierType.URL)
     }
 
-    /// `tryCreatePasswordCredentialIdentity(from:)` adds an `https://` scheme to the `.URL` service
+    /// `createPasswordCredentialIdentities(from:)` adds an `https://` scheme to the `.URL` service
     /// identifier when the login URI has match `exact` and doesn't have a scheme.
-    func test_tryCreatePasswordCredentialIdentity_exactMatchWithoutScheme() throws {
+    func test_createPasswordCredentialIdentities_exactMatchWithoutScheme() throws {
         let cipher = CipherView.fixture(
             login: .fixture(
                 password: "1234",
@@ -422,14 +465,14 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                 username: "test",
             ),
         )
-        let passwordIdentity = try XCTUnwrap(subject.tryCreatePasswordCredentialIdentity(from: cipher))
+        let passwordIdentity = try XCTUnwrap(subject.createPasswordCredentialIdentities(from: cipher).first)
         XCTAssertEqual(passwordIdentity.serviceIdentifier.identifier, "https://www.example.com")
         XCTAssertEqual(passwordIdentity.serviceIdentifier.type, ASCredentialServiceIdentifier.IdentifierType.URL)
     }
 
-    /// `tryCreatePasswordCredentialIdentity(from:)` uses the host without its port as a `.domain`
+    /// `createPasswordCredentialIdentities(from:)` uses the host without its port as a `.domain`
     /// service identifier when the login URI has match `host`.
-    func test_tryCreatePasswordCredentialIdentity_hostMatch() throws {
+    func test_createPasswordCredentialIdentities_hostMatch() throws {
         let cipher = CipherView.fixture(
             login: .fixture(
                 password: "1234",
@@ -439,14 +482,14 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                 username: "test",
             ),
         )
-        let passwordIdentity = try XCTUnwrap(subject.tryCreatePasswordCredentialIdentity(from: cipher))
+        let passwordIdentity = try XCTUnwrap(subject.createPasswordCredentialIdentities(from: cipher).first)
         XCTAssertEqual(passwordIdentity.serviceIdentifier.identifier, "sub.example.com")
         XCTAssertEqual(passwordIdentity.serviceIdentifier.type, ASCredentialServiceIdentifier.IdentifierType.domain)
     }
 
-    /// `tryCreatePasswordCredentialIdentity(from:)` uses the host as a `.domain` service
+    /// `createPasswordCredentialIdentities(from:)` uses the host as a `.domain` service
     /// identifier when the login URI has an `http://` scheme and a path.
-    func test_tryCreatePasswordCredentialIdentity_httpScheme() throws {
+    func test_createPasswordCredentialIdentities_httpScheme() throws {
         let cipher = CipherView.fixture(
             login: .fixture(
                 password: "1234",
@@ -456,14 +499,14 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                 username: "test",
             ),
         )
-        let passwordIdentity = try XCTUnwrap(subject.tryCreatePasswordCredentialIdentity(from: cipher))
+        let passwordIdentity = try XCTUnwrap(subject.createPasswordCredentialIdentities(from: cipher).first)
         XCTAssertEqual(passwordIdentity.serviceIdentifier.identifier, "example.com")
         XCTAssertEqual(passwordIdentity.serviceIdentifier.type, ASCredentialServiceIdentifier.IdentifierType.domain)
     }
 
-    /// `tryCreatePasswordCredentialIdentity(from:)` uses the IP address as a `.domain` service
+    /// `createPasswordCredentialIdentities(from:)` uses the IP address as a `.domain` service
     /// identifier when the login URI is an IP address and port without a scheme.
-    func test_tryCreatePasswordCredentialIdentity_ipAddress() throws {
+    func test_createPasswordCredentialIdentities_ipAddress() throws {
         let cipher = CipherView.fixture(
             login: .fixture(
                 password: "1234",
@@ -473,13 +516,13 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                 username: "test",
             ),
         )
-        let passwordIdentity = try XCTUnwrap(subject.tryCreatePasswordCredentialIdentity(from: cipher))
+        let passwordIdentity = try XCTUnwrap(subject.createPasswordCredentialIdentities(from: cipher).first)
         XCTAssertEqual(passwordIdentity.serviceIdentifier.identifier, "192.168.1.10")
         XCTAssertEqual(passwordIdentity.serviceIdentifier.type, ASCredentialServiceIdentifier.IdentifierType.domain)
     }
 
-    /// `tryCreatePasswordCredentialIdentity(from:)` returns `nil` when the login Uri is empty.
-    func test_tryCreatePasswordCredentialIdentity_loginUriEmpty() throws {
+    /// `createPasswordCredentialIdentities(from:)` returns no identities when the login Uri is empty.
+    func test_createPasswordCredentialIdentities_loginUriEmpty() throws {
         let cipher = CipherView.fixture(
             login: .fixture(
                 password: "1234",
@@ -489,12 +532,12 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                 username: "expectedUsername",
             ),
         )
-        let passwordIdentity = subject.tryCreatePasswordCredentialIdentity(from: cipher)
-        XCTAssertNil(passwordIdentity)
+        let passwordIdentities = subject.createPasswordCredentialIdentities(from: cipher)
+        XCTAssertTrue(passwordIdentities.isEmpty)
     }
 
-    /// `tryCreatePasswordCredentialIdentity(from:)` returns `nil` when the login Uri has match `never`.
-    func test_tryCreatePasswordCredentialIdentity_loginUriNever() throws {
+    /// `createPasswordCredentialIdentities(from:)` returns no identities when the login Uri has match `never`.
+    func test_createPasswordCredentialIdentities_loginUriNever() throws {
         let cipher = CipherView.fixture(
             login: .fixture(
                 password: "1234",
@@ -504,12 +547,12 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                 username: "expectedUsername",
             ),
         )
-        let passwordIdentity = subject.tryCreatePasswordCredentialIdentity(from: cipher)
-        XCTAssertNil(passwordIdentity)
+        let passwordIdentities = subject.createPasswordCredentialIdentities(from: cipher)
+        XCTAssertTrue(passwordIdentities.isEmpty)
     }
 
-    /// `tryCreatePasswordCredentialIdentity(from:)` returns `nil` when there are 0 login uris.
-    func test_tryCreatePasswordCredentialIdentity_loginUrisEmpty() throws {
+    /// `createPasswordCredentialIdentities(from:)` returns no identities when there are 0 login uris.
+    func test_createPasswordCredentialIdentities_loginUrisEmpty() throws {
         let cipher = CipherView.fixture(
             login: .fixture(
                 password: "1234",
@@ -517,22 +560,51 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                 username: "expectedUsername",
             ),
         )
-        let passwordIdentity = subject.tryCreatePasswordCredentialIdentity(from: cipher)
-        XCTAssertNil(passwordIdentity)
+        let passwordIdentities = subject.createPasswordCredentialIdentities(from: cipher)
+        XCTAssertTrue(passwordIdentities.isEmpty)
     }
 
-    /// `tryCreatePasswordCredentialIdentity(from:)` returns `nil` when cipher doesn't have login.
-    func test_tryCreatePasswordCredentialIdentity_noLogin() throws {
+    /// `createPasswordCredentialIdentities(from:)` creates a password identity for each of the
+    /// login's AutoFill URIs, using each URI's match type, and includes each unique service
+    /// identifier only once.
+    func test_createPasswordCredentialIdentities_multipleUris() {
+        let cipher = CipherView.fixture(
+            login: .fixture(
+                password: "1234",
+                uris: [
+                    .fixture(uri: "www.example.net", match: .exact),
+                    .fixture(uri: "https://example.com/path", match: .startsWith),
+                    .fixture(uri: "https://EXAMPLE.org:8080", match: .host),
+                    .fixture(uri: "https://www.example.net/", match: .exact),
+                    .fixture(uri: "https://example.org/login", match: .domain),
+                ],
+                username: "test",
+            ),
+        )
+        let passwordIdentities = subject.createPasswordCredentialIdentities(from: cipher)
+
+        XCTAssertEqual(
+            passwordIdentities.map(\.serviceIdentifier.identifier),
+            ["https://www.example.net", "https://example.com/path", "example.org"],
+        )
+        XCTAssertEqual(
+            passwordIdentities.map(\.serviceIdentifier.type),
+            [.URL, .URL, .domain],
+        )
+    }
+
+    /// `createPasswordCredentialIdentities(from:)` returns no identities when cipher doesn't have login.
+    func test_createPasswordCredentialIdentities_noLogin() throws {
         let cipher = CipherView.fixture(
             login: nil,
         )
-        let passwordIdentity = subject.tryCreatePasswordCredentialIdentity(from: cipher)
-        XCTAssertNil(passwordIdentity)
+        let passwordIdentities = subject.createPasswordCredentialIdentities(from: cipher)
+        XCTAssertTrue(passwordIdentities.isEmpty)
     }
 
-    /// `tryCreatePasswordCredentialIdentity(from:)` uses the login URI unchanged as a `.URL`
+    /// `createPasswordCredentialIdentities(from:)` uses the login URI unchanged as a `.URL`
     /// service identifier when the login URI has match `regularExpression`.
-    func test_tryCreatePasswordCredentialIdentity_regularExpressionMatch() throws {
+    func test_createPasswordCredentialIdentities_regularExpressionMatch() throws {
         let cipher = CipherView.fixture(
             login: .fixture(
                 password: "1234",
@@ -542,14 +614,39 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                 username: "test",
             ),
         )
-        let passwordIdentity = try XCTUnwrap(subject.tryCreatePasswordCredentialIdentity(from: cipher))
+        let passwordIdentity = try XCTUnwrap(subject.createPasswordCredentialIdentities(from: cipher).first)
         XCTAssertEqual(passwordIdentity.serviceIdentifier.identifier, "^https://.*\\.example\\.com$")
         XCTAssertEqual(passwordIdentity.serviceIdentifier.type, ASCredentialServiceIdentifier.IdentifierType.URL)
     }
 
-    /// `tryCreatePasswordCredentialIdentity(from:)` uses the login URI unchanged as a `.URL`
+    /// `createPasswordCredentialIdentities(from:)` keeps a `.domain` and a `.URL` service identifier
+    /// for the same site, since they're different service identifiers.
+    func test_createPasswordCredentialIdentities_sameSiteDifferentTypes() {
+        let cipher = CipherView.fixture(
+            login: .fixture(
+                password: "1234",
+                uris: [
+                    .fixture(uri: "https://example.com", match: .domain),
+                    .fixture(uri: "https://example.com", match: .exact),
+                ],
+                username: "test",
+            ),
+        )
+        let passwordIdentities = subject.createPasswordCredentialIdentities(from: cipher)
+
+        XCTAssertEqual(
+            passwordIdentities.map(\.serviceIdentifier.identifier),
+            ["example.com", "https://example.com"],
+        )
+        XCTAssertEqual(
+            passwordIdentities.map(\.serviceIdentifier.type),
+            [.domain, .URL],
+        )
+    }
+
+    /// `createPasswordCredentialIdentities(from:)` uses the login URI unchanged as a `.URL`
     /// service identifier when the login URI has match `startsWith`.
-    func test_tryCreatePasswordCredentialIdentity_startsWithMatch() throws {
+    func test_createPasswordCredentialIdentities_startsWithMatch() throws {
         let cipher = CipherView.fixture(
             login: .fixture(
                 password: "1234",
@@ -559,13 +656,13 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                 username: "test",
             ),
         )
-        let passwordIdentity = try XCTUnwrap(subject.tryCreatePasswordCredentialIdentity(from: cipher))
+        let passwordIdentity = try XCTUnwrap(subject.createPasswordCredentialIdentities(from: cipher).first)
         XCTAssertEqual(passwordIdentity.serviceIdentifier.identifier, "https://www.example.com/account")
         XCTAssertEqual(passwordIdentity.serviceIdentifier.type, ASCredentialServiceIdentifier.IdentifierType.URL)
     }
 
-    /// `tryCreatePasswordCredentialIdentity(from:)` returns the password credential from the cipher.
-    func test_tryCreatePasswordCredentialIdentity_success() throws {
+    /// `createPasswordCredentialIdentities(from:)` returns the password credential from the cipher.
+    func test_createPasswordCredentialIdentities_success() throws {
         let expectedUri = "https://example.com"
         let expectedUsername = "test"
         let cipher = CipherView.fixture(
@@ -577,18 +674,18 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                 username: expectedUsername,
             ),
         )
-        let passwordIdentity = try XCTUnwrap(
-            subject.tryCreatePasswordCredentialIdentity(from: cipher),
-        )
+        let passwordIdentities = subject.createPasswordCredentialIdentities(from: cipher)
+        XCTAssertEqual(passwordIdentities.count, 1)
+        let passwordIdentity = try XCTUnwrap(passwordIdentities.first)
         XCTAssertEqual(passwordIdentity.serviceIdentifier.identifier, "example.com")
         XCTAssertEqual(passwordIdentity.serviceIdentifier.type, ASCredentialServiceIdentifier.IdentifierType.domain)
         XCTAssertEqual(passwordIdentity.user, expectedUsername)
         XCTAssertEqual(passwordIdentity.recordIdentifier, cipher.id)
     }
 
-    /// `tryCreatePasswordCredentialIdentity(from:)` uses the lowercased host as a `.domain`
+    /// `createPasswordCredentialIdentities(from:)` uses the lowercased host as a `.domain`
     /// service identifier when the login URI contains uppercase characters.
-    func test_tryCreatePasswordCredentialIdentity_uppercaseUri() throws {
+    func test_createPasswordCredentialIdentities_uppercaseUri() throws {
         let cipher = CipherView.fixture(
             login: .fixture(
                 password: "1234",
@@ -598,14 +695,14 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                 username: "test",
             ),
         )
-        let passwordIdentity = try XCTUnwrap(subject.tryCreatePasswordCredentialIdentity(from: cipher))
+        let passwordIdentity = try XCTUnwrap(subject.createPasswordCredentialIdentities(from: cipher).first)
         XCTAssertEqual(passwordIdentity.serviceIdentifier.identifier, "www.example.com")
         XCTAssertEqual(passwordIdentity.serviceIdentifier.type, ASCredentialServiceIdentifier.IdentifierType.domain)
     }
 
-    /// `tryCreatePasswordCredentialIdentity(from:)` ignores leading and trailing whitespace and
+    /// `createPasswordCredentialIdentities(from:)` ignores leading and trailing whitespace and
     /// newlines in the login URI.
-    func test_tryCreatePasswordCredentialIdentity_uriWithWhitespace() throws {
+    func test_createPasswordCredentialIdentities_uriWithWhitespace() throws {
         let cipher = CipherView.fixture(
             login: .fixture(
                 password: "1234",
@@ -615,14 +712,14 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                 username: "test",
             ),
         )
-        let passwordIdentity = try XCTUnwrap(subject.tryCreatePasswordCredentialIdentity(from: cipher))
+        let passwordIdentity = try XCTUnwrap(subject.createPasswordCredentialIdentities(from: cipher).first)
         XCTAssertEqual(passwordIdentity.serviceIdentifier.identifier, "www.example.com")
         XCTAssertEqual(passwordIdentity.serviceIdentifier.type, ASCredentialServiceIdentifier.IdentifierType.domain)
     }
 
-    /// `tryCreatePasswordCredentialIdentity(from:)` uses the host as a `.domain` service
+    /// `createPasswordCredentialIdentities(from:)` uses the host as a `.domain` service
     /// identifier when the login URI doesn't have a scheme.
-    func test_tryCreatePasswordCredentialIdentity_uriWithoutScheme() throws {
+    func test_createPasswordCredentialIdentities_uriWithoutScheme() throws {
         let cipher = CipherView.fixture(
             login: .fixture(
                 password: "1234",
@@ -632,14 +729,14 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                 username: "test",
             ),
         )
-        let passwordIdentity = try XCTUnwrap(subject.tryCreatePasswordCredentialIdentity(from: cipher))
+        let passwordIdentity = try XCTUnwrap(subject.createPasswordCredentialIdentities(from: cipher).first)
         XCTAssertEqual(passwordIdentity.serviceIdentifier.identifier, "www.example.com")
         XCTAssertEqual(passwordIdentity.serviceIdentifier.type, ASCredentialServiceIdentifier.IdentifierType.domain)
     }
 
-    /// `tryCreatePasswordCredentialIdentity(from:)` uses the host without its port as a `.domain`
+    /// `createPasswordCredentialIdentities(from:)` uses the host without its port as a `.domain`
     /// service identifier when the login URI is a host and port without a scheme.
-    func test_tryCreatePasswordCredentialIdentity_uriWithoutSchemeWithPort() throws {
+    func test_createPasswordCredentialIdentities_uriWithoutSchemeWithPort() throws {
         let cipher = CipherView.fixture(
             login: .fixture(
                 password: "1234",
@@ -649,13 +746,13 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                 username: "test",
             ),
         )
-        let passwordIdentity = try XCTUnwrap(subject.tryCreatePasswordCredentialIdentity(from: cipher))
+        let passwordIdentity = try XCTUnwrap(subject.createPasswordCredentialIdentities(from: cipher).first)
         XCTAssertEqual(passwordIdentity.serviceIdentifier.identifier, "localhost")
         XCTAssertEqual(passwordIdentity.serviceIdentifier.type, ASCredentialServiceIdentifier.IdentifierType.domain)
     }
 
-    /// `tryCreatePasswordCredentialIdentity(from:)` returns `nil` when login username is empty.
-    func test_tryCreatePasswordCredentialIdentity_usernameEmpty() throws {
+    /// `createPasswordCredentialIdentities(from:)` returns no identities when login username is empty.
+    func test_createPasswordCredentialIdentities_usernameEmpty() throws {
         let expectedUri = "https://example.com"
         let cipher = CipherView.fixture(
             login: .fixture(
@@ -666,12 +763,12 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                 username: "",
             ),
         )
-        let passwordIdentity = subject.tryCreatePasswordCredentialIdentity(from: cipher)
-        XCTAssertNil(passwordIdentity)
+        let passwordIdentities = subject.createPasswordCredentialIdentities(from: cipher)
+        XCTAssertTrue(passwordIdentities.isEmpty)
     }
 
-    /// `tryCreatePasswordCredentialIdentity(from:)` returns `nil` when login username is `nil`.
-    func test_tryCreatePasswordCredentialIdentity_usernameNil() throws {
+    /// `createPasswordCredentialIdentities(from:)` returns no identities when login username is `nil`.
+    func test_createPasswordCredentialIdentities_usernameNil() throws {
         let expectedUri = "https://example.com"
         let cipher = CipherView.fixture(
             login: .fixture(
@@ -682,7 +779,7 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                 username: nil,
             ),
         )
-        let passwordIdentity = subject.tryCreatePasswordCredentialIdentity(from: cipher)
-        XCTAssertNil(passwordIdentity)
+        let passwordIdentities = subject.createPasswordCredentialIdentities(from: cipher)
+        XCTAssertTrue(passwordIdentities.isEmpty)
     }
 } // swiftlint:disable:this file_length

@@ -394,8 +394,8 @@ class DefaultAutofillCredentialService {
                     "[AutofillCredentialService] Replaced \(identities.count) credential identities\(deviceAuthKeyFlightRecorderInfo)",
                 )
             } else {
-                let identities = decryptedCiphers.compactMap { cipher in
-                    credentialIdentityFactory.tryCreatePasswordCredentialIdentity(from: cipher)
+                let identities = decryptedCiphers.flatMap { cipher in
+                    credentialIdentityFactory.createPasswordCredentialIdentities(from: cipher)
                 }
                 try await identityStore.replaceCredentialIdentities(with: identities)
                 await flightRecorder.log(
