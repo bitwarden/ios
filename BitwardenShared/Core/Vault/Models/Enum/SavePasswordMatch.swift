@@ -11,11 +11,12 @@ public enum SavePasswordMatch: Equatable {
     /// No existing login matches the request, so a new login should be added.
     case none
 
-    /// Exactly one editable login has the same URI and username, so its password can be updated
-    /// without asking the user.
+    /// Exactly one editable login matches the URI and username and is saved for the same host, so
+    /// its password can be updated without asking the user.
     case singleUpdateCandidate(CipherView)
 
-    /// The request matches editable logins that the user needs to choose between: either several
-    /// logins have the same URI and username, or the request has no username.
+    /// The request matches editable logins that the user needs to choose between: several logins
+    /// match the URI and username, the request has no username, or the only match is saved for
+    /// another host.
     case updateCandidates([CipherView])
 }

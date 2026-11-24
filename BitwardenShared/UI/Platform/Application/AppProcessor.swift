@@ -23,7 +23,7 @@ enum AppProcessorError: Error {
     /// The operation to execute is invalid.
     case invalidOperation
 
-    /// A save-password request matches several logins, so the user needs to choose which to update.
+    /// A save-password request needs the user to choose which login to update.
     case savePasswordRequiresUserInteraction
 }
 
@@ -663,9 +663,11 @@ public extension AppProcessor {
     ///
     /// - If a login with the same URI, username and password exists, its credential identities are
     ///   added to the identity store so the system doesn't prompt to save it again.
-    /// - If exactly one editable login has the same URI and username, its password is updated.
-    /// - If several logins could be the one being updated, or the request has no username, the
-    ///   user needs to choose.
+    /// - If exactly one editable login matches the URI and username, is saved for the same host and
+    ///   doesn't require master password reprompt, its password is updated.
+    /// - If several logins could be the one being updated, the request has no username, the only
+    ///   match is saved for another host, or the login requires master password reprompt, the user
+    ///   needs to choose.
     /// - Otherwise, a new login needs to be added.
     ///
     /// The vault must be unlocked before calling this.
@@ -696,7 +698,10 @@ public extension AppProcessor {
             return .addNew
         case let .singleUpdateCandidate(cipher):
             // A login protected by master password reprompt is never updated without the user.
-            guard try await !isRepromptRequired(for: cipher) else {
+            let isRepromptRequired = try await services.authRepository.shouldPerformMasterPasswordReprompt(
+                reprompt: cipher.reprompt,
+            )
+            guard !isRepromptRequired else {
                 return .chooseLogin([cipher])
             }
             try await updatePasswordCredential(cipher, password: password)
@@ -744,6 +749,30 @@ public extension AppProcessor {
         }
     }
 
+    /// Updates the login the user chose for a save-password request. If the login is protected by
+    /// master password reprompt, the user must enter their master password first.
+    ///
+    /// - Parameters:
+    ///   - cipher: The login the user chose to update.
+    ///   - password: The new password.
+    /// - Returns: `true` if the login was updated, or `false` if the user cancelled the master
+    ///   password prompt or entered an incorrect master password.
+    ///
+    @available(iOSApplicationExtension 26.2, *)
+    func updateChosenPasswordCredential(_ cipher: CipherView, password: String) async throws -> Bool {
+        if try await services.authRepository.shouldPerformMasterPasswordReprompt(reprompt: cipher.reprompt) {
+            var userVerificationHelper = services.userVerificationHelperFactory.create()
+            userVerificationHelper.userVerificationDelegate = self
+            do {
+                guard try await userVerificationHelper.verifyMasterPassword() == .verified else { return false }
+            } catch UserVerificationError.cancelled {
+                return false
+            }
+        }
+        try await updatePasswordCredential(cipher, password: password)
+        return true
+    }
+
     /// Updates an existing login's password for a save-password request. The previous password is
     /// added to the login's password history, and the login's credential identities are added to the
     /// identity store so the system doesn't prompt to save the credential again.
@@ -759,70 +788,6 @@ public extension AppProcessor {
         )
         if let cipherId = cipher.id {
             await services.autofillCredentialService.upsertCredentialsInStore(forCipherId: cipherId)
-        }
-    }
-
-    /// Updates the login the user chose for a save-password request. If the login is protected by
-    /// master password reprompt, the user must enter their master password first.
-    ///
-    /// - Parameters:
-    ///   - cipher: The login the user chose to update.
-    ///   - password: The new password.
-    /// - Returns: `true` if the login was updated, or `false` if the user cancelled the master
-    ///   password prompt or entered an incorrect master password.
-    ///
-    @available(iOSApplicationExtension 26.2, *)
-    func updateChosenPasswordCredential(_ cipher: CipherView, password: String) async throws -> Bool {
-        if try await isRepromptRequired(for: cipher) {
-            guard await verifyMasterPasswordForReprompt() else { return false }
-        }
-        try await updatePasswordCredential(cipher, password: password)
-        return true
-    }
-
-    // MARK: Private
-
-    /// Returns whether the login requires the user to enter their master password before it's used.
-    ///
-    /// - Parameter cipher: The login to check.
-    /// - Returns: `true` if master password reprompt is required for the login.
-    ///
-    private func isRepromptRequired(for cipher: CipherView) async throws -> Bool {
-        guard let cipherId = cipher.id else { return false }
-        return try await services.vaultRepository.repromptRequiredForCipher(id: cipherId)
-    }
-
-    /// Asks the user for their master password and validates it.
-    ///
-    /// - Returns: `true` if the user entered their master password, or `false` if they cancelled or
-    ///   entered an incorrect one.
-    ///
-    private func verifyMasterPasswordForReprompt() async -> Bool {
-        guard let coordinator else { return false }
-        return await withCheckedContinuation { continuation in
-            coordinator.showAlert(.masterPasswordPrompt(
-                onCancelled: {
-                    continuation.resume(returning: false)
-                },
-                completion: { [weak self] password in
-                    guard let self else {
-                        continuation.resume(returning: false)
-                        return
-                    }
-                    do {
-                        guard try await services.authRepository.validatePassword(password) else {
-                            coordinator.showAlert(.defaultAlert(title: Localizations.invalidMasterPassword)) {
-                                continuation.resume(returning: false)
-                            }
-                            return
-                        }
-                        continuation.resume(returning: true)
-                    } catch {
-                        services.errorReporter.log(error: error)
-                        continuation.resume(returning: false)
-                    }
-                },
-            ))
         }
     }
 }

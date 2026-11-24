@@ -43,6 +43,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     var subject: AppProcessor!
     var syncService: MockSyncService!
     var timeProvider: MockTimeProvider!
+    var userVerificationHelper: MockUserVerificationHelper!
     var vaultRepository: MockVaultRepository!
     var vaultTimeoutService: MockVaultTimeoutService!
 
@@ -84,6 +85,9 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         stateService = MockStateService()
         syncService = MockSyncService()
         timeProvider = MockTimeProvider(.currentTime)
+        userVerificationHelper = MockUserVerificationHelper()
+        let userVerificationHelperFactory = MockUserVerificationHelperFactory()
+        userVerificationHelperFactory.createResult = userVerificationHelper
         vaultRepository = MockVaultRepository()
         vaultTimeoutService = MockVaultTimeoutService()
 
@@ -116,6 +120,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 stateService: stateService,
                 syncService: syncService,
                 timeProvider: timeProvider,
+                userVerificationHelperFactory: userVerificationHelperFactory,
                 vaultRepository: vaultRepository,
                 vaultTimeoutService: vaultTimeoutService,
             ),
@@ -162,6 +167,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         syncService = nil
         timeProvider = nil
         vaultRepository = nil
+        userVerificationHelper = nil
         vaultTimeoutService = nil
     }
 
@@ -1034,9 +1040,9 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let cipher = CipherView.loginFixture(
             id: "existing-cipher-id",
             login: .fixture(password: "old", username: "user"),
+            reprompt: .password,
         )
         vaultRepository.matchSavePasswordRequestResult = .singleUpdateCandidate(cipher)
-        vaultRepository.repromptRequiredForCipherResult = .success(true)
 
         let result = try await subject.resolveSavePasswordCredential(
             username: "user",
@@ -1263,7 +1269,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// `updateChosenPasswordCredential(_:password:)` updates the login without a master password
     /// prompt when reprompt isn't required.
     @available(iOS 26.2, *)
-    @MainActor
     func test_updateChosenPasswordCredential() async throws {
         let updated = try await subject.updateChosenPasswordCredential(
             .loginFixture(id: "existing-cipher-id", login: .fixture(password: "old", username: "user")),
@@ -1271,61 +1276,45 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         )
 
         XCTAssertTrue(updated)
-        XCTAssertTrue(coordinator.alertShown.isEmpty)
+        XCTAssertFalse(userVerificationHelper.verifyMasterPasswordCalled)
         XCTAssertEqual(vaultRepository.updateCipherCiphers.first?.login?.password, "new")
         XCTAssertEqual(autofillCredentialService.upsertCredentialsInStoreCipherIds, ["existing-cipher-id"])
     }
 
     /// `updateChosenPasswordCredential(_:password:)` updates a login protected by master password
-    /// reprompt once the user enters their master password.
+    /// reprompt once the user verifies their master password.
     @available(iOS 26.2, *)
-    @MainActor
     func test_updateChosenPasswordCredential_repromptVerified() async throws {
-        vaultRepository.repromptRequiredForCipherResult = .success(true)
-
-        let task = Task {
-            try await subject.updateChosenPasswordCredential(
-                .loginFixture(id: "existing-cipher-id", login: .fixture(password: "old", username: "user")),
-                password: "new",
-            )
-        }
-        try await waitForAsync { [weak self] in !(self?.coordinator.alertShown.isEmpty ?? true) }
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert, .masterPasswordPrompt { _ in })
-        try await alert.tapAction(
-            title: Localizations.submit,
-            alertTextFields: [AlertTextField(id: "password", text: "password")],
+        let updated = try await subject.updateChosenPasswordCredential(
+            .loginFixture(
+                id: "existing-cipher-id",
+                login: .fixture(password: "old", username: "user"),
+                reprompt: .password,
+            ),
+            password: "new",
         )
 
-        let updated = try await task.value
         XCTAssertTrue(updated)
-        XCTAssertEqual(authRepository.validatePasswordPasswords, ["password"])
+        XCTAssertTrue(userVerificationHelper.verifyMasterPasswordCalled)
+        XCTAssertTrue(userVerificationHelper.userVerificationDelegate === subject)
         XCTAssertEqual(vaultRepository.updateCipherCiphers.first?.login?.password, "new")
     }
 
     /// `updateChosenPasswordCredential(_:password:)` doesn't update a login protected by master
-    /// password reprompt when the user enters an incorrect master password.
+    /// password reprompt when the master password isn't verified.
     @available(iOS 26.2, *)
-    @MainActor
-    func test_updateChosenPasswordCredential_repromptInvalidPassword() async throws {
-        authRepository.validatePasswordResult = .success(false)
-        vaultRepository.repromptRequiredForCipherResult = .success(true)
+    func test_updateChosenPasswordCredential_repromptNotVerified() async throws {
+        userVerificationHelper.verifyMasterPasswordResult = .success(.notVerified)
 
-        let task = Task {
-            try await subject.updateChosenPasswordCredential(
-                .loginFixture(id: "existing-cipher-id", login: .fixture(password: "old", username: "user")),
-                password: "new",
-            )
-        }
-        try await waitForAsync { [weak self] in !(self?.coordinator.alertShown.isEmpty ?? true) }
-        try await XCTUnwrap(coordinator.alertShown.last).tapAction(
-            title: Localizations.submit,
-            alertTextFields: [AlertTextField(id: "password", text: "wrong")],
+        let updated = try await subject.updateChosenPasswordCredential(
+            .loginFixture(
+                id: "existing-cipher-id",
+                login: .fixture(password: "old", username: "user"),
+                reprompt: .password,
+            ),
+            password: "new",
         )
-        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.invalidMasterPassword))
-        coordinator.alertOnDismissed?()
 
-        let updated = try await task.value
         XCTAssertFalse(updated)
         XCTAssertTrue(vaultRepository.updateCipherCiphers.isEmpty)
     }
@@ -1333,20 +1322,18 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// `updateChosenPasswordCredential(_:password:)` doesn't update a login protected by master
     /// password reprompt when the user cancels the master password prompt.
     @available(iOS 26.2, *)
-    @MainActor
     func test_updateChosenPasswordCredential_repromptCancelled() async throws {
-        vaultRepository.repromptRequiredForCipherResult = .success(true)
+        userVerificationHelper.verifyMasterPasswordResult = .failure(UserVerificationError.cancelled)
 
-        let task = Task {
-            try await subject.updateChosenPasswordCredential(
-                .loginFixture(id: "existing-cipher-id", login: .fixture(password: "old", username: "user")),
-                password: "new",
-            )
-        }
-        try await waitForAsync { [weak self] in !(self?.coordinator.alertShown.isEmpty ?? true) }
-        try await XCTUnwrap(coordinator.alertShown.last).tapCancel()
+        let updated = try await subject.updateChosenPasswordCredential(
+            .loginFixture(
+                id: "existing-cipher-id",
+                login: .fixture(password: "old", username: "user"),
+                reprompt: .password,
+            ),
+            password: "new",
+        )
 
-        let updated = try await task.value
         XCTAssertFalse(updated)
         XCTAssertTrue(vaultRepository.updateCipherCiphers.isEmpty)
     }

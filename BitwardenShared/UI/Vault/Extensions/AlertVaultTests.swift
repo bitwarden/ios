@@ -54,13 +54,13 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         )
 
         XCTAssertEqual(subject.title, Localizations.updateWhichLogin)
-        XCTAssertEqual(subject.message, Localizations.chooseTheLoginToUpdateWithTheNewPassword)
+        XCTAssertEqual(subject.message, Localizations.chooseTheLoginToUpdateDescriptionLong)
         XCTAssertEqual(subject.preferredStyle, .actionSheet)
         XCTAssertEqual(
             subject.alertActions.map(\.title),
             ["Example (user)", "Example 2", Localizations.saveAsNewLogin, Localizations.cancel],
         )
-        XCTAssertEqual(subject.alertActions.last?.style, .cancel)
+        XCTAssertEqual(subject.alertActions.first { $0.title == Localizations.cancel }?.style, .cancel)
 
         try await subject.tapAction(title: "Example 2")
         XCTAssertEqual(selected, logins[1])

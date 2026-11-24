@@ -166,8 +166,8 @@ public protocol VaultRepository: AnyObject {
     /// matched to `uri` the same way the AutoFill list matches them, following each login URI's match
     /// detection setting and the user's equivalent domains, so a request for a different page on the
     /// same site matches. Deleted and archived logins are ignored, and logins the user can't edit are
-    /// never offered for an update. Only an exact match with the same username is updated without
-    /// asking the user.
+    /// never offered for an update. Only an exact match with the same username, saved for the same
+    /// host, is updated without asking the user.
     ///
     /// Errors are logged and `.none` is returned, since failing to match shouldn't prevent the
     /// caller from saving the login.
@@ -556,22 +556,6 @@ class DefaultVaultRepository {
         return candidates.isEmpty ? .none : .updateCandidates(candidates)
     }
 
-    /// Returns whether one of the login's AutoFill URIs has the same host as `uri`. URIs saved without
-    /// a scheme are treated as `https://`.
-    ///
-    /// - Parameters:
-    ///   - cipher: The login to check.
-    ///   - uri: The URI whose host the login must have.
-    /// - Returns: `true` if one of the login's URIs has the same host as `uri`.
-    ///
-    private func login(_ cipher: CipherView, hasHostOf uri: String) -> Bool {
-        guard let host = URL(string: uri)?.host?.lowercased() else { return false }
-        return cipher.login?.uris?.contains { loginUri in
-            guard loginUri.match != .never, let uri = loginUri.uri, !uri.isEmpty else { return false }
-            return URL(string: uri.httpsNormalized())?.host?.lowercased() == host
-        } ?? false
-    }
-
     /// Downloads, re-encrypts, and re-uploads an attachment without an attachment key so that it
     /// can be shared to an organization.
     ///
@@ -604,6 +588,22 @@ class DefaultVaultRepository {
         }
 
         return updatedCipher
+    }
+
+    /// Returns whether one of the login's AutoFill URIs has the same host as `uri`. URIs saved without
+    /// a scheme are treated as `https://`.
+    ///
+    /// - Parameters:
+    ///   - cipher: The login to check.
+    ///   - uri: The URI whose host the login must have.
+    /// - Returns: `true` if one of the login's URIs has the same host as `uri`.
+    ///
+    private func login(_ cipher: CipherView, hasHostOf uri: String) -> Bool {
+        guard let host = URL(string: uri)?.sanitized.hostWithPort?.lowercased() else { return false }
+        return cipher.login?.uris?.contains { loginUri in
+            guard loginUri.match != .never, let uri = loginUri.uri, !uri.isEmpty else { return false }
+            return URL(string: uri)?.sanitized.hostWithPort?.lowercased() == host
+        } ?? false
     }
 }
 

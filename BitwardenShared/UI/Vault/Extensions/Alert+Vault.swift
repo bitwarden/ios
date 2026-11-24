@@ -76,7 +76,7 @@ extension Alert {
         }
         return Alert(
             title: Localizations.updateWhichLogin,
-            message: Localizations.chooseTheLoginToUpdateWithTheNewPassword,
+            message: Localizations.chooseTheLoginToUpdateDescriptionLong,
             preferredStyle: .actionSheet,
             alertActions: loginActions + [
                 AlertAction(title: Localizations.saveAsNewLogin, style: .default) { _ in await onSaveAsNew() },
