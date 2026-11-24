@@ -853,11 +853,14 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
         authRepository.unlockVaultWithBiometricsResult = .success(())
 
+        let notificationExpectation = expectation(forNotification: .biometricUnlockDidComplete, object: nil)
+
         await subject.perform(.unlockVaultWithBiometrics)
         let event = try XCTUnwrap(coordinator.events.last)
         XCTAssertEqual(event, .didCompleteAuth)
         XCTAssertEqual(0, subject.state.unsuccessfulUnlockAttemptsCount)
         XCTAssertFalse(subject.state.shouldFocusPasswordOrPinField)
+        await fulfillment(of: [notificationExpectation], timeout: 1)
     }
 
     /// `receive(_:)` with `.logOut` shows a logout confirmation alert and allows the user to logout.
