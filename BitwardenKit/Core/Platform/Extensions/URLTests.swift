@@ -5,6 +5,20 @@ import XCTest
 class URLTests: BitwardenTestCase {
     // MARK: Tests
 
+    /// `hasHTTPScheme` returns `true` when the URL has an `http` or `https` scheme in any case,
+    /// `false` otherwise.
+    func test_hasHTTPScheme() {
+        XCTAssertTrue(URL(string: "https://example.com")?.hasHTTPScheme == true)
+        XCTAssertTrue(URL(string: "http://example.com")?.hasHTTPScheme == true)
+        XCTAssertTrue(URL(string: "HTTPS://example.com")?.hasHTTPScheme == true)
+        XCTAssertTrue(URL(string: "Http://example.com")?.hasHTTPScheme == true)
+
+        XCTAssertFalse(URL(string: "example.com")?.hasHTTPScheme == true)
+        XCTAssertFalse(URL(string: "iosapp://com.example.app")?.hasHTTPScheme == true)
+        XCTAssertFalse(URL(string: "ssh://server.example.com")?.hasHTTPScheme == true)
+        XCTAssertFalse(URL(string: "httpx://example.com")?.hasHTTPScheme == true)
+    }
+
     /// `isIPAddress` returns `true` when the URL is an IP Address, `false` otherwise.
     func test_isIPAddress() {
         XCTAssertFalse(URL(string: "https://localhost")?.isIPAddress == true)
@@ -34,6 +48,18 @@ class URLTests: BitwardenTestCase {
         XCTAssertEqual(
             URL(string: "google.com/search?q=bitwarden")?.sanitized,
             URL(string: "https://google.com/search?q=bitwarden"),
+        )
+    }
+
+    /// `sanitized` preserves a non-web scheme, such as an app URI.
+    func test_sanitized_nonWebScheme() {
+        XCTAssertEqual(
+            URL(string: "iosapp://com.example.app")?.sanitized,
+            URL(string: "iosapp://com.example.app"),
+        )
+        XCTAssertEqual(
+            URL(string: "ssh://server.example.com/")?.sanitized,
+            URL(string: "ssh://server.example.com"),
         )
     }
 
