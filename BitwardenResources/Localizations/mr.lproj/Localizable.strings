@@ -28,7 +28,6 @@
 "FolderCreated" = "नवीन फोल्डर तयार केले.";
 "FolderDeleted" = "फोल्डर खोडून टाकले.";
 "FolderNone" = "विना फोल्डर";
-"Folders" = "फोल्डर";
 "FolderUpdated" = "फोल्डर साठवले";
 "MyFolder" = "माझे फोल्डर";
 "MyFolders" = "माझी फोल्डर्स";
@@ -262,12 +261,8 @@
 "ShowWebsiteIconsDescription" = "प्रत्येक लॉगिन शेजारी ओळखता येण्याजोगी प्रतिमा दाखवा.";
 "IconsUrl" = "चिन्ह सर्व्हर URL";
 "AutofillWithBitwarden" = "Bitwarden सह स्वयंपूर्त";
-/* Section header and screen title for viewing/managing a cipher's collections. */
-"Collections" = "संग्रह";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "सामायिक फोल्डर्स";
-/* Empty state message shown when a collection has no items. */
-"NoItemsCollection" = "या संग्रहामध्ये कोणतेही आयटम नाहीत";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "या सामायिक फोल्डरमध्ये कोणतेही आयटम नाहीत";
 "NoItemsFolder" = "या फोल्डरमध्ये कोणतेही आयटम नाहीत";
@@ -289,8 +284,6 @@
 "RegEx" = "नियमित अभिव्यक्ती";
 "StartsWith" = "ने सुरू होते";
 "MatchDetection" = "जुळणी शोध";
-/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
-"Organization" = "संस्था";
 "HoldYubikeyNearTop" = "तुमची Yubikey डिव्हाइसच्या वरच्या भागाजवळ धरा.";
 "TryAgain" = "पुन्हा प्रयत्न करा";
 "YubiKeyInstructionIos" = "सुरू ठेवण्यासाठी, तुमची YubiKey NEO डिव्हाइसच्या मागील बाजूस धरून ठेवा.";
@@ -326,27 +319,17 @@
 "NoItemsToList" = "यादी करण्यासाठी कोणतेही आयटम नाहीत.";
 "MoveDown" = "खाली हलवा";
 "MoveUp" = "वर हलवा";
-/* Empty state message on the Collections screen shown when a user has no collections. */
-"NoCollectionsToList" = "यादी करण्यासाठी कोणतेही संग्रह नाहीत.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "यादी करण्यासाठी कोणतीही सामायिक फोल्डर्स नाहीत.";
 "MovedItemToOrg" = "%1$@ %2$@ वर हलवले.";
-/* Alert message shown when saving an item with no collection selected. */
-"SelectOneCollection" = "किमान एक संग्रह तरी निवडला पाहिजे.";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "तुम्ही किमान एक सामायिक फोल्डर निवडणे आवश्यक आहे.";
 "Share" = "सामायिक करा";
 "ShareAll" = "सर्व सामायिक करा";
-/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
-"MoveToOrganization" = "संस्थेत हलवा";
-/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+/* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "यादी करण्यासाठी कोणतीही तिजोरी नाहीत.";
-/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
-"NoOrgsToList" = "यादी करण्यासाठी कोणत्याही संस्था नाहीत.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "तुम्ही हा आयटम हलवू इच्छित असलेली तिजोरी निवडा. दुसऱ्या तिजोरीत हलवल्याने आयटमची मालकी त्या संस्थेकडे हस्तांतरित होते. एकदा हलवल्यानंतर तुम्ही या आयटमचे थेट मालक राहणार नाही.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
-"MoveToOrgDesc" = "तुम्ही हा आयटम हलवू इच्छित असलेली संस्था निवडा. संस्थेत हलवल्याने आयटमची मालकी त्या संस्थेकडे हस्तांतरित होते. एकदा हलवल्यानंतर तुम्ही या आयटमचे थेट मालक राहणार नाही.";
 "NumberOfWords" = "शब्दांची संख्या";
 "Passphrase" = "वाक्यांश-संकेतशब्द";
 "WordSeparator" = "शब्द विभाजक";
@@ -890,7 +873,6 @@
 "PersonalDetails" = "वैयक्तिक तपशील";
 "ContactInfo" = "संपर्क माहिती";
 "Identification" = "ओळख";
-"Owner" = "मालक";
 "VerifyYourIdentity" = "तुमची ओळख सत्यापित करा";
 "ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
@@ -908,13 +890,9 @@
 "ShowMore" = "अधिक दाखवा";
 "ShowLess" = "कमी दाखवा";
 "ItemNameX" = "आयटम नाव, %1$@";
-"OwnerX" = "मालक, %1$@";
 "VaultX" = "तिजोरी, %1$@";
-/* VoiceOver accessibility label for a collection the item belongs to. */
-"CollectionX" = "संग्रह, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "सामायिक फोल्डर, %1$@";
-"FolderX" = "फोल्डर, %1$@";
 "MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "%2$@ पैकी %1$@ आयटम";
 "ViewRecordedLogs" = "रेकॉर्ड केलेले लॉग पहा";

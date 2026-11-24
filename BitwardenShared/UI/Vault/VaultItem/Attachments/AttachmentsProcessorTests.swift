@@ -10,6 +10,7 @@ import XCTest
 class AttachmentsProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var billingRepository: MockBillingRepository!
     var coordinator: MockCoordinator<VaultItemRoute, VaultItemEvent>!
     var errorReporter: MockErrorReporter!
     var premiumUpgradeHelper: MockPremiumUpgradeHelper!
@@ -21,6 +22,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        billingRepository = MockBillingRepository()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         premiumUpgradeHelper = MockPremiumUpgradeHelper()
@@ -29,6 +31,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         subject = AttachmentsProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                billingRepository: billingRepository,
                 errorReporter: errorReporter,
                 vaultRepository: vaultRepository,
             ),
@@ -40,6 +43,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        billingRepository = nil
         coordinator = nil
         errorReporter = nil
         premiumUpgradeHelper = nil
@@ -61,12 +65,32 @@ class AttachmentsProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.loadPremiumStatus` shows the Premium upgrade alert if the user lacks Premium.
     @MainActor
     func test_perform_loadPremiumStatus() async throws {
+        billingRepository.isInAppUpgradeAvailableReturnValue = false
         vaultRepository.doesActiveAccountHavePremiumResult = false
 
         await subject.perform(.loadPremiumStatus)
 
         XCTAssertFalse(subject.state.hasPremium)
-        XCTAssertEqual(coordinator.alertShown.last, .attachmentsUnavailable(action: {}))
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .attachmentsUnavailable(isInAppUpgradeAvailable: false, action: {}),
+        )
+    }
+
+    /// `perform(_:)` with `.loadPremiumStatus` shows the Premium upgrade alert titled "Explore Premium" if the
+    /// user lacks Premium and the in-app upgrade is available.
+    @MainActor
+    func test_perform_loadPremiumStatus_inAppUpgradeAvailable() async throws {
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        vaultRepository.doesActiveAccountHavePremiumResult = false
+
+        await subject.perform(.loadPremiumStatus)
+
+        XCTAssertFalse(subject.state.hasPremium)
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .attachmentsUnavailable(isInAppUpgradeAvailable: true, action: {}),
+        )
     }
 
     /// `perform(_:)` with `.loadPremiumStatus` does not show an alert when the user has Premium.
@@ -83,6 +107,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.loadPremiumStatus` navigates to Premium upgrade when tapping the upgrade button.
     @MainActor
     func test_perform_loadPremiumStatus_tapUpgrade() async throws {
+        billingRepository.isInAppUpgradeAvailableReturnValue = false
         vaultRepository.doesActiveAccountHavePremiumResult = false
 
         await subject.perform(.loadPremiumStatus)
@@ -142,11 +167,15 @@ class AttachmentsProcessorTests: BitwardenTestCase {
     func test_perform_save_noPremium() async throws {
         subject.state.fileName = "only cool people can see this file.txt"
         subject.state.hasPremium = false
+        billingRepository.isInAppUpgradeAvailableReturnValue = false
         vaultRepository.doesActiveAccountHavePremiumResult = false
 
         await subject.perform(.save)
 
-        XCTAssertEqual(coordinator.alertShown.last, .attachmentsUnavailable(action: {}))
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .attachmentsUnavailable(isInAppUpgradeAvailable: false, action: {}),
+        )
     }
 
     /// `perform(_:)` with `.save` shows an alert if the file is too large.
