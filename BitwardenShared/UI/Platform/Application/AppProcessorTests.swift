@@ -1252,20 +1252,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(vaultRepository.addCipherCiphers.isEmpty)
     }
 
-    /// `updatePasswordCredential(_:password:)` updates the login's password and adds its identities
-    /// to the identity store.
-    @available(iOS 26.2, *)
-    func test_updatePasswordCredential() async throws {
-        try await subject.updatePasswordCredential(
-            .loginFixture(id: "existing-cipher-id", login: .fixture(password: "old", username: "user")),
-            password: "new",
-        )
-
-        XCTAssertEqual(vaultRepository.updateCipherCiphers.first?.login?.password, "new")
-        XCTAssertEqual(vaultRepository.updateCipherCiphers.first?.passwordHistory?.first?.password, "old")
-        XCTAssertEqual(autofillCredentialService.upsertCredentialsInStoreCipherIds, ["existing-cipher-id"])
-    }
-
     /// `updateChosenPasswordCredential(_:password:)` updates the login without a master password
     /// prompt when reprompt isn't required.
     @available(iOS 26.2, *)
@@ -1336,6 +1322,20 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         XCTAssertFalse(updated)
         XCTAssertTrue(vaultRepository.updateCipherCiphers.isEmpty)
+    }
+
+    /// `updatePasswordCredential(_:password:)` updates the login's password and adds its identities
+    /// to the identity store.
+    @available(iOS 26.2, *)
+    func test_updatePasswordCredential() async throws {
+        try await subject.updatePasswordCredential(
+            .loginFixture(id: "existing-cipher-id", login: .fixture(password: "old", username: "user")),
+            password: "new",
+        )
+
+        XCTAssertEqual(vaultRepository.updateCipherCiphers.first?.login?.password, "new")
+        XCTAssertEqual(vaultRepository.updateCipherCiphers.first?.passwordHistory?.first?.password, "old")
+        XCTAssertEqual(autofillCredentialService.upsertCredentialsInStoreCipherIds, ["existing-cipher-id"])
     }
 
     /// `generatePasswordCredential(request:)` generates and returns a password.

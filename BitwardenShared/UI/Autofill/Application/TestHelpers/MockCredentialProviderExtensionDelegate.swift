@@ -68,6 +68,11 @@ class MockCredentialProviderExtensionDelegate: MockAppExtensionDelegate, Credent
         releaseKeyboardAnchorCalled = true
     }
 
+    func resolveSavePasswordRequest() async -> SavePasswordResolution {
+        resolveSavePasswordRequestCalled = true
+        return resolveSavePasswordRequestResult
+    }
+
     @available(iOSApplicationExtension 18.0, *)
     func setMatchedExcludedCredentialFound() {
         setMatchedExcludedCredentialFoundCalled = true
@@ -75,11 +80,6 @@ class MockCredentialProviderExtensionDelegate: MockAppExtensionDelegate, Credent
 
     func setUserInteractionRequired() {
         setUserInteractionRequiredCalled = true
-    }
-
-    func resolveSavePasswordRequest() async -> SavePasswordResolution {
-        resolveSavePasswordRequestCalled = true
-        return resolveSavePasswordRequestResult
     }
 
     func updateLoginForSavePasswordRequest(_ cipher: CipherView) async throws -> Bool {
