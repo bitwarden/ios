@@ -37,6 +37,9 @@ protocol AppSettingsStore: AnyObject {
     /// The app's last data migration version.
     var migrationVersion: Int { get set }
 
+    /// The environment URLs used prior to user authentication.
+    var preAuthEnvironmentURLs: EnvironmentURLData? { get set }
+
     /// The server config used prior to user authentication.
     var preAuthServerConfig: ServerConfig? { get set }
 
@@ -301,6 +304,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case hasSyncedAccount(name: String)
         case lastActiveTime(userId: String)
         case migrationVersion
+        case preAuthEnvironmentURLs
         case preAuthServerConfig
         case secretKey(userId: String)
         case serverConfig(userId: String)
@@ -338,6 +342,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "lastActiveTime_\(userId)"
             case .migrationVersion:
                 "migrationVersion"
+            case .preAuthEnvironmentURLs:
+                "preAuthEnvironmentUrls"
             case .preAuthServerConfig:
                 "preAuthServerConfig"
             case let .secretKey(userId):
@@ -396,6 +402,11 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
     var migrationVersion: Int {
         get { fetch(for: .migrationVersion) }
         set { store(newValue, for: .migrationVersion) }
+    }
+
+    var preAuthEnvironmentURLs: EnvironmentURLData? {
+        get { fetch(for: .preAuthEnvironmentURLs) }
+        set { store(newValue, for: .preAuthEnvironmentURLs) }
     }
 
     var preAuthServerConfig: ServerConfig? {

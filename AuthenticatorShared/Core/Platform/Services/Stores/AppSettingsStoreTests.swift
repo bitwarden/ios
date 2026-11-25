@@ -277,6 +277,30 @@ struct AppSettingsStoreTests {
         #expect(subject.migrationVersion == 2)
     }
 
+    /// `preAuthEnvironmentURLs` returns `nil` if there isn't a previously stored value.
+    @Test
+    func preAuthEnvironmentURLs_isInitiallyNil() {
+        #expect(subject.preAuthEnvironmentURLs == nil)
+    }
+
+    /// `preAuthEnvironmentURLs` can be used to get and set the persisted value in user defaults.
+    @Test
+    func preAuthEnvironmentURLs_withValue() throws {
+        subject.preAuthEnvironmentURLs = .defaultEU
+
+        let data = try #require(
+            userDefaults.string(forKey: "bwaPreferencesStorage:preAuthEnvironmentUrls")?
+                .data(using: .utf8),
+        )
+        let decodedURLs = try JSONDecoder().decode(EnvironmentURLData.self, from: data)
+        #expect(decodedURLs == .defaultEU)
+        #expect(subject.preAuthEnvironmentURLs == .defaultEU)
+
+        subject.preAuthEnvironmentURLs = nil
+        #expect(subject.preAuthEnvironmentURLs == nil)
+        #expect(userDefaults.string(forKey: "bwaPreferencesStorage:preAuthEnvironmentUrls") == nil)
+    }
+
     /// `showNextTOTPCode` returns `false` if there isn't a previously stored value.
     @Test
     func showNextTOTPCode_isInitiallyFalse() {
