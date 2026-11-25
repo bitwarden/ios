@@ -119,7 +119,7 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.unlockMethods, [.biometrics(.faceID)])
         XCTAssertEqual(
             subject.state.message,
-            Localizations.youCanAlsoSetUpOtherUnlockOptionsAnytimeInSettingsAccountSecurity,
+            Localizations.setUpBiometricsToQuicklyAccessYourVaultDescriptionLong,
         )
     }
 

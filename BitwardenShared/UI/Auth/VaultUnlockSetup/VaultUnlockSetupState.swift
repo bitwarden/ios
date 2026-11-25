@@ -114,7 +114,7 @@ struct VaultUnlockSetupState: Equatable {
         if shouldShowPinUnlock {
             Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
         } else {
-            Localizations.youCanAlsoSetUpOtherUnlockOptionsAnytimeInSettingsAccountSecurity
+            Localizations.setUpBiometricsToQuicklyAccessYourVaultDescriptionLong
         }
     }
 
