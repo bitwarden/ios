@@ -26,7 +26,6 @@ struct PasswordAutoFillProcessorTests { // swiftlint:disable:this type_body_leng
 
     let asSettingsMediator: MockASSettingsMediator
     let autofillCredentialService: MockAutofillCredentialService
-    let configService: MockConfigService
     let coordinator: MockCoordinator<PasswordAutofillRoute, PasswordAutofillEvent>
     let delegate: MockPasswordAutoFillProcessorDelegate
     let errorReporter: MockErrorReporter
@@ -39,7 +38,6 @@ struct PasswordAutoFillProcessorTests { // swiftlint:disable:this type_body_leng
     init() {
         asSettingsMediator = MockASSettingsMediator()
         autofillCredentialService = MockAutofillCredentialService()
-        configService = MockConfigService()
         coordinator = MockCoordinator()
         delegate = MockPasswordAutoFillProcessorDelegate()
         errorReporter = MockErrorReporter()
@@ -52,7 +50,6 @@ struct PasswordAutoFillProcessorTests { // swiftlint:disable:this type_body_leng
             services: ServiceContainer.withMocks(
                 asSettingsMediator: asSettingsMediator,
                 autofillCredentialService: autofillCredentialService,
-                configService: configService,
                 errorReporter: errorReporter,
                 notificationCenterService: notificationCenterService,
                 stateService: stateService,
@@ -268,20 +265,6 @@ struct PasswordAutoFillProcessorTests { // swiftlint:disable:this type_body_leng
         }
 
         #expect(coordinator.events == [.didCompleteAuth])
-    }
-
-    /// `perform(_:)` with `.turnAutoFillOnLaterButtonTapped` completes onboarding without updating
-    /// the autofill setup progress if account setup onboarding on sign-in is enabled.
-    @Test
-    func perform_turnAutoFillOnLaterButtonTapped_onboardingOnSignInEnabled() async throws {
-        configService.featureFlagsBool[.accountSetupOnboardingOnSignIn] = true
-
-        await subject.perform(.turnAutoFillOnLaterButtonTapped)
-        let alert = try #require(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.confirm)
-
-        #expect(coordinator.events == [.didCompleteAuth])
-        #expect(!stateService.setAccountSetupAutofillCalled)
     }
 
     /// `perform(_:)` with `.turnAutoFillOnLaterButtonTapped` logs an error and still completes

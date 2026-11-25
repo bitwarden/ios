@@ -58,24 +58,10 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `perform(_:)` with `.continueFlow` continues account setup onboarding when in the create
-    /// account flow, without updating the vault unlock setup progress.
+    /// `perform(_:)` with `.continueFlow` marks the vault unlock setup progress complete and
+    /// continues account setup onboarding when in the create account flow.
     @MainActor
     func test_perform_continueFlow_createAccount() async {
-        stateService.activeAccount = .fixture()
-
-        await subject.perform(.continueFlow)
-
-        XCTAssertEqual(coordinator.events, [.didCompleteVaultUnlockSetup])
-        XCTAssertNil(stateService.accountSetupVaultUnlock["1"])
-    }
-
-    /// `perform(_:)` with `.continueFlow` marks the vault unlock setup progress complete and
-    /// continues account setup onboarding when in the create account flow and account setup
-    /// onboarding on sign-in is disabled.
-    @MainActor
-    func test_perform_continueFlow_createAccount_onboardingOnSignInDisabled() async {
-        configService.featureFlagsBool[.accountSetupOnboardingOnSignIn] = false
         stateService.activeAccount = .fixture()
 
         await subject.perform(.continueFlow)
@@ -87,9 +73,7 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.continueFlow` logs an error if updating the vault unlock setup progress
     /// fails in the create account flow and still continues account setup onboarding.
     @MainActor
-    func test_perform_continueFlow_createAccount_onboardingOnSignInDisabled_error() async {
-        configService.featureFlagsBool[.accountSetupOnboardingOnSignIn] = false
-
+    func test_perform_continueFlow_createAccount_error() async {
         await subject.perform(.continueFlow)
 
         XCTAssertEqual(coordinator.events, [.didCompleteVaultUnlockSetup])
@@ -135,7 +119,7 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.unlockMethods, [.biometrics(.faceID)])
         XCTAssertEqual(
             subject.state.message,
-            Localizations.youCanAlsoSetUpOtherUnlockOptionsAnytimeInSettingsAccountSecurity,
+            Localizations.setUpBiometricsToQuicklyAccessDescriptionLong,
         )
     }
 
@@ -282,8 +266,8 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.setUpLater` shows an alert confirming the user wants to skip unlock
-    /// setup and then continues account setup onboarding, without updating the vault unlock setup
-    /// progress.
+    /// setup and then sets the vault unlock setup progress to set up later and continues account
+    /// setup onboarding.
     @MainActor
     func test_receive_setUpLater() async throws {
         stateService.activeAccount = .fixture()
@@ -299,23 +283,21 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
         try await alert.tapAction(title: Localizations.confirm)
         XCTAssertEqual(coordinator.events, [.didCompleteVaultUnlockSetup])
 
-        XCTAssertNil(stateService.accountSetupVaultUnlock["1"])
+        XCTAssertEqual(stateService.accountSetupVaultUnlock["1"], .setUpLater)
     }
 
-    /// `receive(_:)` with `.setUpLater` shows an alert confirming the user wants to skip unlock
-    /// setup and then sets the vault unlock setup progress to set up later and continues account
-    /// setup onboarding if account setup onboarding on sign-in is disabled.
+    /// `receive(_:)` with `.setUpLater` logs an error if one occurs while saving the set up later
+    /// progress and still continues account setup onboarding.
     @MainActor
-    func test_receive_setUpLater_onboardingOnSignInDisabled() async throws {
-        configService.featureFlagsBool[.accountSetupOnboardingOnSignIn] = false
-        stateService.activeAccount = .fixture()
-
+    func test_receive_setUpLater_error() async throws {
         subject.receive(.setUpLater)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.confirm)
+        XCTAssertEqual(alert, .setUpUnlockMethodLater {})
 
+        try await alert.tapAction(title: Localizations.confirm)
         XCTAssertEqual(coordinator.events, [.didCompleteVaultUnlockSetup])
-        XCTAssertEqual(stateService.accountSetupVaultUnlock["1"], .setUpLater)
+
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
     }
 }

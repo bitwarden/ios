@@ -21,7 +21,6 @@ class PasswordAutoFillCoordinator: NSObject, Coordinator, HasStackNavigator {
 
     typealias Services = HasASSettingsMediator
         & HasAutofillCredentialService
-        & HasConfigService
         & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasNotificationCenterService
