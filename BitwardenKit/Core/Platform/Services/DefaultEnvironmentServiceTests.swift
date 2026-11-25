@@ -1,13 +1,12 @@
-import BitwardenKit
 import BitwardenKitMocks
 import Foundation
+import TestHelpers
 import Testing
 
-@testable import BitwardenShared
-@testable import BitwardenSharedMocks
+@testable import BitwardenKit
 
 @Suite(.serialized)
-struct EnvironmentServiceTests { // swiftlint:disable:this type_body_length
+struct DefaultEnvironmentServiceTests { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     let errorReporter: MockErrorReporter
@@ -25,8 +24,8 @@ struct EnvironmentServiceTests { // swiftlint:disable:this type_body_length
 
         subject = DefaultEnvironmentService(
             errorReporter: errorReporter,
-            stateService: stateService,
             standardUserDefaults: standardUserDefaults,
+            stateService: stateService,
         )
     }
 
@@ -161,7 +160,7 @@ struct EnvironmentServiceTests { // swiftlint:disable:this type_body_length
     /// `loadURLsForActiveAccount()` loads the managed config URLs.
     @Test
     func loadURLsForActiveAccount_managedConfig() async throws {
-        stateService.getEnvironmentURLsThrowableError = StateServiceError.noActiveAccount
+        stateService.getEnvironmentURLsThrowableError = BitwardenTestError.example
         standardUserDefaults.setValue(
             ["baseEnvironmentUrl": "https://vault.example.com"],
             forKey: "com.apple.configuration.managed",
@@ -234,7 +233,7 @@ struct EnvironmentServiceTests { // swiftlint:disable:this type_body_length
     /// and no preauth URLs.
     @Test
     func loadURLsForActiveAccount_noAccount() async {
-        stateService.getEnvironmentURLsThrowableError = StateServiceError.noActiveAccount
+        stateService.getEnvironmentURLsThrowableError = BitwardenTestError.example
 
         await subject.loadURLsForActiveAccount()
 
@@ -268,7 +267,7 @@ struct EnvironmentServiceTests { // swiftlint:disable:this type_body_length
     /// and there are preauth URLs.
     @Test
     func loadURLsForActiveAccount_preAuth() async {
-        stateService.getEnvironmentURLsThrowableError = StateServiceError.noActiveAccount
+        stateService.getEnvironmentURLsThrowableError = BitwardenTestError.example
         let urls = EnvironmentURLData(base: .example)
         stateService.getPreAuthEnvironmentURLsReturnValue = urls
 

@@ -1,6 +1,3 @@
-// swiftlint:disable:this file_name
-
-import BitwardenKit
 import Foundation
 import OSLog
 
@@ -8,7 +5,7 @@ import OSLog
 
 /// A default implementation of an `EnvironmentService` which manages the app's environment URLs.
 ///
-class DefaultEnvironmentService: EnvironmentService {
+public class DefaultEnvironmentService: EnvironmentService {
     // MARK: Properties
 
     /// The service used by the application to report non-fatal errors.
@@ -50,28 +47,28 @@ class DefaultEnvironmentService: EnvironmentService {
     ///
     /// - Parameters:
     ///   - errorReporter: The service used by the application to report non-fatal errors
-    ///   - stateService: The service used by the application to manage environment URL state.
     ///   - standardUserDefaults: The shared UserDefaults instance.
+    ///   - stateService: The service used by the application to manage environment URL state.
     ///
-    init(
+    public init(
         errorReporter: ErrorReporter,
-        stateService: EnvironmentStateService,
         standardUserDefaults: UserDefaults = .standard,
+        stateService: EnvironmentStateService,
     ) {
         self.errorReporter = errorReporter
-        self.stateService = stateService
         self.standardUserDefaults = standardUserDefaults
+        self.stateService = stateService
 
         _environmentURLs = EnvironmentURLs(environmentURLData: .defaultUS)
     }
 
     // MARK: EnvironmentService
 
-    func getPreAuthURLs() async -> EnvironmentURLData? {
+    public func getPreAuthURLs() async -> EnvironmentURLData? {
         await stateService.getPreAuthEnvironmentURLs()
     }
 
-    func loadURLsForActiveAccount() async {
+    public func loadURLsForActiveAccount() async {
         let urls: EnvironmentURLData
         let managedSettingsURLs = managedSettingsURLs()
         if let environmentURLs = try? await stateService.getEnvironmentURLs() {
@@ -94,7 +91,7 @@ class DefaultEnvironmentService: EnvironmentService {
         Logger.application.info("Loaded environment URLs: \(String(describing: self.environmentURLs))")
     }
 
-    func setPreAuthURLs(urls: EnvironmentURLData) async {
+    public func setPreAuthURLs(urls: EnvironmentURLData) async {
         await stateService.setPreAuthEnvironmentURLs(urls)
         currentClientCertificateFingerprint = urls.clientCertificateFingerprint
         environmentURLs = EnvironmentURLs(environmentURLData: urls)
@@ -122,75 +119,93 @@ class DefaultEnvironmentService: EnvironmentService {
     }
 }
 
-extension DefaultEnvironmentService {
+public extension DefaultEnvironmentService {
+    /// The URL for the API.
     var apiURL: URL {
         environmentURLs.apiURL
     }
 
-    var clientCertificateFingerprint: String? {
-        currentClientCertificateFingerprint
-    }
-
+    /// The environment's base URL.
     var baseURL: URL {
         environmentURLs.baseURL
     }
 
+    /// The URL for changing email address.
     var changeEmailURL: URL {
         environmentURLs.changeEmailURL
     }
 
+    /// The SHA-256 fingerprint of the client certificate used for mTLS, if configured.
+    var clientCertificateFingerprint: String? {
+        currentClientCertificateFingerprint
+    }
+
+    /// The URL for the events API.
     var eventsURL: URL {
         environmentURLs.eventsURL
     }
 
+    /// The URL for fetching Fill-Assist targeting rules.
     var fillAssistRulesURL: URL {
         environmentURLs.fillAssistRulesURL
     }
 
+    /// The URL for the icons API.
     var iconsURL: URL {
         environmentURLs.iconsURL
     }
 
+    /// The URL for the identity API.
     var identityURL: URL {
         environmentURLs.identityURL
     }
 
+    /// The URL for importing items.
     var importItemsURL: URL {
         environmentURLs.importItemsURL
     }
 
+    /// The URL for managing the subscription plan.
     var manageSubscriptionURL: URL {
         environmentURLs.manageSubscriptionURL
     }
 
+    /// The URL for a proxy on cookie redirect (used on SSO sync error).
     var proxyCookieRedirectConnectorURL: URL {
         environmentURLs.proxyCookieRedirectConnectorURL
     }
 
+    /// The URL for the recovery code help page.
     var recoveryCodeURL: URL {
         environmentURLs.recoveryCodeURL
     }
 
+    /// The region of the current environment.
     var region: RegionType {
         environmentURLs.region
     }
 
+    /// The URL for sharing a send.
     var sendShareURL: URL {
         environmentURLs.sendShareURL
     }
 
+    /// The URL for vault settings.
     var settingsURL: URL {
         environmentURLs.settingsURL
     }
 
+    /// The URL for setting up two-factor login.
     var setUpTwoFactorURL: URL {
         environmentURLs.setUpTwoFactorURL
     }
 
+    /// The URL for upgrading to Premium.
     var upgradeToPremiumURL: URL {
         environmentURLs.upgradeToPremiumURL
     }
 
+    /// The URL for the web vault.
     var webVaultURL: URL {
         environmentURLs.webVaultURL
     }
