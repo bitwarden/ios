@@ -88,9 +88,23 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_didCompleteAuth() {
         subject.didCompleteAuth()
         XCTAssertTrue(authDelegate.didCompleteAuthCalled)
+        XCTAssertNil(authDelegate.didCompleteAuthRehydratableTarget)
+        XCTAssertTrue(stackNavigator.actions.isEmpty)
     }
 
-    /// `navigate(to:)` with `.autofillSetup` pushes the password autofill view onto the navigation stack.
+    /// `didCompleteAuth()` dismisses a presented view and notifies the delegate that auth has
+    /// completed.
+    @MainActor
+    func test_didCompleteAuth_withPresented() {
+        stackNavigator.isPresenting = true
+        subject.didCompleteAuth()
+        XCTAssertTrue(authDelegate.didCompleteAuthCalled)
+        XCTAssertNil(authDelegate.didCompleteAuthRehydratableTarget)
+        XCTAssertEqual(stackNavigator.actions.last?.type, .dismissedWithCompletionHandler)
+    }
+
+    /// `navigate(to:)` with `.autofillSetup` starts the password autofill coordinator and shows the
+    /// password autofill view in the onboarding mode.
     @MainActor
     func test_navigate_autofillSetup() throws {
         subject.navigate(to: .autofillSetup)
@@ -99,6 +113,21 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(module.passwordAutoFillCoordinator.routes, [.passwordAutofill(mode: .onboarding)])
         XCTAssertIdentical(module.passwordAutoFillCoordinatorDelegate, subject)
         XCTAssertIdentical(module.passwordAutoFillCoordinatorStackNavigator, stackNavigator)
+        XCTAssertTrue(stackNavigator.actions.isEmpty)
+    }
+
+    /// `navigate(to:)` with `.autofillSetup` dismisses a presented view (e.g. two-step login) before
+    /// showing the password autofill view in the onboarding mode.
+    @MainActor
+    func test_navigate_autofillSetup_withPresented() throws {
+        stackNavigator.isPresenting = true
+
+        subject.navigate(to: .autofillSetup)
+
+        XCTAssertEqual(stackNavigator.actions.map(\.type), [.dismissed])
+        XCTAssertTrue(module.passwordAutoFillCoordinator.isStarted)
+        XCTAssertEqual(module.passwordAutoFillCoordinator.routes, [.passwordAutofill(mode: .onboarding)])
+        XCTAssertFalse(authDelegate.didCompleteAuthCalled)
     }
 
     /// `navigate(to:)` with `.complete` notifies the delegate that auth has completed.
@@ -749,17 +778,31 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_navigate_vaultUnlockSetup_createAccount() throws {
         subject.navigate(to: .vaultUnlockSetup(.createAccount))
 
-        XCTAssertEqual(stackNavigator.actions.last?.type, .replaced)
+        XCTAssertEqual(stackNavigator.actions.map(\.type), [.replaced])
+        XCTAssertTrue(stackNavigator.actions.last?.view is VaultUnlockSetupView)
+    }
+
+    /// `navigate(to:)` with `.vaultUnlockSetup` dismisses a presented view (e.g. two-step login)
+    /// and replaces the navigation stack with vault unlock setup in the create account flow.
+    @MainActor
+    func test_navigate_vaultUnlockSetup_createAccount_withPresented() throws {
+        stackNavigator.isPresenting = true
+
+        subject.navigate(to: .vaultUnlockSetup(.createAccount))
+
+        XCTAssertEqual(stackNavigator.actions.map(\.type), [.dismissed, .replaced])
         XCTAssertTrue(stackNavigator.actions.last?.view is VaultUnlockSetupView)
     }
 
     /// `navigate(to:)` with `.vaultUnlockSetup` pushes the vault unlock setup onto the navigation
-    /// stack in the settings flow.
+    /// stack in the settings flow without dismissing any presented view.
     @MainActor
     func test_navigate_vaultUnlockSetup_settings() throws {
+        stackNavigator.isPresenting = true
+
         subject.navigate(to: .vaultUnlockSetup(.settings))
 
-        XCTAssertEqual(stackNavigator.actions.last?.type, .pushed)
+        XCTAssertEqual(stackNavigator.actions.map(\.type), [.pushed])
         XCTAssertTrue(stackNavigator.actions.last?.view is UIHostingController<VaultUnlockSetupView>)
     }
 
