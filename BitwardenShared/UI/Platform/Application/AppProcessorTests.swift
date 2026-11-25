@@ -43,7 +43,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     var subject: AppProcessor!
     var syncService: MockSyncService!
     var timeProvider: MockTimeProvider!
-    var userVerificationHelper: MockUserVerificationHelper!
     var vaultRepository: MockVaultRepository!
     var vaultTimeoutService: MockVaultTimeoutService!
 
@@ -85,9 +84,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         stateService = MockStateService()
         syncService = MockSyncService()
         timeProvider = MockTimeProvider(.currentTime)
-        userVerificationHelper = MockUserVerificationHelper()
-        let userVerificationHelperFactory = MockUserVerificationHelperFactory()
-        userVerificationHelperFactory.createResult = userVerificationHelper
         vaultRepository = MockVaultRepository()
         vaultTimeoutService = MockVaultTimeoutService()
 
@@ -120,7 +116,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 stateService: stateService,
                 syncService: syncService,
                 timeProvider: timeProvider,
-                userVerificationHelperFactory: userVerificationHelperFactory,
                 vaultRepository: vaultRepository,
                 vaultTimeoutService: vaultTimeoutService,
             ),
@@ -167,7 +162,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         syncService = nil
         timeProvider = nil
         vaultRepository = nil
-        userVerificationHelper = nil
         vaultTimeoutService = nil
     }
 
@@ -1250,78 +1244,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
             )
         }
         XCTAssertTrue(vaultRepository.addCipherCiphers.isEmpty)
-    }
-
-    /// `updateChosenPasswordCredential(_:password:)` updates the login without a master password
-    /// prompt when reprompt isn't required.
-    @available(iOS 26.2, *)
-    func test_updateChosenPasswordCredential() async throws {
-        let updated = try await subject.updateChosenPasswordCredential(
-            .loginFixture(id: "existing-cipher-id", login: .fixture(password: "old", username: "user")),
-            password: "new",
-        )
-
-        XCTAssertTrue(updated)
-        XCTAssertFalse(userVerificationHelper.verifyMasterPasswordCalled)
-        XCTAssertEqual(vaultRepository.updateCipherCiphers.first?.login?.password, "new")
-        XCTAssertEqual(autofillCredentialService.upsertCredentialsInStoreCipherIds, ["existing-cipher-id"])
-    }
-
-    /// `updateChosenPasswordCredential(_:password:)` updates a login protected by master password
-    /// reprompt once the user verifies their master password.
-    @available(iOS 26.2, *)
-    func test_updateChosenPasswordCredential_repromptVerified() async throws {
-        let updated = try await subject.updateChosenPasswordCredential(
-            .loginFixture(
-                id: "existing-cipher-id",
-                login: .fixture(password: "old", username: "user"),
-                reprompt: .password,
-            ),
-            password: "new",
-        )
-
-        XCTAssertTrue(updated)
-        XCTAssertTrue(userVerificationHelper.verifyMasterPasswordCalled)
-        XCTAssertTrue(userVerificationHelper.userVerificationDelegate === subject)
-        XCTAssertEqual(vaultRepository.updateCipherCiphers.first?.login?.password, "new")
-    }
-
-    /// `updateChosenPasswordCredential(_:password:)` doesn't update a login protected by master
-    /// password reprompt when the master password isn't verified.
-    @available(iOS 26.2, *)
-    func test_updateChosenPasswordCredential_repromptNotVerified() async throws {
-        userVerificationHelper.verifyMasterPasswordResult = .success(.notVerified)
-
-        let updated = try await subject.updateChosenPasswordCredential(
-            .loginFixture(
-                id: "existing-cipher-id",
-                login: .fixture(password: "old", username: "user"),
-                reprompt: .password,
-            ),
-            password: "new",
-        )
-
-        XCTAssertFalse(updated)
-        XCTAssertTrue(vaultRepository.updateCipherCiphers.isEmpty)
-    }
-
-    /// `updateChosenPasswordCredential(_:password:)` doesn't update a login protected by master
-    /// password reprompt when the user cancels the master password prompt.
-    @available(iOS 26.2, *)
-    func test_updateChosenPasswordCredential_repromptCancelled() async throws {
-        userVerificationHelper.verifyMasterPasswordResult = .failure(UserVerificationError.cancelled)
-
-        let updated = try await subject.updateChosenPasswordCredential(
-            .loginFixture(
-                id: "existing-cipher-id",
-                login: .fixture(password: "old", username: "user"),
-                reprompt: .password,
-            ),
-            password: "new",
-        )
-
-        XCTAssertFalse(updated)
-        XCTAssertTrue(vaultRepository.updateCipherCiphers.isEmpty)
     }
 
     /// `updatePasswordCredential(_:password:)` updates the login's password and adds its identities

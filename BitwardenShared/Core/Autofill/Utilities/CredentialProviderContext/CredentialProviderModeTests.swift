@@ -1,3 +1,4 @@
+import AuthenticationServices
 import BitwardenSharedMocks
 import Testing
 
@@ -39,5 +40,37 @@ struct CredentialProviderModeTests {
         let request = MockGeneratePasswordRequestProxy()
         let mode = CredentialProviderMode.generatePasswordCredential(request, userInteraction: true)
         #expect(mode.generatePasswordRules == nil)
+    }
+
+    /// `savePasswordRequestPassword` returns the password from the `savePasswordCredential`
+    /// mode's request.
+    @Test
+    func savePasswordRequestPassword() {
+        let mode = CredentialProviderMode.savePasswordCredential(
+            MockSavePasswordRequestProxy(password: "new"),
+            userInteraction: true,
+        )
+        #expect(mode.savePasswordRequestPassword == "new")
+    }
+
+    /// `savePasswordRequestPassword` returns `nil` for modes other than `savePasswordCredential`.
+    @Test
+    func savePasswordRequestPassword_nonSavePasswordCredentialMode() {
+        #expect(CredentialProviderMode.configureAutofill.savePasswordRequestPassword == nil)
+        #expect(CredentialProviderMode.autofillVaultList([]).savePasswordRequestPassword == nil)
+    }
+
+    /// `ASSavePasswordRequest`'s `password` is the password of the credential being saved.
+    @Test
+    @available(iOS 26.2, *)
+    func savePasswordRequest_password() {
+        let request = ASSavePasswordRequest(
+            serviceIdentifier: ASCredentialServiceIdentifier(identifier: "https://example.com", type: .URL),
+            credential: ASPasswordCredential(user: "user", password: "new"),
+            title: "Example",
+            sessionID: "session-1",
+            event: .userInitiated,
+        )
+        #expect(request.password == "new")
     }
 }

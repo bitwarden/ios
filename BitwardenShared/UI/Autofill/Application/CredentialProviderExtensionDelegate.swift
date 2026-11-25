@@ -1,5 +1,4 @@
 import AuthenticationServices
-import BitwardenSdk
 import Combine
 
 /// A delegate that is used to handle actions and retrieve information from within the credential provider extension.
@@ -63,15 +62,6 @@ public protocol CredentialProviderExtensionDelegate: AppExtensionDelegate {
 
     /// Marks that user interaction is required.
     func setUserInteractionRequired()
-
-    /// Updates the chosen login's password with the credential from the save-password request, then
-    /// completes the request. If the login is protected by master password reprompt, the user must
-    /// enter their master password first. If they don't, the login isn't updated and the request
-    /// isn't completed.
-    ///
-    /// - Parameter cipher: The login the user chose to update.
-    ///
-    func updateLoginForSavePasswordRequest(_ cipher: CipherView) async throws
 }
 
 extension CredentialProviderExtensionDelegate {

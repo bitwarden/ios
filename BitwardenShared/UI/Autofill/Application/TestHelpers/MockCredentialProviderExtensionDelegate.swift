@@ -1,5 +1,4 @@
 import AuthenticationServices
-import BitwardenSdk
 import Combine
 import Foundation
 import TestHelpers
@@ -25,8 +24,6 @@ class MockCredentialProviderExtensionDelegate: MockAppExtensionDelegate, Credent
     var didAppearPublisher = CurrentValueSubject<Bool, Never>(false)
     var setMatchedExcludedCredentialFoundCalled = false
     var setUserInteractionRequiredCalled = false
-    var updateLoginForSavePasswordRequestCipher: CipherView?
-    var updateLoginForSavePasswordRequestError: Error?
 
     var flowWithUserInteraction: Bool = true
 
@@ -79,12 +76,5 @@ class MockCredentialProviderExtensionDelegate: MockAppExtensionDelegate, Credent
 
     func setUserInteractionRequired() {
         setUserInteractionRequiredCalled = true
-    }
-
-    func updateLoginForSavePasswordRequest(_ cipher: CipherView) async throws {
-        updateLoginForSavePasswordRequestCipher = cipher
-        if let updateLoginForSavePasswordRequestError {
-            throw updateLoginForSavePasswordRequestError
-        }
     }
 }

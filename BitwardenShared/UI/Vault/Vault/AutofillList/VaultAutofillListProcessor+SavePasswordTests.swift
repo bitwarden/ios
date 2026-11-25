@@ -18,17 +18,21 @@ import Testing
 struct VaultAutofillListProcessorSavePasswordTests {
     // MARK: Properties
 
+    let authRepository: MockAuthRepository
     let coordinator: MockCoordinator<VaultRoute, AuthAction>
     let errorReporter: MockErrorReporter
     let searchProcessorMediator: MockSearchProcessorMediator
+    let userVerificationHelper: MockUserVerificationHelper
     let vaultRepository: MockVaultRepository
 
     // MARK: Setup
 
     init() {
+        authRepository = MockAuthRepository()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         searchProcessorMediator = MockSearchProcessorMediator()
+        userVerificationHelper = MockUserVerificationHelper()
         vaultRepository = MockVaultRepository()
     }
 
@@ -101,52 +105,73 @@ struct VaultAutofillListProcessorSavePasswordTests {
         #expect(!subject.state.showNoResults)
     }
 
-    /// `perform(_:)` with `.vaultItemTapped` updates the chosen login with the password from the
-    /// save-password request.
+    /// `perform(_:)` with `.vaultItemTapped` shows the edit item screen for the chosen login, which
+    /// fills in the password from the save-password request.
     @Test
     @available(iOS 17.0, *)
-    func perform_vaultItemTapped_updatesLogin() async throws {
+    func perform_vaultItemTapped_showsEditItem() async throws {
         let (appExtensionDelegate, subject) = makeSubject()
-        let cipherView = CipherView.loginFixture(id: "1")
-        vaultRepository.fetchCipherResult = .success(cipherView)
         let item = try #require(VaultListItem(cipherListView: .fixture(id: "1")))
 
         await subject.perform(.vaultItemTapped(item))
 
-        #expect(vaultRepository.fetchCipherId == "1")
-        #expect(appExtensionDelegate.updateLoginForSavePasswordRequestCipher == cipherView)
+        #expect(coordinator.routes == [.editItemFrom(id: "1")])
+        #expect(!userVerificationHelper.verifyMasterPasswordCalled)
         #expect(coordinator.alertShown.isEmpty)
+        #expect(!appExtensionDelegate.didCancelCalled)
     }
 
-    /// `perform(_:)` with `.vaultItemTapped` shows an error alert and logs the error when updating
-    /// the chosen login fails.
+    /// `perform(_:)` with `.vaultItemTapped` shows the edit item screen for a login protected by
+    /// master password reprompt once the user verifies their master password.
     @Test
     @available(iOS 17.0, *)
-    func perform_vaultItemTapped_updateError() async throws {
+    func perform_vaultItemTapped_repromptVerified() async throws {
         let (appExtensionDelegate, subject) = makeSubject()
-        vaultRepository.fetchCipherResult = .success(.loginFixture(id: "1"))
-        appExtensionDelegate.updateLoginForSavePasswordRequestError = BitwardenTestError.example
-        let item = try #require(VaultListItem(cipherListView: .fixture(id: "1")))
+        let item = try #require(VaultListItem(cipherListView: .fixture(id: "1", reprompt: .password)))
 
         await subject.perform(.vaultItemTapped(item))
 
+        #expect(userVerificationHelper.verifyMasterPasswordCalled)
+        #expect(userVerificationHelper.userVerificationDelegate === subject)
+        #expect(coordinator.routes == [.editItemFrom(id: "1")])
+        #expect(!appExtensionDelegate.didCancelCalled)
+    }
+
+    /// `perform(_:)` with `.vaultItemTapped` stays on the list when the user doesn't verify their
+    /// master password for a login protected by master password reprompt.
+    @Test(arguments: [
+        Result<UserVerificationResult, Error>.success(.notVerified),
+        .failure(UserVerificationError.cancelled),
+    ])
+    @available(iOS 17.0, *)
+    func perform_vaultItemTapped_repromptNotVerified(result: Result<UserVerificationResult, Error>) async throws {
+        let (appExtensionDelegate, subject) = makeSubject()
+        userVerificationHelper.verifyMasterPasswordResult = result
+        let item = try #require(VaultListItem(cipherListView: .fixture(id: "1", reprompt: .password)))
+
+        await subject.perform(.vaultItemTapped(item))
+
+        #expect(coordinator.routes.isEmpty)
+        #expect(coordinator.alertShown.isEmpty)
+        #expect(errorReporter.errors.isEmpty)
+        #expect(!appExtensionDelegate.didCancelCalled)
+    }
+
+    /// `perform(_:)` with `.vaultItemTapped` shows an error alert and logs the error when checking
+    /// whether master password reprompt is required fails.
+    @Test
+    @available(iOS 17.0, *)
+    func perform_vaultItemTapped_repromptCheckError() async throws {
+        let (appExtensionDelegate, subject) = makeSubject()
+        authRepository.canVerifyMasterPasswordResult = .failure(BitwardenTestError.example)
+        let item = try #require(VaultListItem(cipherListView: .fixture(id: "1", reprompt: .password)))
+
+        await subject.perform(.vaultItemTapped(item))
+
+        #expect(coordinator.routes.isEmpty)
         #expect(coordinator.alertShown == [.defaultAlert(title: Localizations.anErrorHasOccurred)])
         #expect(errorReporter.errors as? [BitwardenTestError] == [.example])
-    }
-
-    /// `perform(_:)` with `.vaultItemTapped` shows an error alert when the chosen login can't be
-    /// found.
-    @Test
-    @available(iOS 17.0, *)
-    func perform_vaultItemTapped_loginNotFound() async throws {
-        let (appExtensionDelegate, subject) = makeSubject()
-        vaultRepository.fetchCipherResult = .success(nil)
-        let item = try #require(VaultListItem(cipherListView: .fixture(id: "1")))
-
-        await subject.perform(.vaultItemTapped(item))
-
-        #expect(coordinator.alertShown == [.defaultAlert(title: Localizations.anErrorHasOccurred)])
-        #expect(appExtensionDelegate.updateLoginForSavePasswordRequestCipher == nil)
+        #expect(!appExtensionDelegate.didCancelCalled)
     }
 
     /// `receive(_:)` with `.addTapped` shows the add item screen prefilled with the credential from
@@ -172,23 +197,30 @@ struct VaultAutofillListProcessorSavePasswordTests {
     /// Creates the subject in the save-password-credential flow, limited to the logins with IDs
     /// "1" and "3".
     ///
+    /// The extension delegate is returned so the test can keep a strong reference to it, since the
+    /// processor only holds it weakly.
+    ///
     /// - Returns: The extension delegate and the subject.
     ///
     @available(iOS 17.0, *)
     private func makeSubject() -> (MockCredentialProviderExtensionDelegate, VaultAutofillListProcessor) {
         let appExtensionDelegate = MockCredentialProviderExtensionDelegate()
         appExtensionDelegate.extensionMode = .savePasswordCredential(
-            MockSavePasswordRequestProxy(),
+            MockSavePasswordRequestProxy(password: "new"),
             userInteraction: true,
         )
         let searchProcessorMediatorFactory = MockSearchProcessorMediatorFactory()
         searchProcessorMediatorFactory.makeReturnValue = searchProcessorMediator
+        let userVerificationHelperFactory = MockUserVerificationHelperFactory()
+        userVerificationHelperFactory.createResult = userVerificationHelper
         let subject = VaultAutofillListProcessor(
             appExtensionDelegate: appExtensionDelegate,
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                authRepository: authRepository,
                 errorReporter: errorReporter,
                 searchProcessorMediatorFactory: searchProcessorMediatorFactory,
+                userVerificationHelperFactory: userVerificationHelperFactory,
                 vaultRepository: vaultRepository,
             ),
             state: VaultAutofillListState(savePasswordLoginIds: ["1", "3"]),

@@ -749,30 +749,6 @@ public extension AppProcessor {
         }
     }
 
-    /// Updates the login the user chose for a save-password request. If the login is protected by
-    /// master password reprompt, the user must enter their master password first.
-    ///
-    /// - Parameters:
-    ///   - cipher: The login the user chose to update.
-    ///   - password: The new password.
-    /// - Returns: `true` if the login was updated, or `false` if the user cancelled the master
-    ///   password prompt or entered an incorrect master password.
-    ///
-    @available(iOSApplicationExtension 26.2, *)
-    func updateChosenPasswordCredential(_ cipher: CipherView, password: String) async throws -> Bool {
-        if try await services.authRepository.shouldPerformMasterPasswordReprompt(reprompt: cipher.reprompt) {
-            var userVerificationHelper = services.userVerificationHelperFactory.create()
-            userVerificationHelper.userVerificationDelegate = self
-            do {
-                guard try await userVerificationHelper.verifyMasterPassword() == .verified else { return false }
-            } catch UserVerificationError.cancelled {
-                return false
-            }
-        }
-        try await updatePasswordCredential(cipher, password: password)
-        return true
-    }
-
     /// Updates an existing login's password for a save-password request. The previous password is
     /// added to the login's password history, and the login's credential identities are added to the
     /// identity store so the system doesn't prompt to save the credential again.
