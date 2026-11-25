@@ -848,7 +848,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         preAuthEnvironmentURLs = urls
     }
 
-    func setAccountCreationEnvironmentURLs(urls: EnvironmentURLData, email: String) async {
+    func setAccountCreationEnvironmentURLs(urls: EnvironmentURLData?, email: String) async {
         accountCreationEnvironmentURLs[email] = urls
     }
 

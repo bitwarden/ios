@@ -1097,6 +1097,9 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
             ),
             .defaultEU,
         )
+
+        subject.setAccountCreationEnvironmentURLs(environmentURLData: nil, email: email)
+        XCTAssertNil(subject.accountCreationEnvironmentURLs(email: email))
     }
 
     /// `preAuthServerConfig` is initially `nil`
