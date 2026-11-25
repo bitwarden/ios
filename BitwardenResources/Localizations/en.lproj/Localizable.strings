@@ -1288,4 +1288,4 @@
 /* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
 "CreateLogin" = "Create login";
 /* Message on the set up unlock screen during account setup, when only biometric unlock is offered. */
-"SetUpBiometricsToQuicklyAccessDescriptionLong" = "Set up biometrics to quickly access your vault and autofill your logins. Other unlock options are in Settings > Account security.";
+"SetUpBiometricsToQuicklyAccessDescriptionLong" = "Set up biometrics to quickly access your vault and autofill your logins. Go to Settings for additional unlock options.";
