@@ -43,15 +43,6 @@ class RegionTypeTests: BitwardenTestCase {
         XCTAssertEqual(RegionType.unitedStates.defaultURLs?.api?.absoluteString, "https://api.bitwarden.com")
     }
 
-    /// `getter:errorReporterName` returns the correct values.
-    func test_errorReporterName() {
-        XCTAssertEqual(RegionType.europe.errorReporterName, "EU")
-        XCTAssertEqual(RegionType.gov.errorReporterName, "Gov")
-        XCTAssertEqual(RegionType.internal.errorReporterName, "Internal")
-        XCTAssertEqual(RegionType.selfHosted.errorReporterName, "Self-Hosted")
-        XCTAssertEqual(RegionType.unitedStates.errorReporterName, "US")
-    }
-
     /// `getter:isUserSelectable` is true for the user-facing regions and false for internal.
     func test_isUserSelectable() {
         XCTAssertTrue(RegionType.europe.isUserSelectable)

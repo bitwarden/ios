@@ -21,6 +21,17 @@ public enum RegionType: CaseIterable, Sendable {
 }
 
 public extension RegionType {
+    /// The name to be used by the error reporter.
+    var errorReporterName: String {
+        switch self {
+        case .europe: "EU"
+        case .gov: "Gov"
+        case .internal: "Internal"
+        case .selfHosted: "Self-Hosted"
+        case .unitedStates: "US"
+        }
+    }
+
     /// Determines the region for a given environment base URL. This is the single source of truth
     /// for mapping a base URL to a region; callers that hold an `EnvironmentURLData` or
     /// `EnvironmentURLs` should use their `region` property rather than reimplementing this.
