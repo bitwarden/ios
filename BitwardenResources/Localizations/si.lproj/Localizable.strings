@@ -16,7 +16,7 @@
 "UseThisUsername" = "Use this username";
 "Delete" = "මකන්න";
 "DeleteAll" = "සියල්ල මකන්න";
-"Deleting" = "මකමින්...";
+"Deleting" = "මකමින්…";
 "DoYouReallyWantToDelete" = "ඔබට ඇත්තටම මකා දැමීමට අවශ්‍යද? මෙය ආපසු හැරවිය නොහැක.";
 "Edit" = "සංස්කරණය";
 "EditFolder" = "ෆෝල්ඩරය සංස්කරණය කරන්න";
@@ -28,6 +28,7 @@
 "FolderCreated" = "නව ෆෝල්ඩරය සාදන ලදී.";
 "FolderDeleted" = "ෆෝල්ඩරය මකා ඇත.";
 "FolderNone" = "බහාලුමක් නැත";
+"Folders" = "බහාලුම්";
 "FolderUpdated" = "ෆෝල්ඩරය සුරකින ලදී";
 "MyFolder" = "මගේ ෆෝල්ඩරය";
 "MyFolders" = "මගේ ෆෝල්ඩර";
@@ -58,7 +59,7 @@
 "Save" = "සුරකින්න";
 /* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "ගෙනයන්න";
-"Saving" = "සුරකිමින්...";
+"Saving" = "සුරකිමින්…";
 "Settings" = "සැකසුම්";
 "ShowNextCode" = "ඊළඟ කේතය පෙන්වන්න";
 "ItemDeleted" = "අයිතමය මකා ඇත";
@@ -89,7 +90,7 @@
 "Close" = "වසන්න";
 "Continue" = "ඉදිරියට";
 "CreateAccount" = "ගිණුමක් සාදන්න";
-"CreatingAccount" = "ගිණුම සාදමින්...";
+"CreatingAccount" = "ගිණුම සාදමින්…";
 "EditItem" = "අයිතමය සංස්කරණය කරන්න";
 "EnableAutomaticSyncing" = "ස්වයංක්‍රීය සමමුහුර්තකරණයට ඉඩ දෙන්න";
 "EnterEmailForHint" = "ඔබගේ ප්‍රධාන මුරපද ඉඟිය ලබා ගැනීමට ඔබගේ ගිණුම් විද්‍යුත් තැපැල් ලිපිනය ඇතුළත් කරන්න.";
@@ -112,7 +113,7 @@
 "Lock" = "අගුලු දමන්න";
 "Immediately" = "වහාම";
 "VaultTimeoutLogOutConfirmation" = "ඉවත්වීම ඔබගේ සුරක්ෂිතාගාරයට සියලු ප්‍රවේශය ඉවත් කරන අතර කාල සීමාවෙන් පසු මාර්ගගත සත්‍යාපනය අවශ්‍ය වේ. ඔබට මෙම සැකසුම භාවිතා කිරීමට අවශ්‍ය බව විශ්වාසද?";
-"LoggingIn" = "පිවිසෙමින්...";
+"LoggingIn" = "පිවිසෙමින්…";
 "LogInToBitwarden" = "Bitwarden වෙත පිවිසෙන්න";
 "MasterPasswordConfirmationValMessage" = "මුරපද තහවුරු කිරීම නිවැරදි නැත.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "ප්‍රධාන මුරපදය යනු ඔබගේ සුරක්ෂිතාගාරයට ප්‍රවේශ වීමට ඔබ භාවිතා කරන මුරපදයයි.";
@@ -133,9 +134,9 @@
 "PushNotificationAlert" = "Bitwarden තල්ලු දැනුම්දීම් භාවිතයෙන් ඔබගේ සුරක්ෂිතාගාරය ස්වයංක්‍රීයව සමමුහුර්ත කරයි. හොඳම අත්දැකීම සඳහා, තල්ලු දැනුම්දීම්වලට ඉඩ දෙන ලෙස විමසූ විට පහත විමසුමේ “ඉඩ දෙන්න” තෝරන්න.";
 "Security" = "ආරක්ෂාව";
 "ItemUpdated" = "අයිතමය සුරකින ලදී";
-"Submitting" = "ඉදිරිපත් කරමින්...";
-"Syncing" = "සමමුහුර්ත කරමින්...";
-"SyncingLogins" = "පිවිසුම් සමමුහුර්ත කරමින්...";
+"Submitting" = "ඉදිරිපත් කරමින්…";
+"Syncing" = "සමමුහුර්ත කරමින්…";
+"SyncingLogins" = "පිවිසුම් සමමුහුර්ත කරමින්…";
 "SyncingComplete" = "සමමුහුර්තකරණය සම්පූර්ණයි";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "පියවර දෙකක පිවිසුම";
@@ -171,7 +172,7 @@
 "AddNewAttachment" = "නව ඇමුණුමක් එක් කරන්න";
 "Attachments" = "ඇමුණුම්";
 "UnableToDownloadFile" = "ගොනුව බාගත කිරීමට නොහැකිය.";
-"Downloading" = "බාගත කරමින්...";
+"Downloading" = "බාගත කරමින්…";
 "AttachmentLargeWarning" = "මෙම ඇමුණුමේ ප්‍රමාණය %1$@ වේ. ඔබට එය ඔබගේ උපාංගයට බාගත කිරීමට අවශ්‍ය බව විශ්වාසද?";
 "AuthenticatorKey" = "සත්‍යාපක යතුර";
 "VerificationCodeTotp" = "සත්‍යාපන කේතය (TOTP)";
@@ -261,8 +262,12 @@
 "ShowWebsiteIconsDescription" = "එක් එක් පිවිසුම අසල හඳුනාගත හැකි රූපයක් පෙන්වන්න.";
 "IconsUrl" = "නිරූපක සේවාදායක URL";
 "AutofillWithBitwarden" = "Bitwarden සමඟ ස්වයං පිරවුම් කරන්න";
+/* Section header and screen title for viewing/managing a cipher's collections. */
+"Collections" = "එකතු කිරීම්";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "බෙදාගත් ෆෝල්ඩර";
+/* Empty state message shown when a collection has no items. */
+"NoItemsCollection" = "මෙම එකතුවෙහි අයිතම නොමැත";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
 "NoItemsFolder" = "මෙම ෆෝල්ඩරයේ අයිතම නොමැත";
@@ -284,6 +289,8 @@
 "RegEx" = "නිත්‍ය ප්‍රකාශනය";
 "StartsWith" = "ආරම්භ වන්නේ";
 "MatchDetection" = "ගැළපුම් හඳුනාගැනීම";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
+"Organization" = "සංවිධානය";
 "HoldYubikeyNearTop" = "ඔබගේ Yubikey උපාංගයේ ඉහළ කොටස අසල තබා ගන්න.";
 "TryAgain" = "නැවත උත්සාහ කරන්න";
 "YubiKeyInstructionIos" = "ඉදිරියට යාමට, ඔබගේ YubiKey NEO උපාංගයේ පිටුපසට තබා ගන්න.";
@@ -308,7 +315,7 @@
 "Identities" = "අනන්‍යතා";
 "Logins" = "පිවිසුම්";
 "SecureNotes" = "ආරක්ෂිත සටහන්";
-"CheckingPassword" = "මුරපදය පරීක්ෂා කරමින්...";
+"CheckingPassword" = "මුරපදය පරීක්ෂා කරමින්…";
 "CheckPassword" = "මුරපදය හෙළි වී ඇත්දැයි පරීක්ෂා කරන්න.";
 "PasswordSafe" = "මෙම මුරපදය කිසිදු දත්ත කඩකිරීමක දක්නට නොලැබුණි. එය භාවිතා කිරීමට ආරක්ෂිත විය යුතුය.";
 "IdentityName" = "අනන්‍යතා නම";
@@ -319,17 +326,27 @@
 "NoItemsToList" = "ලැයිස්තුගත කිරීමට අයිතම නොමැත.";
 "MoveDown" = "පහළට ගෙනයන්න";
 "MoveUp" = "ඉහළට ගෙනයන්න";
+/* Empty state message on the Collections screen shown when a user has no collections. */
+"NoCollectionsToList" = "ලැයිස්තුගත කිරීමට එකතු කිරීම් නොමැත.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "ලැයිස්තුගත කිරීමට බෙදාගත් ෆෝල්ඩර නොමැත.";
 "MovedItemToOrg" = "%1$@ %2$@ වෙත ගෙන යන ලදී.";
+/* Alert message shown when saving an item with no collection selected. */
+"SelectOneCollection" = "ඔබ අවම වශයෙන් එක් එකතුවක් තෝරා ගත යුතුය.";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "ඔබ අවම වශයෙන් එක් බෙදාගත් ෆෝල්ඩරයක් තෝරා ගත යුතුය.";
 "Share" = "බෙදාගන්න";
 "ShareAll" = "සියල්ල බෙදාගන්න";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
+"MoveToOrganization" = "සංවිධානය වෙත ගෙනයන්න";
 /* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "ලැයිස්තුගත කිරීමට සුරක්ෂිතාගාර නොමැත.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
+"NoOrgsToList" = "ලැයිස්තුගත කිරීමට සංවිධාන නොමැත.";
 /* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "මෙම අයිතමය ගෙන යාමට ඔබ කැමති සුරක්ෂිතාගාරයක් තෝරන්න. වෙනත් සුරක්ෂිතාගාරයකට ගෙන යාමෙන් අයිතමයේ හිමිකාරිත්වය එම සංවිධානයට පැවරේ. එය ගෙන ගිය පසු ඔබ තවදුරටත් මෙම අයිතමයේ සෘජු හිමිකරු නොවනු ඇත.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
+"MoveToOrgDesc" = "මෙම අයිතමය ගෙන යාමට ඔබ කැමති සංවිධානයක් තෝරන්න. සංවිධානයකට ගෙන යාමෙන් අයිතමයේ හිමිකාරිත්වය එම සංවිධානයට පැවරේ. එය ගෙන ගිය පසු ඔබ තවදුරටත් මෙම අයිතමයේ සෘජු හිමිකරු නොවනු ඇත.";
 "NumberOfWords" = "වචන ගණන";
 "Passphrase" = "වාක්‍යාංශ මුරපදය";
 "WordSeparator" = "වචන වෙන් කරන්නා";
@@ -376,10 +393,10 @@
 "ExportVaultFailure" = "ඔබගේ සුරක්ෂිතාගාරය අපනයනය කිරීමේ ගැටළුවක් ඇති විය. ගැටළුව දිගටම පවතින්නේ නම්, ඔබට වෙබ් සුරක්ෂිතාගාරයෙන් අපනයනය කිරීමට සිදුවනු ඇත.";
 "Clone" = "ක්ලෝන කරන්න";
 "PasswordGeneratorPolicyInEffect" = "එක් හෝ කිහිපයක් සංවිධාන ප්‍රතිපත්ති ඔබගේ උත්පාදක සැකසුම්වලට බලපායි";
-"SoftDeleting" = "කුණු කූඩයට යවමින්...";
+"SoftDeleting" = "කුණු කූඩයට යවමින්…";
 "ItemSoftDeleted" = "අයිතමය කුණු කූඩයට යවා ඇත.";
 "Restore" = "ප්‍රතිෂ්ඨාපනය කරන්න";
-"Restoring" = "ප්‍රතිෂ්ඨාපනය කරමින්...";
+"Restoring" = "ප්‍රතිෂ්ඨාපනය කරමින්…";
 "ItemRestored" = "අයිතමය ප්‍රතිෂ්ඨාපනය කරන ලදී";
 "Trash" = "කුණු කූඩය";
 "DoYouReallyWantToPermanentlyDeleteCipher" = "ඔබට ඇත්තටම ස්ථිරව මකා දැමීමට අවශ්‍යද? මෙය ආපසු හැරවිය නොහැක.";
@@ -401,7 +418,7 @@
 "MasterPasswordPolicyValidationTitle" = "අවලංගු මුරපදය";
 "MasterPasswordPolicyValidationMessage" = "මුරපදය සංවිධාන අවශ්‍යතා සපුරාලන්නේ නැත. කරුණාකර ප්‍රතිපත්ති තොරතුරු පරීක්ෂා කර නැවත උත්සාහ කරන්න.";
 "Loading" = "පූරණය වෙමින්";
-"LoadingSubscription" = "දායකත්වය පූරණය වෙමින්...";
+"LoadingSubscription" = "දායකත්වය පූරණය වෙමින්…";
 "AcceptPoliciesError" = "සේවා කොන්දේසි සහ රහස්‍යතා ප්‍රතිපත්තිය පිළිගෙන නොමැත.";
 "PrivacyPolicy" = "රහස්‍යතා ප්‍රතිපත්තිය";
 "PersonalOwnershipPolicyInEffect" = "සංවිධාන ප්‍රතිපත්තියක් ඔබගේ හිමිකාරිත්ව විකල්පවලට බලපායි.";
@@ -833,7 +850,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "ඔබට උපාංග මුරපදය හෝ ජෛවමිතික සක්‍රිය කිරීමට අවශ්‍ය විය හැක.";
 "StartImportCXFDescriptionLong" = "වෙනත් මුරපද කළමනාකරුවෙකුගෙන් මුරපද, පාස්කීස්, ණය කාඩ්පත් සහ ඕනෑම පුද්ගලික අනන්‍යතා තොරතුරු ආයාත කරන්න.\n\nඔබගේ දත්ත ඔබගේ පෙර සපයන්නාගෙන් **මකා නොදමනු** ඇත.";
 "ImportPasswords" = "මුරපද ආයාත කරන්න";
-"ImportingEllipsis" = "ආයාත කරමින්...";
+"ImportingEllipsis" = "ආයාත කරමින්…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "ඔබට ආයාත ක්‍රියාවලිය අවලංගු කිරීමට අවශ්‍ය බව විශ්වාසද?";
 "ImportFailed" = "ආයාතය අසාර්ථක විය";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "ඔබගේ සියලු මුරපද ආයාත කිරීමේ ගැටළුවක් ඇති විය.\n\nකිසිදු දත්තයක් මකා නොමැත.";
@@ -873,6 +890,7 @@
 "PersonalDetails" = "පුද්ගලික විස්තර";
 "ContactInfo" = "සම්බන්ධතා තොරතුරු";
 "Identification" = "හඳුනාගැනීම";
+"Owner" = "හිමිකරු";
 "VerifyYourIdentity" = "ඔබගේ අනන්‍යතාව සත්‍යාපනය කරන්න";
 "ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
@@ -890,9 +908,13 @@
 "ShowMore" = "තවත් පෙන්වන්න";
 "ShowLess" = "අඩුවෙන් පෙන්වන්න";
 "ItemNameX" = "අයිතම නම, %1$@";
+"OwnerX" = "හිමිකරු, %1$@";
 "VaultX" = "සුරක්ෂිතාගාරය, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
+"CollectionX" = "එකතුව, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Shared folder, %1$@";
+"FolderX" = "ෆෝල්ඩරය, %1$@";
 "MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "%2$@ න් %1$@ අයිතමය";
 "ViewRecordedLogs" = "පටිගත කළ ලොග බලන්න";
@@ -1026,7 +1048,7 @@
 "DefaultX" = "පෙරනිමි (%1$@)";
 "UpdateYourEncryptionSettings" = "ඔබගේ ගුප්තකේතන සැකසුම් යාවත්කාලීන කරන්න";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "නව නිර්දේශිත ගුප්තකේතන සැකසුම් ඔබගේ ගිණුම් ආරක්ෂාව වැඩි දියුණු කරනු ඇත. දැන් යාවත්කාලීන කිරීමට ඔබගේ ප්‍රධාන මුරපදය ඇතුළත් කරන්න.";
-"Updating" = "යාවත්කාලීන කරමින්...";
+"Updating" = "යාවත්කාලීන කරමින්…";
 "EncryptionSettingsUpdated" = "ගුප්තකේතන සැකසුම් යාවත්කාලීන කරන ලදී";
 "IntroducingArchive" = "සංරක්ෂිතය හඳුන්වාදීම";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "ඔබට දැනට අවශ්‍ය නොවන අයිතම ආරක්ෂිතව නමුත් පෙනීමෙන් තොරව තබා ගන්න.";
@@ -1052,7 +1074,7 @@
 "Unarchive" = "සංරක්ෂිතයෙන් ඉවත් කරන්න";
 "ItemMovedToArchive" = "අයිතමය සංරක්ෂිතයට ගෙන යන ලදී";
 "ItemMovedToVault" = "අයිතමය සුරක්ෂිතාගාරයට ගෙන යන ලදී";
-"SendingToArchive" = "සංරක්ෂිතයට යවමින්...";
+"SendingToArchive" = "සංරක්ෂිතයට යවමින්…";
 "MovingItemToVault" = "අයිතමය සුරක්ෂිතාගාරයට ගෙන යමින්";
 "OrganizationNotFound" = "සංවිධානය හමු නොවීය.";
 "ItemsTransferred" = "අයිතම මාරු කරන ලදී";
@@ -1068,7 +1090,7 @@
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "ඔබගේ සංරක්ෂිතයට නැවත ප්‍රවේශය ලබා ගැනීමට, ඔබගේ වාරික දායකත්වය නැවත ආරම්භ කරන්න. නැවත ආරම්භ කිරීමට පෙර ඔබ සංරක්ෂිත අයිතමයක විස්තර සංස්කරණය කරන්නේ නම්, එය ඔබගේ සුරක්ෂිතාගාරයට නැවත ගෙන යනු ලැබේ.";
 "RestartPremium" = "වාරිකය නැවත ආරම්භ කරන්න";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "මෙම අයිතමය සංරක්ෂිත කර ඇත. වෙනස්කම් සුරැකීම එය ඔබගේ සුරක්ෂිතාගාරයට ප්‍රතිෂ්ඨාපනය කරනු ඇත.";
-"SettingUpAutofill" = "ස්වයං පිරවුම් සකසමින්...";
+"SettingUpAutofill" = "ස්වයං පිරවුම් සකසමින්…";
 "AddEmail" = "විද්‍යුත් තැපෑල එක් කරන්න";
 "AnyoneWithPasswordSetByYou" = "ඔබ විසින් සකසන ලද මුරපදයක් සහිත ඕනෑම අයෙකු";
 "AnyoneWithTheLink" = "සබැඳිය සහිත ඕනෑම අයෙකු";
@@ -1168,8 +1190,8 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "අපට ගෙවීම් පිටුව විවෘත කිරීමේ ගැටළුවක් ඇති විය, එබැවින් නැවත උත්සාහ කරන්න.";
 "SecureFileStorage" = "ආරක්ෂිත ගොනු ගබඩාව";
 "BreachMonitoring" = "කඩකිරීම් නිරීක්ෂණය";
-"ConfirmingYourUpgrade" = "ඔබගේ උත්ශ්‍රේණිය තහවුරු කරමින්...";
-"OpeningCheckout" = "ගෙවීම් පිටුව විවෘත කරමින්...";
+"ConfirmingYourUpgrade" = "ඔබගේ උත්ශ්‍රේණිය තහවුරු කරමින්…";
+"OpeningCheckout" = "ගෙවීම් පිටුව විවෘත කරමින්…";
 "UpgradePending" = "උත්ශ්‍රේණිය විකල්පයි";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "ඔබගේ උත්ශ්‍රේණිය සැකසෙමින් පවතී. එය සම්පූර්ණ වන තෙක් ඔබ නිදහස් සැලැස්මේ පවතිනු ඇත. පරීක්ෂා කිරීමට දැන් සමමුහුර්ත කරන්න, හෝ ඉදිරියට යන්න, එය ස්වයංක්‍රීයව යාවත්කාලීන වනු ඇත.";
 "UpgradedToPremium" = "වාරිකයට උත්ශ්‍රේණි කරන ලදී";

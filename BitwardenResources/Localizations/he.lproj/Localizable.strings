@@ -28,6 +28,7 @@
 "FolderCreated" = "תיקייה חדשה נוצרה.";
 "FolderDeleted" = "תיקייה נמחקה.";
 "FolderNone" = "ללא תיקיה";
+"Folders" = "תיקיות";
 "FolderUpdated" = "תיקיה עודכנה";
 "MyFolder" = "My folder";
 "MyFolders" = "My folders";
@@ -135,7 +136,7 @@
 "ItemUpdated" = "הפריט נשמר";
 "Submitting" = "שולח…";
 "Syncing" = "מסנכרן…";
-"SyncingLogins" = "מסנכרן כניסות...";
+"SyncingLogins" = "מסנכרן כניסות…";
 "SyncingComplete" = "הסנכרון הושלם";
 "TouchID" = "טביעת אצבע Touch ID";
 "TwoStepLogin" = "התחברות בשני-שלבים";
@@ -261,8 +262,12 @@
 "ShowWebsiteIconsDescription" = "הצג תמונה מוכרת בכל נסיון התחברות.";
 "IconsUrl" = "URL של שרת הסמלים";
 "AutofillWithBitwarden" = "מלא אוטומטית עם Bitwarden";
+/* Section header and screen title for viewing/managing a cipher's collections. */
+"Collections" = "אוספים";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "Shared folders";
+/* Empty state message shown when a collection has no items. */
+"NoItemsCollection" = "אין פרטים באוסף זה";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
 "NoItemsFolder" = "אין פריטים בתיקייה זו";
@@ -284,6 +289,8 @@
 "RegEx" = "ביטוי רגולרי";
 "StartsWith" = "מתחיל עם";
 "MatchDetection" = "זיהוי התאמה";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
+"Organization" = "ארגון";
 "HoldYubikeyNearTop" = "קרב את מפתח הYubikey למכשיר.";
 "TryAgain" = "נסה שוב";
 "YubiKeyInstructionIos" = "להמשך, קרב את מפתח הYubiKey NEO לגב המכשיר.";
@@ -319,17 +326,27 @@
 "NoItemsToList" = "אין פריטים להצגה ברשימה.";
 "MoveDown" = "העבר למטה";
 "MoveUp" = "הזז למעלה";
+/* Empty state message on the Collections screen shown when a user has no collections. */
+"NoCollectionsToList" = "אין אוספים להציג ברשימה.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
 "MovedItemToOrg" = "%1$@ הועבר אל %2$@.";
+/* Alert message shown when saving an item with no collection selected. */
+"SelectOneCollection" = "עליך לבחור לפחות אוסף אחד.";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
 "Share" = "שתף";
 "ShareAll" = "שתף הכל";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
+"MoveToOrganization" = "העבר לארגון";
 /* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "No vaults to list.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
+"NoOrgsToList" = "אין ארגונים להצגה ברשימה.";
 /* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
+"MoveToOrgDesc" = "בחר ארגון שאליו ברצונך להעביר פריט זה. ההעברה לארגון מעבירה את הבעלות על הפריט לאותו ארגון. לאחר העברת פריט זה לא תהיה יותר הבעלים הישיר.";
 "NumberOfWords" = "מספר המילים";
 "Passphrase" = "משפט סיסמה";
 "WordSeparator" = "מפריד מילים";
@@ -401,7 +418,7 @@
 "MasterPasswordPolicyValidationTitle" = "סיסמה לא חוקית";
 "MasterPasswordPolicyValidationMessage" = "הסיסמה אינה עומדת בדרישות הארגון. אנא בדוק את פרטי מדיניות הסיסמאות ונסה שנית.";
 "Loading" = "טוען";
-"LoadingSubscription" = "טוען מנוי...";
+"LoadingSubscription" = "טוען מנוי…";
 "AcceptPoliciesError" = "לא הסכמת לתנאי השירות ומדיניות הפרטיות.";
 "PrivacyPolicy" = "מדיניות הפרטיות";
 "PersonalOwnershipPolicyInEffect" = "מדיניות ארגונית משפיעה על אפשרויות הבעלות שלך.";
@@ -834,7 +851,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "ייתכן שאתה צריך לאפשר קוד גישה למכשיר או זיהוי ביומטרי.";
 "StartImportCXFDescriptionLong" = "ייבא סיסמאות, מפתחות גישה, כרטיסי אשראי, וכל מידע אישי של זהות ממנהל סיסמאות אחר.\n\nהמידע שלך **לא** יימחק מהספק הקודם שלך.";
 "ImportPasswords" = "ייבא סיסמאות";
-"ImportingEllipsis" = "מייבא...";
+"ImportingEllipsis" = "מייבא…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "האם אתה בטוח שברצונך לבטל את תהליך הייבוא?";
 "ImportFailed" = "הייבוא נכשל";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "הייתה בעיה בייבוא של כל הסיסמאות שלך.\n\nלא נמחקו נתונים.";
@@ -874,6 +891,7 @@
 "PersonalDetails" = "פרטים אישיים";
 "ContactInfo" = "פרטי קשר";
 "Identification" = "הזדהות";
+"Owner" = "בעלים";
 "VerifyYourIdentity" = "אמת את זהותך";
 "ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
@@ -891,9 +909,13 @@
 "ShowMore" = "הצג עוד";
 "ShowLess" = "הצג פחות";
 "ItemNameX" = "שם פריט, %1$@";
+"OwnerX" = "בעלים, %1$@";
 "VaultX" = "Vault, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
+"CollectionX" = "אוסף, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Shared folder, %1$@";
+"FolderX" = "תיקייה, %1$@";
 "MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "פריט %1$@ מתוך %2$@";
 "ViewRecordedLogs" = "הצג יומנים מוקלטים";
@@ -1053,7 +1075,7 @@
 "Unarchive" = "הוצאה מהארכיב";
 "ItemMovedToArchive" = "הפריט הועבר לארכיון";
 "ItemMovedToVault" = "הפריט הועבר לכספת";
-"SendingToArchive" = "שולח לארכיון...";
+"SendingToArchive" = "שולח לארכיון…";
 "MovingItemToVault" = "מעביר פריט לכספת";
 "OrganizationNotFound" = "הארגון לא נמצא.";
 "ItemsTransferred" = "פריטים הועברו";
@@ -1069,7 +1091,7 @@
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "כדי לקבל מחדש גישה לארכיון שלך, הפעל מחדש את מנוי הפרימיום שלך. אם תערוך פרטים עבור פריט בארכיון לפני ההפעלה מחדש, הוא יועבר חזרה לכספת שלך.";
 "RestartPremium" = "הפעל מחדש פרימיום";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "פריט זה בארכיב. שמירת שינויים תשיב אותו לכספת שלך.";
-"SettingUpAutofill" = "מגדיר מילוי אוטומטי...";
+"SettingUpAutofill" = "מגדיר מילוי אוטומטי…";
 "AddEmail" = "הוסף אימייל";
 "AnyoneWithPasswordSetByYou" = "כל מי שיש לו סיסמה שהגדרת";
 "AnyoneWithTheLink" = "כל מי שיש לו את הקישור";
@@ -1169,8 +1191,8 @@
 "WeHadTroubleOpeningThePaymentPageDescriptionLong" = "הייתה לנו בעיה בפתיחת דף התשלום, אז נסה שוב.";
 "SecureFileStorage" = "אחסון קבצים מאובטח";
 "BreachMonitoring" = "ניטור פרצות אבטחה";
-"ConfirmingYourUpgrade" = "מאשר את השדרוג שלך...";
-"OpeningCheckout" = "פותח תשלום...";
+"ConfirmingYourUpgrade" = "מאשר את השדרוג שלך…";
+"OpeningCheckout" = "פותח תשלום…";
 "UpgradePending" = "שדרוג ממתין";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "השדרוג שלך מעובד. תישאר בתוכנית החינמית עד להשלמתו. סנכרן עכשיו כדי לבדוק, או המשך והוא יתעדכן אוטומטית.";
 "UpgradedToPremium" = "שודרג לפרימיום";
