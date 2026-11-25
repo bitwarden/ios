@@ -733,14 +733,10 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
         if isNewAccount {
             do {
-                if await !configService.getFeatureFlag(.accountSetupOnboardingOnSignIn) {
-                    // Without account setup onboarding on sign-in, these drive the onboarding steps
-                    // shown after creating an account.
-                    let isAutofillEnabled = await credentialIdentityStore.isAutofillEnabled()
-                    try await stateService.setAccountSetupAutofill(isAutofillEnabled ? .complete : .incomplete)
-                    try await stateService.setAccountSetupVaultUnlock(.incomplete)
-                }
+                let isAutofillEnabled = await credentialIdentityStore.isAutofillEnabled()
+                try await stateService.setAccountSetupAutofill(isAutofillEnabled ? .complete : .incomplete)
                 try await stateService.setAccountSetupImportLogins(.incomplete)
+                try await stateService.setAccountSetupVaultUnlock(.incomplete)
             } catch {
                 errorReporter.log(error: error)
             }

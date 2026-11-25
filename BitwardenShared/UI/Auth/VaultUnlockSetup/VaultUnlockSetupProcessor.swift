@@ -78,7 +78,7 @@ class VaultUnlockSetupProcessor: StateProcessor<VaultUnlockSetupState, VaultUnlo
     private func continueFlow() async {
         switch state.accountSetupFlow {
         case .createAccount:
-            await updateAccountSetupVaultUnlockProgressIfNeeded(.complete)
+            await updateAccountSetupVaultUnlockProgress(.complete)
             await coordinator.handleEvent(.didCompleteVaultUnlockSetup)
         case .settings:
             do {
@@ -110,7 +110,7 @@ class VaultUnlockSetupProcessor: StateProcessor<VaultUnlockSetupState, VaultUnlo
     ///
     private func showSetUpLaterAlert() {
         coordinator.showAlert(.setUpUnlockMethodLater {
-            await self.updateAccountSetupVaultUnlockProgressIfNeeded(.setUpLater)
+            await self.updateAccountSetupVaultUnlockProgress(.setUpLater)
             await self.coordinator.handleEvent(.didCompleteVaultUnlockSetup)
         })
     }
@@ -138,13 +138,12 @@ class VaultUnlockSetupProcessor: StateProcessor<VaultUnlockSetupState, VaultUnlo
     }
 
     /// Updates the vault unlock setup progress when the step is completed in account setup
-    /// onboarding, so it isn't shown again. This is only needed if account setup onboarding on
-    /// sign-in is disabled, since the stored progress then determines which steps are shown.
+    /// onboarding. The stored progress drives the Settings badges and the account security action
+    /// card, and, if account setup onboarding on sign-in is disabled, which onboarding steps are shown.
     ///
     /// - Parameter progress: The vault unlock setup progress to set.
     ///
-    private func updateAccountSetupVaultUnlockProgressIfNeeded(_ progress: AccountSetupProgress) async {
-        guard await !services.configService.getFeatureFlag(.accountSetupOnboardingOnSignIn) else { return }
+    private func updateAccountSetupVaultUnlockProgress(_ progress: AccountSetupProgress) async {
         do {
             try await services.stateService.setAccountSetupVaultUnlock(progress)
         } catch {

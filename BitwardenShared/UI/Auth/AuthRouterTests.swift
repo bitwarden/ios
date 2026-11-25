@@ -543,6 +543,22 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(stateService.pendingAccountSetupOnboarding["1"], false)
     }
 
+    /// `handleAndRoute(_:)` redirects `.didCompleteAuth` to `.complete` when unlock and autofill
+    /// are both already turned on, ignoring incomplete account setup progress, which only drives
+    /// the Settings badges when account setup onboarding on sign-in is enabled.
+    func test_handleAndRoute_didCompleteAuth_pendingAccountSetupOnboarding_allOn_incompleteSetupFlags() async {
+        authRepository.activeAccount = .fixture()
+        autofillCredentialService.isAutofillCredentialsEnabled = true
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
+        stateService.accountSetupAutofill["1"] = .incomplete
+        stateService.accountSetupVaultUnlock["1"] = .incomplete
+        stateService.pendingAccountSetupOnboarding["1"] = true
+
+        let route = await subject.handleAndRoute(.didCompleteAuth)
+
+        XCTAssertEqual(route, .complete)
+    }
+
     /// `handleAndRoute(_:)` redirects `.didCompleteAuth` to `.completeWithRehydration` when
     /// account setup onboarding is pending but nothing needs to be set up and there's a
     /// rehydratable target saved.
