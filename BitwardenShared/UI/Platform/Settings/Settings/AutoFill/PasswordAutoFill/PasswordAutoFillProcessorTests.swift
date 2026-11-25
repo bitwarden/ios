@@ -50,7 +50,6 @@ struct PasswordAutoFillProcessorTests { // swiftlint:disable:this type_body_leng
             services: ServiceContainer.withMocks(
                 asSettingsMediator: asSettingsMediator,
                 autofillCredentialService: autofillCredentialService,
-                configService: MockConfigService(),
                 errorReporter: errorReporter,
                 notificationCenterService: notificationCenterService,
                 stateService: stateService,

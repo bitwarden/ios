@@ -15,7 +15,6 @@ final class PasswordAutoFillProcessor: StateProcessor<
     /// The services used by this processor.
     typealias Services = HasASSettingsMediator
         & HasAutofillCredentialService
-        & HasConfigService
         & HasErrorReporter
         & HasNotificationCenterService
         & HasStateService
