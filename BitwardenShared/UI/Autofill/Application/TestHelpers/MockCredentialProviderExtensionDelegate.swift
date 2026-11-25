@@ -13,13 +13,13 @@ class MockCredentialProviderExtensionDelegate: MockAppExtensionDelegate, Credent
     /// Cast to `ASGeneratedPassword.Kind` inside `@available(iOS 26.2, *)` test code.
     var completeGeneratePasswordRequestKind: Any?
     var completeGeneratePasswordRequestPassword: String?
+    var completeIfLoginExistsCalled = false
+    var completeIfLoginExistsResult = false
     var completeOTPRequestCodeCalled: String?
     var completeRegistrationRequestMocker = InvocationMocker<ASPasskeyRegistrationCredential>()
     var completeSavePasswordRequestCalled = false
     var completeTextRequestTextToInsert: String?
     var releaseKeyboardAnchorCalled = false
-    var resolveSavePasswordRequestCalled = false
-    var resolveSavePasswordRequestResult = SavePasswordResolution.addNew
     var extensionMode: CredentialProviderMode = .configureAutofill
     var didAppearPublisher = CurrentValueSubject<Bool, Never>(false)
     var setMatchedExcludedCredentialFoundCalled = false
@@ -45,6 +45,11 @@ class MockCredentialProviderExtensionDelegate: MockAppExtensionDelegate, Credent
         completeSavePasswordRequestCalled = true
     }
 
+    func completeSavePasswordRequestIfLoginExists() async -> Bool {
+        completeIfLoginExistsCalled = true
+        return completeIfLoginExistsResult
+    }
+
     func completeRegistrationRequest(asPasskeyRegistrationCredential: ASPasskeyRegistrationCredential) {
         completeRegistrationRequestMocker.invoke(param: asPasskeyRegistrationCredential)
     }
@@ -62,11 +67,6 @@ class MockCredentialProviderExtensionDelegate: MockAppExtensionDelegate, Credent
 
     func releaseKeyboardAnchor() {
         releaseKeyboardAnchorCalled = true
-    }
-
-    func resolveSavePasswordRequest() async -> SavePasswordResolution {
-        resolveSavePasswordRequestCalled = true
-        return resolveSavePasswordRequestResult
     }
 
     @available(iOSApplicationExtension 18.0, *)

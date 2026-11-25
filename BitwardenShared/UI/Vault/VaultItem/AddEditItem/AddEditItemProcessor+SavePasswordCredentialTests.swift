@@ -18,11 +18,6 @@ struct AddEditItemProcessorSavePasswordCredentialTests {
     let autofillCredentialService: MockAutofillCredentialService
     let coordinator: MockCoordinator<VaultItemRoute, VaultItemEvent>
     let delegate: MockCipherItemOperationDelegate
-    /// An existing login with the password "old".
-    let existingLogin = CipherView.loginFixture(
-        id: "existing-cipher-id",
-        login: .fixture(password: "old", username: "user"),
-    )
     let reviewPromptService: MockReviewPromptService
     let vaultRepository: MockVaultRepository
 
@@ -135,92 +130,6 @@ struct AddEditItemProcessorSavePasswordCredentialTests {
         #expect(coordinator.routes.isEmpty)
     }
 
-    /// The processor fills in the password from the save-password request when editing an existing
-    /// login in the save-password-credential flow, as if the user entered it.
-    @Test
-    @available(iOS 17.0, *)
-    func init_existingLogin_fillsRequestPassword() throws {
-        let (_, subject) = try makeSubject(
-            extensionMode: .savePasswordCredential(
-                MockSavePasswordRequestProxy(password: "new"),
-                userInteraction: true,
-            ),
-            state: #require(CipherItemState(existing: existingLogin, hasPremium: true)),
-        )
-
-        #expect(subject.state.loginState.password == "new")
-        #expect(subject.state.cipher == existingLogin)
-    }
-
-    /// The processor doesn't change the password when editing an existing login outside the
-    /// save-password-credential flow.
-    @Test
-    @available(iOS 17.0, *)
-    func init_existingLogin_notSavePasswordCredential() throws {
-        let (_, subject) = try makeSubject(
-            extensionMode: .configureAutofill,
-            state: #require(CipherItemState(existing: existingLogin, hasPremium: true)),
-        )
-
-        #expect(subject.state.loginState.password == "old")
-    }
-
-    /// `perform(_:)` with `.streamCipherDetails` keeps the password from the save-password request
-    /// when the login is refreshed from the vault, since it isn't saved yet.
-    @Test
-    @available(iOS 17.0, *)
-    func perform_streamCipherDetails_savePasswordCredential_keepsPassword() async throws {
-        let (appExtensionDelegate, subject) = try makeSubject(
-            extensionMode: .savePasswordCredential(
-                MockSavePasswordRequestProxy(password: "new"),
-                userInteraction: true,
-            ),
-            state: #require(CipherItemState(existing: existingLogin, hasPremium: true)),
-        )
-        let task = Task {
-            await subject.perform(.streamCipherDetails)
-        }
-        defer { task.cancel() }
-
-        vaultRepository.cipherDetailsSubject.send(.loginFixture(
-            id: "existing-cipher-id",
-            login: .fixture(password: "old", username: "user"),
-            name: "Updated name",
-        ))
-        try await waitForAsync { subject.state.name == "Updated name" }
-
-        #expect(subject.state.loginState.password == "new")
-        #expect(appExtensionDelegate.isSavingPasswordCredential)
-    }
-
-    /// `perform(_:)` with `.savePressed` when editing an existing login in the
-    /// save-password-credential flow updates the login with the password from the request, keeps the
-    /// previous password in its history, adds its identities to the identity store, and completes the
-    /// save password request without navigating away.
-    @Test
-    @available(iOS 17.0, *)
-    func perform_savePressed_savePasswordCredential_existingLogin() async throws {
-        let (appExtensionDelegate, subject) = try makeSubject(
-            extensionMode: .savePasswordCredential(
-                MockSavePasswordRequestProxy(password: "new"),
-                userInteraction: true,
-            ),
-            state: #require(CipherItemState(existing: existingLogin, hasPremium: true)),
-        )
-
-        await subject.perform(.savePressed)
-
-        let updatedLogin = try #require(vaultRepository.updateCipherCiphers.first)
-        #expect(vaultRepository.updateCipherCiphers.count == 1)
-        #expect(updatedLogin.id == "existing-cipher-id")
-        #expect(updatedLogin.login?.password == "new")
-        #expect(updatedLogin.passwordHistory?.first?.password == "old")
-        #expect(autofillCredentialService.upsertCredentialsInStoreCipherIds == ["existing-cipher-id"])
-        #expect(appExtensionDelegate.completeSavePasswordRequestCalled)
-        #expect(coordinator.routes.isEmpty)
-        #expect(!delegate.itemUpdatedCalled)
-    }
-
     /// `receive(_:)` with `.dismissPressed` in the save-password-credential extension flow cancels
     /// the extension instead of dismissing only the coordinator, which would leave a blank screen.
     @Test
@@ -246,18 +155,11 @@ struct AddEditItemProcessorSavePasswordCredentialTests {
     /// The delegate is returned so the test keeps a strong reference to it, since the processor
     /// only holds it weakly.
     ///
-    /// - Parameters:
-    ///   - extensionMode: The mode the extension is running in.
-    ///   - state: The initial state of the processor.
     /// - Returns: The extension delegate and the processor under test.
     ///
     @available(iOS 17.0, *)
-    private func makeSubject(
-        extensionMode: CredentialProviderMode = .configureAutofill,
-        state: AddEditItemState = CipherItemState(hasPremium: true),
-    ) -> (MockCredentialProviderExtensionDelegate, AddEditItemProcessor) {
+    private func makeSubject() -> (MockCredentialProviderExtensionDelegate, AddEditItemProcessor) {
         let appExtensionDelegate = MockCredentialProviderExtensionDelegate()
-        appExtensionDelegate.extensionMode = extensionMode
         let subject = AddEditItemProcessor(
             appExtensionDelegate: appExtensionDelegate,
             coordinator: coordinator.asAnyCoordinator(),
@@ -267,7 +169,7 @@ struct AddEditItemProcessorSavePasswordCredentialTests {
                 reviewPromptService: reviewPromptService,
                 vaultRepository: vaultRepository,
             ),
-            state: state,
+            state: CipherItemState(hasPremium: true),
             vaultItemActionHelper: MockVaultItemActionHelper(),
         )
         return (appExtensionDelegate, subject)

@@ -451,16 +451,12 @@ extension AppCoordinator: AuthCoordinatorDelegate {
             if let credentialProviderExtensionDelegate = appExtensionDelegate as? CredentialProviderExtensionDelegate,
                credentialProviderExtensionDelegate.isSavingPasswordCredential {
                 // Only show the add item screen once it's known that the save request can't be
-                // completed with, or applied to, an existing login, so the user can't save a duplicate.
+                // completed with an identical existing login, so the user can't save a duplicate.
                 Task {
-                    switch await credentialProviderExtensionDelegate.resolveSavePasswordRequest() {
-                    case .addNew:
-                        navigateToAppExtensionAuthCompletionRoute()
-                    case let .chooseLogin(logins):
-                        navigate(to: .vault(.autofillListForSavePassword(loginIds: logins.compactMap(\.id))))
-                    case .completed:
-                        break
+                    guard await !credentialProviderExtensionDelegate.completeSavePasswordRequestIfLoginExists() else {
+                        return
                     }
+                    navigateToAppExtensionAuthCompletionRoute()
                 }
             } else {
                 navigateToAppExtensionAuthCompletionRoute()

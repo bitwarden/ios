@@ -35,6 +35,16 @@ public protocol CredentialProviderExtensionDelegate: AppExtensionDelegate {
     /// Completes the save password request.
     func completeSavePasswordRequest()
 
+    /// Completes the save password request if the vault already has a login with the same URI,
+    /// username and password as the credential being saved, or a single login that's updated with
+    /// the password, so a duplicate isn't added.
+    ///
+    /// The vault must be unlocked before calling this.
+    ///
+    /// - Returns: `true` if the request was completed, `false` if the login still needs to be saved.
+    ///
+    func completeSavePasswordRequestIfLoginExists() async -> Bool
+
     /// Completes the text request with some text to insert.
     @available(iOSApplicationExtension 18.0, *)
     func completeTextRequest(text: String)
@@ -45,15 +55,6 @@ public protocol CredentialProviderExtensionDelegate: AppExtensionDelegate {
     /// Releases the hidden keyboard anchor text field used in the text-to-insert flow, so it
     /// no longer holds or reclaims first responder.
     func releaseKeyboardAnchor()
-
-    /// Resolves the save-password request against the logins in the vault, completing it if no
-    /// further input is needed (an identical login exists, or a single matching login was updated).
-    ///
-    /// The vault must be unlocked before calling this.
-    ///
-    /// - Returns: How the request was resolved.
-    ///
-    func resolveSavePasswordRequest() async -> SavePasswordResolution
 
     /// Marks that a credential matching one in the relying party's excluded credentials list was
     /// found and fails the registration request accordingly.

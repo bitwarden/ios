@@ -42,7 +42,7 @@ struct VaultAutofillListView: View {
                 profileSwitcher
             }
         }
-        .navigationBar(title: store.state.navigationTitle, titleDisplayMode: .inline)
+        .navigationBar(title: store.state.group?.navigationTitle ?? Localizations.items, titleDisplayMode: .inline)
         .if(store.state.excludedCredentialIdFound == nil && !store.state.isAutofillingTextToInsertList) { view in
             view.searchable(
                 text: store.binding(

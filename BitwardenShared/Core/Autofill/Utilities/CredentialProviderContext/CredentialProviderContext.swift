@@ -126,13 +126,6 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
             serviceIdentifiers
         case let .autofillFido2VaultList(serviceIdentifiers, _):
             serviceIdentifiers
-        case let .savePasswordCredential(request, _):
-            if #available(iOSApplicationExtension 26.2, *),
-               let saveRequest = request as? ASSavePasswordRequest {
-                [saveRequest.serviceIdentifier]
-            } else {
-                []
-            }
         default:
             []
         }

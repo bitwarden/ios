@@ -165,9 +165,9 @@ public protocol VaultRepository: AnyObject {
     /// Matches a save-password request against the logins in the active account's vault. Logins are
     /// matched to `uri` the same way the AutoFill list matches them, following each login URI's match
     /// detection setting and the user's equivalent domains, so a request for a different page on the
-    /// same site matches. Deleted and archived logins are ignored, and logins the user can't edit are
-    /// never offered for an update. Only an exact match with the same username, saved for the same
-    /// host, is updated without asking the user.
+    /// same site matches. Deleted and archived logins are ignored. A login is only offered for an
+    /// update when it's the only editable login with the same username, matches exactly and is saved
+    /// for the same host.
     ///
     /// Errors are logged and `.none` is returned, since failing to match shouldn't prevent the
     /// caller from saving the login.
@@ -175,7 +175,7 @@ public protocol VaultRepository: AnyObject {
     /// - Parameters:
     ///   - uri: The URI of the credential being saved.
     ///   - username: The username of the credential being saved. An empty username matches a login
-    ///     without one for an identical match, and any login for the URI as an update candidate.
+    ///     without one for an identical match, and never offers a login for an update.
     ///   - password: The password of the credential being saved.
     /// - Returns: How the request relates to the existing logins.
     ///
@@ -500,18 +500,16 @@ class DefaultVaultRepository {
         let cipherListViews = try await clientService.vault().ciphers()
             .decryptListWithFailures(ciphers: logins)
             .successes
-        var exactMatches = [CipherListView]()
-        var fuzzyMatches = [CipherListView]()
+        var exactMatchIds = Set<String>()
+        var uriMatches = [CipherListView]()
         for cipherListView in cipherListViews {
-            switch cipherMatchingHelper.doesCipherMatch(cipher: cipherListView) {
-            case .exact: exactMatches.append(cipherListView)
-            case .fuzzy: fuzzyMatches.append(cipherListView)
-            case .none: break
+            let matchResult = cipherMatchingHelper.doesCipherMatch(cipher: cipherListView)
+            guard matchResult != .none else { continue }
+            uriMatches.append(cipherListView)
+            if matchResult == .exact, let cipherId = cipherListView.id {
+                exactMatchIds.insert(cipherId)
             }
         }
-        let exactMatchIds = Set(exactMatches.compactMap(\.id))
-        // List exact matches before fuzzy ones.
-        let uriMatches = exactMatches + fuzzyMatches
 
         // Usernames and passwords are compared byte for byte, since `String` equality treats
         // canonically equivalent Unicode (e.g. "é" and "e" + combining accent) as equal.
@@ -530,30 +528,20 @@ class DefaultVaultRepository {
             sameUsernameLogins.append(cipherView)
         }
 
-        if username.isEmpty {
-            // Without a username, any editable login for the URI could be the one being updated, so
-            // the user always chooses.
-            var candidates = [CipherView]()
-            for cipherListView in uriMatches {
-                guard let cipherId = cipherListView.id, editableIds.contains(cipherId),
-                      let cipherView = try await fetchCipher(withId: cipherId) else { continue }
-                candidates.append(cipherView)
-            }
-            return candidates.isEmpty ? .none : .updateCandidates(candidates)
-        }
+        // Without a username, any login for the URI could be the one being changed, so none is updated.
+        guard !username.isEmpty else { return .none }
 
+        // Only update a login saved for the same host. A match on the base domain (e.g.
+        // `mail.example.com` for `hr.example.com`) or an equivalent domain could be a different account.
         let candidates = sameUsernameLogins.filter { $0.id.map(editableIds.contains) ?? false }
-        // Only update without asking when the login is saved for the same host. A match on the base
-        // domain (e.g. `mail.example.com` for `hr.example.com`) or an equivalent domain could be a
-        // different account, so the user confirms it.
-        if candidates.count == 1,
-           let candidateId = candidates[0].id,
-           exactMatchIds.contains(candidateId),
-           login(candidates[0], hasHostOf: uri) {
-            return .singleUpdateCandidate(candidates[0])
+        guard candidates.count == 1,
+              let candidate = candidates.first,
+              let candidateId = candidate.id,
+              exactMatchIds.contains(candidateId),
+              login(candidate, hasHostOf: uri) else {
+            return .none
         }
-        // Several candidates, or a single match on another host, need the user to confirm which to update.
-        return candidates.isEmpty ? .none : .updateCandidates(candidates)
+        return .singleUpdateCandidate(candidate)
     }
 
     /// Downloads, re-encrypts, and re-uploads an attachment without an attachment key so that it

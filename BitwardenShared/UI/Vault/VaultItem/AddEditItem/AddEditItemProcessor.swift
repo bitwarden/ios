@@ -182,15 +182,6 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
 
         super.init(state: state)
 
-        // When editing a login to update it with the password from a save-password request in the
-        // AutoFill extension, fill in the password as if the user entered it. Saving then records
-        // the previous password in the password history.
-        if !state.configuration.isAdding,
-           let password = (appExtensionDelegate as? CredentialProviderExtensionDelegate)?
-           .extensionMode.savePasswordRequestPassword {
-            self.state.loginState.password = password
-        }
-
         if !state.configuration.isAdding {
             Task {
                 await self.services.rehydrationHelper.addRehydratableTarget(self)
@@ -1095,14 +1086,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                 let totpOverride: LoginTOTPState? = state.loginState.totpState == .none
                     ? nil
                     : state.loginState.totpState
-                // Keep the password being saved from a save-password request, which isn't stored yet.
-                let isSavingPasswordCredential = (appExtensionDelegate as? CredentialProviderExtensionDelegate)?
-                    .isSavingPasswordCredential ?? false
-                let passwordOverride = isSavingPasswordCredential ? state.loginState.password : nil
                 state.update(from: cipherView, preservingTOTPState: totpOverride)
-                if let passwordOverride {
-                    state.loginState.password = passwordOverride
-                }
             }
         } catch {
             services.errorReporter.log(error: error)
@@ -1201,20 +1185,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
 
     /// Updates the item currently in `state`.
     ///
-    /// For a save-password request from the AutoFill extension, the updated login's credential
-    /// identities are added to the identity store and the request is completed, which closes the
-    /// extension.
-    ///
     private func updateItem(cipherView: CipherView) async throws {
         try await services.vaultRepository.updateCipher(cipherView.updatedView(with: state))
-        if let credentialProviderExtensionDelegate = appExtensionDelegate as? CredentialProviderExtensionDelegate,
-           credentialProviderExtensionDelegate.isSavingPasswordCredential {
-            if let cipherId = cipherView.id {
-                await services.autofillCredentialService.upsertCredentialsInStore(forCipherId: cipherId)
-            }
-            credentialProviderExtensionDelegate.completeSavePasswordRequest()
-            return
-        }
         coordinator.hideLoadingOverlay()
         let shouldDismissed = delegate?.itemUpdated(type: state.type) ?? true
         if shouldDismissed {

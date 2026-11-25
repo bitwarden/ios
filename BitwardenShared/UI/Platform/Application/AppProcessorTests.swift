@@ -3,7 +3,6 @@ import AuthenticatorBridgeKit
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
-import struct BitwardenSdk.CipherView
 import Combine
 import Foundation
 import TestHelpers
@@ -964,125 +963,106 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
     }
 
-    /// `resolveSavePasswordCredential(username:password:uri:)` returns `.completed` and adds the
+    /// `updateExistingPasswordCredential(username:password:uri:)` returns `true` and adds the
     /// existing login's identities to the identity store when an identical login exists.
     @available(iOS 26.2, *)
-    func test_resolveSavePasswordCredential_identical() async throws {
+    func test_updateExistingPasswordCredential_identical() async throws {
         vaultRepository.matchSavePasswordRequestResult = .identical(.fixture(id: "existing-cipher-id"))
 
-        let result = try await subject.resolveSavePasswordCredential(
+        let result = try await subject.updateExistingPasswordCredential(
             username: "user",
             password: "pass",
             uri: "https://example.com",
         )
 
-        XCTAssertEqual(result, .completed)
+        XCTAssertTrue(result)
         XCTAssertEqual(vaultRepository.matchSavePasswordRequestUri, "https://example.com")
         XCTAssertEqual(vaultRepository.matchSavePasswordRequestUsername, "user")
         XCTAssertEqual(vaultRepository.matchSavePasswordRequestPassword, "pass")
-        XCTAssertEqual(autofillCredentialService.upsertCredentialsInStoreCipherIds, ["existing-cipher-id"])
         XCTAssertTrue(vaultRepository.updateCipherCiphers.isEmpty)
+        XCTAssertEqual(autofillCredentialService.upsertCredentialsInStoreCipherIds, ["existing-cipher-id"])
     }
 
-    /// `resolveSavePasswordCredential(username:password:uri:)` returns `.addNew` without changing
-    /// anything when no login matches.
+    /// `updateExistingPasswordCredential(username:password:uri:)` returns `false` without updating
+    /// the identity store when no existing login matches.
     @available(iOS 26.2, *)
-    func test_resolveSavePasswordCredential_none() async throws {
+    func test_updateExistingPasswordCredential_none() async throws {
         vaultRepository.matchSavePasswordRequestResult = .none
 
-        let result = try await subject.resolveSavePasswordCredential(
+        let result = try await subject.updateExistingPasswordCredential(
             username: "user",
             password: "pass",
             uri: "https://example.com",
         )
 
-        XCTAssertEqual(result, .addNew)
-        XCTAssertTrue(autofillCredentialService.upsertCredentialsInStoreCipherIds.isEmpty)
+        XCTAssertFalse(result)
         XCTAssertTrue(vaultRepository.updateCipherCiphers.isEmpty)
+        XCTAssertTrue(autofillCredentialService.upsertCredentialsInStoreCipherIds.isEmpty)
     }
 
-    /// `resolveSavePasswordCredential(username:password:uri:)` updates the single matching login's
-    /// password, keeps the old password in its history, and returns `.completed`.
+    /// `updateExistingPasswordCredential(username:password:uri:)` updates the single matching login's
+    /// password, keeps the previous password in its history, adds its identities to the identity
+    /// store, and returns `true`.
     @available(iOS 26.2, *)
-    func test_resolveSavePasswordCredential_singleUpdateCandidate() async throws {
-        let now = Date(year: 2026, month: 11, day: 23)
+    func test_updateExistingPasswordCredential_singleUpdateCandidate() async throws {
+        let now = Date(year: 2026, month: 11, day: 25)
         timeProvider.timeConfig = .mockTime(now)
         vaultRepository.matchSavePasswordRequestResult = .singleUpdateCandidate(
             .loginFixture(id: "existing-cipher-id", login: .fixture(password: "old", username: "user")),
         )
 
-        let result = try await subject.resolveSavePasswordCredential(
+        let result = try await subject.updateExistingPasswordCredential(
             username: "user",
             password: "new",
             uri: "https://example.com",
         )
 
-        XCTAssertEqual(result, .completed)
+        XCTAssertTrue(result)
         let updated = try XCTUnwrap(vaultRepository.updateCipherCiphers.first)
+        XCTAssertEqual(vaultRepository.updateCipherCiphers.count, 1)
         XCTAssertEqual(updated.login?.password, "new")
         XCTAssertEqual(updated.login?.passwordRevisionDate, now)
         XCTAssertEqual(updated.passwordHistory?.first?.password, "old")
         XCTAssertEqual(updated.passwordHistory?.first?.lastUsedDate, now)
-        XCTAssertTrue(vaultRepository.addCipherCiphers.isEmpty)
         XCTAssertEqual(autofillCredentialService.upsertCredentialsInStoreCipherIds, ["existing-cipher-id"])
     }
 
-    /// `resolveSavePasswordCredential(username:password:uri:)` asks the user to choose, without
-    /// updating the login, when the single matching login is protected by master password reprompt.
+    /// `updateExistingPasswordCredential(username:password:uri:)` doesn't update a login protected
+    /// by master password reprompt and returns `false`, so a new login is added instead.
     @available(iOS 26.2, *)
-    func test_resolveSavePasswordCredential_singleUpdateCandidate_repromptRequired() async throws {
-        let cipher = CipherView.loginFixture(
-            id: "existing-cipher-id",
-            login: .fixture(password: "old", username: "user"),
-            reprompt: .password,
+    func test_updateExistingPasswordCredential_singleUpdateCandidate_repromptRequired() async throws {
+        vaultRepository.matchSavePasswordRequestResult = .singleUpdateCandidate(
+            .loginFixture(id: "existing-cipher-id", login: .fixture(password: "old"), reprompt: .password),
         )
-        vaultRepository.matchSavePasswordRequestResult = .singleUpdateCandidate(cipher)
 
-        let result = try await subject.resolveSavePasswordCredential(
+        let result = try await subject.updateExistingPasswordCredential(
             username: "user",
             password: "new",
             uri: "https://example.com",
         )
 
-        XCTAssertEqual(result, .chooseLogin([cipher]))
+        XCTAssertFalse(result)
         XCTAssertTrue(vaultRepository.updateCipherCiphers.isEmpty)
         XCTAssertTrue(autofillCredentialService.upsertCredentialsInStoreCipherIds.isEmpty)
     }
 
-    /// `resolveSavePasswordCredential(username:password:uri:)` throws, without updating the identity
-    /// store, when updating the single matching login fails.
+    /// `updateExistingPasswordCredential(username:password:uri:)` throws, without updating the
+    /// identity store, when updating the single matching login fails.
     @available(iOS 26.2, *)
-    func test_resolveSavePasswordCredential_singleUpdateCandidate_updateError() async throws {
+    func test_updateExistingPasswordCredential_singleUpdateCandidate_updateError() async throws {
         vaultRepository.matchSavePasswordRequestResult = .singleUpdateCandidate(
-            .loginFixture(id: "existing-cipher-id", login: .fixture(password: "old", username: "user")),
+            .loginFixture(id: "existing-cipher-id", login: .fixture(password: "old")),
         )
         vaultRepository.updateCipherResult = .failure(BitwardenTestError.example)
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
-            _ = try await subject.resolveSavePasswordCredential(
+            _ = try await subject.updateExistingPasswordCredential(
                 username: "user",
                 password: "new",
                 uri: "https://example.com",
             )
         }
-        XCTAssertTrue(autofillCredentialService.upsertCredentialsInStoreCipherIds.isEmpty)
-    }
 
-    /// `resolveSavePasswordCredential(username:password:uri:)` returns `.chooseLogin` with the
-    /// candidates, without updating anything, when the user needs to choose a login.
-    @available(iOS 26.2, *)
-    func test_resolveSavePasswordCredential_updateCandidates() async throws {
-        let candidates: [CipherView] = [.loginFixture(id: "1"), .loginFixture(id: "2")]
-        vaultRepository.matchSavePasswordRequestResult = .updateCandidates(candidates)
-
-        let result = try await subject.resolveSavePasswordCredential(
-            username: "user",
-            password: "new",
-            uri: "https://example.com",
-        )
-
-        XCTAssertEqual(result, .chooseLogin(candidates))
-        XCTAssertTrue(vaultRepository.updateCipherCiphers.isEmpty)
         XCTAssertTrue(autofillCredentialService.upsertCredentialsInStoreCipherIds.isEmpty)
     }
 
@@ -1146,7 +1126,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     /// `savePasswordCredential(username:password:uri:name:)` updates the single matching login
-    /// instead of adding a new one.
+    /// instead of adding a duplicate.
     @available(iOS 26.2, *)
     func test_savePasswordCredential_singleUpdateCandidate() async throws {
         vaultRepository.matchSavePasswordRequestResult = .singleUpdateCandidate(
@@ -1160,27 +1140,9 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
             name: nil,
         )
 
-        XCTAssertTrue(vaultRepository.addCipherCiphers.isEmpty)
         XCTAssertEqual(vaultRepository.updateCipherCiphers.first?.login?.password, "new")
-        XCTAssertEqual(autofillCredentialService.upsertCredentialsInStoreCipherIds, ["existing-cipher-id"])
-    }
-
-    /// `savePasswordCredential(username:password:uri:name:)` throws, without adding or updating a
-    /// login, when the user needs to choose which login to update.
-    @available(iOS 26.2, *)
-    func test_savePasswordCredential_updateCandidates() async throws {
-        vaultRepository.matchSavePasswordRequestResult = .updateCandidates([.loginFixture(id: "1")])
-
-        await assertAsyncThrows(error: AppProcessorError.savePasswordRequiresUserInteraction) {
-            try await subject.savePasswordCredential(
-                username: "",
-                password: "new",
-                uri: "https://example.com",
-                name: nil,
-            )
-        }
         XCTAssertTrue(vaultRepository.addCipherCiphers.isEmpty)
-        XCTAssertTrue(vaultRepository.updateCipherCiphers.isEmpty)
+        XCTAssertEqual(autofillCredentialService.upsertCredentialsInStoreCipherIds, ["existing-cipher-id"])
     }
 
     /// `savePasswordCredential(username:password:uri:name:)` doesn't return until the added login's
@@ -1244,20 +1206,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
             )
         }
         XCTAssertTrue(vaultRepository.addCipherCiphers.isEmpty)
-    }
-
-    /// `updatePasswordCredential(_:password:)` updates the login's password and adds its identities
-    /// to the identity store.
-    @available(iOS 26.2, *)
-    func test_updatePasswordCredential() async throws {
-        try await subject.updatePasswordCredential(
-            .loginFixture(id: "existing-cipher-id", login: .fixture(password: "old", username: "user")),
-            password: "new",
-        )
-
-        XCTAssertEqual(vaultRepository.updateCipherCiphers.first?.login?.password, "new")
-        XCTAssertEqual(vaultRepository.updateCipherCiphers.first?.passwordHistory?.first?.password, "old")
-        XCTAssertEqual(autofillCredentialService.upsertCredentialsInStoreCipherIds, ["existing-cipher-id"])
     }
 
     /// `generatePasswordCredential(request:)` generates and returns a password.

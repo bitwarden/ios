@@ -22,9 +22,6 @@ enum AppProcessorError: Error {
 
     /// The operation to execute is invalid.
     case invalidOperation
-
-    /// A save-password request needs the user to choose which login to update.
-    case savePasswordRequiresUserInteraction
 }
 
 /// The `AppProcessor` processes actions received at the application level and contains the logic
@@ -659,16 +656,16 @@ extension AppProcessor {
 // MARK: - Save Password Credential
 
 public extension AppProcessor {
-    /// Resolves a save-password request against the logins in the vault.
+    /// Applies a save-password request to an existing login in the vault, if there is one, so a
+    /// duplicate login isn't added.
     ///
-    /// - If a login with the same URI, username and password exists, its credential identities are
-    ///   added to the identity store so the system doesn't prompt to save it again.
-    /// - If exactly one editable login matches the URI and username, is saved for the same host and
-    ///   doesn't require master password reprompt, its password is updated.
-    /// - If several logins could be the one being updated, the request has no username, the only
-    ///   match is saved for another host, or the login requires master password reprompt, the user
-    ///   needs to choose.
-    /// - Otherwise, a new login needs to be added.
+    /// - If a login with the same URI, username and password exists, nothing needs to change.
+    /// - If exactly one login can be updated (see `VaultRepository.matchSavePasswordRequest`) and it
+    ///   doesn't require master password reprompt, its password is updated and the previous password
+    ///   is added to its password history.
+    ///
+    /// In both cases, the login's credential identities are added to the identity store so the system
+    /// doesn't prompt to save the same credential again.
     ///
     /// The vault must be unlocked before calling this.
     ///
@@ -676,54 +673,56 @@ public extension AppProcessor {
     ///   - username: The username of the credential being saved.
     ///   - password: The password of the credential being saved.
     ///   - uri: The URI of the credential being saved.
-    /// - Returns: How the request was resolved.
+    /// - Returns: `true` if an existing login has or was updated with the password, `false` if a new
+    ///   login needs to be added.
     ///
     @available(iOSApplicationExtension 26.2, *)
-    func resolveSavePasswordCredential(
+    func updateExistingPasswordCredential(
         username: String,
         password: String,
         uri: String,
-    ) async throws -> SavePasswordResolution {
+    ) async throws -> Bool {
+        let existingLogin: CipherView
         switch await services.vaultRepository.matchSavePasswordRequest(
             uri: uri,
             username: username,
             password: password,
         ) {
         case let .identical(cipher):
-            if let cipherId = cipher.id {
-                await services.autofillCredentialService.upsertCredentialsInStore(forCipherId: cipherId)
-            }
-            return .completed
+            existingLogin = cipher
         case .none:
-            return .addNew
+            return false
         case let .singleUpdateCandidate(cipher):
             // A login protected by master password reprompt is never updated without the user.
-            let isRepromptRequired = try await services.authRepository.shouldPerformMasterPasswordReprompt(
+            guard try await !services.authRepository.shouldPerformMasterPasswordReprompt(
                 reprompt: cipher.reprompt,
-            )
-            guard !isRepromptRequired else {
-                return .chooseLogin([cipher])
+            ) else {
+                return false
             }
-            try await updatePasswordCredential(cipher, password: password)
-            return .completed
-        case let .updateCandidates(ciphers):
-            return .chooseLogin(ciphers)
+            try await services.vaultRepository.updateCipher(
+                cipher.update(password: password, timeProvider: services.timeProvider),
+            )
+            existingLogin = cipher
         }
+
+        if let cipherId = existingLogin.id {
+            await services.autofillCredentialService.upsertCredentialsInStore(forCipherId: cipherId)
+        }
+        return true
     }
 
     /// Saves a password credential to the vault without showing UI.
     ///
-    /// The request is resolved with `resolveSavePasswordCredential(username:password:uri:)`. If a new
-    /// login is needed, it's added and its credential identities are added to the identity store,
-    /// so the system doesn't prompt to save the same credential again.
+    /// If an existing login has or can be updated with the password (see
+    /// `updateExistingPasswordCredential(username:password:uri:)`), no new login is added. In both
+    /// cases the login's credential identities are added to the identity store before returning, so
+    /// the system doesn't prompt to save the same credential again.
     ///
     /// - Parameters:
     ///   - username: The username to save.
     ///   - password: The password to save.
     ///   - uri: The URI associated with the credential.
     ///   - name: An optional display name; falls back to the URI's hostname.
-    /// - Throws: `AppProcessorError.savePasswordRequiresUserInteraction` if the user needs to choose
-    ///   which login to update.
     ///
     @available(iOSApplicationExtension 26.2, *)
     func savePasswordCredential(
@@ -734,35 +733,14 @@ public extension AppProcessor {
     ) async throws {
         try await unlockVaultWithNeverlockKey()
 
-        switch try await resolveSavePasswordCredential(username: username, password: password, uri: uri) {
-        case .addNew:
-            let addedCipher = try await services.vaultRepository.addCipher(
-                CipherView(username: username, password: password, uri: uri, name: name),
-            )
-            if let cipherId = addedCipher.id {
-                await services.autofillCredentialService.upsertCredentialsInStore(forCipherId: cipherId)
-            }
-        case .chooseLogin:
-            throw AppProcessorError.savePasswordRequiresUserInteraction
-        case .completed:
-            break
+        guard try await !updateExistingPasswordCredential(username: username, password: password, uri: uri) else {
+            return
         }
-    }
 
-    /// Updates an existing login's password for a save-password request. The previous password is
-    /// added to the login's password history, and the login's credential identities are added to the
-    /// identity store so the system doesn't prompt to save the credential again.
-    ///
-    /// - Parameters:
-    ///   - cipher: The login to update.
-    ///   - password: The new password.
-    ///
-    @available(iOSApplicationExtension 26.2, *)
-    func updatePasswordCredential(_ cipher: CipherView, password: String) async throws {
-        try await services.vaultRepository.updateCipher(
-            cipher.update(password: password, timeProvider: services.timeProvider),
+        let addedCipher = try await services.vaultRepository.addCipher(
+            CipherView(username: username, password: password, uri: uri, name: name),
         )
-        if let cipherId = cipher.id {
+        if let cipherId = addedCipher.id {
             await services.autofillCredentialService.upsertCredentialsInStore(forCipherId: cipherId)
         }
     }

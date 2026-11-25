@@ -570,6 +570,32 @@ extension CredentialProviderViewController: CredentialProviderExtensionDelegate 
         extensionContext.completeSavePasswordRequest(completionHandler: nil)
     }
 
+    func completeSavePasswordRequestIfLoginExists() async -> Bool {
+        guard #available(iOSApplicationExtension 26.2, *),
+              case let .savePasswordCredential(request, _) = context?.extensionMode,
+              let savePasswordRequest = request as? ASSavePasswordRequest,
+              let appProcessor else {
+            return false
+        }
+
+        do {
+            guard try await appProcessor.updateExistingPasswordCredential(
+                username: savePasswordRequest.credential.user,
+                password: savePasswordRequest.credential.password,
+                uri: savePasswordRequest.serviceIdentifier.normalizedURI,
+            ) else {
+                return false
+            }
+        } catch {
+            // Fall back to the add item screen, so the user can still save the credential.
+            Logger.appExtension.error("Error updating existing login for save password request: \(error)")
+            return false
+        }
+
+        extensionContext.completeSavePasswordRequest(completionHandler: nil)
+        return true
+    }
+
     @available(iOSApplicationExtension 17.0, *)
     func completeRegistrationRequest(asPasskeyRegistrationCredential: ASPasskeyRegistrationCredential) {
         extensionContext.completeRegistrationRequest(using: asPasskeyRegistrationCredential)
@@ -589,31 +615,6 @@ extension CredentialProviderViewController: CredentialProviderExtensionDelegate 
     func releaseKeyboardAnchor() {
         keyboardAnchor?.tearDown()
         keyboardAnchor = nil
-    }
-
-    func resolveSavePasswordRequest() async -> SavePasswordResolution {
-        guard #available(iOSApplicationExtension 26.2, *),
-              case let .savePasswordCredential(request, _) = context?.extensionMode,
-              let savePasswordRequest = request as? ASSavePasswordRequest,
-              let appProcessor else {
-            return .addNew
-        }
-
-        do {
-            let resolution = try await appProcessor.resolveSavePasswordCredential(
-                username: savePasswordRequest.credential.user,
-                password: savePasswordRequest.credential.password,
-                uri: savePasswordRequest.serviceIdentifier.normalizedURI,
-            )
-            if resolution == .completed {
-                extensionContext.completeSavePasswordRequest(completionHandler: nil)
-            }
-            return resolution
-        } catch {
-            // Fall back to adding the login, so the user can still save the credential.
-            Logger.appExtension.error("Error resolving save password request: \(error)")
-            return .addNew
-        }
     }
 
     @available(iOSApplicationExtension 18.0, *)

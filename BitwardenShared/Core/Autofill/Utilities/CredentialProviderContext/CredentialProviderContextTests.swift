@@ -373,29 +373,6 @@ struct CredentialProviderContextTests { // swiftlint:disable:this type_body_leng
         #expect(subject7.serviceIdentifiers == expectedIdentifiers)
     }
 
-    /// `serviceIdentifiers` and `uri` return the service identifier of the save-password request on
-    /// iOS 26.2+, so the autofill list can show the logins for the site.
-    @Test
-    @available(iOS 26.2, *)
-    func serviceIdentifiers_savePasswordCredential() {
-        let serviceIdentifier = ASCredentialServiceIdentifier(
-            identifier: "https://example.com/update-password/",
-            type: .URL,
-        )
-        let request = ASSavePasswordRequest(
-            serviceIdentifier: serviceIdentifier,
-            credential: ASPasswordCredential(user: "user@example.com", password: "p@ssw0rd"),
-            title: "Example",
-            sessionID: "session-1",
-            event: .userInitiated,
-        )
-
-        let subject = DefaultCredentialProviderContext(.savePasswordCredential(request, userInteraction: true))
-
-        #expect(subject.serviceIdentifiers == [serviceIdentifier])
-        #expect(subject.uri == "https://example.com/update-password/")
-    }
-
     /// `uri` resolves a single service identifier to a URI, normalizing domain-type identifiers
     /// with an HTTPS prefix while preserving URL-type identifiers as-is.
     @Test(arguments: zip(

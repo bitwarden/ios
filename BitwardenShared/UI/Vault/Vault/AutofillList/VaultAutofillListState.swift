@@ -50,10 +50,6 @@ struct VaultAutofillListState: Equatable, Sendable {
     /// when an item is tapped. See `TextToInsertKeyboardSession.releasesFocusOnItemTap`.
     var releasesFocusOnItemTap = false
 
-    /// The IDs of the logins the user can choose from to update with the password from a
-    /// save-password request, or `nil` if the list isn't used to choose a login to update.
-    var savePasswordLoginIds: Set<String>?
-
     /// The text that the user is currently searching for.
     var searchText = ""
 
@@ -70,21 +66,6 @@ struct VaultAutofillListState: Equatable, Sendable {
 
     /// A toast message to show in the view.
     var toast: Toast?
-
-    /// Whether the list is used to choose which login to update with the password from a
-    /// save-password request.
-    var isChoosingLoginToUpdatePassword: Bool {
-        savePasswordLoginIds != nil
-    }
-
-    /// The title of the screen.
-    var navigationTitle: String {
-        if isChoosingLoginToUpdatePassword {
-            Localizations.updateWhichLogin
-        } else {
-            group?.navigationTitle ?? Localizations.items
-        }
-    }
 
     /// Whether to show the add item button.
     var showAddItemButton: Bool {

@@ -267,29 +267,6 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         }
     }
 
-    /// Returns the sections with only the logins the user can choose from when choosing a login to
-    /// update with the password from a save-password request. Otherwise, returns the sections
-    /// unchanged.
-    ///
-    /// - Parameters:
-    ///   - sections: The sections to filter.
-    ///   - isIncluded: Whether a cipher can be chosen.
-    /// - Returns: The sections, without the items that can't be chosen and without empty sections.
-    ///
-    private func filteredForSavePassword(
-        _ sections: [VaultListSection],
-        isIncluded: (CipherListView) -> Bool,
-    ) -> [VaultListSection] {
-        guard state.isChoosingLoginToUpdatePassword else { return sections }
-        return sections.compactMap { section in
-            let items = section.items.filter { item in
-                guard case let .cipher(cipher, _) = item.itemType else { return false }
-                return isIncluded(cipher)
-            }
-            return items.isEmpty ? nil : VaultListSection(id: section.id, items: items, name: section.name)
-        }
-    }
-
     /// Handles receiving a `ProfileSwitcherAction`.
     ///
     /// - Parameter action: The `ProfileSwitcherAction` to handle.
@@ -364,13 +341,6 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
 
     /// Navigates to the add item screen to create a new login.
     private func navigateToAddNewLogin() {
-        // When choosing a login to update, adding saves the password from the request as a new login,
-        // using the same prefilled add screen as when no login matches.
-        if state.isChoosingLoginToUpdatePassword,
-           case let .vault(saveAsNewLoginRoute) = appExtensionDelegate?.authCompletionRoute {
-            coordinator.navigate(to: saveAsNewLoginRoute)
-            return
-        }
         coordinator.navigate(to: .addItem(
             group: .login,
             newCipherOptions: createNewCipherOptions(),
@@ -419,10 +389,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
     ///     - data: The new search results data.
     ///
     private func searchResultsReceived(data: VaultListData) {
-        let sections = filteredForSavePassword(data.sections) { cipher in
-            // Search covers the whole vault, so only offer logins the user can edit.
-            cipher.type.isLogin && cipher.edit
-        }
+        let sections = data.sections
         state.ciphersForSearch = sections
         state.showNoResults = sections.isEmpty
         if state.isAutofillingTotpList, let section = sections.first, !section.items.isEmpty {
@@ -434,29 +401,6 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
     ///
     private func searchVault(for searchText: String) async {
         updateSearchFilter(for: searchText)
-    }
-
-    /// Shows the edit item screen for the chosen login, which fills in the password from the
-    /// save-password request, so the user can review it and save. If the login is protected by
-    /// master password reprompt, the user must enter their master password first.
-    ///
-    /// - Parameter cipher: The login the user chose to update.
-    ///
-    private func showEditForSavePasswordRequest(_ cipher: CipherListView) async {
-        guard let cipherId = cipher.id else { return }
-        do {
-            if try await services.authRepository.shouldPerformMasterPasswordReprompt(reprompt: cipher.reprompt) {
-                var userVerificationHelper = services.userVerificationHelperFactory.create()
-                userVerificationHelper.userVerificationDelegate = self
-                guard try await userVerificationHelper.verifyMasterPassword() == .verified else { return }
-            }
-            coordinator.navigate(to: .editItemFrom(id: cipherId))
-        } catch UserVerificationError.cancelled {
-            // No-op: the user stays on the list and can choose again.
-        } catch {
-            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-            services.errorReporter.log(error: error)
-        }
     }
 
     /// Updates the search filter for the search term, or clears the search results if the term is
@@ -507,9 +451,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                     break
                 }
 
-                let sections = filteredForSavePassword(vaultListData.sections) { [state] cipher in
-                    cipher.id.map { state.savePasswordLoginIds?.contains($0) ?? false } ?? false
-                }
+                let sections = vaultListData.sections
                 if autofillListMode == .totp, !sections.isEmpty {
                     vaultItemsTotpExpirationManager?.configureTOTPRefreshScheduling(for: sections.flatMap(\.items))
                 }
@@ -574,8 +516,6 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                 coordinator.showAlert(.cipherDecryptionFailure(cipherIds: [cipherId]) { stringToCopy in
                     self.services.pasteboardService.copy(stringToCopy)
                 })
-            } else if state.isChoosingLoginToUpdatePassword {
-                await showEditForSavePasswordRequest(cipher)
             } else if #available(iOSApplicationExtension 17.0, *),
                       let credentialProviderExtensionDelegate,
                       fido2CredentialAutofillView != nil

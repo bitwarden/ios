@@ -1423,10 +1423,9 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(result, .singleUpdateCandidate(CipherView(cipher: existing)))
     }
 
-    /// `matchSavePasswordRequest(uri:username:password:)` asks the user to confirm, instead of
-    /// updating without asking, when the only matching login is saved for another host on the same
-    /// base domain.
-    func test_matchSavePasswordRequest_differentHost_updateCandidates() async {
+    /// `matchSavePasswordRequest(uri:username:password:)` doesn't offer a login for an update when
+    /// it's saved for another host on the same base domain, since it could be a different account.
+    func test_matchSavePasswordRequest_differentHost() async {
         let existing = Cipher.fixture(
             id: "1",
             login: .fixture(password: "old", uris: [.fixture(uri: "https://mail.example.com")], username: "user"),
@@ -1439,7 +1438,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             password: "new",
         )
 
-        XCTAssertEqual(result, .updateCandidates([CipherView(cipher: existing)]))
+        XCTAssertEqual(result, SavePasswordMatch.none)
     }
 
     /// `matchSavePasswordRequest(uri:username:password:)` updates without asking when the only
@@ -1641,9 +1640,9 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(result, .singleUpdateCandidate(CipherView(cipher: existing)))
     }
 
-    /// `matchSavePasswordRequest(uri:username:password:)` returns `.updateCandidates` when several
-    /// logins have the same URI and username but a different password.
-    func test_matchSavePasswordRequest_multipleUpdateCandidates() async {
+    /// `matchSavePasswordRequest(uri:username:password:)` returns `.none` when several logins have
+    /// the same URI and username but a different password, since it can't tell which one changed.
+    func test_matchSavePasswordRequest_multipleSameUsernameLogins() async {
         let first = Cipher.fixture(
             id: "1",
             login: .fixture(password: "old1", uris: [.fixture(uri: "https://example.com")], username: "user"),
@@ -1660,12 +1659,12 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             password: "new",
         )
 
-        XCTAssertEqual(result, .updateCandidates([CipherView(cipher: first), CipherView(cipher: second)]))
+        XCTAssertEqual(result, SavePasswordMatch.none)
     }
 
-    /// `matchSavePasswordRequest(uri:username:password:)` returns every editable login for the URI
-    /// as `.updateCandidates` when the request has no username, even if there's only one.
-    func test_matchSavePasswordRequest_emptyUsername_updateCandidates() async {
+    /// `matchSavePasswordRequest(uri:username:password:)` doesn't offer a login for an update when
+    /// the request has no username, even if only one login matches the URI.
+    func test_matchSavePasswordRequest_emptyUsername_noUpdate() async {
         let withUsername = Cipher.fixture(
             id: "1",
             login: .fixture(password: "old", uris: [.fixture(uri: "https://example.com")], username: "user"),
@@ -1682,7 +1681,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             password: "new",
         )
 
-        XCTAssertEqual(result, .updateCandidates([CipherView(cipher: withUsername)]))
+        XCTAssertEqual(result, SavePasswordMatch.none)
     }
 
     /// `matchSavePasswordRequest(uri:username:password:)` never offers logins the user can't edit

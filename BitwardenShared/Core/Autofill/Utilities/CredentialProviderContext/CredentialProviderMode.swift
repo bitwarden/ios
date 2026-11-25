@@ -45,12 +45,6 @@ public extension CredentialProviderMode {
         guard case let .generatePasswordCredential(proxy, _) = self else { return nil }
         return proxy.passwordFieldPasswordRules ?? proxy.passwordRulesFromQuirks
     }
-
-    /// The password from the `savePasswordCredential` mode's request, or `nil` for all other modes.
-    var savePasswordRequestPassword: String? {
-        guard case let .savePasswordCredential(proxy, _) = self else { return nil }
-        return proxy.password
-    }
 }
 
 /// Protocol to bypass using @available for passkey requests.
@@ -77,15 +71,7 @@ public extension GeneratePasswordRequestProxy {
 }
 
 /// Protocol to bypass using @available for save password requests (iOS 26.2+).
-public protocol SavePasswordRequestProxy {
-    /// The password of the credential being saved.
-    var password: String? { get }
-}
-
-public extension SavePasswordRequestProxy {
-    /// Default implementation returns `nil`.
-    var password: String? { nil }
-}
+public protocol SavePasswordRequestProxy {}
 
 @available(iOSApplicationExtension 17.0, *)
 extension ASPasskeyCredentialRequest: PasskeyCredentialRequest {}
@@ -97,8 +83,4 @@ extension ASOneTimeCodeCredentialIdentity: OneTimeCodeCredentialIdentityProxy {}
 extension ASGeneratePasswordsRequest: GeneratePasswordRequestProxy {}
 
 @available(iOSApplicationExtension 26.2, *)
-extension ASSavePasswordRequest: SavePasswordRequestProxy {
-    public var password: String? {
-        credential.password
-    }
-}
+extension ASSavePasswordRequest: SavePasswordRequestProxy {}
