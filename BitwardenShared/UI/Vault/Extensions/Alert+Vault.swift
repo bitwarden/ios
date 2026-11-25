@@ -66,6 +66,36 @@ extension Alert {
         return alert
     }
 
+    /// Returns an alert for when opening the attachments screen, or previewing or downloading an
+    /// existing attachment, is unavailable.
+    ///
+    /// - Parameters:
+    ///   - isInAppUpgradeAvailable: Whether the in-app Premium upgrade is available, which
+    ///     determines the title of the upgrade action.
+    ///   - action: A closure to execute on upgrading to Premium.
+    /// - Returns: The alert when attachment access is unavailable.
+    static func attachmentPreviewUnavailable(
+        isInAppUpgradeAvailable: Bool,
+        action: @escaping () async -> Void,
+    ) -> Alert {
+        let preferredAction = AlertAction(
+            title: premiumUpgradeActionTitle(isInAppUpgradeAvailable: isInAppUpgradeAvailable),
+            style: .default,
+        ) { _ in
+            await action()
+        }
+        let alert = Alert(
+            title: Localizations.premiumSubscriptionRequired,
+            message: Localizations.attachmentsAreAPremiumFeatureDescriptionLong,
+            alertActions: [
+                preferredAction,
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ],
+        )
+        alert.preferredAction = preferredAction
+        return alert
+    }
+
     /// Returns an alert notifying the user that one or more items in their vault were unable to be
     /// decrypted.
     ///

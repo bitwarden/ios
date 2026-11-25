@@ -17,6 +17,17 @@ protocol VaultItemActionHelper { // sourcery: AutoMockable
         completionHandler: @escaping () -> Void,
     ) async
 
+    /// Navigates to the attachments screen for a cipher, or shows an alert offering the Premium
+    /// upgrade if the user doesn't have access to Premium features.
+    ///
+    /// - Parameters:
+    ///   - cipher: The cipher to show the attachments for.
+    ///   - handleNavigateToPremiumUpgrade: A closure called to navigate to the Premium upgrade flow.
+    func showAttachments(
+        cipher: CipherView,
+        handleNavigateToPremiumUpgrade: @escaping () async -> Void,
+    ) async
+
     /// Unarchives a cipher.
     ///
     /// - Parameters:
@@ -89,6 +100,24 @@ class DefaultVaultItemActionHelper: VaultItemActionHelper {
                 completionHandler: completionHandler,
             )
         })
+    }
+
+    func showAttachments(
+        cipher: CipherView,
+        handleNavigateToPremiumUpgrade: @escaping () async -> Void,
+    ) async {
+        guard await services.vaultRepository.doesActiveAccountHavePremium() else {
+            let isInAppUpgradeAvailable = await services.billingRepository.isInAppUpgradeAvailable()
+            await coordinator.showAlert(
+                .attachmentPreviewUnavailable(
+                    isInAppUpgradeAvailable: isInAppUpgradeAvailable,
+                    action: handleNavigateToPremiumUpgrade,
+                ),
+            )
+            return
+        }
+
+        await coordinator.navigate(to: .attachments(cipher))
     }
 
     func unarchive(

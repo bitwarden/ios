@@ -206,10 +206,29 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         case let .attachmentTapped(attachment):
             guard case let .data(cipherState) = state.loadingState else { return }
             Task {
-                await attachmentPreviewHelper.showPreview(for: attachment, cipher: cipherState.cipher)
+                await attachmentPreviewHelper.showPreview(
+                    for: attachment,
+                    cipher: cipherState.cipher,
+                ) { [weak self] in
+                    await self?.navigateToPremiumUpgrade()
+                }
             }
         case let .downloadAttachment(attachment):
-            confirmDownload(attachment)
+            Task {
+                guard await services.vaultRepository.doesActiveAccountHavePremium() else {
+                    let isInAppUpgradeAvailable = await services.billingRepository.isInAppUpgradeAvailable()
+                    coordinator.showAlert(
+                        .attachmentPreviewUnavailable(
+                            isInAppUpgradeAvailable: isInAppUpgradeAvailable,
+                            action: { [weak self] in
+                                await self?.navigateToPremiumUpgrade()
+                            },
+                        ),
+                    )
+                    return
+                }
+                confirmDownload(attachment)
+            }
         case let .driversLicenseItemAction(action):
             handleDriversLicenseAction(action)
         case .editPressed:
@@ -545,7 +564,11 @@ private extension ViewItemProcessor {
 
         switch action {
         case .attachments:
-            coordinator.navigate(to: .attachments(cipher))
+            Task {
+                await vaultItemActionHelper.showAttachments(cipher: cipher) { [weak self] in
+                    await self?.navigateToPremiumUpgrade()
+                }
+            }
         case .clone:
             Task {
                 await cloneItem(cipher)
