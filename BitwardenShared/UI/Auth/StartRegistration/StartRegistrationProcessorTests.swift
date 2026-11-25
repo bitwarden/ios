@@ -99,7 +99,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     @MainActor
     func test_startRegistration_registrationDisabled_vaultURLNil_skipsCheck() async throws {
         subject.state = .fixture()
-        stateService.preAuthEnvironmentURLs = .defaultUS
+        environmentService.getPreAuthURLsReturnValue = .defaultUS
         client.result = .httpSuccess(testData: .nilResponse)
         configService.configMocker.withResult(ServerConfig(
             date: Date(),
@@ -125,7 +125,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     @MainActor
     func test_startRegistration_registrationDisabled_vaultHostMatches() async {
         subject.state = .fixture()
-        stateService.preAuthEnvironmentURLs = EnvironmentURLData(
+        environmentService.getPreAuthURLsReturnValue = EnvironmentURLData(
             webVault: URL(string: "https://vault.example.com"),
         )
         configService.configMocker.withResult(ServerConfig(
@@ -165,7 +165,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     @MainActor
     func test_startRegistration_registrationDisabled_vaultHostMismatch_skipsCheck() async throws {
         subject.state = .fixture()
-        stateService.preAuthEnvironmentURLs = .defaultEU
+        environmentService.getPreAuthURLsReturnValue = .defaultEU
         client.result = .httpSuccess(testData: .nilResponse)
         configService.configMocker.withResult(ServerConfig(
             date: Date(),
@@ -208,7 +208,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     func test_perform_startRegistration_setPreAuthUrls_checkEmail() async throws {
         subject.state = .fixture()
         client.result = .httpSuccess(testData: .nilResponse)
-        stateService.preAuthEnvironmentURLs = .defaultEU
+        environmentService.getPreAuthURLsReturnValue = .defaultEU
 
         await subject.perform(.startRegistration)
 
@@ -236,7 +236,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     func test_perform_startRegistration_setPreAuthUrls_checkEmail_emailWithSpaceAndCapitals() async throws {
         subject.state = .fixture(emailText: "  example@EMAIL.com   ")
         client.result = .httpSuccess(testData: .nilResponse)
-        stateService.preAuthEnvironmentURLs = .defaultEU
+        environmentService.getPreAuthURLsReturnValue = .defaultEU
 
         await subject.perform(.startRegistration)
 
@@ -264,7 +264,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     func test_perform_startRegistration_setPreAuthUrls_checkEmail_noUrls() async throws {
         subject.state = .fixture()
         client.result = .httpSuccess(testData: .nilResponse)
-        stateService.preAuthEnvironmentURLs = nil
+        environmentService.getPreAuthURLsReturnValue = nil
 
         await subject.perform(.startRegistration)
 
@@ -647,7 +647,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     /// environment URLs.
     @MainActor
     func test_perform_appeared_loadsRegion_withPreAuthUrls_europe() async {
-        stateService.preAuthEnvironmentURLs = .defaultEU
+        environmentService.getPreAuthURLsReturnValue = .defaultEU
         await subject.perform(.appeared)
         XCTAssertEqual(subject.state.region, .europe)
         XCTAssertEqual(environmentService.setPreAuthURLsReceivedUrls, .defaultEU)
@@ -658,7 +658,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     @MainActor
     func test_perform_appeared_loadsRegion_withPreAuthUrls_selfHosted() async {
         let urls = EnvironmentURLData(base: .example)
-        stateService.preAuthEnvironmentURLs = urls
+        environmentService.getPreAuthURLsReturnValue = urls
         await subject.perform(.appeared)
         XCTAssertEqual(subject.state.region, .selfHosted)
         XCTAssertEqual(environmentService.setPreAuthURLsReceivedUrls, urls)
@@ -668,7 +668,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     /// environment URLs.
     @MainActor
     func test_perform_appeared_loadsRegion_withPreAuthUrls_unitedStates() async {
-        stateService.preAuthEnvironmentURLs = .defaultUS
+        environmentService.getPreAuthURLsReturnValue = .defaultUS
         await subject.perform(.appeared)
         XCTAssertEqual(subject.state.region, .unitedStates)
         XCTAssertEqual(environmentService.setPreAuthURLsReceivedUrls, .defaultUS)
@@ -679,7 +679,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     /// Test if isReceiveMarketingToggle is On
     @MainActor
     func test_perform_appeared_loadsRegion_withPreAuthUrls_unitedStates_isReceiveMarketingToggle_on() async {
-        stateService.preAuthEnvironmentURLs = .defaultUS
+        environmentService.getPreAuthURLsReturnValue = .defaultUS
         await subject.perform(.appeared)
         XCTAssertEqual(subject.state.region, .unitedStates)
         XCTAssertEqual(environmentService.setPreAuthURLsReceivedUrls, .defaultUS)
@@ -691,7 +691,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     /// Test if isReceiveMarketingToggle is Off
     @MainActor
     func test_perform_appeared_loadsRegion_withPreAuthUrls_europe_isReceiveMarketingToggle_off() async {
-        stateService.preAuthEnvironmentURLs = .defaultEU
+        environmentService.getPreAuthURLsReturnValue = .defaultEU
         await subject.perform(.appeared)
         XCTAssertEqual(subject.state.region, .europe)
         XCTAssertEqual(environmentService.setPreAuthURLsReceivedUrls, .defaultEU)

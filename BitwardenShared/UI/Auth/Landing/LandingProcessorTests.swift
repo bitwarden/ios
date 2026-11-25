@@ -18,7 +18,6 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
     var subject: LandingProcessor!
-    var stateService: MockStateService!
 
     // MARK: Setup & Teardown
 
@@ -31,7 +30,6 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
         environmentService = MockEnvironmentService.withDefaults()
         errorReporter = MockErrorReporter()
-        stateService = MockStateService()
 
         let state = LandingState()
         let services = ServiceContainer.withMocks(
@@ -40,7 +38,6 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
             configService: configService,
             environmentService: environmentService,
             errorReporter: errorReporter,
-            stateService: stateService,
         )
         subject = LandingProcessor(
             coordinator: coordinator.asAnyCoordinator(),
@@ -59,7 +56,6 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         environmentService = nil
         errorReporter = nil
         subject = nil
-        stateService = nil
     }
 
     // MARK: Tests
@@ -67,7 +63,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// `didChangeRegion(urls:)` update URLs when they change on the StartRegistration modal
     @MainActor
     func test_didChangeRegion() async {
-        stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: .example)
+        environmentService.getPreAuthURLsReturnValue = EnvironmentURLData(base: .example)
         subject.state.region = .unitedStates
         await subject.didChangeRegion()
         XCTAssertEqual(subject.state.region, .selfHosted)
@@ -81,7 +77,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// the environment.
     @MainActor
     func test_didSaveEnvironment() async {
-        stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: .example)
+        environmentService.getPreAuthURLsReturnValue = EnvironmentURLData(base: .example)
         subject.state.region = .unitedStates
         await subject.didSaveEnvironment(urls: EnvironmentURLData(base: .example))
         XCTAssertEqual(subject.state.region, .selfHosted)
@@ -95,7 +91,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// `didSaveEnvironment(urls:)` with empty URLs doesn't change the region or the environment URLs.
     @MainActor
     func test_didSaveEnvironment_empty() async {
-        stateService.preAuthEnvironmentURLs = EnvironmentURLData()
+        environmentService.getPreAuthURLsReturnValue = EnvironmentURLData()
         subject.state.region = .unitedStates
         await subject.didSaveEnvironment(urls: EnvironmentURLData())
         XCTAssertEqual(subject.state.region, .unitedStates)
@@ -106,7 +102,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// the config's vault host matches the current pre-auth URLs (no network round-trip required).
     @MainActor
     func test_perform_appeared_cachedConfig_disableUserRegistration_matchingURLs() async {
-        stateService.preAuthEnvironmentURLs = .defaultUS
+        environmentService.getPreAuthURLsReturnValue = .defaultUS
         configService.configMocker.withResult(
             ServerConfig(
                 date: Date(),
@@ -139,7 +135,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// current pre-auth URLs (stale config from a previously selected region), leaving the button visible.
     @MainActor
     func test_perform_appeared_cachedConfig_disableUserRegistration_mismatchedURLs() async {
-        stateService.preAuthEnvironmentURLs = .defaultUS
+        environmentService.getPreAuthURLsReturnValue = .defaultUS
         configService.configMocker.withResult(
             ServerConfig(
                 date: Date(),
@@ -180,7 +176,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// environment URLs.
     @MainActor
     func test_perform_appeared_loadsRegion_withPreAuthUrls_europe() async {
-        stateService.preAuthEnvironmentURLs = .defaultEU
+        environmentService.getPreAuthURLsReturnValue = .defaultEU
         await subject.perform(.appeared)
         XCTAssertEqual(subject.state.region, .europe)
         XCTAssertEqual(environmentService.setPreAuthURLsReceivedUrls, .defaultEU)
@@ -191,7 +187,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     @MainActor
     func test_perform_appeared_loadsRegion_withPreAuthUrls_selfHosted() async {
         let urls = EnvironmentURLData(base: .example)
-        stateService.preAuthEnvironmentURLs = urls
+        environmentService.getPreAuthURLsReturnValue = urls
         await subject.perform(.appeared)
         XCTAssertEqual(subject.state.region, .selfHosted)
         XCTAssertEqual(environmentService.setPreAuthURLsReceivedUrls, urls)
@@ -201,7 +197,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// environment URLs.
     @MainActor
     func test_perform_appeared_loadsRegion_withPreAuthUrls_unitedStates() async {
-        stateService.preAuthEnvironmentURLs = .defaultUS
+        environmentService.getPreAuthURLsReturnValue = .defaultUS
         await subject.perform(.appeared)
         XCTAssertEqual(subject.state.region, .unitedStates)
         XCTAssertEqual(environmentService.setPreAuthURLsReceivedUrls, .defaultUS)
@@ -474,7 +470,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// current pre-auth environment.
     @MainActor
     func test_configPublisher_disableUserRegistration_true() async throws {
-        stateService.preAuthEnvironmentURLs = .defaultUS
+        environmentService.getPreAuthURLsReturnValue = .defaultUS
         let config = ServerConfig(
             date: Date(),
             responseModel: ConfigResponseModel(
@@ -508,7 +504,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// current pre-auth environment.
     @MainActor
     func test_configPublisher_disableUserRegistration_false() async throws {
-        stateService.preAuthEnvironmentURLs = .defaultUS
+        environmentService.getPreAuthURLsReturnValue = .defaultUS
         subject.state.isCreateAccountButtonHidden = true
         let config = ServerConfig(
             date: Date(),
@@ -550,7 +546,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// the current pre-auth environment (stale config from a previously selected region).
     @MainActor
     func test_configPublisher_staleConfig_doesNotUpdateButton() async {
-        stateService.preAuthEnvironmentURLs = .defaultUS
+        environmentService.getPreAuthURLsReturnValue = .defaultUS
         // Seed the button as hidden (as if the current US server disables registration).
         subject.state.isCreateAccountButtonHidden = true
 
@@ -658,7 +654,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// and the cached config matches the current region.
     @MainActor
     func test_perform_regionPressed_fedrampGovRegionEnabled() async throws {
-        stateService.preAuthEnvironmentURLs = .defaultUS
+        environmentService.getPreAuthURLsReturnValue = .defaultUS
         configService.configMocker.withResult(
             ServerConfig(
                 date: Date(),
@@ -695,7 +691,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// but the cached config belongs to a different region (stale cache).
     @MainActor
     func test_perform_regionPressed_fedrampGovRegionEnabled_staleConfig() async throws {
-        stateService.preAuthEnvironmentURLs = .defaultUS
+        environmentService.getPreAuthURLsReturnValue = .defaultUS
         configService.configMocker.withResult(
             ServerConfig(
                 date: Date(),
