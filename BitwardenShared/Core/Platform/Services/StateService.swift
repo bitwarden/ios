@@ -322,6 +322,19 @@ protocol StateService: AnyObject, DebugStateService {
     ///
     func getPasswordGenerationOptions(userId: String?) async throws -> PasswordGenerationOptions?
 
+    /// Gets the user's account setup onboarding state on this device. This is set to `true` when the user
+    /// logs in or creates an account on this device and no value is stored yet, and to `false` once the
+    /// account setup onboarding has been evaluated. It isn't cleared on logout, so onboarding is only shown
+    /// once per account per device.
+    ///
+    /// - Parameter userId: The user ID associated with the pending account setup onboarding.
+    /// - Returns: `true` if account setup onboarding is pending for the user, `false` if it has already been
+    ///     evaluated, or `nil` if the user hasn't logged in on this device since this value was introduced.
+    ///     This includes existing users who were already logged in before updating; they're marked as
+    ///     pending on their next login.
+    ///
+    func getPendingAccountSetupOnboarding(userId: String?) async throws -> Bool?
+
     /// Gets the pending actions from `AppIntent`s.
     /// - Returns: The pending actions to execute.
     func getPendingAppIntentActions() async -> [PendingAppIntentAction]?
@@ -737,6 +750,18 @@ protocol StateService: AnyObject, DebugStateService {
     ///   - userId: The user ID associated with the password generation options.
     ///
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws
+
+    /// Sets the user's account setup onboarding state on this device. This is set to `true` when the user
+    /// logs in or creates an account on this device and no value is stored yet, and to `false` once the
+    /// account setup onboarding has been evaluated. It isn't cleared on logout, so onboarding is only shown
+    /// once per account per device.
+    ///
+    /// - Parameters:
+    ///   - isPending: `true` if account setup onboarding is pending for the user, `false` if it has already
+    ///     been evaluated, or `nil` to remove the value.
+    ///   - userId: The user ID associated with the pending account setup onboarding.
+    ///
+    func setPendingAccountSetupOnboarding(_ isPending: Bool?, userId: String?) async throws
 
     /// Sets the pending actions from `AppIntent`s.
     /// - Parameter actions: Actions pending to be executed.
@@ -1886,6 +1911,11 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         return appSettingsStore.passwordGenerationOptions(userId: userId)
     }
 
+    func getPendingAccountSetupOnboarding(userId: String?) async throws -> Bool? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.pendingAccountSetupOnboarding(userId: userId)
+    }
+
     func getPendingAppIntentActions() async -> [PendingAppIntentAction]? {
         appSettingsStore.pendingAppIntentActions
     }
@@ -2019,6 +2049,7 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.setV2UpgradeToken(nil, userId: knownUserId)
 
         if userInitiated {
+            appSettingsStore.setPlanBadgeDismissed(false, userId: knownUserId)
             appSettingsStore.setPreviousPersonalPremium(nil, userId: knownUserId)
         }
 
@@ -2271,6 +2302,11 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setPasswordGenerationOptions(options, userId: userId)
+    }
+
+    func setPendingAccountSetupOnboarding(_ isPending: Bool?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setPendingAccountSetupOnboarding(isPending, userId: userId)
     }
 
     func setPendingAppIntentActions(actions: [PendingAppIntentAction]?) async {
@@ -2542,6 +2578,18 @@ struct AccountVolatileData {
 // MARK: BillingStateService
 
 extension DefaultStateService: BillingStateService {
+    // MARK: Plan Badge
+
+    func getPlanBadgeDismissed(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.planBadgeDismissed(userId: userId)
+    }
+
+    func setPlanBadgeDismissed(_ dismissed: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setPlanBadgeDismissed(dismissed, userId: userId)
+    }
+
     // MARK: Premium Upgrade Banner
 
     func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool {
@@ -2696,6 +2744,11 @@ extension DefaultStateService {
     func clearMasterPasswordUnlockForActiveAccount() async throws {
         let userId = try getActiveAccountUserId()
         await clearAccountMasterPasswordUnlockData(userId: userId)
+    }
+
+    func markAccountSetupOnboardingPendingForActiveAccount() async throws {
+        let userId = try getActiveAccountUserId()
+        appSettingsStore.setPendingAccountSetupOnboarding(true, userId: userId)
     }
 }
 

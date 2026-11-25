@@ -975,6 +975,27 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNil(subject.organizationUserNotificationBannerDismissal(userId: "1"))
     }
 
+    /// `pendingAccountSetupOnboarding(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_pendingAccountSetupOnboarding_isInitiallyNil() {
+        XCTAssertNil(subject.pendingAccountSetupOnboarding(userId: "1"))
+    }
+
+    /// `pendingAccountSetupOnboarding(userId:)` can be used to get the persisted value and
+    /// `setPendingAccountSetupOnboarding(_:userId:)` can be used to set and remove it.
+    func test_pendingAccountSetupOnboarding_withValue() {
+        subject.setPendingAccountSetupOnboarding(true, userId: "1")
+        subject.setPendingAccountSetupOnboarding(false, userId: "2")
+
+        XCTAssertEqual(subject.pendingAccountSetupOnboarding(userId: "1"), true)
+        XCTAssertEqual(subject.pendingAccountSetupOnboarding(userId: "2"), false)
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:pendingAccountSetupOnboarding_1"), "true")
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:pendingAccountSetupOnboarding_2"), "false")
+
+        subject.setPendingAccountSetupOnboarding(nil, userId: "1")
+        XCTAssertNil(subject.pendingAccountSetupOnboarding(userId: "1"))
+        XCTAssertNil(userDefaults.object(forKey: "bwPreferencesStorage:pendingAccountSetupOnboarding_1"))
+    }
+
     /// `pendingAppIntentActions`is initially `nil`.
     func test_pendingAppIntentActions_isInitiallyNil() {
         XCTAssertNil(subject.pendingAppIntentActions)
@@ -1016,6 +1037,30 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         let pin = subject.pinProtectedUserKeyEnvelope(userId: userId)
         XCTAssertEqual(pin, "123")
         XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:pinProtectedUserKeyEnvelope_1"), "123")
+    }
+
+    /// `planBadgeDismissed(userId:)` returns `false` if there isn't a previously stored value.
+    func test_planBadgeDismissed_isInitiallyFalse() {
+        XCTAssertFalse(subject.planBadgeDismissed(userId: "1"))
+    }
+
+    /// `planBadgeDismissed(userId:)` can be used to get and set the persisted value in user defaults.
+    func test_planBadgeDismissed_withValue() {
+        subject.setPlanBadgeDismissed(true, userId: "1")
+        XCTAssertTrue(subject.planBadgeDismissed(userId: "1"))
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:planBadgeDismissed_1"))
+
+        subject.setPlanBadgeDismissed(false, userId: "1")
+        XCTAssertFalse(subject.planBadgeDismissed(userId: "1"))
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:planBadgeDismissed_1"))
+    }
+
+    /// `planBadgeDismissed(userId:)` stores the value separately for each user.
+    func test_planBadgeDismissed_withMultipleUsers() {
+        subject.setPlanBadgeDismissed(true, userId: "1")
+
+        XCTAssertTrue(subject.planBadgeDismissed(userId: "1"))
+        XCTAssertFalse(subject.planBadgeDismissed(userId: "2"))
     }
 
     /// `preAuthEnvironmentURLs` returns `nil` if there isn't a previously stored value.

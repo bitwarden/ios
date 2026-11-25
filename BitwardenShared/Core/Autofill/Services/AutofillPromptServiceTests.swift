@@ -121,6 +121,31 @@ struct AutofillPromptServiceTests {
         try await waitForAsync { autofillCredentialService.updateCredentialsInStoreCalled }
     }
 
+    /// `refreshAutofillStatus()` cancels a pending credential identity store repopulation when
+    /// autofill is turned on again, so the store is only repopulated once.
+    @Test
+    func refreshAutofillStatus_offToOnTwice_backgrounded_updatesCredentialsInStoreOnce() async throws {
+        notificationCenterService.isInForegroundSubject.send(false)
+        autofillCredentialService.isAutofillCredentialsEnabled = false
+        await subject.refreshAutofillStatus()
+
+        autofillCredentialService.isAutofillCredentialsEnabled = true
+        await subject.refreshAutofillStatus()
+        autofillCredentialService.isAutofillCredentialsEnabled = false
+        await subject.refreshAutofillStatus()
+        autofillCredentialService.isAutofillCredentialsEnabled = true
+        await subject.refreshAutofillStatus()
+        // Give the pending updates a chance to start waiting for the foreground.
+        try await Task.sleep(nanoseconds: 100_000_000)
+
+        notificationCenterService.isInForegroundSubject.send(true)
+
+        try await waitForAsync { autofillCredentialService.updateCredentialsInStoreCalled }
+        // Give a duplicate update a chance to run.
+        try await Task.sleep(nanoseconds: 100_000_000)
+        #expect(autofillCredentialService.updateCredentialsInStoreCallsCount == 1)
+    }
+
     /// `refreshAutofillStatus()` doesn't repopulate the credential identity store if the vault
     /// locks while the update is pending, since the store is populated again on unlock.
     @Test

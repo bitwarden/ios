@@ -413,6 +413,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
         XCTAssertEqual(coordinator.events, [.didCompleteAuth])
+        XCTAssertTrue(coordinator.routes.isEmpty)
         XCTAssertTrue(subject.state.didCreateAccount)
     }
 

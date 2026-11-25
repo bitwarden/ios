@@ -383,13 +383,13 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
 
         try await alert?.tapAction(title: Localizations.yes)
 
-        waitFor(!coordinator.routes.isEmpty)
+        try await waitForAsync { !self.coordinator.events.isEmpty }
         XCTAssertTrue(authRepository.convertNewUserToKeyConnectorKeyCalled)
         XCTAssertEqual(authRepository.convertNewUserToKeyConnectorOrgIdentifier, "BestOrganization")
         XCTAssertEqual(authRepository.convertNewUserToKeyConnectorKeyConnectorURL, URL(string: "https://example.com")!)
 
         XCTAssertEqual(coordinator.events.last, .didCompleteAuth)
-        XCTAssertEqual(coordinator.routes, [.dismiss])
+        XCTAssertTrue(coordinator.routes.isEmpty)
     }
 
     /// `singleSignOnCompleted(code:)` shows the confirm key connector dialog and surfaces an error
