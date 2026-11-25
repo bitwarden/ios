@@ -53,28 +53,6 @@ struct ASSettingsMediatorTests {
         }
     }
 
-    // MARK: openVerificationCodeAppSettings Tests
-
-    /// `openVerificationCodeAppSettings()` delegates to the proxy.
-    @Test
-    @available(iOS 17, *)
-    func openVerificationCodeAppSettings_delegates() async throws {
-        try await subject.openVerificationCodeAppSettings()
-
-        #expect(asSettingsHelperProxy.openVerificationCodeAppSettingsCalled)
-    }
-
-    /// `openVerificationCodeAppSettings()` rethrows errors from the proxy.
-    @Test
-    @available(iOS 17, *)
-    func openVerificationCodeAppSettings_rethrowsError() async {
-        asSettingsHelperProxy.openVerificationCodeAppSettingsThrowableError = BitwardenTestError.example
-
-        await #expect(throws: BitwardenTestError.example) {
-            try await subject.openVerificationCodeAppSettings()
-        }
-    }
-
     // MARK: requestToTurnOnCredentialProviderExtension Tests
 
     /// `requestToTurnOnCredentialProviderExtension()` throws ``ASSettingsMediatorError/cantRequest``

@@ -16,6 +16,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var accountSetupAutofill = [String: AccountSetupProgress]()
     var accountSetupAutofillError: Error?
     var accountSetupImportLogins = [String: AccountSetupProgress]()
+    var accountSetupImportLoginsError: Error?
     var accountSetupVaultUnlock = [String: AccountSetupProgress]()
     var accountTokens: Account.AccountTokens?
     var accountVolatileData: [String: AccountVolatileData] = [:]
@@ -78,6 +79,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var flightRecorderData: FlightRecorderData?
     var forcePasswordResetReason = [String: ForcePasswordResetReason]()
     var getHasPerformedSyncAfterLoginError: Error?
+    var getPendingAccountSetupOnboardingError: Error?
     var hasPerformedSyncAfterLogin = [String: Bool]()
     var introCarouselShown = false
     var isAuthenticated = [String: Bool]()
@@ -98,6 +100,10 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
     var lastUserShouldConnectToWatch = false
     var manuallyLockedAccounts = [String: Bool]()
+    // swiftlint:disable:next identifier_name
+    var markAccountSetupOnboardingPendingForActiveAccountCalled = false
+    // swiftlint:disable:next identifier_name
+    var markAccountSetupOnboardingPendingForActiveAccountResult: Result<Void, Error> = .success(())
     var masterPasswordHashes = [String: String]()
     var masterPasswordUnlockByUserId = [String: MasterPasswordUnlockResponseModel]()
     var notificationsLastRegistrationDates = [String: Date]()
@@ -105,6 +111,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     // swiftlint:disable:next identifier_name
     var organizationUserNotificationBannerDismissals = [String: OrganizationUserNotificationBannerDismissal]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
+    var pendingAccountSetupOnboarding = [String: Bool]()
     var pendingAppIntentActions: [PendingAppIntentAction]?
     var pendingAppIntentActionsSubject = CurrentValueSubject<[PendingAppIntentAction]?, Never>(nil)
     var pinProtectedUserKeyError: Error?
@@ -119,6 +126,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var reviewPromptData: ReviewPromptData?
     var setHasPerformedSyncAfterLoginError: Error?
     var setManuallyLockedAccountError: Error?
+    var setPendingAccountSetupOnboardingError: Error?
     var showWebIcons = true
     var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
     var siriAndShortcutsAccess = [String: Bool]()
@@ -446,6 +454,14 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         return passwordGenerationOptions[userId]
     }
 
+    func getPendingAccountSetupOnboarding(userId: String?) async throws -> Bool? {
+        if let getPendingAccountSetupOnboardingError {
+            throw getPendingAccountSetupOnboardingError
+        }
+        let userId = try unwrapUserId(userId)
+        return pendingAccountSetupOnboarding[userId]
+    }
+
     func getPendingAppIntentActions() async -> [PendingAppIntentAction]? {
         pendingAppIntentActions
     }
@@ -545,6 +561,11 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         logoutAccountUserInitiated = userInitiated
     }
 
+    func markAccountSetupOnboardingPendingForActiveAccount() async throws {
+        markAccountSetupOnboardingPendingForActiveAccountCalled = true
+        try markAccountSetupOnboardingPendingForActiveAccountResult.get()
+    }
+
     func pinProtectedUserKey(userId: String?) async throws -> String? {
         if let pinProtectedUserKeyError { throw pinProtectedUserKeyError }
         let userId = try unwrapUserId(userId)
@@ -600,6 +621,9 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
 
     func setAccountSetupImportLogins(_ importLoginsSetup: AccountSetupProgress?, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
+        if let accountSetupImportLoginsError {
+            throw accountSetupImportLoginsError
+        }
         accountSetupImportLogins[userId] = importLoginsSetup
     }
 
@@ -817,6 +841,14 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         passwordGenerationOptions[userId] = options
+    }
+
+    func setPendingAccountSetupOnboarding(_ isPending: Bool?, userId: String?) async throws {
+        if let setPendingAccountSetupOnboardingError {
+            throw setPendingAccountSetupOnboardingError
+        }
+        let userId = try unwrapUserId(userId)
+        pendingAccountSetupOnboarding[userId] = isPending
     }
 
     func setPendingAppIntentActions(actions: [PendingAppIntentAction]?) async {

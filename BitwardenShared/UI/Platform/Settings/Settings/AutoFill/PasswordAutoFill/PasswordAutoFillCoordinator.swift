@@ -21,7 +21,6 @@ class PasswordAutoFillCoordinator: NSObject, Coordinator, HasStackNavigator {
 
     typealias Services = HasASSettingsMediator
         & HasAutofillCredentialService
-        & HasConfigService
         & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasNotificationCenterService
@@ -79,7 +78,12 @@ class PasswordAutoFillCoordinator: NSObject, Coordinator, HasStackNavigator {
 
     // MARK: Private Methods
 
-    /// Shows the password auto-fill screen.
+    /// Shows the password auto-fill screen. In the onboarding mode, the screen replaces the
+    /// current stack so there's no back navigation; in the settings mode, it's pushed onto the stack.
+    ///
+    /// - Parameters:
+    ///   - mode: The mode the screen is shown in.
+    ///   - delegate: The delegate to notify of autofill completion events.
     ///
     private func showPasswordAutoFill(mode: PasswordAutoFillState.Mode, delegate: PasswordAutoFillProcessorDelegate?) {
         let processor = PasswordAutoFillProcessor(
@@ -89,7 +93,12 @@ class PasswordAutoFillCoordinator: NSObject, Coordinator, HasStackNavigator {
             state: PasswordAutoFillState(mode: mode),
         )
         let view = PasswordAutoFillView(store: Store(processor: processor))
-        stackNavigator?.push(view)
+        switch mode {
+        case .onboarding:
+            stackNavigator?.replace(view)
+        case .settings:
+            stackNavigator?.push(view)
+        }
     }
 }
 

@@ -28,7 +28,6 @@
 "FolderCreated" = "پوشه جدید ساخته شد.";
 "FolderDeleted" = "پوشه حذف شد.";
 "FolderNone" = "بدون پوشه";
-"Folders" = "پوشه‌ها";
 "FolderUpdated" = "پوشه ذخیره شد";
 "MyFolder" = "پوشه من";
 "MyFolders" = "پوشه‌های من";
@@ -262,12 +261,8 @@
 "ShowWebsiteIconsDescription" = "یک تصویر قابل تشخیص در کنار هر ورود نشان دهید.";
 "IconsUrl" = "نشانی اینترنتی سرور نمادها";
 "AutofillWithBitwarden" = "پر کردن خودکار با Bitwarden";
-/* Section header and screen title for viewing/managing a cipher's collections. */
-"Collections" = "مجموعه‌ها";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "پوشه‌های مشترک";
-/* Empty state message shown when a collection has no items. */
-"NoItemsCollection" = "در این مجموعه موردی برای نمایش نیست";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "در این پوشه‌ی اشتراک گذاری شده موردی برای نمایش نیست";
 "NoItemsFolder" = "در این پوشه موردی برای نمایش نیست";
@@ -289,8 +284,6 @@
 "RegEx" = "عبارت منظم";
 "StartsWith" = "شروع می شود با";
 "MatchDetection" = "تشخیص مطابقت";
-/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
-"Organization" = "سازمان";
 "HoldYubikeyNearTop" = "Yubikey خود را در نزدیکی بالای دستگاه نگهدارید.";
 "TryAgain" = "دوباره امتحان کنید";
 "YubiKeyInstructionIos" = "برای ادامه، دوباره YubiKey NEO خود را پشت دستگاه نگهدارید.";
@@ -326,27 +319,17 @@
 "NoItemsToList" = "هیچ موردی برای نمایش وجود ندارد.";
 "MoveDown" = "انتقال به پایین";
 "MoveUp" = "انتقال به بالا";
-/* Empty state message on the Collections screen shown when a user has no collections. */
-"NoCollectionsToList" = "هیچ مجموعه‌ای برای لیست کردن وجود ندارد.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "هیچ موردی اشتراک گذاری شده برای نمایش وجود ندارد.";
 "MovedItemToOrg" = "%1$@ منتقل شد به %2$@.";
-/* Alert message shown when saving an item with no collection selected. */
-"SelectOneCollection" = "شما باید حداقل یک مجموعه را انتخاب کنید.";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "شما باید حداقل یک پوشه اشتراک گذاری شده را انتخاب کنید.";
 "Share" = "اشتراک گذاری";
 "ShareAll" = "اشتراک گذاری همه";
-/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
-"MoveToOrganization" = "انتقال به سازمان";
-/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+/* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "هیچ گاوصندوقی برای فهرست کردن وجود ندارد.";
-/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
-"NoOrgsToList" = "هیچ سازمانی برای نمایش وجود ندارد.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "گاوصندوقی را انتخاب کنید که می‌خواهید این مورد را به آن منتقل کنید. انتقال به گاوصندوق دیگر، مالکیت مورد را به آن سازمان منتقل می‌کند. پس از انتقال این مورد، دیگر مالک مستقیم آن نخواهید بود.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
-"MoveToOrgDesc" = "سازمانی را انتخاب کنید که می‌خواهید این مورد را به آن منتقل کنید. انتقال به یک سازمان، مالکیت مورد را به آن سازمان منتقل می‌کند. پس از انتقال این مورد، دیگر مالک مستقیم آن نخواهید بود.";
 "NumberOfWords" = "تعداد کلمات";
 "Passphrase" = "عبارت عبور";
 "WordSeparator" = "جداکننده کلمات";
@@ -891,7 +874,6 @@
 "PersonalDetails" = "جزئیات شخصی";
 "ContactInfo" = "اطلاعات مخاطب";
 "Identification" = "شناسایی";
-"Owner" = "مالک";
 "VerifyYourIdentity" = "هویت خود را تأیید کنید";
 "ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
@@ -909,13 +891,9 @@
 "ShowMore" = "نمایش بیشتر";
 "ShowLess" = "نمایش کمتر";
 "ItemNameX" = "نام مورد، %1$@";
-"OwnerX" = "مالک، %1$@";
 "VaultX" = "گاوصندوق، %1$@";
-/* VoiceOver accessibility label for a collection the item belongs to. */
-"CollectionX" = "مجموعه، %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "پوشه اشتراک گذاری شده، %1$@";
-"FolderX" = "پوشه، %1$@";
 "MyFolderX" = "پوشه من، %1$@";
 "ItemXOfY" = "مورد %1$@ از %2$@";
 "ViewRecordedLogs" = "مشاهده گزارش‌های ضبط شده";

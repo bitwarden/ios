@@ -31,4 +31,8 @@ public protocol DebugStateService: AnyObject { // sourcery: AutoMockable
 
     /// Clears `userDecryptionOptions.masterPasswordUnlock` on the active account's cached profile.
     func clearMasterPasswordUnlockForActiveAccount() async throws
+
+    /// Marks account setup onboarding as pending for the active account on this device, so it's
+    /// evaluated again the next time the user unlocks or logs in.
+    func markAccountSetupOnboardingPendingForActiveAccount() async throws
 }

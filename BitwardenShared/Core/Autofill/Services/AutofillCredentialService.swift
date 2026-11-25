@@ -81,6 +81,16 @@ protocol AutofillCredentialService: AnyObject {
     /// for the current user.
     ///
     func updateCredentialsInStore() async
+
+    /// Adds or updates the credential identities for a single cipher in the identity store.
+    ///
+    /// Errors are logged rather than thrown, since a failure to update the identity store
+    /// shouldn't fail the operation that changed the cipher.
+    ///
+    /// - Parameter cipherId: The identifier of the cipher whose credential identities should be
+    ///     added or updated.
+    ///
+    func upsertCredentialsInStore(forCipherId cipherId: String) async
 }
 
 /// A default implementation of an `AutofillCredentialService`.
@@ -604,6 +614,16 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
         do {
             let userId = try await stateService.getActiveAccountId()
             await replaceAllIdentities(userId: userId)
+        } catch {
+            errorReporter.log(error: error)
+        }
+    }
+
+    func upsertCredentialsInStore(forCipherId cipherId: String) async {
+        guard #available(iOS 17.0, *) else { return }
+        do {
+            guard let cipher = try await cipherService.fetchCipher(withId: cipherId) else { return }
+            await upsertCredentialsInStore(for: cipher)
         } catch {
             errorReporter.log(error: error)
         }

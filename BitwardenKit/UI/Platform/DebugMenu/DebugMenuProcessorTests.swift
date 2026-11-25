@@ -187,6 +187,29 @@ class DebugMenuProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.toast?.title, Localizations.somethingWentWrong)
     }
 
+    /// `perform(.markAccountSetupOnboardingPending)` marks account setup onboarding as pending and
+    /// shows a success toast.
+    @MainActor
+    func test_perform_markAccountSetupOnboardingPending_success() async {
+        await subject.perform(.markAccountSetupOnboardingPending)
+
+        XCTAssertTrue(debugStateService.markAccountSetupOnboardingPendingForActiveAccountCalled)
+        XCTAssertEqual(subject.state.toast?.title, "Account setup onboarding will show again")
+    }
+
+    /// `perform(.markAccountSetupOnboardingPending)` logs an error and shows an error toast when
+    /// marking account setup onboarding as pending fails.
+    @MainActor
+    func test_perform_markAccountSetupOnboardingPending_error() async {
+        debugStateService.markAccountSetupOnboardingPendingForActiveAccountThrowableError =
+            BitwardenTestError.example
+
+        await subject.perform(.markAccountSetupOnboardingPending)
+
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+        XCTAssertEqual(subject.state.toast?.title, Localizations.somethingWentWrong)
+    }
+
     /// `perform(.refreshFeatureFlags)` refreshes the current feature flags.
     @MainActor
     func test_perform_refreshFeatureFlags() async {

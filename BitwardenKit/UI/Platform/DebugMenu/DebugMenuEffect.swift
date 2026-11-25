@@ -20,6 +20,10 @@ enum DebugMenuEffect: Equatable {
     /// Clears the SSO server communication cookie value.
     case clearSsoCookies
 
+    /// Marks account setup onboarding as pending for the active account on this device, so it's
+    /// evaluated again the next time the user unlocks or logs in.
+    case markAccountSetupOnboardingPending
+
     /// Triggers a refresh of feature flags, clearing local settings and re-fetching from the remote source.
     case refreshFeatureFlags
 

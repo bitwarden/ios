@@ -103,6 +103,8 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
             await clearMasterPasswordUnlock()
         case .clearSsoCookies:
             await clearSsoCookies()
+        case .markAccountSetupOnboardingPending:
+            await markAccountSetupOnboardingPending()
         case .refreshFeatureFlags:
             await refreshFlags()
         case let .toggleFeatureFlag(flag, newValue):
@@ -160,6 +162,18 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
             state.toast = Toast(title: Localizations.ssoCookiesCleared)
         } catch {
             services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Marks account setup onboarding as pending for the active account, so onboarding can be
+    /// re-tested by locking and unlocking (or logging in again) without a fresh install.
+    private func markAccountSetupOnboardingPending() async {
+        do {
+            try await services.debugStateService.markAccountSetupOnboardingPendingForActiveAccount()
+            state.toast = Toast(title: "Account setup onboarding will show again")
+        } catch {
+            services.errorReporter.log(error: error)
+            state.toast = Toast(title: Localizations.somethingWentWrong)
         }
     }
 

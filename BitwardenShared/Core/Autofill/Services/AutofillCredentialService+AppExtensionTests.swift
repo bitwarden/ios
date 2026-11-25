@@ -355,6 +355,66 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
     }
 
+    /// `upsertCredentialsInStore(forCipherId:)` saves the identities for the cipher in the identity store.
+    func test_upsertCredentialsInStore() async throws {
+        prepareDataForIdentitiesReplacement()
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        cipherService.fetchCipherResult = .success(.fixture(
+            id: "1",
+            login: .fixture(
+                password: "password123",
+                uris: [.fixture(uri: "bitwarden.com")],
+                username: "user@bitwarden.com",
+            ),
+        ))
+
+        await subject.upsertCredentialsInStore(forCipherId: "1")
+
+        XCTAssertEqual(cipherService.fetchCipherId, "1")
+        XCTAssertEqual(
+            identityStore.saveCredentialIdentitiesIdentities,
+            [
+                .password(PasswordCredentialIdentity(id: "1", uri: "bitwarden.com", username: "user@bitwarden.com")),
+            ],
+        )
+    }
+
+    /// `upsertCredentialsInStore(forCipherId:)` doesn't update the identity store when the cipher
+    /// can't be found.
+    func test_upsertCredentialsInStore_cipherNotFound() async {
+        cipherService.fetchCipherResult = .success(nil)
+
+        await subject.upsertCredentialsInStore(forCipherId: "1")
+
+        XCTAssertFalse(identityStore.saveCredentialIdentitiesCalled)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+    }
+
+    /// `upsertCredentialsInStore(forCipherId:)` logs the error and doesn't update the identity store
+    /// when fetching the cipher fails.
+    func test_upsertCredentialsInStore_fetchCipherError() async {
+        cipherService.fetchCipherResult = .failure(BitwardenTestError.example)
+
+        await subject.upsertCredentialsInStore(forCipherId: "1")
+
+        XCTAssertFalse(identityStore.saveCredentialIdentitiesCalled)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `upsertCredentialsInStore(forCipherId:)` doesn't update the identity store when incremental
+    /// updates aren't supported.
+    func test_upsertCredentialsInStore_incrementalUpdatesNotSupported() async {
+        identityStore.state.mockSupportsIncrementalUpdates = false
+        cipherService.fetchCipherResult = .success(.fixture(
+            id: "1",
+            login: .fixture(password: "password123", uris: [.fixture(uri: "bitwarden.com")], username: "user"),
+        ))
+
+        await subject.upsertCredentialsInStore(forCipherId: "1")
+
+        XCTAssertFalse(identityStore.saveCredentialIdentitiesCalled)
+    }
+
     // MARK: Private methods
 
     /// Prepares fixture data for identities replacement tests.
