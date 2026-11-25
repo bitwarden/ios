@@ -1658,7 +1658,9 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try await subject.setDisableAutoTotpCopy(true)
         try await subject.setPasswordGenerationOptions(PasswordGenerationOptions(length: 30))
         try await subject.setPendingAccountSetupOnboarding(false, userId: "1")
+        try await subject.setPlanBadgeDismissed(true, userId: "1")
         try await subject.setPreviousPersonalPremium(true, userId: "1")
+        appSettingsStore.setPlanBadgeDismissed(true, userId: "2")
         appSettingsStore.setUserKeyId("USER_KEY_ID", userId: "1")
         appSettingsStore.setV2UpgradeToken(
             V2UpgradeToken(wrappedUserKey1: "WRAPPED_USER_KEY_1", wrappedUserKey2: "WRAPPED_USER_KEY_2"),
@@ -1704,6 +1706,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.disableAutoTotpCopyByUserId, [:])
         XCTAssertEqual(appSettingsStore.passwordGenerationOptions, [:])
         XCTAssertEqual(appSettingsStore.pendingAccountSetupOnboarding, ["1": false])
+        XCTAssertEqual(appSettingsStore.planBadgeDismissedByUserId, ["1": false, "2": true])
         XCTAssertEqual(appSettingsStore.previousPersonalPremiumByUserId, [:])
         XCTAssertEqual(appSettingsStore.userKeyIdByUserId, [:])
         XCTAssertEqual(appSettingsStore.v2UpgradeTokenByUserId, [:])
@@ -1791,12 +1794,15 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await subject.addAccount(account)
         try await subject.setAccountCryptographicState(.v1(privateKey: "1:PRIVATE_KEY"))
         try await subject.setPendingAccountSetupOnboarding(false, userId: "1")
+        try await subject.setPlanBadgeDismissed(true, userId: "1")
         try await subject.setPreviousPersonalPremium(true, userId: "1")
+        appSettingsStore.setPlanBadgeDismissed(true, userId: "2")
 
         try await subject.logoutAccount(userInitiated: false)
 
         XCTAssertNil(appSettingsStore.accountCryptographicStates["1"])
         XCTAssertEqual(appSettingsStore.pendingAccountSetupOnboarding["1"], false)
+        XCTAssertEqual(appSettingsStore.planBadgeDismissedByUserId, ["1": true, "2": true])
         XCTAssertEqual(appSettingsStore.previousPersonalPremiumByUserId, ["1": true])
         XCTAssertEqual(appSettingsStore.state?.accounts, ["1": account])
         XCTAssertEqual(appSettingsStore.state?.activeUserId, "1")

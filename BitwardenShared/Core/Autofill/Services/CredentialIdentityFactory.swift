@@ -56,14 +56,69 @@ struct DefaultCredentialIdentityFactory: CredentialIdentityFactory {
 
     // MARK: Private
 
+    /// Returns the URI with an `https://` scheme added if it doesn't already have a scheme.
+    ///
+    /// `httpsNormalized()` isn't used because it would also add `https://` before URIs with a
+    /// non-web scheme, such as app URIs (e.g. `iosapp://`), and remove trailing slashes.
+    ///
+    /// - Parameter uri: The login URI.
+    /// - Returns: The URI unchanged if it has a scheme, otherwise the URI prefixed with `https://`.
+    ///
+    private func addingHttpsSchemeIfNeeded(to uri: String) -> String {
+        uri.contains("://") ? uri : "https://" + uri
+    }
+
     /// Gets the service identifier based on the first login uri, if there's one.
     private func createServiceIdentifierFromFirstLoginUri(of cipher: CipherView) -> ASCredentialServiceIdentifier? {
         let uris = cipher.login?.uris?.filter { $0.match != .never && $0.uri.isEmptyOrNil == false }
-        guard let uri = uris?.first?.uri else {
+        guard let firstUri = uris?.first, let uriString = firstUri.uri else {
             return nil
         }
 
-        return ASCredentialServiceIdentifier(identifier: uri, type: .URL)
+        // Web URIs matched by domain or host are registered as a `.domain` service identifier with the
+        // URI's host, so the system matches them regardless of the website's scheme or path. URIs
+        // matched exactly or by prefix, regular expressions, and non-web URIs (e.g. app URIs) are
+        // registered as a `.URL` service identifier with the URI as it's saved.
+        if let host = domainIdentifier(for: uriString, match: firstUri.match) {
+            return ASCredentialServiceIdentifier(identifier: host, type: .domain)
+        }
+
+        // The system doesn't match a `.URL` service identifier without a scheme (e.g. `www.example.com`)
+        // to the website, so add one to an exact match URI that doesn't have one.
+        // This is "best effort" fix because we don't know for sure the scheme should be `https://`.
+        let urlIdentifier = firstUri.match == .exact ? addingHttpsSchemeIfNeeded(to: uriString) : uriString
+        return ASCredentialServiceIdentifier(identifier: urlIdentifier, type: .URL)
+    }
+
+    /// Returns the host to register as a `.domain` service identifier for a login URI, if the URI
+    /// is matched by domain or host.
+    ///
+    /// - Parameters:
+    ///   - uri: The login URI as it's saved, with or without a scheme.
+    ///   - match: The login URI's match type.
+    /// - Returns: The lowercased host (without a scheme, port, or path) for a `.domain`, `.host`, or
+    ///   default match type, or `nil` if the URI has a different match type or isn't an `http` or
+    ///   `https` URI with a host.
+    ///
+    private func domainIdentifier(for uri: String, match: BitwardenSdk.UriMatchType?) -> String? {
+        switch match {
+        case .domain, .host, nil:
+            break
+        case .exact, .never, .regularExpression, .startsWith:
+            return nil
+        }
+
+        // A URI with surrounding whitespace or without a scheme (e.g. `www.example.com`) may not be
+        // parsed for its host, so trim it and add a scheme before parsing.
+        let uriWithScheme = addingHttpsSchemeIfNeeded(to: uri.trimmingCharacters(in: .whitespacesAndNewlines))
+
+        guard let url = URL(string: uriWithScheme),
+              let scheme = url.scheme?.lowercased(),
+              scheme == "http" || scheme == "https",
+              let host = url.host, !host.isEmpty else {
+            return nil
+        }
+        return host.lowercased()
     }
 
     /// Tries to create a one time code credential identity if possible from the `cipher`.

@@ -115,9 +115,15 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
     private func loadPremiumStatus() async {
         state.hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
         if !state.hasPremium {
-            coordinator.showAlert(.attachmentsUnavailable {
-                await self.navigateToPremiumUpgrade()
-            })
+            let isInAppUpgradeAvailable = await services.billingRepository.isInAppUpgradeAvailable()
+            coordinator.showAlert(
+                .attachmentsUnavailable(
+                    isInAppUpgradeAvailable: isInAppUpgradeAvailable,
+                    action: {
+                        await self.navigateToPremiumUpgrade()
+                    },
+                ),
+            )
         }
     }
 
