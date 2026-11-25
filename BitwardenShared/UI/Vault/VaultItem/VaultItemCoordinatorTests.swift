@@ -264,6 +264,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
             fileName: "photo.png",
             temporaryUrl: URL(fileURLWithPath: "/tmp/photo.png"),
         )
+        stackNavigator.isEmpty = false
         subject.navigate(to: .attachmentPreview(state))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
@@ -271,6 +272,46 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertTrue(action.view is AttachmentPreviewView)
         XCTAssertEqual(action.embedInNavigationController, true)
         XCTAssertEqual(action.overFullscreen, false)
+    }
+
+    /// `navigate(to:)` with `.attachmentPreview()` makes the preview the root view when the navigator
+    /// is empty, which is the case for the child coordinator that presents the preview.
+    @MainActor
+    func test_navigateTo_attachmentPreview_emptyStack() throws {
+        let state = AttachmentPreviewState(
+            attachment: .fixture(fileName: "photo.png"),
+            cipher: .fixture(),
+            content: .fileError,
+            fileName: "photo.png",
+            temporaryUrl: URL(fileURLWithPath: "/tmp/photo.png"),
+        )
+        subject.navigate(to: .attachmentPreview(state))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .replaced)
+        XCTAssertTrue(action.view is AttachmentPreviewView)
+    }
+
+    /// `navigate(to:)` with `.attachmentPreview()` presents the preview from a child coordinator when
+    /// another view is presented, such as the attachments screen, so that closing the preview doesn't
+    /// also dismiss that view.
+    @MainActor
+    func test_navigateTo_attachmentPreview_whilePresenting() throws {
+        let state = AttachmentPreviewState(
+            attachment: .fixture(fileName: "photo.png"),
+            cipher: .fixture(),
+            content: .fileError,
+            fileName: "photo.png",
+            temporaryUrl: URL(fileURLWithPath: "/tmp/photo.png"),
+        )
+        stackNavigator.isEmpty = false
+        stackNavigator.isPresenting = true
+        subject.navigate(to: .attachmentPreview(state))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is UINavigationController)
+        XCTAssertEqual(module.vaultItemCoordinator.routes, [.attachmentPreview(state)])
     }
 
     /// `navigate(to:)` with `.generator`, `.password`, and a delegate presents the generator
