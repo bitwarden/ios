@@ -40,6 +40,9 @@ struct VaultAutofillListState: Equatable, Sendable {
     /// Whether the extension mode is creating a Fido2 credential.
     var isCreatingFido2Credential: Bool = false
 
+    /// Whether the `vfo1-foundation` feature flag is enabled.
+    var isVfo1FoundationFeatureFlagEnabled = false
+
     /// The loading state of the autofill list screen.
     var loadingState: LoadingState<[VaultListSection]> = .loading(nil)
 
