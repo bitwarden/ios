@@ -11,6 +11,21 @@ extension Constants {
     /// The app review prompt delay in nanoseconds.
     static let appReviewPromptDelay: UInt64 = 3_000_000_000
 
+    /// The aspect ratio of a payment card, per the ISO/IEC 7810 ID-1 (CR-80) format: 85.60 mm by
+    /// 53.98 mm.
+    static let cardAspectRatio = 85.6 / 53.98
+
+    /// How long, in seconds, the card scanner keeps scanning for an expiration date after finding a
+    /// card number without one.
+    static let cardScanExpiryGracePeriod: TimeInterval = 1
+
+    /// How much taller the card scanner's capture region is than an exactly proportioned card, to
+    /// allow for a card held at an angle or off center.
+    static let cardScanRegionHeightTolerance = 1.3
+
+    /// The proportion of the card scanner's width that text is recognized within.
+    static let cardScanRegionWidthProportion = 0.96
+
     /// The size of the slice to decrypt ciphers in batch using the SDK.
     static let decryptCiphersBatchSize: Int = 100
 

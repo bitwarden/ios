@@ -1812,16 +1812,39 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     /// `receive` with `.premiumSubscriptionRequiredTapped` shows the TOTP premium required alert.
     @MainActor
     func test_receive_premiumSubscriptionRequiredTapped_showsAlert() {
+        billingRepository.isInAppUpgradeAvailableReturnValue = false
+
         subject.receive(.premiumSubscriptionRequiredTapped)
+
+        waitFor(!coordinator.alertShown.isEmpty)
         XCTAssertEqual(coordinator.alertShown.last?.title, Localizations.premiumSubscriptionRequired)
         XCTAssertEqual(coordinator.alertShown.last?.message, Localizations.premiumRequiredTOTPDescriptionLong)
+        XCTAssertEqual(coordinator.alertShown.last?.alertActions.first?.title, Localizations.upgradeToPremium)
+    }
+
+    /// `receive` with `.premiumSubscriptionRequiredTapped` titles the upgrade action "Explore Premium" when
+    /// the in-app upgrade is available.
+    @MainActor
+    func test_receive_premiumSubscriptionRequiredTapped_inAppUpgradeAvailable() {
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+
+        subject.receive(.premiumSubscriptionRequiredTapped)
+
+        waitFor(!coordinator.alertShown.isEmpty)
+        XCTAssertEqual(coordinator.alertShown.last?.title, Localizations.premiumSubscriptionRequired)
+        XCTAssertEqual(coordinator.alertShown.last?.message, Localizations.premiumRequiredTOTPDescriptionLong)
+        XCTAssertEqual(coordinator.alertShown.last?.alertActions.first?.title, Localizations.explorePremium)
     }
 
     /// `receive` with `.premiumSubscriptionRequiredTapped` navigates to Premium upgrade when
     /// "Upgrade to Premium" is tapped in the alert.
     @MainActor
     func test_receive_premiumSubscriptionRequiredTapped_upgradeToPremium() async throws {
+        billingRepository.isInAppUpgradeAvailableReturnValue = false
+
         subject.receive(.premiumSubscriptionRequiredTapped)
+
+        try await waitForAsync { !self.coordinator.alertShown.isEmpty }
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         try await alert.tapAction(title: Localizations.upgradeToPremium)
         XCTAssertTrue(premiumUpgradeHelper.navigateToPremiumUpgradeCalled)
@@ -1831,7 +1854,11 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     /// when Cancel is tapped.
     @MainActor
     func test_receive_premiumSubscriptionRequiredTapped_cancel() async throws {
+        billingRepository.isInAppUpgradeAvailableReturnValue = false
+
         subject.receive(.premiumSubscriptionRequiredTapped)
+
+        try await waitForAsync { !self.coordinator.alertShown.isEmpty }
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         try await alert.tapCancel()
         XCTAssertFalse(premiumUpgradeHelper.navigateToPremiumUpgradeCalled)

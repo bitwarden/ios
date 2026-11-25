@@ -297,6 +297,15 @@ protocol AppSettingsStore: AnyObject {
     ///
     func pinProtectedUserKeyEnvelope(userId: String) -> String?
 
+    /// Whether the Plan badge has been dismissed for the user.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID associated with the Plan badge dismissed value.
+    /// - Returns: Whether the Plan badge has been dismissed. Defaults to `false` if no value has
+    ///   been stored.
+    ///
+    func planBadgeDismissed(userId: String) -> Bool
+
     /// Whether the Premium upgrade banner has been dismissed for the user.
     ///
     /// - Parameter userId: The user ID associated with the Premium upgrade banner dismissed value.
@@ -600,6 +609,14 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID.
     ///
     func setPinProtectedUserKeyEnvelope(key: String?, userId: String)
+
+    /// Sets whether the Plan badge has been dismissed for the user.
+    ///
+    /// - Parameters:
+    ///   - dismissed: Whether the Plan badge has been dismissed.
+    ///   - userId: The user ID associated with the Plan badge dismissed value.
+    ///
+    func setPlanBadgeDismissed(_ dismissed: Bool, userId: String)
 
     /// Sets whether the Premium upgrade banner has been dismissed for the user.
     ///
@@ -979,6 +996,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case pendingAppIntentActions
         case pinProtectedUserKey(userId: String) // Replaced by `pinProtectedUserKeyEnvelope`.
         case pinProtectedUserKeyEnvelope(userId: String)
+        case planBadgeDismissed(userId: String)
         case preAuthEnvironmentURLs
         case accountCreationEnvironmentURLs(email: String)
         case preAuthServerConfig
@@ -1098,6 +1116,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "pinKeyEncryptedUserKey_\(userId)"
             case let .pinProtectedUserKeyEnvelope(userId):
                 "pinProtectedUserKeyEnvelope_\(userId)"
+            case let .planBadgeDismissed(userId):
+                "planBadgeDismissed_\(userId)"
             case .preAuthEnvironmentURLs:
                 "preAuthEnvironmentUrls"
             case let .accountCreationEnvironmentURLs(email):
@@ -1389,6 +1409,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .pinProtectedUserKeyEnvelope(userId: userId))
     }
 
+    func planBadgeDismissed(userId: String) -> Bool {
+        fetch(for: .planBadgeDismissed(userId: userId))
+    }
+
     func premiumUpgradeBannerDismissed(userId: String) -> Bool {
         fetch(for: .premiumUpgradeBannerDismissed(userId: userId))
     }
@@ -1544,6 +1568,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func setPinProtectedUserKeyEnvelope(key: String?, userId: String) {
         store(key, for: .pinProtectedUserKeyEnvelope(userId: userId))
+    }
+
+    func setPlanBadgeDismissed(_ dismissed: Bool, userId: String) {
+        store(dismissed, for: .planBadgeDismissed(userId: userId))
     }
 
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String) {

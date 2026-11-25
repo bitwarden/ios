@@ -11,12 +11,18 @@ extension Alert {
     /// Returns an alert for when archive is unavailable.
     ///
     /// - Parameters:
+    ///   - isInAppUpgradeAvailable: Whether the in-app Premium upgrade is available, which
+    ///     determines the title of the upgrade action.
     ///   - action: A closure to execute on upgrading to Premium.
     /// - Returns: The alert when archive is unavailable.
     static func archiveUnavailable(
+        isInAppUpgradeAvailable: Bool,
         action: @escaping () async -> Void,
     ) -> Alert {
-        let preferredAction = AlertAction(title: Localizations.upgradeToPremium, style: .default) { _ in
+        let preferredAction = AlertAction(
+            title: premiumUpgradeActionTitle(isInAppUpgradeAvailable: isInAppUpgradeAvailable),
+            style: .default,
+        ) { _ in
             await action()
         }
         let alert = Alert(
@@ -34,12 +40,18 @@ extension Alert {
     /// Returns an alert for when attachments are unavailable.
     ///
     /// - Parameters:
+    ///   - isInAppUpgradeAvailable: Whether the in-app Premium upgrade is available, which
+    ///     determines the title of the upgrade action.
     ///   - action: A closure to execute on upgrading to Premium.
     /// - Returns: The alert when attachments are unavailable.
     static func attachmentsUnavailable(
+        isInAppUpgradeAvailable: Bool,
         action: @escaping () async -> Void,
     ) -> Alert {
-        let preferredAction = AlertAction(title: Localizations.upgradeToPremium, style: .default) { _ in
+        let preferredAction = AlertAction(
+            title: premiumUpgradeActionTitle(isInAppUpgradeAvailable: isInAppUpgradeAvailable),
+            style: .default,
+        ) { _ in
             await action()
         }
         let alert = Alert(
@@ -227,12 +239,20 @@ extension Alert {
     /// with an option to upgrade.
     ///
     /// - Parameters:
+    ///   - isInAppUpgradeAvailable: Whether the in-app Premium upgrade is available, which
+    ///     determines the title of the upgrade action.
     ///   - action: A closure to execute on upgrading to Premium.
     /// - Returns: The alert shown when a non-Premium user tries to send a file.
     static func fileSendPremiumRequired(
+        isInAppUpgradeAvailable: Bool,
         action: @escaping () -> Void,
     ) -> Alert {
-        let preferredAction = AlertAction(title: Localizations.upgradeToPremium, style: .default) { _, _ in action() }
+        let preferredAction = AlertAction(
+            title: premiumUpgradeActionTitle(isInAppUpgradeAvailable: isInAppUpgradeAvailable),
+            style: .default,
+        ) { _, _ in
+            action()
+        }
         let alert = Alert(
             title: Localizations.premiumSubscriptionRequired,
             message: Localizations.sendFilePremiumRequired,
@@ -390,12 +410,20 @@ extension Alert {
     /// lack of Premium subscription.
     ///
     /// - Parameters:
+    ///   - isInAppUpgradeAvailable: Whether the in-app Premium upgrade is available, which
+    ///     determines the title of the upgrade action.
     ///   - action: A closure to execute on upgrading to Premium.
     /// - Returns: The alert when "Specific People" is unavailable.
     static func specificPeopleUnavailable(
+        isInAppUpgradeAvailable: Bool,
         action: @escaping () -> Void,
     ) -> Alert {
-        let preferredAction = AlertAction(title: Localizations.upgradeToPremium, style: .default) { _, _ in action() }
+        let preferredAction = AlertAction(
+            title: premiumUpgradeActionTitle(isInAppUpgradeAvailable: isInAppUpgradeAvailable),
+            style: .default,
+        ) { _, _ in
+            action()
+        }
         let alert = Alert(
             title: Localizations.premiumSubscriptionRequired,
             message: Localizations.sharingWithSpecificPeopleIsPremiumFeatureDescriptionLong,
@@ -442,12 +470,18 @@ extension Alert {
     /// codes, with an option to upgrade.
     ///
     /// - Parameters:
+    ///   - isInAppUpgradeAvailable: Whether the in-app Premium upgrade is available, which
+    ///     determines the title of the upgrade action.
     ///   - action: A closure to execute on upgrading to Premium.
     /// - Returns: The alert shown when a non-Premium user taps the TOTP premium required field.
     static func totpPremiumRequired(
+        isInAppUpgradeAvailable: Bool,
         action: @escaping () async -> Void,
     ) -> Alert {
-        let preferredAction = AlertAction(title: Localizations.upgradeToPremium, style: .default) { _ in
+        let preferredAction = AlertAction(
+            title: premiumUpgradeActionTitle(isInAppUpgradeAvailable: isInAppUpgradeAvailable),
+            style: .default,
+        ) { _ in
             await action()
         }
         let alert = Alert(
@@ -494,5 +528,16 @@ extension Alert {
                 ),
             ],
         )
+    }
+
+    // MARK: Private Methods
+
+    /// Returns the title for the action that sends the user to upgrade to Premium.
+    ///
+    /// - Parameters:
+    ///   - isInAppUpgradeAvailable: Whether the in-app Premium upgrade is available.
+    /// - Returns: "Explore Premium" when the in-app upgrade is available, otherwise "Upgrade to Premium".
+    private static func premiumUpgradeActionTitle(isInAppUpgradeAvailable: Bool) -> String {
+        isInAppUpgradeAvailable ? Localizations.explorePremium : Localizations.upgradeToPremium
     }
 }
