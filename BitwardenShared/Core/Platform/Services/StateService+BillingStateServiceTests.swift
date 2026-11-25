@@ -36,6 +36,69 @@ struct StateServiceBillingStateServiceTests { // swiftlint:disable:this type_bod
         )
     }
 
+    // MARK: Plan Badge
+
+    /// `getPlanBadgeDismissed(userId:)` returns whether the Plan badge has been dismissed.
+    @Test
+    func getPlanBadgeDismissed() async throws {
+        await subject.addAccount(.fixture())
+        var hasDismissedBadge = try await subject.getPlanBadgeDismissed(userId: nil)
+        #expect(!hasDismissedBadge)
+
+        appSettingsStore.planBadgeDismissedByUserId["1"] = true
+        hasDismissedBadge = try await subject.getPlanBadgeDismissed(userId: nil)
+        #expect(hasDismissedBadge)
+    }
+
+    /// `getPlanBadgeDismissed(userId:)` returns the value for the given user instead of the active account.
+    @Test
+    func getPlanBadgeDismissed_userId() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.planBadgeDismissedByUserId["2"] = true
+
+        let hasDismissedBadge = try await subject.getPlanBadgeDismissed(userId: "2")
+
+        #expect(hasDismissedBadge)
+    }
+
+    /// `getPlanBadgeDismissed(userId:)` throws errors if no user exists.
+    @Test
+    func getPlanBadgeDismissed_error() async {
+        await #expect(throws: StateServiceError.noActiveAccount) {
+            _ = try await subject.getPlanBadgeDismissed(userId: nil)
+        }
+    }
+
+    /// `setPlanBadgeDismissed(_:userId:)` sets whether the Plan badge has been dismissed.
+    @Test
+    func setPlanBadgeDismissed() async throws {
+        await subject.addAccount(.fixture())
+
+        try await subject.setPlanBadgeDismissed(true, userId: nil)
+        #expect(appSettingsStore.planBadgeDismissedByUserId["1"] == true)
+
+        try await subject.setPlanBadgeDismissed(false, userId: nil)
+        #expect(appSettingsStore.planBadgeDismissedByUserId["1"] == false)
+    }
+
+    /// `setPlanBadgeDismissed(_:userId:)` sets the value for the given user instead of the active account.
+    @Test
+    func setPlanBadgeDismissed_userId() async throws {
+        await subject.addAccount(.fixture())
+
+        try await subject.setPlanBadgeDismissed(true, userId: "2")
+
+        #expect(appSettingsStore.planBadgeDismissedByUserId == ["2": true])
+    }
+
+    /// `setPlanBadgeDismissed(_:userId:)` throws errors if no user exists.
+    @Test
+    func setPlanBadgeDismissed_error() async {
+        await #expect(throws: StateServiceError.noActiveAccount) {
+            try await subject.setPlanBadgeDismissed(true, userId: nil)
+        }
+    }
+
     // MARK: Premium Upgrade Banner
 
     /// `getPremiumUpgradeBannerDismissed(userId:)` returns whether the Premium upgrade banner has

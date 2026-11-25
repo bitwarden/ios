@@ -28,7 +28,6 @@
 "FolderCreated" = "Нова фасцикла креирана.";
 "FolderDeleted" = "Фасцикла избрисана.";
 "FolderNone" = "Без фасцикле";
-"Folders" = "Фасцикле";
 "FolderUpdated" = "Фасцикла ажурирана.";
 "MyFolder" = "Моја фасцикла";
 "MyFolders" = "Моје фасцикле";
@@ -262,12 +261,8 @@
 "ShowWebsiteIconsDescription" = "Прикажи препознатљиву слику поред сваке ставке за пријаву.";
 "IconsUrl" = "УРЛ сервера иконице";
 "AutofillWithBitwarden" = "Аутоматски попуни са Bitwarden-ом";
-/* Section header and screen title for viewing/managing a cipher's collections. */
-"Collections" = "Колекције";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "Дељене фасцикле";
-/* Empty state message shown when a collection has no items. */
-"NoItemsCollection" = "Не постоје ставке у овој колекцији";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "Нема ставки у овој дељеној фасцикли";
 "NoItemsFolder" = "Нема ставке у овој фасцикли";
@@ -289,8 +284,6 @@
 "RegEx" = "Регуларни израз";
 "StartsWith" = "Почиње са";
 "MatchDetection" = "Налажење УРЛ";
-/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
-"Organization" = "Организација";
 "HoldYubikeyNearTop" = "Дрћите Ваш Yubikey при врху уређаја.";
 "TryAgain" = "Покушајте опет";
 "YubiKeyInstructionIos" = "Да бисте наставили, држите YubiKey NEO на задњој страни уређаја.";
@@ -326,27 +319,17 @@
 "NoItemsToList" = "Нама ставке у листи.";
 "MoveDown" = "Помери доле";
 "MoveUp" = "Помери горе";
-/* Empty state message on the Collections screen shown when a user has no collections. */
-"NoCollectionsToList" = "Нема колекције у листи.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "Нема дељених фасцикли за приказ.";
 "MovedItemToOrg" = "%1$@ премештено у %2$@.";
-/* Alert message shown when saving an item with no collection selected. */
-"SelectOneCollection" = "Морате одабрати макар једну колекцију.";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "Морате изабрати бар једну дељену фасциклу.";
 "Share" = "Подели";
 "ShareAll" = "Подели све";
-/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
-"MoveToOrganization" = "Премести у организацију";
-/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+/* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "Нема трезора за приказ.";
-/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
-"NoOrgsToList" = "Ниједна организација у листу.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Изаберите трезор у који желите да преместите ову ставку. Премештање у други трезор преноси власништво над ставком на ту организацију. Више нећете бити директни власник ове ставке након што је премештена.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
-"MoveToOrgDesc" = "Изаберите организацију коју желите да преместите овај предмет. Прелазак на организацију преноси власништво над ставком у ту организацију. Више нећете бити директни власник ове ставке након што је премештена.";
 "NumberOfWords" = "Број речи";
 "Passphrase" = "Фраза лозинка";
 "WordSeparator" = "Одвајач речи";
@@ -890,7 +873,6 @@
 "PersonalDetails" = "Личне информације";
 "ContactInfo" = "Контакт инфо";
 "Identification" = "Идентификација";
-"Owner" = "Власник";
 "VerifyYourIdentity" = "Потврдите свој идентитет";
 "ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
@@ -908,13 +890,9 @@
 "ShowMore" = "Прикажи више";
 "ShowLess" = "Прикажи мање";
 "ItemNameX" = "Име ставке, %1$@";
-"OwnerX" = "Власник, %1$@";
 "VaultX" = "Трезор, %1$@";
-/* VoiceOver accessibility label for a collection the item belongs to. */
-"CollectionX" = "Колекција, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Дељена фасцикла, %1$@";
-"FolderX" = "Фасцикла, %1$@";
 "MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "Ставка %1$@ од %2$@";
 "ViewRecordedLogs" = "Погледајте снимљене извештаје";
