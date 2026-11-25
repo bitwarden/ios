@@ -93,6 +93,10 @@ class VaultUnlockSetupProcessor: StateProcessor<VaultUnlockSetupState, VaultUnlo
     /// Load any initial data for the view.
     ///
     private func loadData() async {
+        if state.accountSetupFlow == .createAccount {
+            state.shouldShowPinUnlock = await !services.configService.getFeatureFlag(.accountSetupOnboardingOnSignIn)
+        }
+
         do {
             state.biometricsStatus = try await services.biometricsRepository.getBiometricUnlockStatus()
         } catch {
