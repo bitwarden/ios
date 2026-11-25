@@ -301,3 +301,20 @@ extension DefaultStateService: BiometricsStateService {
         appSettingsStore.setBiometricAuthenticationEnabled(isEnabled, for: userId)
     }
 }
+
+// MARK: EnvironmentStateService
+
+extension DefaultStateService: EnvironmentStateService {
+    func getEnvironmentURLs(userId: String?) async throws -> EnvironmentURLData? {
+        // Authenticator has no account-scoped environment URLs.
+        nil
+    }
+
+    func getPreAuthEnvironmentURLs() async -> EnvironmentURLData? {
+        appSettingsStore.preAuthEnvironmentURLs
+    }
+
+    func setPreAuthEnvironmentURLs(_ urls: EnvironmentURLData) async {
+        appSettingsStore.preAuthEnvironmentURLs = urls
+    }
+}
