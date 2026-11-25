@@ -6,7 +6,7 @@ import Testing
 @testable import BitwardenKit
 
 @Suite(.serialized)
-struct DefaultEnvironmentServiceTests { // swiftlint:disable:this type_body_length
+struct EnvironmentServiceTests { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     let errorReporter: MockErrorReporter

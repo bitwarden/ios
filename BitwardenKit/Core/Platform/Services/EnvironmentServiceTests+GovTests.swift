@@ -3,7 +3,7 @@ import Testing
 
 @testable import BitwardenKit
 
-extension DefaultEnvironmentServiceTests {
+extension EnvironmentServiceTests {
     // MARK: Tests
 
     /// `loadURLsForActiveAccount()` handles government cloud (FedRAMP) URLs.
