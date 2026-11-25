@@ -1441,8 +1441,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(result, SavePasswordMatch.none)
     }
 
-    /// `matchSavePasswordRequest(uri:username:password:)` updates without asking when the only
-    /// matching login was saved without a scheme for the same host.
+    /// `matchSavePasswordRequest(uri:username:password:)` returns `.singleUpdateCandidate` when the
+    /// only matching login was saved without a scheme for the same host.
     func test_matchSavePasswordRequest_sameHostWithoutScheme_singleUpdateCandidate() async {
         let existing = Cipher.fixture(
             id: "1",
@@ -1682,6 +1682,38 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
 
         XCTAssertEqual(result, SavePasswordMatch.none)
+    }
+
+    /// `matchSavePasswordRequest(uri:username:password:)` never offers a login for an update when
+    /// the user can't see its password, since the previous password would become readable in the
+    /// password history.
+    func test_matchSavePasswordRequest_ignoresLoginsWithHiddenPassword() async {
+        let hiddenPassword = Cipher.fixture(
+            id: "1",
+            login: .fixture(password: "old", uris: [.fixture(uri: "https://example.com")], username: "user"),
+            viewPassword: false,
+        )
+        prepareExistingLoginCiphers([hiddenPassword])
+
+        var result = await subject.matchSavePasswordRequest(
+            uri: "https://example.com",
+            username: "user",
+            password: "new",
+        )
+        XCTAssertEqual(result, SavePasswordMatch.none)
+
+        let visiblePassword = Cipher.fixture(
+            id: "2",
+            login: .fixture(password: "old", uris: [.fixture(uri: "https://example.com")], username: "user"),
+        )
+        prepareExistingLoginCiphers([hiddenPassword, visiblePassword])
+
+        result = await subject.matchSavePasswordRequest(
+            uri: "https://example.com",
+            username: "user",
+            password: "new",
+        )
+        XCTAssertEqual(result, .singleUpdateCandidate(CipherView(cipher: visiblePassword)))
     }
 
     /// `matchSavePasswordRequest(uri:username:password:)` never offers logins the user can't edit

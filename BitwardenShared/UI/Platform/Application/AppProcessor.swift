@@ -656,6 +656,40 @@ extension AppProcessor {
 // MARK: - Save Password Credential
 
 public extension AppProcessor {
+    /// Saves a password credential to the vault without showing UI.
+    ///
+    /// If an existing login has or can be updated with the password (see
+    /// `updateExistingPasswordCredential(username:password:uri:)`), no new login is added. In both
+    /// cases the login's credential identities are added to the identity store before returning, so
+    /// the system doesn't prompt to save the same credential again.
+    ///
+    /// - Parameters:
+    ///   - username: The username to save.
+    ///   - password: The password to save.
+    ///   - uri: The URI associated with the credential.
+    ///   - name: An optional display name; falls back to the URI's hostname.
+    ///
+    @available(iOSApplicationExtension 26.2, *)
+    func savePasswordCredential(
+        username: String,
+        password: String,
+        uri: String,
+        name: String?,
+    ) async throws {
+        try await unlockVaultWithNeverlockKey()
+
+        guard try await !updateExistingPasswordCredential(username: username, password: password, uri: uri) else {
+            return
+        }
+
+        let addedCipher = try await services.vaultRepository.addCipher(
+            CipherView(username: username, password: password, uri: uri, name: name),
+        )
+        if let cipherId = addedCipher.id {
+            await services.autofillCredentialService.upsertCredentialsInStore(forCipherId: cipherId)
+        }
+    }
+
     /// Applies a save-password request to an existing login in the vault, if there is one, so a
     /// duplicate login isn't added.
     ///
@@ -709,40 +743,6 @@ public extension AppProcessor {
             await services.autofillCredentialService.upsertCredentialsInStore(forCipherId: cipherId)
         }
         return true
-    }
-
-    /// Saves a password credential to the vault without showing UI.
-    ///
-    /// If an existing login has or can be updated with the password (see
-    /// `updateExistingPasswordCredential(username:password:uri:)`), no new login is added. In both
-    /// cases the login's credential identities are added to the identity store before returning, so
-    /// the system doesn't prompt to save the same credential again.
-    ///
-    /// - Parameters:
-    ///   - username: The username to save.
-    ///   - password: The password to save.
-    ///   - uri: The URI associated with the credential.
-    ///   - name: An optional display name; falls back to the URI's hostname.
-    ///
-    @available(iOSApplicationExtension 26.2, *)
-    func savePasswordCredential(
-        username: String,
-        password: String,
-        uri: String,
-        name: String?,
-    ) async throws {
-        try await unlockVaultWithNeverlockKey()
-
-        guard try await !updateExistingPasswordCredential(username: username, password: password, uri: uri) else {
-            return
-        }
-
-        let addedCipher = try await services.vaultRepository.addCipher(
-            CipherView(username: username, password: password, uri: uri, name: name),
-        )
-        if let cipherId = addedCipher.id {
-            await services.autofillCredentialService.upsertCredentialsInStore(forCipherId: cipherId)
-        }
     }
 }
 

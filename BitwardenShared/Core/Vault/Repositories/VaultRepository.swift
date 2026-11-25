@@ -166,8 +166,8 @@ public protocol VaultRepository: AnyObject {
     /// matched to `uri` the same way the AutoFill list matches them, following each login URI's match
     /// detection setting and the user's equivalent domains, so a request for a different page on the
     /// same site matches. Deleted and archived logins are ignored. A login is only offered for an
-    /// update when it's the only editable login with the same username, matches exactly and is saved
-    /// for the same host.
+    /// update when it's the only login with the same username that the user can edit and see the
+    /// password of, matches exactly and is saved for the same host.
     ///
     /// Errors are logged and `.none` is returned, since failing to match shouldn't prevent the
     /// caller from saving the login.
@@ -492,7 +492,9 @@ class DefaultVaultRepository {
             cipher.type == .login && !cipher.isHidden
         }
         guard !logins.isEmpty else { return .none }
-        let editableIds = Set(logins.filter(\.edit).compactMap(\.id))
+        // Only logins the user can edit and see the password of can be updated, since the previous
+        // password goes into the password history, where the user can read it.
+        let updatableIds = Set(logins.filter { $0.edit && $0.viewPassword }.compactMap(\.id))
 
         // Match logins the same way the AutoFill list does, so a request for another page on the same
         // site (e.g. a change-password page) matches the login that was used to fill the form.
@@ -533,7 +535,7 @@ class DefaultVaultRepository {
 
         // Only update a login saved for the same host. A match on the base domain (e.g.
         // `mail.example.com` for `hr.example.com`) or an equivalent domain could be a different account.
-        let candidates = sameUsernameLogins.filter { $0.id.map(editableIds.contains) ?? false }
+        let candidates = sameUsernameLogins.filter { $0.id.map(updatableIds.contains) ?? false }
         guard candidates.count == 1,
               let candidate = candidates.first,
               let candidateId = candidate.id,
