@@ -2737,6 +2737,11 @@ extension DefaultStateService {
         let userId = try getActiveAccountUserId()
         await clearAccountMasterPasswordUnlockData(userId: userId)
     }
+
+    func markAccountSetupOnboardingPendingForActiveAccount() async throws {
+        let userId = try getActiveAccountUserId()
+        appSettingsStore.setPendingAccountSetupOnboarding(true, userId: userId)
+    }
 }
 
 // MARK: User Session

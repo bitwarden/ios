@@ -1849,6 +1849,25 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNil(appSettingsStore.organizationUserNotificationBannerDismissals["1"])
     }
 
+    /// `markAccountSetupOnboardingPendingForActiveAccount()` marks account setup onboarding as
+    /// pending for the active account without affecting other accounts.
+    func test_markAccountSetupOnboardingPendingForActiveAccount() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+        appSettingsStore.pendingAccountSetupOnboarding = ["1": false, "2": false]
+
+        try await subject.markAccountSetupOnboardingPendingForActiveAccount()
+
+        XCTAssertEqual(appSettingsStore.pendingAccountSetupOnboarding, ["1": true, "2": false])
+    }
+
+    /// `markAccountSetupOnboardingPendingForActiveAccount()` throws an error if there's no active
+    /// account.
+    func test_markAccountSetupOnboardingPendingForActiveAccount_noAccount() async {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            try await subject.markAccountSetupOnboardingPendingForActiveAccount()
+        }
+    }
+
     /// `pendingAppIntentActionsPublisher()` returns a publisher for the pending App Intent actions.
     func test_pendingAppIntentActionsPublisher() async throws {
         var publishedValues: [[PendingAppIntentAction]?] = []
