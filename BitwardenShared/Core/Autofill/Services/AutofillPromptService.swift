@@ -79,6 +79,9 @@ class DefaultAutofillPromptService: AutofillPromptService {
     /// credential identity store.
     private let credentialStoreUpdateDelay: TimeInterval
 
+    /// The pending task that repopulates the credential identity store, if any.
+    private var credentialStoreUpdateTask: Task<Void, Never>?
+
     /// The service used to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
@@ -135,6 +138,10 @@ class DefaultAutofillPromptService: AutofillPromptService {
         self.notificationCenterService = notificationCenterService
         self.timeProvider = timeProvider
         self.vaultTimeoutService = vaultTimeoutService
+    }
+
+    deinit {
+        credentialStoreUpdateTask?.cancel()
     }
 
     // MARK: Methods
@@ -254,7 +261,8 @@ class DefaultAutofillPromptService: AutofillPromptService {
     ///
     private func updateCredentialsInStoreIfUnlocked() async {
         guard await isActiveVaultUnlocked() else { return }
-        Task { [weak self] in
+        credentialStoreUpdateTask?.cancel()
+        credentialStoreUpdateTask = Task { [weak self] in
             await self?.updateCredentialsInStoreWhenReady()
         }
     }
@@ -276,6 +284,8 @@ class DefaultAutofillPromptService: AutofillPromptService {
             break
         }
 
+        // The wait for the foreground ends early if the task is cancelled, so skip repopulating the store.
+        guard !Task.isCancelled else { return }
         guard await isActiveVaultUnlocked() else { return }
         await autofillCredentialService.updateCredentialsInStore()
     }
