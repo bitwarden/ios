@@ -142,20 +142,21 @@ struct LandingView: View {
             .disabled(!store.state.isContinueButtonEnabled)
             .buttonStyle(.primary())
 
-            if !store.state.isCreateAccountButtonHidden {
-                HStack(spacing: 4) {
-                    Spacer()
-                    Text(Localizations.newAroundHere)
-                        .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
-                    Button(Localizations.createAccount) {
-                        store.send(.createAccountPressed)
-                    }
-                    .accessibilityIdentifier("CreateAccountButton")
-                    .foregroundColor(SharedAsset.Colors.textInteraction.swiftUIColor)
-                    Spacer()
+            HStack(spacing: 4) {
+                Spacer()
+                Text(Localizations.newAroundHere)
+                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
+                Button(Localizations.createAccount) {
+                    store.send(.createAccountPressed)
                 }
-                .styleGuide(.footnote)
+                .accessibilityIdentifier("CreateAccountButton")
+                .foregroundColor(SharedAsset.Colors.textInteraction.swiftUIColor)
+                Spacer()
             }
+            .styleGuide(.footnote)
+            .opacity(store.state.isCreateAccountButtonHidden ? 0 : 1)
+            .disabled(store.state.isCreateAccountButtonHidden)
+            .accessibilityHidden(store.state.isCreateAccountButtonHidden)
 
             Button {
                 store.send(.showPreLoginSettings)
