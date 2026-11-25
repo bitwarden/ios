@@ -212,13 +212,6 @@ protocol StateService: AnyObject, DebugStateService {
     ///
     func getEncryptedPin(userId: String?) async throws -> String?
 
-    /// Gets the environment URLs for a user ID.
-    ///
-    /// - Parameter userId: The user ID associated with the environment URLs.
-    /// - Returns: The user's environment URLs.
-    ///
-    func getEnvironmentURLs(userId: String?) async throws -> EnvironmentURLData?
-
     /// Gets the events stored to disk to be uploaded in the future.
     ///
     /// - Parameters:
@@ -325,12 +318,6 @@ protocol StateService: AnyObject, DebugStateService {
     /// Gets the pending actions from `AppIntent`s.
     /// - Returns: The pending actions to execute.
     func getPendingAppIntentActions() async -> [PendingAppIntentAction]?
-
-    /// Gets the environment URLs used by the app prior to the user authenticating.
-    ///
-    /// - Returns: The environment URLs used prior to user authentication.
-    ///
-    func getPreAuthEnvironmentURLs() async -> EnvironmentURLData?
 
     /// Gets the environment URLs for a given email during account creation.
     ///
@@ -759,12 +746,6 @@ protocol StateService: AnyObject, DebugStateService {
     ///
     func setPinProtectedUserKeyToMemory(_ pin: String) async throws
 
-    /// Sets the environment URLs used prior to user authentication.
-    ///
-    /// - Parameter urls: The environment URLs used prior to user authentication.
-    ///
-    func setPreAuthEnvironmentURLs(_ urls: EnvironmentURLData) async
-
     /// Sets the environment URLs for a given email during account creation.
     /// - Parameters:
     ///   - urls: The environment urls used to start the account creation.
@@ -1095,14 +1076,6 @@ extension StateService {
     ///
     func getEncryptedPin() async throws -> String? {
         try await getEncryptedPin(userId: nil)
-    }
-
-    /// Gets the environment URLs for the active account.
-    ///
-    /// - Returns: The environment URLs for the active account.
-    ///
-    func getEnvironmentURLs() async throws -> EnvironmentURLData? {
-        try await getEnvironmentURLs(userId: nil)
     }
 
     /// Gets whether Fill Assist is enabled for the active account.
@@ -1805,11 +1778,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         return appSettingsStore.encryptedPin(userId: userId)
     }
 
-    func getEnvironmentURLs(userId: String?) async throws -> EnvironmentURLData? {
-        let userId = try userId ?? getActiveAccountUserId()
-        return appSettingsStore.state?.accounts[userId]?.settings.environmentUrls
-    }
-
     func getEvents(userId: String?) async throws -> [EventData] {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.events(userId: userId)
@@ -1880,10 +1848,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
 
     func getPendingAppIntentActions() async -> [PendingAppIntentAction]? {
         appSettingsStore.pendingAppIntentActions
-    }
-
-    func getPreAuthEnvironmentURLs() async -> EnvironmentURLData? {
-        appSettingsStore.preAuthEnvironmentURLs
     }
 
     func getAccountCreationEnvironmentURLs(email: String) async -> EnvironmentURLData? {
@@ -2303,10 +2267,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         ].pinProtectedUserKey = pinProtectedUserKey
     }
 
-    func setPreAuthEnvironmentURLs(_ urls: EnvironmentURLData) async {
-        appSettingsStore.preAuthEnvironmentURLs = urls
-    }
-
     func setAccountCreationEnvironmentURLs(urls: EnvironmentURLData, email: String) async {
         appSettingsStore.setAccountCreationEnvironmentURLs(
             environmentURLData: urls,
@@ -2701,6 +2661,23 @@ extension DefaultStateService {
     func clearMasterPasswordUnlockForActiveAccount() async throws {
         let userId = try getActiveAccountUserId()
         await clearAccountMasterPasswordUnlockData(userId: userId)
+    }
+}
+
+// MARK: EnvironmentStateService
+
+extension DefaultStateService: EnvironmentStateService {
+    func getEnvironmentURLs(userId: String?) async throws -> EnvironmentURLData? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.state?.accounts[userId]?.settings.environmentUrls
+    }
+
+    func getPreAuthEnvironmentURLs() async -> EnvironmentURLData? {
+        appSettingsStore.preAuthEnvironmentURLs
+    }
+
+    func setPreAuthEnvironmentURLs(_ urls: EnvironmentURLData) async {
+        appSettingsStore.preAuthEnvironmentURLs = urls
     }
 }
 

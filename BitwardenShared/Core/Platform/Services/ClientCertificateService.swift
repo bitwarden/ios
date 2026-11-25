@@ -66,6 +66,9 @@ final class DefaultClientCertificateService: ClientCertificateService {
     /// The service used to manage environment URLs (handles pre-auth vs active account).
     private let environmentService: EnvironmentService
 
+    /// The service used by the application to manage environment URL state.
+    private let environmentStateService: EnvironmentStateService
+
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
@@ -81,17 +84,20 @@ final class DefaultClientCertificateService: ClientCertificateService {
     ///
     /// - Parameters:
     ///   - environmentService: The service used to manage environment URLs.
+    ///   - environmentStateService: The service used by the application to manage environment URL state.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - keychainRepository: The repository used to store sensitive certificate data in the Keychain.
     ///   - stateService: The service used to manage application state.
     ///
     init(
         environmentService: EnvironmentService,
+        environmentStateService: EnvironmentStateService,
         errorReporter: ErrorReporter,
         keychainRepository: KeychainRepository,
         stateService: StateService,
     ) {
         self.environmentService = environmentService
+        self.environmentStateService = environmentStateService
         self.errorReporter = errorReporter
         self.keychainRepository = keychainRepository
         self.stateService = stateService
@@ -159,7 +165,7 @@ final class DefaultClientCertificateService: ClientCertificateService {
 
     func removeCertificate(userId: String) async throws {
         // Read the fingerprint from the account's stored environment URLs.
-        let environmentURLs = try await stateService.getEnvironmentURLs(userId: userId)
+        let environmentURLs = try await environmentStateService.getEnvironmentURLs(userId: userId)
         let fingerprint = environmentURLs?.clientCertificateFingerprint
 
         guard let fingerprint else { return }
@@ -194,7 +200,7 @@ final class DefaultClientCertificateService: ClientCertificateService {
     ///
     private func isFingerprintInUse(_ fingerprint: String, excludingUserId: String? = nil) async -> Bool {
         // Check the pre-auth environment URLs.
-        let preAuthURLs = await stateService.getPreAuthEnvironmentURLs()
+        let preAuthURLs = await environmentStateService.getPreAuthEnvironmentURLs()
         if preAuthURLs?.clientCertificateFingerprint == fingerprint {
             return true
         }
@@ -204,7 +210,7 @@ final class DefaultClientCertificateService: ClientCertificateService {
         for account in accounts {
             let accountUserId = account.profile.userId
             if let excludingUserId, accountUserId == excludingUserId { continue }
-            let accountURLs = try? await stateService.getEnvironmentURLs(userId: accountUserId)
+            let accountURLs = try? await environmentStateService.getEnvironmentURLs(userId: accountUserId)
             if accountURLs?.clientCertificateFingerprint == fingerprint { return true }
         }
 

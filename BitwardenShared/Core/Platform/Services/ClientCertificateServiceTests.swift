@@ -11,6 +11,7 @@ struct ClientCertificateServiceTests {
     // MARK: Properties
 
     var environmentService: MockEnvironmentService
+    var environmentStateService: MockEnvironmentStateService
     var errorReporter: MockErrorReporter
     var keychainRepository: MockKeychainRepository
     var stateService: MockStateService
@@ -20,11 +21,13 @@ struct ClientCertificateServiceTests {
 
     init() {
         environmentService = MockEnvironmentService.withDefaults()
+        environmentStateService = MockEnvironmentStateService()
         errorReporter = MockErrorReporter()
         keychainRepository = MockKeychainRepository()
         stateService = MockStateService()
         subject = DefaultClientCertificateService(
             environmentService: environmentService,
+            environmentStateService: environmentStateService,
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,
             stateService: stateService,
@@ -91,11 +94,16 @@ struct ClientCertificateServiceTests {
         let fingerprint = "shared-fingerprint"
 
         stateService.accounts = [.fixture(profile: .fixture(userId: user1))]
-        stateService.environmentURLs[user1] = EnvironmentURLData(
-            base: URL(string: "https://example.com"),
-            clientCertificateAlias: "Cert A",
-            clientCertificateFingerprint: fingerprint,
-        )
+        let environmentURLsByUserId = [
+            user1: EnvironmentURLData(
+                base: URL(string: "https://example.com"),
+                clientCertificateAlias: "Cert A",
+                clientCertificateFingerprint: fingerprint,
+            ),
+        ]
+        environmentStateService.getEnvironmentURLsClosure = { userId in
+            userId.flatMap { environmentURLsByUserId[$0] }
+        }
 
         try await subject.removeCertificate(fingerprint: fingerprint)
 
@@ -115,11 +123,16 @@ struct ClientCertificateServiceTests {
             .fixture(profile: .fixture(userId: user1)),
         ]
         stateService.activeAccount = .fixture(profile: .fixture(userId: user1))
-        stateService.environmentURLs[user1] = EnvironmentURLData(
-            base: URL(string: "https://example.com"),
-            clientCertificateAlias: "Cert A",
-            clientCertificateFingerprint: fingerprint,
-        )
+        let environmentURLsByUserId = [
+            user1: EnvironmentURLData(
+                base: URL(string: "https://example.com"),
+                clientCertificateAlias: "Cert A",
+                clientCertificateFingerprint: fingerprint,
+            ),
+        ]
+        environmentStateService.getEnvironmentURLsClosure = { userId in
+            userId.flatMap { environmentURLsByUserId[$0] }
+        }
 
         try await subject.removeCertificate(userId: user1)
 
@@ -135,9 +148,14 @@ struct ClientCertificateServiceTests {
             .fixture(profile: .fixture(userId: user1)),
         ]
         stateService.activeAccount = .fixture(profile: .fixture(userId: user1))
-        stateService.environmentURLs[user1] = EnvironmentURLData(
-            base: URL(string: "https://example.com"),
-        )
+        let environmentURLsByUserId = [
+            user1: EnvironmentURLData(
+                base: URL(string: "https://example.com"),
+            ),
+        ]
+        environmentStateService.getEnvironmentURLsClosure = { userId in
+            userId.flatMap { environmentURLsByUserId[$0] }
+        }
 
         try await subject.removeCertificate(userId: user1)
 
@@ -157,16 +175,21 @@ struct ClientCertificateServiceTests {
             .fixture(profile: .fixture(userId: user2)),
         ]
         stateService.activeAccount = .fixture(profile: .fixture(userId: user1))
-        stateService.environmentURLs[user1] = EnvironmentURLData(
-            base: URL(string: "https://example.com"),
-            clientCertificateAlias: "Cert A",
-            clientCertificateFingerprint: fingerprint,
-        )
-        stateService.environmentURLs[user2] = EnvironmentURLData(
-            base: URL(string: "https://example.com"),
-            clientCertificateAlias: "Cert B",
-            clientCertificateFingerprint: fingerprint,
-        )
+        let environmentURLsByUserId = [
+            user1: EnvironmentURLData(
+                base: URL(string: "https://example.com"),
+                clientCertificateAlias: "Cert A",
+                clientCertificateFingerprint: fingerprint,
+            ),
+            user2: EnvironmentURLData(
+                base: URL(string: "https://example.com"),
+                clientCertificateAlias: "Cert B",
+                clientCertificateFingerprint: fingerprint,
+            ),
+        ]
+        environmentStateService.getEnvironmentURLsClosure = { userId in
+            userId.flatMap { environmentURLsByUserId[$0] }
+        }
 
         try await subject.removeCertificate(userId: user1)
 
@@ -184,12 +207,17 @@ struct ClientCertificateServiceTests {
             .fixture(profile: .fixture(userId: user1)),
         ]
         stateService.activeAccount = .fixture(profile: .fixture(userId: user1))
-        stateService.environmentURLs[user1] = EnvironmentURLData(
-            base: URL(string: "https://example.com"),
-            clientCertificateAlias: "Cert A",
-            clientCertificateFingerprint: fingerprint,
-        )
-        stateService.preAuthEnvironmentURLs = EnvironmentURLData(
+        let environmentURLsByUserId = [
+            user1: EnvironmentURLData(
+                base: URL(string: "https://example.com"),
+                clientCertificateAlias: "Cert A",
+                clientCertificateFingerprint: fingerprint,
+            ),
+        ]
+        environmentStateService.getEnvironmentURLsClosure = { userId in
+            userId.flatMap { environmentURLsByUserId[$0] }
+        }
+        environmentStateService.getPreAuthEnvironmentURLsReturnValue = EnvironmentURLData(
             base: URL(string: "https://example.com"),
             clientCertificateAlias: "PreAuth Cert",
             clientCertificateFingerprint: fingerprint,

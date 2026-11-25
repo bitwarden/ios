@@ -11,7 +11,7 @@ struct EnvironmentServiceTests { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     let errorReporter: MockErrorReporter
-    let stateService: MockStateService
+    let stateService: MockEnvironmentStateService
     let standardUserDefaults: UserDefaults
     let subject: EnvironmentService
 
@@ -19,7 +19,7 @@ struct EnvironmentServiceTests { // swiftlint:disable:this type_body_length
 
     init() {
         errorReporter = MockErrorReporter()
-        stateService = MockStateService()
+        stateService = MockEnvironmentStateService()
         standardUserDefaults = UserDefaults(suiteName: "test")!
         standardUserDefaults.removeObject(forKey: "com.apple.configuration.managed")
 
@@ -75,7 +75,7 @@ struct EnvironmentServiceTests { // swiftlint:disable:this type_body_length
     @Test
     func getPreAuthURLs() async {
         let urls = EnvironmentURLData(base: .example)
-        stateService.preAuthEnvironmentURLs = urls
+        stateService.getPreAuthEnvironmentURLsReturnValue = urls
 
         let result = await subject.getPreAuthURLs()
 
@@ -86,9 +86,7 @@ struct EnvironmentServiceTests { // swiftlint:disable:this type_body_length
     @Test
     func loadURLsForActiveAccount() async {
         let urls = EnvironmentURLData(base: .example)
-        let account = Account.fixture(settings: .fixture(environmentURLs: urls))
-        stateService.activeAccount = account
-        stateService.environmentURLs = [account.profile.userId: urls]
+        stateService.getEnvironmentURLsReturnValue = urls
 
         await subject.loadURLsForActiveAccount()
 
@@ -109,7 +107,7 @@ struct EnvironmentServiceTests { // swiftlint:disable:this type_body_length
         #expect(subject.settingsURL == URL(string: "https://example.com/#/settings"))
         #expect(subject.setUpTwoFactorURL == URL(string: "https://example.com/#/settings/security/two-factor"))
         #expect(subject.webVaultURL == URL(string: "https://example.com"))
-        #expect(stateService.preAuthEnvironmentURLs == urls)
+        #expect(stateService.setPreAuthEnvironmentURLsReceivedUrls == urls)
 
         #expect(errorReporter.region?.region == "Self-Hosted")
         #expect(errorReporter.region?.isPreAuth == false)
@@ -119,9 +117,7 @@ struct EnvironmentServiceTests { // swiftlint:disable:this type_body_length
     @Test
     func loadURLsForActiveAccount_clientCertificateFingerprint() async {
         let urls = EnvironmentURLData(base: .example, clientCertificateFingerprint: "test-fingerprint")
-        let account = Account.fixture(settings: .fixture(environmentURLs: urls))
-        stateService.activeAccount = account
-        stateService.environmentURLs = [account.profile.userId: urls]
+        stateService.getEnvironmentURLsReturnValue = urls
 
         await subject.loadURLsForActiveAccount()
 
@@ -132,9 +128,7 @@ struct EnvironmentServiceTests { // swiftlint:disable:this type_body_length
     @Test
     func loadURLsForActiveAccount_europe() async {
         let urls = EnvironmentURLData.defaultEU
-        let account = Account.fixture(settings: .fixture(environmentURLs: urls))
-        stateService.activeAccount = account
-        stateService.environmentURLs = [account.profile.userId: urls]
+        stateService.getEnvironmentURLsReturnValue = urls
 
         await subject.loadURLsForActiveAccount()
 
@@ -158,7 +152,7 @@ struct EnvironmentServiceTests { // swiftlint:disable:this type_body_length
                 == URL(string: "https://vault.bitwarden.eu/#/settings/security/two-factor"),
         )
         #expect(subject.webVaultURL == URL(string: "https://vault.bitwarden.eu"))
-        #expect(stateService.preAuthEnvironmentURLs == urls)
+        #expect(stateService.setPreAuthEnvironmentURLsReceivedUrls == urls)
 
         #expect(errorReporter.region?.region == "EU")
         #expect(errorReporter.region?.isPreAuth == false)
@@ -167,6 +161,7 @@ struct EnvironmentServiceTests { // swiftlint:disable:this type_body_length
     /// `loadURLsForActiveAccount()` loads the managed config URLs.
     @Test
     func loadURLsForActiveAccount_managedConfig() async throws {
+        stateService.getEnvironmentURLsThrowableError = StateServiceError.noActiveAccount
         standardUserDefaults.setValue(
             ["baseEnvironmentUrl": "https://vault.example.com"],
             forKey: "com.apple.configuration.managed",
@@ -195,16 +190,14 @@ struct EnvironmentServiceTests { // swiftlint:disable:this type_body_length
                 == URL(string: "https://vault.example.com/#/settings/security/two-factor"),
         )
         #expect(subject.webVaultURL == URL(string: "https://vault.example.com"))
-        #expect(stateService.preAuthEnvironmentURLs == urls)
+        #expect(stateService.setPreAuthEnvironmentURLsReceivedUrls == urls)
     }
 
     /// `loadURLsForActiveAccount()` doesn't load the managed config URLs if there's an active
     /// account, but sets the pre-auth URLs to the managed config URLs.
     @Test
     func loadURLsForActiveAccount_managedConfigActiveAccount() async throws {
-        let account = Account.fixture()
-        stateService.activeAccount = account
-        stateService.environmentURLs[account.profile.userId] = .defaultUS
+        stateService.getEnvironmentURLsReturnValue = .defaultUS
         standardUserDefaults.setValue(
             ["baseEnvironmentUrl": "https://vault.example.com"],
             forKey: "com.apple.configuration.managed",
@@ -234,13 +227,15 @@ struct EnvironmentServiceTests { // swiftlint:disable:this type_body_length
         #expect(subject.webVaultURL == URL(string: "https://vault.bitwarden.com"))
 
         let urls = try EnvironmentURLData(base: #require(URL(string: "https://vault.example.com")))
-        #expect(stateService.preAuthEnvironmentURLs == urls)
+        #expect(stateService.setPreAuthEnvironmentURLsReceivedUrls == urls)
     }
 
     /// `loadURLsForActiveAccount()` loads the default URLs if there's no active account
     /// and no preauth URLs.
     @Test
     func loadURLsForActiveAccount_noAccount() async {
+        stateService.getEnvironmentURLsThrowableError = StateServiceError.noActiveAccount
+
         await subject.loadURLsForActiveAccount()
 
         #expect(subject.apiURL == URL(string: "https://api.bitwarden.com"))
@@ -263,7 +258,7 @@ struct EnvironmentServiceTests { // swiftlint:disable:this type_body_length
                 == URL(string: "https://vault.bitwarden.com/#/settings/security/two-factor"),
         )
         #expect(subject.webVaultURL == URL(string: "https://vault.bitwarden.com"))
-        #expect(stateService.preAuthEnvironmentURLs == .defaultUS)
+        #expect(stateService.setPreAuthEnvironmentURLsReceivedUrls == .defaultUS)
 
         #expect(errorReporter.region?.region == "US")
         #expect(errorReporter.region?.isPreAuth == false)
@@ -273,8 +268,9 @@ struct EnvironmentServiceTests { // swiftlint:disable:this type_body_length
     /// and there are preauth URLs.
     @Test
     func loadURLsForActiveAccount_preAuth() async {
+        stateService.getEnvironmentURLsThrowableError = StateServiceError.noActiveAccount
         let urls = EnvironmentURLData(base: .example)
-        stateService.preAuthEnvironmentURLs = urls
+        stateService.getPreAuthEnvironmentURLsReturnValue = urls
 
         await subject.loadURLsForActiveAccount()
 
@@ -295,7 +291,7 @@ struct EnvironmentServiceTests { // swiftlint:disable:this type_body_length
         #expect(subject.settingsURL == URL(string: "https://example.com/#/settings"))
         #expect(subject.setUpTwoFactorURL == URL(string: "https://example.com/#/settings/security/two-factor"))
         #expect(subject.webVaultURL == URL(string: "https://example.com"))
-        #expect(stateService.preAuthEnvironmentURLs == urls)
+        #expect(stateService.setPreAuthEnvironmentURLsReceivedUrls == urls)
 
         #expect(errorReporter.region?.region == "Self-Hosted")
         #expect(errorReporter.region?.isPreAuth == false)
@@ -335,7 +331,7 @@ struct EnvironmentServiceTests { // swiftlint:disable:this type_body_length
         #expect(subject.settingsURL == URL(string: "https://example.com/#/settings"))
         #expect(subject.setUpTwoFactorURL == URL(string: "https://example.com/#/settings/security/two-factor"))
         #expect(subject.webVaultURL == URL(string: "https://example.com"))
-        #expect(stateService.preAuthEnvironmentURLs == urls)
+        #expect(stateService.setPreAuthEnvironmentURLsReceivedUrls == urls)
         #expect(errorReporter.region?.region == "Self-Hosted")
         #expect(errorReporter.region?.isPreAuth == true)
     }

@@ -28,6 +28,13 @@ public protocol HasEnvironmentService {
     var environmentService: EnvironmentService { get }
 }
 
+/// Protocol for an object that provides an `EnvironmentStateService`.
+///
+public protocol HasEnvironmentStateService {
+    /// The service used by the application to manage environment URL state.
+    var environmentStateService: EnvironmentStateService { get }
+}
+
 /// Protocol for an object that provides an `ErrorReporter`.
 ///
 public protocol HasErrorReporter {

@@ -63,8 +63,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var doesActiveAccountHavePremiumPersonallyCalled = false // swiftlint:disable:this identifier_name
     var doesActiveAccountHavePremiumPersonallyResult: Bool = true // swiftlint:disable:this identifier_name
     var encryptedPinByUserId = [String: String]()
-    var environmentURLs = [String: EnvironmentURLData]()
-    var environmentURLsError: Error?
     var eventsResult: Result<Void, Error> = .success(())
     var events = [String: [EventData]]()
     var flightRecorderData: FlightRecorderData?
@@ -104,7 +102,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var pinProtectedUserKeyEnvelopeError: Error?
     var pinProtectedUserKeyEnvelopeValue = [String: String]()
     var pinUnlockRequiresPasswordAfterRestartValue = false // swiftlint:disable:this identifier_name
-    var preAuthEnvironmentURLs: EnvironmentURLData?
     var accountCreationEnvironmentURLs = [String: EnvironmentURLData]()
     var preAuthServerConfig: ServerConfig?
     var rememberedOrgIdentifier: String?
@@ -336,14 +333,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         return encryptedPinByUserId[userId] ?? nil
     }
 
-    func getEnvironmentURLs(userId: String?) async throws -> EnvironmentURLData? {
-        if let environmentURLsError {
-            throw environmentURLsError
-        }
-        let userId = try unwrapUserId(userId)
-        return environmentURLs[userId]
-    }
-
     func getEvents(userId: String?) async throws -> [EventData] {
         try eventsResult.get()
         let userId = try unwrapUserId(userId)
@@ -432,10 +421,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
 
     func getPendingAppIntentActions() async -> [PendingAppIntentAction]? {
         pendingAppIntentActions
-    }
-
-    func getPreAuthEnvironmentURLs() async -> EnvironmentURLData? {
-        preAuthEnvironmentURLs
     }
 
     func getAccountCreationEnvironmentURLs(email: String) async -> EnvironmentURLData? {
@@ -676,11 +661,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         accountVolatileData[userId, default: AccountVolatileData()].pinProtectedUserKey = pin
     }
 
-    func setEnvironmentURLs(_ environmentURLs: EnvironmentURLData, userId: String?) async throws {
-        let userId = try unwrapUserId(userId)
-        self.environmentURLs[userId] = environmentURLs
-    }
-
     func setEvents(_ events: [EventData], userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         self.events[userId] = events
@@ -810,10 +790,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
             userId,
             default: AccountVolatileData(),
         ].pinProtectedUserKey = pin
-    }
-
-    func setPreAuthEnvironmentURLs(_ urls: EnvironmentURLData) async {
-        preAuthEnvironmentURLs = urls
     }
 
     func setAccountCreationEnvironmentURLs(urls: EnvironmentURLData, email: String) async {

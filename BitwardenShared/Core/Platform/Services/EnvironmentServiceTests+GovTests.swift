@@ -12,9 +12,7 @@ extension EnvironmentServiceTests {
     @Test
     func loadURLsForActiveAccount_gov() async {
         let urls = EnvironmentURLData.defaultGov
-        let account = Account.fixture(settings: .fixture(environmentURLs: urls))
-        stateService.activeAccount = account
-        stateService.environmentURLs = [account.profile.userId: urls]
+        stateService.getEnvironmentURLsReturnValue = urls
 
         await subject.loadURLsForActiveAccount()
 
@@ -38,7 +36,7 @@ extension EnvironmentServiceTests {
                 == URL(string: "https://vault.bitwarden-gov.com/#/settings/security/two-factor"),
         )
         #expect(subject.webVaultURL == URL(string: "https://vault.bitwarden-gov.com"))
-        #expect(stateService.preAuthEnvironmentURLs == urls)
+        #expect(stateService.setPreAuthEnvironmentURLsReceivedUrls == urls)
 
         #expect(errorReporter.region?.region == "Gov")
         #expect(errorReporter.region?.isPreAuth == false)

@@ -30,6 +30,7 @@ typealias Services = HasAPIService
     & HasDeviceAPIService
     & HasDeviceAuthKeyService
     & HasEnvironmentService
+    & HasEnvironmentStateService
     & HasErrorReportBuilder
     & HasErrorReporter
     & HasEventService

@@ -99,6 +99,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used by the application to manage the environment settings.
     public let environmentService: EnvironmentService
 
+    /// The service used by the application to manage environment URL state.
+    public let environmentStateService: EnvironmentStateService
+
     /// A helper for building an error report containing the details of an error that occurred.
     public let errorReportBuilder: ErrorReportBuilder
 
@@ -275,6 +278,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - deviceAPIService: The service used by the application to make device API requests.
     ///   - deviceAuthKeyService: The service to make and use the device auth key.
     ///   - environmentService: The service used by the application to manage the environment settings.
+    ///   - environmentStateService: The service used by the application to manage environment URL state.
     ///   - errorReportBuilder: A helper for building an error report containing the details of an
     ///     error that occurred.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
@@ -352,6 +356,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         deviceAPIService: DeviceAPIService,
         deviceAuthKeyService: DeviceAuthKeyService,
         environmentService: EnvironmentService,
+        environmentStateService: EnvironmentStateService,
         errorReportBuilder: ErrorReportBuilder,
         errorReporter: ErrorReporter,
         eventService: EventService,
@@ -424,6 +429,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.deviceAPIService = deviceAPIService
         self.deviceAuthKeyService = deviceAuthKeyService
         self.environmentService = environmentService
+        self.environmentStateService = environmentStateService
         self.errorReportBuilder = errorReportBuilder
         self.errorReporter = errorReporter
         self.eventService = eventService
@@ -570,6 +576,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
         let clientCertificateService = DefaultClientCertificateService(
             environmentService: environmentService,
+            environmentStateService: stateService,
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,
             stateService: stateService,
@@ -873,6 +880,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientService: clientService,
             configService: configService,
             environmentService: environmentService,
+            environmentStateService: stateService,
             errorReporter: errorReporter,
             fillAssistRepository: fillAssistRepository,
             flightRecorder: flightRecorder,
@@ -1207,6 +1215,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             deviceAPIService: apiService,
             deviceAuthKeyService: deviceAuthKeyService,
             environmentService: environmentService,
+            environmentStateService: stateService,
             errorReportBuilder: errorReportBuilder,
             errorReporter: errorReporter,
             eventService: eventService,
