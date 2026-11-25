@@ -1287,3 +1287,5 @@
 "ForYourSecurityDontShareOrSendDescriptionLong" = "For your security, don’t share or send this file over unsecured channels (like email), and delete it when you’re done.";
 /* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
 "CreateLogin" = "Create login";
+/* Message on the set up unlock screen during account setup, when only biometric unlock is offered. */
+"SetUpBiometricsToQuicklyAccessDescriptionLong" = "Set up biometrics to quickly access your vault and autofill your logins. Other unlock options are in Settings > Account security.";

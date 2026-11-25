@@ -98,6 +98,8 @@ extension StateService {
     func clearFillAssistCache() async throws {}
 
     func clearMasterPasswordUnlockForActiveAccount() async throws {}
+
+    func markAccountSetupOnboardingPendingForActiveAccount() async throws {}
 }
 
 // MARK: - StateServiceError

@@ -15,7 +15,6 @@ final class PasswordAutoFillProcessor: StateProcessor<
     /// The services used by this processor.
     typealias Services = HasASSettingsMediator
         & HasAutofillCredentialService
-        & HasConfigService
         & HasErrorReporter
         & HasNotificationCenterService
         & HasStateService
@@ -27,6 +26,13 @@ final class PasswordAutoFillProcessor: StateProcessor<
 
     /// The delegate to notify of autofill completion events.
     private weak var delegate: (any PasswordAutoFillProcessorDelegate)?
+
+    /// Whether onboarding has been completed, used to ensure it's only completed once.
+    private var hasCompletedOnboarding = false
+
+    /// Whether the user was sent to the device's Settings app during onboarding and the
+    /// processor is waiting for the app to return to the foreground.
+    private var isAwaitingReturnFromSettings = false
 
     /// The services used by this processor.
     private let services: Services
@@ -58,13 +64,18 @@ final class PasswordAutoFillProcessor: StateProcessor<
     override func perform(_ effect: PasswordAutoFillEffect) async {
         switch effect {
         case .checkAutofillOnForeground:
-            await monitorAutofillCompletionDuringOnboarding()
+            await monitorAutofillOnForeground()
         case .continueTapped:
-            await attemptToTurnOnCredentialProvider()
+            switch state.mode {
+            case .onboarding:
+                await continueOnboarding()
+            case .settings:
+                await attemptToTurnOnCredentialProvider()
+            }
         case .turnAutoFillOnLaterButtonTapped:
             coordinator?.showAlert(
                 .setUpAutoFillLater { [weak self] in
-                    await self?.turnOnLaterFlow()
+                    await self?.completeOnboarding()
                 },
             )
         }
@@ -80,6 +91,8 @@ final class PasswordAutoFillProcessor: StateProcessor<
     // MARK: Private Functions
 
     /// Attempts to turn on credential provider for autofill or navigate to the OS specific settings.
+    /// This is used in the settings mode.
+    ///
     private func attemptToTurnOnCredentialProvider() async {
         if #available(iOS 18, *) {
             do {
@@ -94,37 +107,16 @@ final class PasswordAutoFillProcessor: StateProcessor<
                     return
                 }
             } catch ASSettingsMediatorError.cantRequest {
-                try? await services.asSettingsMediator.openVerificationCodeAppSettings()
+                try? await services.asSettingsMediator.openCredentialProviderAppSettings()
             } catch {
                 services.errorReporter.log(error: error)
             }
 
             await checkAutofillCompletion()
         } else if #available(iOS 17, *) {
-            try? await services.asSettingsMediator.openVerificationCodeAppSettings()
+            try? await services.asSettingsMediator.openCredentialProviderAppSettings()
         } else {
             state.url = ExternalLinksConstants.passwordOptions
-        }
-    }
-
-    /// Continues the set up unlock flow by navigating to autofill setup.
-    ///
-    private func turnOnLaterFlow() async {
-        do {
-            try await services.stateService.setAccountSetupAutofill(.setUpLater)
-        } catch {
-            services.errorReporter.log(error: error)
-        }
-        await coordinator?.handleEvent(.didCompleteAuth)
-    }
-
-    /// Monitors the autofill completion process during onboarding mode.
-    /// When the app enters the foreground and autofill credentials are enabled,
-    /// it completes the account setup process and triggers the appropriate event.
-    ///
-    private func monitorAutofillCompletionDuringOnboarding() async {
-        for await _ in services.notificationCenterService.willEnterForegroundPublisher() {
-            await checkAutofillCompletion()
         }
     }
 
@@ -143,6 +135,99 @@ final class PasswordAutoFillProcessor: StateProcessor<
         }
 
         await navigateOnCompletion()
+    }
+
+    /// Completes the autofill onboarding step and navigates on completion. This only completes
+    /// onboarding once; subsequent calls are ignored.
+    ///
+    private func completeOnboarding() async {
+        guard !hasCompletedOnboarding else { return }
+        hasCompletedOnboarding = true
+        isAwaitingReturnFromSettings = false
+
+        await updateAccountSetupAutofillProgress()
+        await navigateOnCompletion()
+    }
+
+    /// Handles the continue button in the onboarding mode. On iOS 18+, this requests to turn on
+    /// the credential provider extension and then completes onboarding regardless of the result.
+    /// If the request can't be made (e.g. a request was made too recently) or on earlier versions,
+    /// this opens the device's Settings app and onboarding is completed when the app returns to
+    /// the foreground.
+    ///
+    private func continueOnboarding() async {
+        guard #available(iOS 18, *) else {
+            await openSettingsDuringOnboarding()
+            return
+        }
+
+        do {
+            _ = try await services.asSettingsMediator.requestToTurnOnCredentialProviderExtension()
+        } catch ASSettingsMediatorError.cantRequest {
+            // The system prompt can't be shown right now, so fall back to opening Settings.
+            await openSettingsDuringOnboarding()
+            return
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+        await completeOnboarding()
+    }
+
+    /// Handles the app returning to the foreground during onboarding. Onboarding is completed if
+    /// the user is returning from the device's Settings app or if autofill is now enabled.
+    ///
+    private func handleForegroundDuringOnboarding() async {
+        if isAwaitingReturnFromSettings {
+            await completeOnboarding()
+        } else if await services.autofillCredentialService.isAutofillCredentialsEnabled() {
+            await completeOnboarding()
+        }
+    }
+
+    /// Monitors for the app entering the foreground. In onboarding mode, this completes onboarding
+    /// if the user is returning from the device's Settings app or autofill is enabled. In settings
+    /// mode, this checks whether autofill was enabled and if so, dismisses the view.
+    ///
+    private func monitorAutofillOnForeground() async {
+        for await _ in services.notificationCenterService.willEnterForegroundPublisher() {
+            switch state.mode {
+            case .onboarding:
+                await handleForegroundDuringOnboarding()
+            case .settings:
+                await checkAutofillCompletion()
+            }
+        }
+    }
+
+    /// Opens the device's Settings app during onboarding so the user can turn on autofill. On
+    /// iOS 17+, this opens the AutoFill & Passwords settings; on earlier versions, this opens the
+    /// Password Options settings. Onboarding is completed when the app returns to the foreground.
+    ///
+    private func openSettingsDuringOnboarding() async {
+        isAwaitingReturnFromSettings = true
+        if #available(iOS 17, *) {
+            do {
+                try await services.asSettingsMediator.openCredentialProviderAppSettings()
+            } catch {
+                isAwaitingReturnFromSettings = false
+                services.errorReporter.log(error: error)
+            }
+        } else {
+            state.url = ExternalLinksConstants.passwordOptions
+        }
+    }
+
+    /// Updates the autofill setup progress when the onboarding step is completed, based on whether
+    /// autofill is turned on. The stored progress drives the Settings badges and the autofill action
+    /// card, and, if account setup onboarding on sign-in is disabled, which onboarding steps are shown.
+    ///
+    private func updateAccountSetupAutofillProgress() async {
+        let isAutofillEnabled = await services.autofillCredentialService.isAutofillCredentialsEnabled()
+        do {
+            try await services.stateService.setAccountSetupAutofill(isAutofillEnabled ? .complete : .setUpLater)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// Navigates on completion of trying to turn autofill ON appropriately depending on the mode.

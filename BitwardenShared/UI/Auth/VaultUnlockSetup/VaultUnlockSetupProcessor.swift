@@ -9,6 +9,7 @@ class VaultUnlockSetupProcessor: StateProcessor<VaultUnlockSetupState, VaultUnlo
     // MARK: Types
 
     typealias Services = DefaultVaultUnlockSetupHelper.Services
+        & HasConfigService
 
     // MARK: Private Properties
 
@@ -70,18 +71,16 @@ class VaultUnlockSetupProcessor: StateProcessor<VaultUnlockSetupState, VaultUnlo
 
     // MARK: Private
 
-    /// Continues the set up unlock flow by navigating to autofill setup.
+    /// Continues the set up unlock flow by marking the vault unlock setup progress complete. In
+    /// account setup onboarding, this continues to the next onboarding step. In settings, this
+    /// dismisses the view.
     ///
     private func continueFlow() async {
-        do {
-            try await services.stateService.setAccountSetupVaultUnlock(.complete)
-        } catch {
-            services.errorReporter.log(error: error)
-        }
+        await updateAccountSetupVaultUnlockProgress(.complete)
 
         switch state.accountSetupFlow {
         case .createAccount:
-            await coordinator.handleEvent(.didCompleteAuth)
+            await coordinator.handleEvent(.didCompleteVaultUnlockSetup)
         case .settings:
             coordinator.navigate(to: .dismiss)
         }
@@ -90,6 +89,10 @@ class VaultUnlockSetupProcessor: StateProcessor<VaultUnlockSetupState, VaultUnlo
     /// Load any initial data for the view.
     ///
     private func loadData() async {
+        if state.accountSetupFlow == .createAccount {
+            state.shouldShowPinUnlock = await !services.configService.getFeatureFlag(.accountSetupOnboardingOnSignIn)
+        }
+
         do {
             state.biometricsStatus = try await services.biometricsRepository.getBiometricUnlockStatus()
         } catch {
@@ -103,12 +106,8 @@ class VaultUnlockSetupProcessor: StateProcessor<VaultUnlockSetupState, VaultUnlo
     ///
     private func showSetUpLaterAlert() {
         coordinator.showAlert(.setUpUnlockMethodLater {
-            do {
-                try await self.services.stateService.setAccountSetupVaultUnlock(.setUpLater)
-            } catch {
-                self.services.errorReporter.log(error: error)
-            }
-            await self.coordinator.handleEvent(.didCompleteAuth)
+            await self.updateAccountSetupVaultUnlockProgress(.setUpLater)
+            await self.coordinator.handleEvent(.didCompleteVaultUnlockSetup)
         })
     }
 
@@ -132,5 +131,19 @@ class VaultUnlockSetupProcessor: StateProcessor<VaultUnlockSetupState, VaultUnlo
             enabled: enabled,
             showAlert: coordinator.showAlert,
         )
+    }
+
+    /// Updates the vault unlock setup progress when the step is completed. The stored progress
+    /// drives the Settings badges and the account security action card, and, if account setup
+    /// onboarding on sign-in is disabled, which onboarding steps are shown.
+    ///
+    /// - Parameter progress: The vault unlock setup progress to set.
+    ///
+    private func updateAccountSetupVaultUnlockProgress(_ progress: AccountSetupProgress) async {
+        do {
+            try await services.stateService.setAccountSetupVaultUnlock(progress)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
     }
 }

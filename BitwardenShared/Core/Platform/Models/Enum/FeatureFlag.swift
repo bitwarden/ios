@@ -21,6 +21,13 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// A feature flag to enable/disable V2 account encryption for TDE.
     static let accountEncryptionV2TDE = FeatureFlag(rawValue: "pm-27279-v2-registration-tde-jit")
 
+    /// A feature flag to enable/disable showing account setup onboarding after signing in, in
+    /// addition to after creating an account. When enabled, each onboarding step is only shown if
+    /// what it sets up is currently off, and the unlock step only offers biometric unlock.
+    static let accountSetupOnboardingOnSignIn = FeatureFlag(
+        rawValue: "pm-44455-account-setup-onboarding-on-sign-in",
+    )
+
     /// Flag to enable/disable the autofill action card, which is shown whenever autofill is off and
     /// helps the user turn it back on.
     static let autofillOffActionCard = FeatureFlag(rawValue: "pm-42672-autofill-off-banner")
@@ -83,6 +90,7 @@ extension FeatureFlag: @retroactive CaseIterable {
             .accountEncryptionV2KeyConnector,
             .accountEncryptionV2PasswordRegistration,
             .accountEncryptionV2TDE,
+            .accountSetupOnboardingOnSignIn,
             .autofillOffActionCard,
             .cardScanner,
             .debugDisableSelfHostPremiumCheck,

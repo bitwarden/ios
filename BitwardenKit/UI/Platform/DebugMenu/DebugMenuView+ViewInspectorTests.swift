@@ -119,6 +119,14 @@ class DebugMenuViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .generateSdkErrorReport)
     }
 
+    /// Tapping the show account setup onboarding again button sends the correct effect.
+    @MainActor
+    func test_markAccountSetupOnboardingPending_tapped() async throws {
+        let button = try subject.inspect().find(asyncButton: "Show account setup onboarding again")
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .markAccountSetupOnboardingPending)
+    }
+
     /// Test that the refresh button sends the correct effect.
     @MainActor
     func disabletest_refreshFeatureFlags_tapped() async throws {

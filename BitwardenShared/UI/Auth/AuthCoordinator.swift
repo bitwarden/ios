@@ -102,6 +102,21 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     /// The stack navigator that is managed by this coordinator.
     private(set) weak var stackNavigator: StackNavigator?
 
+    /// Whether there's a view presented modally by the stack navigator that should be dismissed.
+    ///
+    /// The profile switcher sheet is excluded: even though it has been asked to dismiss, it may not
+    /// have fully become un-presented, which would cause the stack navigator to also dismiss the
+    /// current view, which we don't want to happen.
+    ///
+    private var shouldDismissPresentedView: Bool {
+        guard stackNavigator?.isPresenting == true else { return false }
+        if let presented = (stackNavigator as? UINavigationController)?.visibleViewController,
+           presented is UIHostingController<ProfileSwitcherSheet> {
+            return false
+        }
+        return true
+    }
+
     // MARK: Initialization
 
     /// Creates a new `AuthCoordinator`.
@@ -278,17 +293,9 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     /// Completes the auth flow.
     /// - Parameter rehydratableTarget: The rehydratable target, if any to restore after unlocking if needed.
     private func completeAuth(rehydratableTarget: RehydratableTarget? = nil) {
-        if stackNavigator?.isPresenting == true {
-            if let presented = (stackNavigator as? UINavigationController)?.visibleViewController,
-               presented is UIHostingController<ProfileSwitcherSheet> {
-                // Even though the Profile Switcher Sheet has been asked to dismiss, it has not fully become
-                // un-presented, which would cause the stack navigator to also dismiss the current view,
-                // which we don't want to happen. This circumvents that.
-                delegate?.didCompleteAuth(rehydratableTarget: rehydratableTarget)
-            } else {
-                stackNavigator?.dismiss {
-                    self.delegate?.didCompleteAuth(rehydratableTarget: rehydratableTarget)
-                }
+        if shouldDismissPresentedView {
+            stackNavigator?.dismiss {
+                self.delegate?.didCompleteAuth(rehydratableTarget: rehydratableTarget)
             }
         } else {
             delegate?.didCompleteAuth(rehydratableTarget: rehydratableTarget)
@@ -312,10 +319,20 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         return try await services.authRepository.setActiveAccount(userId: alternate.profile.userId)
     }
 
+    /// Dismisses any view that is presented modally over the auth stack (e.g. two-step login,
+    /// single sign-on, or login with device) so it doesn't remain on top of an account setup
+    /// onboarding step.
+    ///
+    private func dismissPresentedViewIfNeeded() {
+        guard shouldDismissPresentedView else { return }
+        stackNavigator?.dismiss()
+    }
+
     /// Shows the password autofill screen.
     ///
     private func showAutoFillSetup() {
         guard let stackNavigator else { return }
+        dismissPresentedViewIfNeeded()
         let coordinator = module.makePasswordAutoFillCoordinator(
             delegate: self,
             stackNavigator: stackNavigator,
@@ -854,6 +871,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         let view = VaultUnlockSetupView(store: Store(processor: processor))
         switch accountSetupFlow {
         case .createAccount:
+            dismissPresentedViewIfNeeded()
             stackNavigator?.replace(view)
         case .settings:
             let viewController = UIHostingController(rootView: view)
@@ -1023,6 +1041,6 @@ extension AuthCoordinator: HasErrorAlertServices {
 
 extension AuthCoordinator: PasswordAutoFillCoordinatorDelegate {
     func didCompleteAuth() {
-        delegate?.didCompleteAuth(rehydratableTarget: nil)
+        completeAuth()
     }
 } // swiftlint:disable:this file_length
