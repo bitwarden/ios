@@ -101,26 +101,10 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
         switch effect {
         case .appeared:
             guard state.presentationMode == .tab else { return }
-            let featureEnabled = await services.configService
-                .getFeatureFlag(.premiumUpgradePath, defaultValue: false)
-            let hasPersonalSubscription = await services.billingService.hasPersonalSubscription()
-            let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
-            let hasPremiumPersonally = await services.stateService.doesActiveAccountHavePremiumPersonally()
-            let isSelfHosted = await services.billingService.isSelfHosted()
-            let isUSStorefront = await services.storefrontService.isUSStorefront()
-            state.hasPremium = hasPremium
-            // Users whose Premium comes only from their organization (not purchased personally)
-            // have no personal subscription to manage or upgrade, so the plan row is hidden for them.
-            // The same applies to users with personal Premium whose Stripe subscription doesn't exist.
-            let hasPremiumFromOrganizationOnly = hasPremium && !hasPremiumPersonally
-            let hasPremiumWithoutSubscription = hasPremiumPersonally && hasPersonalSubscription == false
-            state.showPlanRow = featureEnabled
-                && !isSelfHosted
-                && isUSStorefront
-                && !hasPremiumFromOrganizationOnly
-                && !hasPremiumWithoutSubscription
+            await updatePlanRow()
             state.shouldShowUpgradedToPremiumActionCard = await services.billingService
                 .shouldShowUpgradedToPremiumActionCard()
+            await refreshPlanRow()
         case .dismissUpgradedToPremiumActionCard:
             state.shouldShowUpgradedToPremiumActionCard = false
             await services.billingService.setUpgradedToPremiumActionCardDismissed()
@@ -156,6 +140,21 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
 
     // MARK: Private Methods
 
+    /// Returns whether the plan row can be shown at all, before the user's Premium and subscription
+    /// status are considered.
+    ///
+    /// - Returns: `true` if the Premium upgrade path feature flag is enabled, the environment is not
+    ///   self-hosted, and the App Store storefront is in the US.
+    ///
+    private func isPlanRowAvailable() async -> Bool {
+        guard await services.configService.getFeatureFlag(.premiumUpgradePath, defaultValue: false),
+              await !services.billingService.isSelfHosted()
+        else {
+            return false
+        }
+        return await services.storefrontService.isUSStorefront()
+    }
+
     /// Navigates to the appropriate plan screen based on the user's Premium and subscription status.
     ///
     private func navigateToPlan() async {
@@ -180,5 +179,45 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             services.errorReporter.log(error: error)
             await coordinator.showErrorAlert(error: error)
         }
+    }
+
+    /// Refreshes the cached subscription status from the server and updates the plan row again,
+    /// for users with personal Premium whose plan row is otherwise available.
+    ///
+    /// The cached status can be stale when the subscription is removed on the server without a
+    /// full sync, so this keeps the plan row from offering a subscription that no longer exists.
+    ///
+    private func refreshPlanRow() async {
+        guard await isPlanRowAvailable(),
+              await services.stateService.doesActiveAccountHavePremiumPersonally()
+        else {
+            return
+        }
+        await services.billingService.refreshSubscriptionStatus(subscription: nil)
+        await updatePlanRow()
+    }
+
+    /// Updates `hasPremium`, `showPlanRow`, and `showPlanBadge` from the account's Premium status,
+    /// the cached subscription status, and whether the Plan badge was dismissed.
+    ///
+    private func updatePlanRow() async {
+        let hasPersonalSubscription = await services.billingService.hasPersonalSubscription()
+        let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
+        let hasPremiumPersonally = await services.stateService.doesActiveAccountHavePremiumPersonally()
+        let isPlanRowAvailable = await isPlanRowAvailable()
+        state.hasPremium = hasPremium
+        // Users whose Premium comes only from their organization (not purchased personally)
+        // have no personal subscription to manage or upgrade, so the plan row is hidden for them.
+        // The same applies to users with personal Premium whose Stripe subscription doesn't exist.
+        let hasPremiumFromOrganizationOnly = hasPremium && !hasPremiumPersonally
+        let hasPremiumWithoutSubscription = hasPremiumPersonally && hasPersonalSubscription == false
+        state.showPlanRow = isPlanRowAvailable
+            && !hasPremiumFromOrganizationOnly
+            && !hasPremiumWithoutSubscription
+        let isPlanBadgeDismissed = await services.billingService.isPlanBadgeDismissed()
+        state.showPlanBadge = state.showPlanRow
+            && !hasPremium
+            && hasPersonalSubscription != true
+            && !isPlanBadgeDismissed
     }
 }

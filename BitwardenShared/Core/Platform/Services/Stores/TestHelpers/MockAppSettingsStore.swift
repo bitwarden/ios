@@ -65,6 +65,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var pendingAccountSetupOnboarding = [String: Bool]()
     var pinProtectedUserKey = [String: String]()
     var pinProtectedUserKeyEnvelope = [String: String]()
+    var planBadgeDismissedByUserId = [String: Bool]()
     var premiumUpgradeBannerDismissedByUserId = [String: Bool]()
     var premiumUpgradePendingByUserId = [String: Bool]()
     var previousPersonalPremiumByUserId = [String: Bool]()
@@ -230,6 +231,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func pinProtectedUserKeyEnvelope(userId: String) -> String? {
         pinProtectedUserKeyEnvelope[userId]
+    }
+
+    func planBadgeDismissed(userId: String) -> Bool {
+        planBadgeDismissedByUserId[userId] ?? false
     }
 
     func premiumUpgradeBannerDismissed(userId: String) -> Bool {
@@ -417,6 +422,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func setPinProtectedUserKeyEnvelope(key: String?, userId: String) {
         pinProtectedUserKeyEnvelope[userId] = key
+    }
+
+    func setPlanBadgeDismissed(_ dismissed: Bool, userId: String) {
+        planBadgeDismissedByUserId[userId] = dismissed
     }
 
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String) {

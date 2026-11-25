@@ -32,7 +32,8 @@ protocol VaultItemActionHelper { // sourcery: AutoMockable
 class DefaultVaultItemActionHelper: VaultItemActionHelper {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasBillingRepository
+        & HasErrorReporter
         & HasVaultRepository
 
     // MARK: Private Properties
@@ -67,10 +68,14 @@ class DefaultVaultItemActionHelper: VaultItemActionHelper {
         completionHandler: @escaping () -> Void,
     ) async {
         guard await services.vaultRepository.doesActiveAccountHavePremium() else {
+            let isInAppUpgradeAvailable = await services.billingRepository.isInAppUpgradeAvailable()
             await coordinator.showAlert(
-                Alert.archiveUnavailable(action: {
-                    await handleNavigateToPremiumUpgrade()
-                }),
+                Alert.archiveUnavailable(
+                    isInAppUpgradeAvailable: isInAppUpgradeAvailable,
+                    action: {
+                        await handleNavigateToPremiumUpgrade()
+                    },
+                ),
             )
             return
         }
