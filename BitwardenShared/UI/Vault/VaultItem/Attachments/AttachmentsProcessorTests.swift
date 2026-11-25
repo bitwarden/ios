@@ -132,6 +132,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_save_noPremium_tapUpgrade() async throws {
         subject.state.fileName = "only cool people can see this file.txt"
+        billingRepository.isInAppUpgradeAvailableReturnValue = false
         vaultRepository.doesActiveAccountHavePremiumResult = false
 
         await subject.perform(.save)
