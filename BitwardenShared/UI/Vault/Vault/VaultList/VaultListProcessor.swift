@@ -23,6 +23,7 @@ final class VaultListProcessor: StateProcessor<
         & HasBillingRepository
         & HasBillingService
         & HasChangeKdfService
+        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasEventService
@@ -250,6 +251,8 @@ extension VaultListProcessor {
 
     /// Called when the vault list appears on screen.
     private func appeared() async {
+        state.isVfo1FoundationFeatureFlagEnabled = await services.configService.getFeatureFlag(.vfo1Foundation)
+
         // This is being loaded before and after syncing to avoid glitches on which cipher types
         // are allowed while the vault is being refreshed/synced, as feature flags or policies may change that.
         await loadItemTypesUserCanCreate()

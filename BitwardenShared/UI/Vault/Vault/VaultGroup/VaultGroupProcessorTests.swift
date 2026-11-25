@@ -20,6 +20,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     var authRepository: MockAuthRepository!
     var billingRepository: MockBillingRepository!
     var billingService: MockBillingService!
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
     let fixedDate = Date(year: 2023, month: 12, day: 31, minute: 0, second: 31)
@@ -45,6 +46,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         billingRepository = MockBillingRepository()
         billingRepository.isInAppUpgradeAvailableReturnValue = false
         billingService = MockBillingService()
+        configService = MockConfigService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         masterPasswordRepromptHelper = MockMasterPasswordRepromptHelper()
@@ -70,6 +72,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 authRepository: authRepository,
                 billingRepository: billingRepository,
                 billingService: billingService,
+                configService: configService,
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
                 policyService: policyService,
@@ -94,6 +97,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         authRepository = nil
         billingRepository = nil
         billingService = nil
+        configService = nil
         coordinator = nil
         errorReporter = nil
         masterPasswordRepromptHelper = nil
@@ -206,6 +210,19 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// the search process mediator.
     func test_init() {
         XCTAssertTrue(searchProcessorMediatorFactory.makeCalled)
+    }
+
+    /// `perform(_:)` with `.appeared` loads the vfo1-foundation feature flag.
+    @MainActor
+    func test_perform_appeared_featureFlags_vfo1Foundation() {
+        configService.featureFlagsBool[.vfo1Foundation] = true
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        defer { task.cancel() }
+
+        waitFor(subject.state.isVfo1FoundationFeatureFlagEnabled)
     }
 
     /// `perform(_:)` with `.appeared` starts streaming vault items.

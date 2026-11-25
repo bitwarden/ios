@@ -18,7 +18,9 @@ struct EditCollectionsView: View {
     var body: some View {
         content
             .navigationBar(
-                title: Localizations.sharedFolders,
+                title: store.state.isVfo1FoundationFeatureFlagEnabled
+                    ? Localizations.sharedFolders
+                    : Localizations.collections,
                 titleDisplayMode: .inline,
             )
             .scrollView()
@@ -39,12 +41,16 @@ struct EditCollectionsView: View {
     /// The content displayed in the view.
     @ViewBuilder private var content: some View {
         if store.state.collections.isEmpty {
-            Text(Localizations.thereAreNoSharedFoldersToList)
-                .styleGuide(.body)
-                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
-                .multilineTextAlignment(.center)
-                .padding(16)
-                .frame(maxWidth: .infinity)
+            Text(
+                store.state.isVfo1FoundationFeatureFlagEnabled
+                    ? Localizations.thereAreNoSharedFoldersToList
+                    : Localizations.noCollectionsToList,
+            )
+            .styleGuide(.body)
+            .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
+            .multilineTextAlignment(.center)
+            .padding(16)
+            .frame(maxWidth: .infinity)
         } else {
             ContentBlock(dividerLeadingPadding: 16) {
                 ForEach(store.state.collections, id: \.id) { collection in

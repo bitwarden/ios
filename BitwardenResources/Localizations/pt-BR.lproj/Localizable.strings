@@ -28,6 +28,7 @@
 "FolderCreated" = "Nova pasta criada";
 "FolderDeleted" = "Pasta apagada.";
 "FolderNone" = "Sem pasta";
+"Folders" = "Pastas";
 "FolderUpdated" = "Pasta salva";
 "MyFolder" = "Minha pasta";
 "MyFolders" = "Minhas pastas";
@@ -261,8 +262,12 @@
 "ShowWebsiteIconsDescription" = "Mostre uma imagem reconhecível ao lado de cada credencial.";
 "IconsUrl" = "URL do servidor de ícones";
 "AutofillWithBitwarden" = "Preencher com Bitwarden";
+/* Section header and screen title for viewing/managing a cipher's collections. */
+"Collections" = "Conjuntos";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "Pastas compartilhadas";
+/* Empty state message shown when a collection has no items. */
+"NoItemsCollection" = "Não há itens neste conjunto";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "Não há itens nesta pasta compartilhada";
 "NoItemsFolder" = "Não há itens nesta pasta";
@@ -284,6 +289,8 @@
 "RegEx" = "Expressão regular";
 "StartsWith" = "Começa com";
 "MatchDetection" = "Detecção de correspondência";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
+"Organization" = "Organização";
 "HoldYubikeyNearTop" = "Segure a sua Yubikey perto do topo do dispositivo.";
 "TryAgain" = "Tentar novamente";
 "YubiKeyInstructionIos" = "Para continuar, segure a sua YubiKey NEO contra a parte de trás do dispositivo.";
@@ -319,17 +326,27 @@
 "NoItemsToList" = "Não há itens para listar.";
 "MoveDown" = "Mover para baixo";
 "MoveUp" = "Mover para cima";
+/* Empty state message on the Collections screen shown when a user has no collections. */
+"NoCollectionsToList" = "Não há conjuntos para listar.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "Não há pastas para listar.";
 "MovedItemToOrg" = "%1$@ movido para %2$@.";
+/* Alert message shown when saving an item with no collection selected. */
+"SelectOneCollection" = "Você deve selecionar pelo menos um conjunto.";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "Você deve selecionar pelo menos uma pasta compartilhada.";
 "Share" = "Compartilhar";
 "ShareAll" = "Compartilhar tudo";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
+"MoveToOrganization" = "Mover para organização";
 /* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "Nenhum cofre para listar.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
+"NoOrgsToList" = "Nenhuma organização para listar.";
 /* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Escolha um cofre para o qual você deseja mover este item. Mover para outro cofre transfere a propriedade do item para aquela organização. Você não será mais o proprietário direto deste item depois que ele for movido.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
+"MoveToOrgDesc" = "Escolha uma organização para a qual deseja mover este item. Mover para uma organização transfere a propriedade do item para essa organização. Você não será mais o proprietário direto deste item depois que ele for movido.";
 "NumberOfWords" = "Número de palavras";
 "Passphrase" = "Frase secreta";
 "WordSeparator" = "Separador das palavras";
@@ -401,7 +418,7 @@
 "MasterPasswordPolicyValidationTitle" = "Senha inválida";
 "MasterPasswordPolicyValidationMessage" = "A senha não atende aos requisitos da organização. Confira as informações da política e tente novamente.";
 "Loading" = "Carregando";
-"LoadingSubscription" = "Carregando assinatura...";
+"LoadingSubscription" = "Carregando assinatura…";
 "AcceptPoliciesError" = "Os Termos de Serviço e a Política de Privacidade não foram reconhecidos.";
 "PrivacyPolicy" = "Política de Privacidade";
 "PersonalOwnershipPolicyInEffect" = "Uma política de organização está afetando suas opções de propriedade.";
@@ -873,6 +890,7 @@
 "PersonalDetails" = "Detalhes pessoais";
 "ContactInfo" = "Informação de contato";
 "Identification" = "Identificação";
+"Owner" = "Proprietário";
 "VerifyYourIdentity" = "Verifique sua identidade";
 "ThisOperationIsNotAllowedOnThisAccount" = "Esta operação não é permitida nesta conta";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "Ocorreu um erro ao tentar bloquear o usuário atual";
@@ -890,9 +908,13 @@
 "ShowMore" = "Mostrar mais";
 "ShowLess" = "Mostrar menos";
 "ItemNameX" = "Nome do item, %1$@";
+"OwnerX" = "Proprietário, %1$@";
 "VaultX" = "Cofre, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
+"CollectionX" = "Conjunto, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Pasta compartilhada, %1$@";
+"FolderX" = "Pasta, %1$@";
 "MyFolderX" = "Minha pasta, %1$@";
 "ItemXOfY" = "%1$@° de %2$@ itens";
 "ViewRecordedLogs" = "Ver registros gravados";
