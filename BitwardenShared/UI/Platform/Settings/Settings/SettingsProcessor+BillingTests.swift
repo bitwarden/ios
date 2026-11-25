@@ -17,7 +17,6 @@ struct SettingsProcessorBillingTests { // swiftlint:disable:this type_body_lengt
     // MARK: Properties
 
     let billingService: MockBillingService
-    let configService: MockConfigService
     let coordinator: MockCoordinator<SettingsRoute, SettingsEvent>
     let delegate: MockSettingsProcessorDelegate
     let errorReporter: MockErrorReporter
@@ -34,7 +33,6 @@ struct SettingsProcessorBillingTests { // swiftlint:disable:this type_body_lengt
         billingService.isPlanBadgeDismissedReturnValue = false
         billingService.isSelfHostedReturnValue = false
         billingService.shouldShowUpgradedToPremiumActionCardReturnValue = false
-        configService = MockConfigService()
         coordinator = MockCoordinator()
         delegate = MockSettingsProcessorDelegate()
         errorReporter = MockErrorReporter()
@@ -48,7 +46,6 @@ struct SettingsProcessorBillingTests { // swiftlint:disable:this type_body_lengt
             delegate: delegate,
             services: ServiceContainer.withMocks(
                 billingService: billingService,
-                configService: configService,
                 errorReporter: errorReporter,
                 stateService: stateService,
                 storefrontService: storefrontService,
@@ -110,8 +107,8 @@ struct SettingsProcessorBillingTests { // swiftlint:disable:this type_body_lengt
     func perform_appeared_planBadge(testCase: PlanBadgeTestCase) async {
         billingService.hasPersonalSubscriptionReturnValue = testCase.hasPersonalSubscription
         billingService.isPlanBadgeDismissedReturnValue = testCase.isDismissed
-        configService.featureFlagsBool[.premiumUpgradePath] = testCase.isRowShown
         stateService.doesActiveAccountHavePremiumPersonallyResult = testCase.hasPremium
+        storefrontService.isUSStorefrontReturnValue = testCase.isRowShown
         vaultRepository.doesActiveAccountHavePremiumResult = testCase.hasPremium
 
         await subject.perform(.appeared)
@@ -122,22 +119,11 @@ struct SettingsProcessorBillingTests { // swiftlint:disable:this type_body_lengt
 
     // MARK: Tests - perform(.appeared) — plan row
 
-    /// `perform(_:)` with `.appeared` sets `showPlanRow` across the combinations of the feature
-    /// flag, self-hosting, storefront, Premium ownership, and whether the user has a Stripe
-    /// subscription.
+    /// `perform(_:)` with `.appeared` sets `showPlanRow` across the combinations of self-hosting,
+    /// storefront, Premium ownership, and whether the user has a Stripe subscription.
     @Test(arguments: [
         PlanRowTestCase(
             expectedShowPlanRow: false,
-            featureEnabled: false,
-            hasPersonalSubscription: nil,
-            hasPremium: false,
-            hasPremiumPersonally: false,
-            isSelfHosted: false,
-            isUSStorefront: true,
-        ),
-        PlanRowTestCase(
-            expectedShowPlanRow: false,
-            featureEnabled: true,
             hasPersonalSubscription: nil,
             hasPremium: false,
             hasPremiumPersonally: false,
@@ -146,7 +132,6 @@ struct SettingsProcessorBillingTests { // swiftlint:disable:this type_body_lengt
         ),
         PlanRowTestCase(
             expectedShowPlanRow: false,
-            featureEnabled: true,
             hasPersonalSubscription: nil,
             hasPremium: false,
             hasPremiumPersonally: false,
@@ -155,7 +140,6 @@ struct SettingsProcessorBillingTests { // swiftlint:disable:this type_body_lengt
         ),
         PlanRowTestCase(
             expectedShowPlanRow: true,
-            featureEnabled: true,
             hasPersonalSubscription: nil,
             hasPremium: false,
             hasPremiumPersonally: false,
@@ -164,7 +148,6 @@ struct SettingsProcessorBillingTests { // swiftlint:disable:this type_body_lengt
         ),
         PlanRowTestCase(
             expectedShowPlanRow: true,
-            featureEnabled: true,
             hasPersonalSubscription: true,
             hasPremium: false,
             hasPremiumPersonally: false,
@@ -173,7 +156,6 @@ struct SettingsProcessorBillingTests { // swiftlint:disable:this type_body_lengt
         ),
         PlanRowTestCase(
             expectedShowPlanRow: true,
-            featureEnabled: true,
             hasPersonalSubscription: false,
             hasPremium: false,
             hasPremiumPersonally: false,
@@ -182,7 +164,6 @@ struct SettingsProcessorBillingTests { // swiftlint:disable:this type_body_lengt
         ),
         PlanRowTestCase(
             expectedShowPlanRow: false,
-            featureEnabled: true,
             hasPersonalSubscription: nil,
             hasPremium: true,
             hasPremiumPersonally: false,
@@ -191,7 +172,6 @@ struct SettingsProcessorBillingTests { // swiftlint:disable:this type_body_lengt
         ),
         PlanRowTestCase(
             expectedShowPlanRow: false,
-            featureEnabled: true,
             hasPersonalSubscription: true,
             hasPremium: true,
             hasPremiumPersonally: false,
@@ -200,7 +180,6 @@ struct SettingsProcessorBillingTests { // swiftlint:disable:this type_body_lengt
         ),
         PlanRowTestCase(
             expectedShowPlanRow: false,
-            featureEnabled: true,
             hasPersonalSubscription: false,
             hasPremium: true,
             hasPremiumPersonally: false,
@@ -209,7 +188,6 @@ struct SettingsProcessorBillingTests { // swiftlint:disable:this type_body_lengt
         ),
         PlanRowTestCase(
             expectedShowPlanRow: true,
-            featureEnabled: true,
             hasPersonalSubscription: nil,
             hasPremium: true,
             hasPremiumPersonally: true,
@@ -218,7 +196,6 @@ struct SettingsProcessorBillingTests { // swiftlint:disable:this type_body_lengt
         ),
         PlanRowTestCase(
             expectedShowPlanRow: true,
-            featureEnabled: true,
             hasPersonalSubscription: true,
             hasPremium: true,
             hasPremiumPersonally: true,
@@ -227,7 +204,6 @@ struct SettingsProcessorBillingTests { // swiftlint:disable:this type_body_lengt
         ),
         PlanRowTestCase(
             expectedShowPlanRow: false,
-            featureEnabled: true,
             hasPersonalSubscription: false,
             hasPremium: true,
             hasPremiumPersonally: true,
@@ -238,7 +214,6 @@ struct SettingsProcessorBillingTests { // swiftlint:disable:this type_body_lengt
     func perform_appeared_planRow(testCase: PlanRowTestCase) async {
         billingService.hasPersonalSubscriptionReturnValue = testCase.hasPersonalSubscription
         billingService.isSelfHostedReturnValue = testCase.isSelfHosted
-        configService.featureFlagsBool[.premiumUpgradePath] = testCase.featureEnabled
         stateService.doesActiveAccountHavePremiumPersonallyResult = testCase.hasPremiumPersonally
         storefrontService.isUSStorefrontReturnValue = testCase.isUSStorefront
         vaultRepository.doesActiveAccountHavePremiumResult = testCase.hasPremium
@@ -274,7 +249,6 @@ struct SettingsProcessorBillingTests { // swiftlint:disable:this type_body_lengt
     ])
     func perform_appeared_planRow_refreshesSubscriptionStatus(testCase: PlanRowRefreshTestCase) async {
         billingService.hasPersonalSubscriptionReturnValue = testCase.cachedSubscriptionBeforeRefresh
-        configService.featureFlagsBool[.premiumUpgradePath] = true
         stateService.doesActiveAccountHavePremiumPersonallyResult = true
         vaultRepository.doesActiveAccountHavePremiumResult = true
         var showPlanRowBeforeRefresh: Bool?
@@ -438,7 +412,6 @@ struct PlanRowRefreshTestCase: Sendable {
 /// Input/output data for the `perform_appeared_planRow` parameterized test.
 struct PlanRowTestCase: Sendable {
     let expectedShowPlanRow: Bool
-    let featureEnabled: Bool
     let hasPersonalSubscription: Bool?
     let hasPremium: Bool
     let hasPremiumPersonally: Bool

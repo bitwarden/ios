@@ -20,7 +20,6 @@ struct BillingServiceActionCardTests {
 
     var billingAPIService: MockBillingAPIService!
     var billingStateService: MockBillingStateService!
-    var configService: MockConfigService!
     var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
     var subject: DefaultBillingService!
@@ -34,15 +33,13 @@ struct BillingServiceActionCardTests {
         billingStateService.getSubscriptionAttentionCardVisibleReturnValue = false
         billingStateService.getUpgradedToPremiumActionCardVisibleReturnValue = false
         billingStateService.getPremiumUpgradeBannerDismissedReturnValue = false
-        configService = MockConfigService()
-        configService.featureFlagsBool[.premiumUpgradePath] = true
         environmentService = MockEnvironmentService()
         environmentService.region = .unitedStates
         errorReporter = MockErrorReporter()
         subject = DefaultBillingService(
             billingAPIService: billingAPIService,
             billingStateService: billingStateService,
-            configService: configService,
+            configService: MockConfigService(),
             environmentService: environmentService,
             errorReporter: errorReporter,
             stateService: MockStateService(),
@@ -122,20 +119,6 @@ struct BillingServiceActionCardTests {
         #expect(!billingStateService.setSubscriptionAttentionCardVisibleCalled)
         #expect(!billingStateService.setHasPersonalSubscriptionCalled)
         #expect(errorReporter.errors.first is URLError)
-    }
-
-    /// `refreshSubscriptionStatus(subscription:)` sets the cached visibility to `false`
-    /// and skips the API call and the stored Stripe subscription update when the feature flag is
-    /// disabled.
-    @Test
-    func refreshSubscriptionStatus_featureFlagDisabled() async {
-        configService.featureFlagsBool[.premiumUpgradePath] = false
-
-        await subject.refreshSubscriptionStatus(subscription: nil)
-
-        #expect(billingStateService.setSubscriptionAttentionCardVisibleReceivedVisible == false)
-        #expect(!billingAPIService.getSubscriptionCalled)
-        #expect(!billingStateService.setHasPersonalSubscriptionCalled)
     }
 
     /// `refreshSubscriptionStatus(subscription:)` sets the cached visibility to `false`,

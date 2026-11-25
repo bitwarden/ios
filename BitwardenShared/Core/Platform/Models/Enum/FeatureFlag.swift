@@ -59,9 +59,6 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// `LoginClientProtocol.getPasswordPrelogin(email:)` instead of the `/prelogin` REST endpoint.
     static let passwordPreloginFromSdk = FeatureFlag(rawValue: "pm-27060-password-prelogin-from-sdk")
 
-    /// Flag to enable/disable Premium upgrade path.
-    static let premiumUpgradePath = FeatureFlag(rawValue: "pm-31697-premium-upgrade-path")
-
     /// Flag to enable/disable SDK-managed PIN unlock.
     ///
     /// When enabled, PIN unlock, enrollment, and validation route through the Bitwarden SDK's
@@ -90,7 +87,6 @@ extension FeatureFlag: @retroactive CaseIterable {
             .noLogoutOnKdfChange,
             .organizationUserNotificationBanner,
             .passwordPreloginFromSdk,
-            .premiumUpgradePath,
             .sdkManagedPinUnlock,
             .sendControls,
         ]

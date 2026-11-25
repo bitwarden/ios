@@ -35,7 +35,6 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         billingStateService.getSubscriptionAttentionCardVisibleReturnValue = false
         billingStateService.getUpgradedToPremiumActionCardVisibleReturnValue = false
         configService = MockConfigService()
-        configService.featureFlagsBool[.premiumUpgradePath] = true
         environmentService = MockEnvironmentService()
         environmentService.region = .unitedStates
         errorReporter = MockErrorReporter()
@@ -354,17 +353,6 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
     @Test
     func premiumStatusChanged_alreadyHasPremium_forceSyncs() async {
         stateService.doesActiveAccountHavePremiumResult = true
-
-        await subject.premiumStatusChanged()
-
-        #expect(syncService.didFetchSync)
-        #expect(syncService.fetchSyncForceSync == true)
-    }
-
-    /// `premiumStatusChanged()` force-syncs even when the premiumUpgradePath flag is disabled.
-    @Test
-    func premiumStatusChanged_featureFlagDisabled_forceSyncs() async {
-        configService.featureFlagsBool[.premiumUpgradePath] = false
 
         await subject.premiumStatusChanged()
 

@@ -21,7 +21,6 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
 
     let billingAPIService: MockBillingAPIService
     let billingStateService: MockBillingStateService
-    let configService: MockConfigService
     let environmentService: MockEnvironmentService
     let errorReporter: MockErrorReporter
     let stateService: MockStateService
@@ -35,8 +34,6 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
         billingAPIService.getSubscriptionReturnValue = .fixture()
         billingStateService = MockBillingStateService()
         billingStateService.getPremiumUpgradePendingReturnValue = false
-        configService = MockConfigService()
-        configService.featureFlagsBool[.premiumUpgradePath] = true
         environmentService = MockEnvironmentService()
         environmentService.region = .unitedStates
         errorReporter = MockErrorReporter()
@@ -46,7 +43,7 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
         subject = DefaultBillingService(
             billingAPIService: billingAPIService,
             billingStateService: billingStateService,
-            configService: configService,
+            configService: MockConfigService(),
             environmentService: environmentService,
             errorReporter: errorReporter,
             stateService: stateService,
@@ -197,17 +194,6 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
         #expect(billingStateService.setPremiumUpgradePendingReceivedArguments?.pending == true)
         #expect(!billingStateService.setUpgradedToPremiumActionCardVisibleCalled)
         #expect(!billingAPIService.getSubscriptionCalled)
-    }
-
-    /// `premiumCheckoutSucceeded()` does nothing when the premiumUpgradePath feature flag is disabled.
-    @Test
-    func premiumCheckoutSucceeded_featureFlagDisabled_doesNothing() async {
-        configService.featureFlagsBool[.premiumUpgradePath] = false
-
-        await subject.premiumCheckoutSucceeded()
-
-        #expect(!syncService.didFetchSync)
-        #expect(!billingStateService.setPremiumUpgradePendingCalled)
     }
 
     /// `premiumCheckoutSucceeded()` logs the error and publishes `.pending` without syncing when
@@ -387,17 +373,6 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
         #expect(!billingAPIService.getSubscriptionCalled)
     }
 
-    /// `retryPendingUpgrade()` does nothing when the premiumUpgradePath feature flag is disabled.
-    @Test
-    func retryPendingUpgrade_featureFlagDisabled_doesNothing() async {
-        configService.featureFlagsBool[.premiumUpgradePath] = false
-
-        await subject.retryPendingUpgrade()
-
-        #expect(!syncService.didFetchSync)
-        #expect(!billingStateService.setPremiumUpgradePendingCalled)
-    }
-
     /// `retryPendingUpgrade()` logs the error and publishes `.pending` without syncing when the
     /// active account can't be resolved, so the user gets the pending alert again rather than
     /// nothing.
@@ -432,6 +407,17 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
 
         try await waitForAsync { !statuses.isEmpty }
         #expect(statuses == [.pending])
+        #expect(!billingStateService.setPremiumUpgradePendingCalled)
+    }
+
+    /// `retryPendingUpgrade()` does nothing when the environment is self-hosted.
+    @Test
+    func retryPendingUpgrade_selfHosted_doesNothing() async {
+        environmentService.region = .selfHosted
+
+        await subject.retryPendingUpgrade()
+
+        #expect(!syncService.didFetchSync)
         #expect(!billingStateService.setPremiumUpgradePendingCalled)
     }
 

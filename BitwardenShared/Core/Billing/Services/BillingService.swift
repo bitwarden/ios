@@ -195,7 +195,7 @@ extension BillingService {
 
 /// The default implementation of `BillingService`.
 ///
-class DefaultBillingService: BillingService { // swiftlint:disable:this type_body_length
+class DefaultBillingService: BillingService {
     // MARK: Properties
 
     /// The API service used for billing requests.
@@ -513,18 +513,13 @@ class DefaultBillingService: BillingService { // swiftlint:disable:this type_bod
 
     // MARK: Private Methods
 
-    /// Reports whether the Premium upgrade path is available: not self-hosted, and the
-    /// `premiumUpgradePath` feature flag is enabled.
+    /// Reports whether the Premium upgrade path is available, which requires the environment not
+    /// to be self-hosted.
     ///
     /// - Returns: Whether the Premium upgrade path is available.
     ///
     private func isEligibleForPremiumUpgradePath() async -> Bool {
-        guard await !isSelfHosted(),
-              await configService.getFeatureFlag(.premiumUpgradePath)
-        else {
-            return false
-        }
-        return true
+        await !isSelfHosted()
     }
 
     /// Publishes `.syncing`, force-syncs, and publishes whether the sync landed `userId`'s

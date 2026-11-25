@@ -38,7 +38,7 @@ struct BillingServiceOutOfBandUpgradeTests {
     // MARK: Properties
 
     let billingStateService: MockBillingStateService
-    let configService: MockConfigService
+    let environmentService: MockEnvironmentService
     let errorReporter: MockErrorReporter
     let stateService: MockStateService
     let subject: DefaultBillingService
@@ -47,9 +47,7 @@ struct BillingServiceOutOfBandUpgradeTests {
 
     init() {
         billingStateService = MockBillingStateService()
-        configService = MockConfigService()
-        configService.featureFlagsBool[.premiumUpgradePath] = true
-        let environmentService = MockEnvironmentService()
+        environmentService = MockEnvironmentService()
         environmentService.region = .unitedStates
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
@@ -57,7 +55,7 @@ struct BillingServiceOutOfBandUpgradeTests {
         subject = DefaultBillingService(
             billingAPIService: MockBillingAPIService(),
             billingStateService: billingStateService,
-            configService: configService,
+            configService: MockConfigService(),
             environmentService: environmentService,
             errorReporter: errorReporter,
             stateService: stateService,
@@ -154,11 +152,11 @@ struct BillingServiceOutOfBandUpgradeTests {
         #expect(errorReporter.errors.last as? BitwardenTestError == .example)
     }
 
-    /// `detectOutOfBandUpgrade(userId:)` records a grant without revealing the card when the account
-    /// isn't eligible for the Premium upgrade path.
+    /// `detectOutOfBandUpgrade(userId:)` records a grant without revealing the card when the
+    /// environment is self-hosted.
     @Test
-    func detectOutOfBandUpgrade_withGrant_ineligible_recordsWithoutCard() async {
-        configService.featureFlagsBool[.premiumUpgradePath] = false
+    func detectOutOfBandUpgrade_withGrant_selfHosted_recordsWithoutCard() async {
+        environmentService.region = .selfHosted
         billingStateService.getPreviousPersonalPremiumReturnValue = false
         stateService.setPersonalPremium(true, userId: "1")
 
