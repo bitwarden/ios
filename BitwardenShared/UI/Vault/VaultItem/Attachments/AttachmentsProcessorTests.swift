@@ -10,6 +10,7 @@ import XCTest
 class AttachmentsProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var attachmentPreviewHelper: MockAttachmentPreviewHelper!
     var billingRepository: MockBillingRepository!
     var coordinator: MockCoordinator<VaultItemRoute, VaultItemEvent>!
     var errorReporter: MockErrorReporter!
@@ -22,6 +23,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        attachmentPreviewHelper = MockAttachmentPreviewHelper()
         billingRepository = MockBillingRepository()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
@@ -29,6 +31,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         vaultRepository = MockVaultRepository()
 
         subject = AttachmentsProcessor(
+            attachmentPreviewHelper: attachmentPreviewHelper,
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 billingRepository: billingRepository,
@@ -43,6 +46,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        attachmentPreviewHelper = nil
         billingRepository = nil
         coordinator = nil
         errorReporter = nil
@@ -131,7 +135,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.cipher, .fixture())
         XCTAssertNil(subject.state.fileName)
         XCTAssertNil(subject.state.fileData)
-        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.attachementAdded))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.attachmentAdded))
     }
 
     /// `perform(_:)` with `.save` handles any errors.
@@ -191,6 +195,19 @@ class AttachmentsProcessorTests: BitwardenTestCase {
             coordinator.alertShown.last,
             .defaultAlert(title: Localizations.anErrorHasOccurred, message: Localizations.maxFileSize),
         )
+    }
+
+    /// `.receive(_:)` with `.attachmentTapped(_)` delegates to the attachment preview helper
+    /// with the attachment and cipher.
+    @MainActor
+    func test_receive_attachmentTapped() {
+        subject.state.cipher = .fixture()
+
+        subject.receive(.attachmentTapped(.fixture()))
+
+        waitFor(attachmentPreviewHelper.showPreviewReceivedArguments != nil)
+        XCTAssertEqual(attachmentPreviewHelper.showPreviewReceivedArguments?.attachment, .fixture())
+        XCTAssertEqual(attachmentPreviewHelper.showPreviewReceivedArguments?.cipher, subject.state.cipher)
     }
 
     /// `receive(_:)` with `.chooseFilePressed` navigates to the document browser.
