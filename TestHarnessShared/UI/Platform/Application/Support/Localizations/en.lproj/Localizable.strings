@@ -7,6 +7,7 @@
 "CardDetails" = "Card Details";
 "CardholderName" = "Cardholder Name";
 "CardNumber" = "Card Number";
+"CipherId" = "Cipher ID";
 "ConfirmPassword" = "Confirm Password";
 "CreateAccount" = "Create Account";
 "CreateAccountForm" = "Create Account Form";
@@ -14,6 +15,7 @@
 "CreatePasskey" = "Create Passkey";
 "CredentialId" = "Credential ID";
 "Credentials" = "Credentials";
+"Delete" = "Delete";
 "DisplayName" = "Display Name";
 "EnterCardDetailsAbove" = "Enter card details above";
 "EnterCredentialsAbove" = "Enter credentials above";
@@ -31,7 +33,7 @@
 "RegisterPasskey" = "Register Passkey";
 "RegisterPasskeyFormDescriptionLong" = "Fill in the fields above, then tap Register Passkey. The credential is created directly through the Bitwarden SDK, with no OS passkey sheet or separate Bitwarden app involved.";
 "RegisteredCredentials" = "Registered Credentials";
-"RegisteredCredentialsFooterDescriptionLong" = "Tap a credential to sign in as that specific passkey through the Bitwarden SDK.";
+"RegisteredCredentialsFooterDescriptionLong" = "Tap a credential to sign in as that specific passkey through the Bitwarden SDK. Swipe to delete a passkey.";
 "RegistrationResult" = "Registration Result";
 "RelyingPartyId" = "Relying Party ID";
 "Result" = "Result";
@@ -48,9 +50,11 @@
 "TOTPAutofillForm" = "TOTP Autofill Form";
 "TapTheTOTPCodeFieldAndSelectDescriptionLong" = "Tap the TOTP Code field and select a code from Bitwarden. Requires Bitwarden PM as AutoFill provider and a saved Login with a TOTP seed.";
 "TOTPCode" = "TOTP Code";
+"UserHandle" = "User Handle";
 "Username" = "Username";
 "UsePasskey" = "Use Passkey";
 "UseThisLoginFormToTestAutofillFunctionality" = "Use this login form to test autofill functionality.";
+"UsesSignatureCounter" = "Uses signature counter";
 "XColonY" = "%@: %@";
 "DateFieldPicker" = "Date Field Picker";
 "DateFieldPickerDescription" = "Tap the field to expand the inline calendar and select a date.";
