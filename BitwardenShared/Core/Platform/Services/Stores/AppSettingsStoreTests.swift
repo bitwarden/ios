@@ -938,6 +938,27 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNil(subject.organizationUserNotificationBannerDismissal(userId: "1"))
     }
 
+    /// `pendingAccountSetupOnboarding(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_pendingAccountSetupOnboarding_isInitiallyNil() {
+        XCTAssertNil(subject.pendingAccountSetupOnboarding(userId: "1"))
+    }
+
+    /// `pendingAccountSetupOnboarding(userId:)` can be used to get the persisted value and
+    /// `setPendingAccountSetupOnboarding(_:userId:)` can be used to set and remove it.
+    func test_pendingAccountSetupOnboarding_withValue() {
+        subject.setPendingAccountSetupOnboarding(true, userId: "1")
+        subject.setPendingAccountSetupOnboarding(false, userId: "2")
+
+        XCTAssertEqual(subject.pendingAccountSetupOnboarding(userId: "1"), true)
+        XCTAssertEqual(subject.pendingAccountSetupOnboarding(userId: "2"), false)
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:pendingAccountSetupOnboarding_1"), "true")
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:pendingAccountSetupOnboarding_2"), "false")
+
+        subject.setPendingAccountSetupOnboarding(nil, userId: "1")
+        XCTAssertNil(subject.pendingAccountSetupOnboarding(userId: "1"))
+        XCTAssertNil(userDefaults.object(forKey: "bwPreferencesStorage:pendingAccountSetupOnboarding_1"))
+    }
+
     /// `pendingAppIntentActions`is initially `nil`.
     func test_pendingAppIntentActions_isInitiallyNil() {
         XCTAssertNil(subject.pendingAppIntentActions)

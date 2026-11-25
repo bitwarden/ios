@@ -1143,6 +1143,32 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNil(fetchedOptionsNoAccount)
     }
 
+    /// `getPendingAccountSetupOnboarding(userId:)` returns the user's account setup onboarding state.
+    func test_getPendingAccountSetupOnboarding() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        var isPending = try await subject.getPendingAccountSetupOnboarding(userId: "1")
+        XCTAssertNil(isPending)
+
+        appSettingsStore.pendingAccountSetupOnboarding["1"] = true
+        isPending = try await subject.getPendingAccountSetupOnboarding(userId: nil)
+        XCTAssertEqual(isPending, true)
+
+        appSettingsStore.pendingAccountSetupOnboarding["1"] = false
+        isPending = try await subject.getPendingAccountSetupOnboarding(userId: nil)
+        XCTAssertEqual(isPending, false)
+
+        isPending = try await subject.getPendingAccountSetupOnboarding(userId: "2")
+        XCTAssertNil(isPending)
+    }
+
+    /// `getPendingAccountSetupOnboarding(userId:)` throws an error if there's no active account.
+    func test_getPendingAccountSetupOnboarding_noAccount() async {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getPendingAccountSetupOnboarding(userId: nil)
+        }
+    }
+
     /// `getPendingAppIntentActions` gets the saved pending app intent actions.
     func test_getPendingAppIntentActions() async {
         appSettingsStore.pendingAppIntentActions = [.lockAll]
@@ -1631,6 +1657,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try await subject.setDefaultUriMatchType(.never)
         try await subject.setDisableAutoTotpCopy(true)
         try await subject.setPasswordGenerationOptions(PasswordGenerationOptions(length: 30))
+        try await subject.setPendingAccountSetupOnboarding(false, userId: "1")
         try await subject.setPlanBadgeDismissed(true, userId: "1")
         try await subject.setPreviousPersonalPremium(true, userId: "1")
         appSettingsStore.setPlanBadgeDismissed(true, userId: "2")
@@ -1678,6 +1705,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.defaultUriMatchTypeByUserId, [:])
         XCTAssertEqual(appSettingsStore.disableAutoTotpCopyByUserId, [:])
         XCTAssertEqual(appSettingsStore.passwordGenerationOptions, [:])
+        XCTAssertEqual(appSettingsStore.pendingAccountSetupOnboarding, ["1": false])
         XCTAssertEqual(appSettingsStore.planBadgeDismissedByUserId, ["1": false, "2": true])
         XCTAssertEqual(appSettingsStore.previousPersonalPremiumByUserId, [:])
         XCTAssertEqual(appSettingsStore.userKeyIdByUserId, [:])
@@ -1765,6 +1793,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let account = Account.fixture(profile: .fixture(userId: "1"))
         await subject.addAccount(account)
         try await subject.setAccountCryptographicState(.v1(privateKey: "1:PRIVATE_KEY"))
+        try await subject.setPendingAccountSetupOnboarding(false, userId: "1")
         try await subject.setPlanBadgeDismissed(true, userId: "1")
         try await subject.setPreviousPersonalPremium(true, userId: "1")
         appSettingsStore.setPlanBadgeDismissed(true, userId: "2")
@@ -1772,6 +1801,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try await subject.logoutAccount(userInitiated: false)
 
         XCTAssertNil(appSettingsStore.accountCryptographicStates["1"])
+        XCTAssertEqual(appSettingsStore.pendingAccountSetupOnboarding["1"], false)
         XCTAssertEqual(appSettingsStore.planBadgeDismissedByUserId, ["1": true, "2": true])
         XCTAssertEqual(appSettingsStore.previousPersonalPremiumByUserId, ["1": true])
         XCTAssertEqual(appSettingsStore.state?.accounts, ["1": account])
@@ -2610,6 +2640,22 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         XCTAssertEqual(appSettingsStore.passwordGenerationOptions["1"], options1)
         XCTAssertEqual(appSettingsStore.passwordGenerationOptions["2"], options2)
+    }
+
+    /// `setPendingAccountSetupOnboarding(_:userId:)` sets and removes the user's account setup
+    /// onboarding state.
+    func test_setPendingAccountSetupOnboarding() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setPendingAccountSetupOnboarding(true, userId: nil)
+        try await subject.setPendingAccountSetupOnboarding(true, userId: "2")
+        XCTAssertEqual(appSettingsStore.pendingAccountSetupOnboarding, ["1": true, "2": true])
+
+        try await subject.setPendingAccountSetupOnboarding(false, userId: "2")
+        XCTAssertEqual(appSettingsStore.pendingAccountSetupOnboarding, ["1": true, "2": false])
+
+        try await subject.setPendingAccountSetupOnboarding(nil, userId: "1")
+        XCTAssertEqual(appSettingsStore.pendingAccountSetupOnboarding, ["2": false])
     }
 
     /// `setPendingAppIntentActions(actions:)` sets the pending app intent actions.

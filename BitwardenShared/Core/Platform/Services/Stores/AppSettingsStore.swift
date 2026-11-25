@@ -281,6 +281,19 @@ protocol AppSettingsStore: AnyObject {
     ///
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions?
 
+    /// Gets the user's account setup onboarding state on this device. This is set to `true` when the
+    /// user logs in or creates an account on this device and no value is stored yet, and to `false`
+    /// once the account setup onboarding has been evaluated, so it's only shown once per account per
+    /// device.
+    ///
+    /// - Parameter userId: The user ID associated with the pending account setup onboarding.
+    /// - Returns: `true` if account setup onboarding is pending for the user, `false` if it has already
+    ///     been evaluated, or `nil` if the user hasn't logged in on this device since this value was
+    ///     introduced. This includes existing users who were already logged in before updating; they're
+    ///     marked as pending on their next login.
+    ///
+    func pendingAccountSetupOnboarding(userId: String) -> Bool?
+
     /// The pin protected user key.
     ///
     /// - Note: This is being replaced by ``pinProtectedUserKeyEnvelope(userId:)``.
@@ -591,6 +604,18 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the password generation options.
     ///
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String)
+
+    /// Sets the user's account setup onboarding state on this device. This is set to `true` when the
+    /// user logs in or creates an account on this device and no value is stored yet, and to `false`
+    /// once the account setup onboarding has been evaluated, so it's only shown once per account per
+    /// device.
+    ///
+    /// - Parameters:
+    ///   - isPending: `true` if account setup onboarding is pending for the user, `false` if it has
+    ///     already been evaluated, or `nil` to remove the value.
+    ///   - userId: The user ID associated with the pending account setup onboarding.
+    ///
+    func setPendingAccountSetupOnboarding(_ isPending: Bool?, userId: String)
 
     /// Sets the pin protected user key.
     ///
@@ -993,6 +1018,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         // swiftlint:disable:next identifier_name
         case organizationUserNotificationBannerDismissal(userId: String)
         case passwordGenerationOptions(userId: String)
+        case pendingAccountSetupOnboarding(userId: String)
         case pendingAppIntentActions
         case pinProtectedUserKey(userId: String) // Replaced by `pinProtectedUserKeyEnvelope`.
         case pinProtectedUserKeyEnvelope(userId: String)
@@ -1110,6 +1136,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "organizationUserNotificationBannerDismissal_\(userId)"
             case let .passwordGenerationOptions(userId):
                 "passwordGenerationOptions_\(userId)"
+            case let .pendingAccountSetupOnboarding(userId):
+                "pendingAccountSetupOnboarding_\(userId)"
             case .pendingAppIntentActions:
                 "pendingAppIntentActions"
             case let .pinProtectedUserKey(userId):
@@ -1401,6 +1429,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .passwordGenerationOptions(userId: userId))
     }
 
+    func pendingAccountSetupOnboarding(userId: String) -> Bool? {
+        fetch(for: .pendingAccountSetupOnboarding(userId: userId))
+    }
+
     func pinProtectedUserKey(userId: String) -> String? {
         fetch(for: .pinProtectedUserKey(userId: userId))
     }
@@ -1560,6 +1592,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String) {
         store(options, for: .passwordGenerationOptions(userId: userId))
+    }
+
+    func setPendingAccountSetupOnboarding(_ isPending: Bool?, userId: String) {
+        store(isPending, for: .pendingAccountSetupOnboarding(userId: userId))
     }
 
     func setPinProtectedUserKey(key: String?, userId: String) {
