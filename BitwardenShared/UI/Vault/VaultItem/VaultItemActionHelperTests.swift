@@ -152,6 +152,7 @@ struct VaultItemActionHelperTests {
         var navigatedToPremiumUpgrade = false
         let cipher = CipherView.loginFixture(id: "123")
 
+        billingRepository.isInAppUpgradeAvailableReturnValue = false
         vaultRepository.doesActiveAccountHavePremiumResult = false
 
         await subject.showAttachments(

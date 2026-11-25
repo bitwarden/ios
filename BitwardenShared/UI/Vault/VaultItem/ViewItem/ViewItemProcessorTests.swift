@@ -1667,6 +1667,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     /// download the attachment, if the user doesn't have Premium.
     @MainActor
     func test_receive_downloadAttachment_noPremium() throws {
+        billingRepository.isInAppUpgradeAvailableReturnValue = false
         vaultRepository.doesActiveAccountHavePremiumResult = false
         let attachment = AttachmentView.fixture(size: "10", sizeName: "small")
         let cipher = CipherView.fixture(attachments: [attachment])
@@ -1685,6 +1686,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     /// user taps the upgrade action on the Premium required alert.
     @MainActor
     func test_receive_downloadAttachment_noPremium_navigateToPremiumUpgrade() async throws {
+        billingRepository.isInAppUpgradeAvailableReturnValue = false
         vaultRepository.doesActiveAccountHavePremiumResult = false
         let attachment = AttachmentView.fixture(size: "10", sizeName: "small")
         let cipher = CipherView.fixture(attachments: [attachment])
@@ -1701,6 +1703,23 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         try await alert.tapAction(title: Localizations.upgradeToPremium)
 
         XCTAssertTrue(premiumUpgradeHelper.navigateToPremiumUpgradeCalled)
+    }
+
+    /// `.receive(_:)` with `.downloadAttachment(_)` titles the upgrade action "Explore Premium" on the Premium
+    /// required alert when the in-app upgrade is available.
+    @MainActor
+    func test_receive_downloadAttachment_noPremium_inAppUpgradeAvailable() throws {
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        vaultRepository.doesActiveAccountHavePremiumResult = false
+        let attachment = AttachmentView.fixture(size: "10", sizeName: "small")
+        let cipher = CipherView.fixture(attachments: [attachment])
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
+        subject.state.loadingState = .data(state)
+
+        subject.receive(.downloadAttachment(attachment))
+
+        waitFor(!coordinator.alertShown.isEmpty)
+        XCTAssertEqual(coordinator.alertShown.last?.alertActions.first?.title, Localizations.explorePremium)
     }
 
     /// `receive` with `.editPressed` has no change when the state is loading.

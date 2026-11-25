@@ -216,9 +216,15 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         case let .downloadAttachment(attachment):
             Task {
                 guard await services.vaultRepository.doesActiveAccountHavePremium() else {
-                    coordinator.showAlert(.attachmentPreviewUnavailable { [weak self] in
-                        await self?.navigateToPremiumUpgrade()
-                    })
+                    let isInAppUpgradeAvailable = await services.billingRepository.isInAppUpgradeAvailable()
+                    coordinator.showAlert(
+                        .attachmentPreviewUnavailable(
+                            isInAppUpgradeAvailable: isInAppUpgradeAvailable,
+                            action: { [weak self] in
+                                await self?.navigateToPremiumUpgrade()
+                            },
+                        ),
+                    )
                     return
                 }
                 confirmDownload(attachment)

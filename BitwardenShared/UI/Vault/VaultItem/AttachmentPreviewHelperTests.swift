@@ -8,13 +8,15 @@ import Testing
 import UIKit
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - AttachmentPreviewHelperTests
 
 @MainActor
-struct AttachmentPreviewHelperTests {
+struct AttachmentPreviewHelperTests { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    let billingRepository: MockBillingRepository
     let coordinator: MockCoordinator<VaultItemRoute, VaultItemEvent>
     let errorReporter: MockErrorReporter
     let vaultRepository: MockVaultRepository
@@ -23,12 +25,14 @@ struct AttachmentPreviewHelperTests {
     // MARK: Initialization
 
     init() {
+        billingRepository = MockBillingRepository()
         coordinator = MockCoordinator<VaultItemRoute, VaultItemEvent>()
         errorReporter = MockErrorReporter()
         vaultRepository = MockVaultRepository()
         subject = DefaultAttachmentPreviewHelper(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                billingRepository: billingRepository,
                 errorReporter: errorReporter,
                 vaultRepository: vaultRepository,
             ),
@@ -249,13 +253,16 @@ struct AttachmentPreviewHelperTests {
     /// non-image attachment when the active account lacks Premium, rather than the unsupported state.
     @Test
     func showPreview_nonImage_noPremium() async throws {
+        billingRepository.isInAppUpgradeAvailableReturnValue = false
         vaultRepository.doesActiveAccountHavePremiumResult = false
         let attachment = AttachmentView.fixture(fileName: "statement.pdf", size: "10", sizeName: "small")
         let cipher = CipherView.loginFixture()
 
         await subject.showPreview(for: attachment, cipher: cipher) {}
 
-        #expect(coordinator.alertShown.last == .attachmentPreviewUnavailable(action: {}))
+        #expect(
+            coordinator.alertShown.last == .attachmentPreviewUnavailable(isInAppUpgradeAvailable: false, action: {}),
+        )
         #expect(coordinator.routes.isEmpty)
         #expect(vaultRepository.downloadAttachmentAttachment == nil)
     }

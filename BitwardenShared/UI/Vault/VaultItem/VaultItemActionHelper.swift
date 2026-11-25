@@ -107,7 +107,13 @@ class DefaultVaultItemActionHelper: VaultItemActionHelper {
         handleNavigateToPremiumUpgrade: @escaping () async -> Void,
     ) async {
         guard await services.vaultRepository.doesActiveAccountHavePremium() else {
-            await coordinator.showAlert(.attachmentPreviewUnavailable(action: handleNavigateToPremiumUpgrade))
+            let isInAppUpgradeAvailable = await services.billingRepository.isInAppUpgradeAvailable()
+            await coordinator.showAlert(
+                .attachmentPreviewUnavailable(
+                    isInAppUpgradeAvailable: isInAppUpgradeAvailable,
+                    action: handleNavigateToPremiumUpgrade,
+                ),
+            )
             return
         }
 

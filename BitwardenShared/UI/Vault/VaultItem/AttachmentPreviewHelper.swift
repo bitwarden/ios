@@ -25,7 +25,8 @@ protocol AttachmentPreviewHelper { // sourcery: AutoMockable
 class DefaultAttachmentPreviewHelper: AttachmentPreviewHelper {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasBillingRepository
+        & HasErrorReporter
         & HasVaultRepository
 
     // MARK: Private Properties
@@ -62,7 +63,13 @@ class DefaultAttachmentPreviewHelper: AttachmentPreviewHelper {
         // Previewing attachments requires Premium, so the upgrade alert is shown before anything is
         // downloaded or displayed, including files that can't be previewed.
         guard await services.vaultRepository.doesActiveAccountHavePremium() else {
-            coordinator.showAlert(.attachmentPreviewUnavailable(action: handleNavigateToPremiumUpgrade))
+            let isInAppUpgradeAvailable = await services.billingRepository.isInAppUpgradeAvailable()
+            coordinator.showAlert(
+                .attachmentPreviewUnavailable(
+                    isInAppUpgradeAvailable: isInAppUpgradeAvailable,
+                    action: handleNavigateToPremiumUpgrade,
+                ),
+            )
             return
         }
 

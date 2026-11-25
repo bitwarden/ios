@@ -70,12 +70,18 @@ extension Alert {
     /// existing attachment, is unavailable.
     ///
     /// - Parameters:
+    ///   - isInAppUpgradeAvailable: Whether the in-app Premium upgrade is available, which
+    ///     determines the title of the upgrade action.
     ///   - action: A closure to execute on upgrading to Premium.
     /// - Returns: The alert when attachment access is unavailable.
     static func attachmentPreviewUnavailable(
+        isInAppUpgradeAvailable: Bool,
         action: @escaping () async -> Void,
     ) -> Alert {
-        let preferredAction = AlertAction(title: Localizations.upgradeToPremium, style: .default) { _ in
+        let preferredAction = AlertAction(
+            title: premiumUpgradeActionTitle(isInAppUpgradeAvailable: isInAppUpgradeAvailable),
+            style: .default,
+        ) { _ in
             await action()
         }
         let alert = Alert(

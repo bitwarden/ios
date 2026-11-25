@@ -102,11 +102,11 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertTrue(called)
     }
 
-    /// `attachmentPreviewUnavailable(action:)` returns an `Alert` notifying the user that
+    /// `attachmentPreviewUnavailable(isInAppUpgradeAvailable:action:)` returns an `Alert` notifying the user that
     /// previewing or downloading an attachment is unavailable and requires Premium.
     func test_attachmentPreviewUnavailable() async throws {
         var called = false
-        let subject = Alert.attachmentPreviewUnavailable { called = true }
+        let subject = Alert.attachmentPreviewUnavailable(isInAppUpgradeAvailable: false) { called = true }
 
         XCTAssertEqual(subject.title, Localizations.premiumSubscriptionRequired)
         XCTAssertEqual(
@@ -126,13 +126,31 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertTrue(called)
     }
 
-    /// `attachmentPreviewUnavailable(action:)` doesn't call the action when cancel is tapped.
+    /// `attachmentPreviewUnavailable(isInAppUpgradeAvailable:action:)` doesn't call the action when cancel is tapped.
     func test_attachmentPreviewUnavailable_cancel() async throws {
         var called = false
-        let subject = Alert.attachmentPreviewUnavailable { called = true }
+        let subject = Alert.attachmentPreviewUnavailable(isInAppUpgradeAvailable: false) { called = true }
 
         try await subject.tapCancel()
         XCTAssertFalse(called)
+    }
+
+    /// `attachmentPreviewUnavailable(isInAppUpgradeAvailable:action:)` titles the upgrade action "Explore Premium"
+    /// and calls the action when the in-app upgrade is available.
+    func test_attachmentPreviewUnavailable_inAppUpgradeAvailable() async throws {
+        var called = false
+        let subject = Alert.attachmentPreviewUnavailable(isInAppUpgradeAvailable: true) { called = true }
+
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.explorePremium)
+        XCTAssertEqual(subject.alertActions[0].style, .default)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.cancel)
+
+        let preferredAction = try XCTUnwrap(subject.preferredAction)
+        XCTAssertTrue(preferredAction === subject.alertActions[0])
+
+        try await subject.tapAction(title: Localizations.explorePremium)
+        XCTAssertTrue(called)
     }
 
     /// `cipherDecryptionFailure()` returns an `Alert` to notify the user that an item in their
