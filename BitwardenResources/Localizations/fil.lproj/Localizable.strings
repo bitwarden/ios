@@ -28,7 +28,6 @@
 "FolderCreated" = "Ginawa ang bagong folder.";
 "FolderDeleted" = "Binura ang folder.";
 "FolderNone" = "Walang Folder";
-"Folders" = "Mga Folder";
 "FolderUpdated" = "Sinave ang folder";
 "MyFolder" = "My folder";
 "MyFolders" = "My folders";
@@ -262,12 +261,8 @@
 "ShowWebsiteIconsDescription" = "Magpakita ng makikilalang larawan sa tabi ng mga login.";
 "IconsUrl" = "URL ng server ng mga icon";
 "AutofillWithBitwarden" = "Autofill gamit ang Bitwarden";
-/* Section header and screen title for viewing/managing a cipher's collections. */
-"Collections" = "Mga Koleksyon";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "Shared folders";
-/* Empty state message shown when a collection has no items. */
-"NoItemsCollection" = "Walang mga item sa koleksyong ito";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
 "NoItemsFolder" = "Walang mga item sa folder na ito";
@@ -289,8 +284,6 @@
 "RegEx" = "Regular na expression";
 "StartsWith" = "Nag-uumpisa sa";
 "MatchDetection" = "Deteksyon ng tugma";
-/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
-"Organization" = "Organisasyon";
 "HoldYubikeyNearTop" = "Ilagay ang YubiKey mo sa may taas ng device.";
 "TryAgain" = "Subukan ulit";
 "YubiKeyInstructionIos" = "Para tumuloy, ilagay ang YubiKey mo sa likod ng device.";
@@ -326,27 +319,17 @@
 "NoItemsToList" = "Walang maililistang item.";
 "MoveDown" = "Ilipat pababa";
 "MoveUp" = "Ilipat Pataas";
-/* Empty state message on the Collections screen shown when a user has no collections. */
-"NoCollectionsToList" = "Walang maililistang koleksyon.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
 "MovedItemToOrg" = "Nilipat ang %1$@ sa %2$@.";
-/* Alert message shown when saving an item with no collection selected. */
-"SelectOneCollection" = "Kailangan mong pumili ng isa man lang na koleksyon.";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
 "Share" = "Ibahagi";
 "ShareAll" = "Ibahagi lahat";
-/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
-"MoveToOrganization" = "Ilipat sa Organisasyon";
-/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+/* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "No vaults to list.";
-/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
-"NoOrgsToList" = "Walang maililistang organisasyon.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
-"MoveToOrgDesc" = "Piliin kung saang organisasyon mo ililipat ang item na ito. Magiging pag-aari ng organisasyon ang anumang item na ililipat mo rito. Hindi ka na ang direktang may-ari ng item na ito pagkalipat.";
 "NumberOfWords" = "Bilang ng mga salita";
 "Passphrase" = "Passphrase";
 "WordSeparator" = "Panghiwalay sa mga salita";
@@ -451,9 +434,10 @@
 "HideEmail" = "Itago ang email address ko sa mga tatanggap";
 "SendOptionsPolicyInEffect" = "Naaapektuhan ng isa o higit pang mga patakaran sa organisasyon mo ang mga opsyon mo sa Send.";
 "SendFilePremiumRequired" = "Teksto lamang ang maibabahagi ng mga libreng account. Kailangan ng premium membership para makapagbahagi ng mga file gamit ang Send.";
-"SendFileEmailVerificationRequired" = "Kailangan mong beripikahin ang email mo para makapagbahagi ng mga file gamit ang Send. Mabeberipika mo ang email mo sa web vault.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -889,7 +873,6 @@
 "PersonalDetails" = "Personal na detalye";
 "ContactInfo" = "Impormasyon sa pakikipag-ugnayan";
 "Identification" = "Pagkakakilanlan";
-"Owner" = "May-ari";
 "VerifyYourIdentity" = "I-verify ang iyong pagkakakilanlan";
 "ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
@@ -907,13 +890,9 @@
 "ShowMore" = "Ipakita pa";
 "ShowLess" = "Ipakita ang mas kaunti";
 "ItemNameX" = "Pangalan ng item, %1$@";
-"OwnerX" = "May-ari, %1$@";
 "VaultX" = "Vault, %1$@";
-/* VoiceOver accessibility label for a collection the item belongs to. */
-"CollectionX" = "Koleksyon, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Shared folder, %1$@";
-"FolderX" = "Folder, %1$@";
 "MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "Item %1$@ ng %2$@";
 "ViewRecordedLogs" = "Tingnan ang mga na-record na log";
@@ -981,8 +960,6 @@
 "DefaultSaveOption" = "Default na opsyon sa pag-save";
 "DownloadTheBitwardenApp" = "I-download ang Bitwarden app";
 "EnsureItsValidJsonAndTryAgain" = "Tiyaking ito ay wastong JSON at subukan muli.";
-"ExportItemsConfirmationTitle" = "Kumpirmahin ang pag-export ng mga item";
-"ExportItemsWarning" = "Ang export na ito ay naglalaman ng iyong data ng item sa isang hindi naka-encrypt na format. Hindi mo dapat iimbak o ipadala ang na-export na file sa mga hindi secure na channel (tulad ng email). Tanggalin ito kaagad pagkatapos mong gamitin ito.";
 "FileCouldNotBeProcessed" = "Hindi ma-process ang file";
 "GetVerificationCodesForAllYourAccounts" = "Kumuha ng mga verification code para sa lahat ng iyong account gamit ang 2-step verification.";
 "Help" = "Tulong";
@@ -1302,3 +1279,10 @@
 "SyncUnsuccessful" = "Hindi matagumpay ang pag-sync";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Hindi namin ma-sync ang iyong baul sa server. Maaaring hindi ipakita ng iyong baul ang iyong mga pinakabagong pagbabago. Maaari mong subukan muli ngayon o awtomatiko itong magsi-sync mamaya.";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "Kumpirmahin ang pag-export";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "Naglalaman ng unencrypted vault data mo ang export na ito. Hindi mo dapat ilagay o ipadala ang file gamit ang hindi ligtas na mga paraan (tulad ng email). Burahin ito kaagad pagkagamit.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Create login";

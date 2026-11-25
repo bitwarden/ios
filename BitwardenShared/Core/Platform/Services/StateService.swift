@@ -23,9 +23,12 @@ protocol StateService: AnyObject, DebugStateService {
     ///
     func addAccount(_ account: Account) async
 
-    /// Clears the pins stored on device and in memory.
+    /// Clears the pins stored on device and in memory for a user.
     ///
-    func clearPins() async throws
+    /// - Parameter userId: The user ID of the user whose pins should be cleared. Defaults to the
+    ///     active user if `nil`.
+    ///
+    func clearPins(userId: String?) async throws
 
     /// Deletes the current active account.
     ///
@@ -924,6 +927,12 @@ extension StateService {
         await setPendingAppIntentActions(actions: actions)
     }
 
+    /// Clears the pins stored on device and in memory for the active user.
+    ///
+    func clearPins() async throws {
+        try await clearPins(userId: nil)
+    }
+
     /// Returns whether the active account has access to Premium features, either personally or via
     /// an enabled organization that grants it.
     ///
@@ -1625,8 +1634,8 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         state.activeUserId = account.profile.userId
     }
 
-    func clearPins() async throws {
-        let userId = try getActiveAccountUserId()
+    func clearPins(userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
         accountVolatileData[userId]?.pinProtectedUserKey = nil
         appSettingsStore.setEncryptedPin(nil, userId: userId)
         appSettingsStore.setPinProtectedUserKey(key: nil, userId: userId)
@@ -2000,6 +2009,11 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.setPasswordGenerationOptions(nil, userId: knownUserId)
         appSettingsStore.setUserKeyId(nil, userId: knownUserId)
         appSettingsStore.setV2UpgradeToken(nil, userId: knownUserId)
+
+        if userInitiated {
+            appSettingsStore.setPlanBadgeDismissed(false, userId: knownUserId)
+            appSettingsStore.setPreviousPersonalPremium(nil, userId: knownUserId)
+        }
 
         // Reset the organization user notification banner dismissal so the banner can reappear on the next
         // login. A user-initiated (hard) logout always clears it; a soft logout (e.g. a vault-timeout logout)
@@ -2521,6 +2535,18 @@ struct AccountVolatileData {
 // MARK: BillingStateService
 
 extension DefaultStateService: BillingStateService {
+    // MARK: Plan Badge
+
+    func getPlanBadgeDismissed(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.planBadgeDismissed(userId: userId)
+    }
+
+    func setPlanBadgeDismissed(_ dismissed: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setPlanBadgeDismissed(dismissed, userId: userId)
+    }
+
     // MARK: Premium Upgrade Banner
 
     func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool {
@@ -2554,6 +2580,30 @@ extension DefaultStateService: BillingStateService {
     func setPremiumUpgradePending(_ pending: Bool, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setPremiumUpgradePending(pending, userId: userId)
+    }
+
+    // MARK: Previous Personal Premium
+
+    func getPreviousPersonalPremium(userId: String?) async throws -> Bool? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.previousPersonalPremium(userId: userId)
+    }
+
+    func setPreviousPersonalPremium(_ previousPersonalPremium: Bool?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setPreviousPersonalPremium(previousPersonalPremium, userId: userId)
+    }
+
+    // MARK: Subscription
+
+    func getHasPersonalSubscription(userId: String?) async throws -> Bool? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.hasPersonalSubscription(userId: userId)
+    }
+
+    func setHasPersonalSubscription(_ hasPersonalSubscription: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setHasPersonalSubscription(hasPersonalSubscription, userId: userId)
     }
 
     // MARK: Subscription Attention Card
@@ -2770,12 +2820,6 @@ extension DefaultStateService: SdkStateBridgeStateService {
 
     func setEphemeralPinEnvelope(_ envelope: String?, userId: String) async {
         accountVolatileData[userId, default: AccountVolatileData()].pinProtectedUserKey = envelope
-
-        // Remove any legacy pin protected user key, mirroring `setPinKeys`. Guarded on non-nil so a
-        // routine in-memory clear doesn't wipe a still-valid persistent legacy PIN.
-        if envelope != nil {
-            appSettingsStore.setPinProtectedUserKey(key: nil, userId: userId)
-        }
     }
 
     // MARK: Kdf Config

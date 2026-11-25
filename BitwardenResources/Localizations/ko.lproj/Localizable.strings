@@ -28,7 +28,6 @@
 "FolderCreated" = "새 폴더를 만들었습니다.";
 "FolderDeleted" = "폴더를 삭제했습니다.";
 "FolderNone" = "폴더 없음";
-"Folders" = "폴더";
 "FolderUpdated" = "폴더가 저장됨";
 "MyFolder" = "내 폴더";
 "MyFolders" = "내 폴더";
@@ -262,12 +261,8 @@
 "ShowWebsiteIconsDescription" = "로그인 정보 옆에 식별용 이미지를 표시합니다.";
 "IconsUrl" = "아이콘 서버 URL";
 "AutofillWithBitwarden" = "Bitwarden으로 자동 완성";
-/* Section header and screen title for viewing/managing a cipher's collections. */
-"Collections" = "컬렉션";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "공유 폴더";
-/* Empty state message shown when a collection has no items. */
-"NoItemsCollection" = "이 컬렉션에 항목이 없습니다.";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "이 공유 폴더에 항목이 없습니다";
 "NoItemsFolder" = "이 폴더에 항목이 없습니다.";
@@ -289,8 +284,6 @@
 "RegEx" = "정규 표현식";
 "StartsWith" = "...으로 시작";
 "MatchDetection" = "일치 인식";
-/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
-"Organization" = "조직";
 "HoldYubikeyNearTop" = "기기의 위쪽에 Yubikey를 가져다 대세요.";
 "TryAgain" = "다시 시도";
 "YubiKeyInstructionIos" = "계속하려면 기기의 뒷면에 YubiKey NEO를 가져다 대세요.";
@@ -326,27 +319,17 @@
 "NoItemsToList" = "항목이 없습니다.";
 "MoveDown" = "아래로 옮기기";
 "MoveUp" = "위로 옮기기";
-/* Empty state message on the Collections screen shown when a user has no collections. */
-"NoCollectionsToList" = "컬렉션이 없습니다.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "공유 폴더가 없습니다.";
 "MovedItemToOrg" = "%1$@ 항목이 %2$@ 조직으로 이동되었습니다.";
-/* Alert message shown when saving an item with no collection selected. */
-"SelectOneCollection" = "반드시 하나 이상의 컬렉션을 선택해야 합니다.";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "반드시 하나 이상의 공유 폴더를 선택해야 합니다.";
 "Share" = "공유";
 "ShareAll" = "모두 공유";
-/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
-"MoveToOrganization" = "조직으로 이동하기";
-/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+/* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "보관함이 없습니다.";
-/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
-"NoOrgsToList" = "조직이 없습니다.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "이 항목을 이동할 보관함을 선택하십시오. 항목이 보관함으로 이동되면 소유권이 조직으로 이전됩니다. 일단 이동되면, 더는 이동된 항목의 직접적인 소유자가 아니게 됩니다.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
-"MoveToOrgDesc" = "이 항목을 이동할 조직을 선택하십시오. 항목이 조직으로 이동되면 소유권이 조직으로 이전됩니다. 일단 이동되면, 더는 이동된 항목의 직접적인 소유자가 아니게 됩니다.";
 "NumberOfWords" = "단어 수";
 "Passphrase" = "패스프레이즈";
 "WordSeparator" = "구분 기호";
@@ -451,9 +434,10 @@
 "HideEmail" = "받는 사람으로부터 나의 이메일 주소 숨기기";
 "SendOptionsPolicyInEffect" = "하나 이상의 단체 정책이 Send 설정에 영향을 미치고 있습니다.";
 "SendFilePremiumRequired" = "무료 계정은 텍스트만 공유할 수 있습니다. Premium 멤버십이 있어야 Send에서 파일을 사용할 수 있습니다";
-"SendFileEmailVerificationRequired" = "이메일을 인증해야 Send에서 파일을 사용할 수 있습니다.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -889,7 +873,6 @@
 "PersonalDetails" = "개인 정보";
 "ContactInfo" = "연락처 정보";
 "Identification" = "본인 확인";
-"Owner" = "소유자";
 "VerifyYourIdentity" = "신원 확인";
 "ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
@@ -907,13 +890,9 @@
 "ShowMore" = "더 보기";
 "ShowLess" = "간략히 보기";
 "ItemNameX" = "항목 이름, %1$@";
-"OwnerX" = "소유자, %1$@";
 "VaultX" = "보관함, %1$@";
-/* VoiceOver accessibility label for a collection the item belongs to. */
-"CollectionX" = "컬렉션, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "공유 폴더, %1$@";
-"FolderX" = "폴더, %1$@";
 "MyFolderX" = "내 폴더, %1$@";
 "ItemXOfY" = "%2$@개 중 %1$@번째 항목";
 "ViewRecordedLogs" = "기록된 로그 보기";
@@ -981,8 +960,6 @@
 "DefaultSaveOption" = "기본 저장 설정";
 "DownloadTheBitwardenApp" = "Bitwarden 앱 다운로드";
 "EnsureItsValidJsonAndTryAgain" = "유효한 JSON인지 확인하고 다시 시도하세요.";
-"ExportItemsConfirmationTitle" = "항목 내보내기 확인";
-"ExportItemsWarning" = "이 내보내기에는 항목 데이터가 암호화되지 않은 형식으로 포함되어 있습니다. 내보낸 파일을 안전하지 않은 채널(예: 이메일)을 통해 저장하거나 전송해서는 안 됩니다. 사용이 끝난 후 즉시 삭제하세요.";
 "FileCouldNotBeProcessed" = "파일을 처리할 수 없음";
 "GetVerificationCodesForAllYourAccounts" = "2단계 인증을 사용하여 모든 계정에 대한 인증 코드를 받으세요.";
 "Help" = "도움말";
@@ -1302,3 +1279,10 @@
 "SyncUnsuccessful" = "동기화 실패";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "서버와 보관함을 동기화할 수 없습니다. 보관함에 최신 변경 사항이 반영되지 않았을 수 있습니다. 지금 다시 시도하거나 나중에 자동으로 동기화되도록 두세요.";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "내보내기 확인";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "내보내기는 보관함 데이터가 암호화되지 않은 형식으로 포함됩니다. 내보낸 파일을 안전하지 않은 채널(예: 이메일)을 통해 저장하거나 보내지 마십시오. 사용이 끝난 후에는 즉시 삭제하십시오.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Create login";

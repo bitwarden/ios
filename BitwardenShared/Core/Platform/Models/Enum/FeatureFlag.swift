@@ -44,9 +44,6 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// Feature flag for device management screen.
     static let manageDevices = FeatureFlag(rawValue: "pm-4516-devices-add-last-activity-date")
 
-    /// Flag to enable/disable migration from My Vault Items to My Items.
-    static let migrateMyVaultToMyItems = FeatureFlag(rawValue: "pm-20558-migrate-myvault-to-myitems")
-
     /// Flag to enable/disable the new vault item types (Bank Account, Driver's License, Passport).
     static let newItemTypes = FeatureFlag(rawValue: "pm-32009-new-item-types")
 
@@ -76,9 +73,6 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// `sendOptions` policies when active.
     static let sendControls = FeatureFlag(rawValue: "pm-31885-send-controls")
 
-    /// Flag for the VFO1 terminology-alignment foundation work (vault/organization renames).
-    static let vfo1Foundation = FeatureFlag(rawValue: "vfo1-foundation")
-
     public static var allCases: [FeatureFlag] {
         [
             .accountEncryptionV2JITPassword,
@@ -92,7 +86,6 @@ extension FeatureFlag: @retroactive CaseIterable {
             .fedrampGovRegion,
             .fillAssistTargetingRules,
             .manageDevices,
-            .migrateMyVaultToMyItems,
             .newItemTypes,
             .noLogoutOnKdfChange,
             .organizationUserNotificationBanner,
@@ -100,7 +93,6 @@ extension FeatureFlag: @retroactive CaseIterable {
             .premiumUpgradePath,
             .sdkManagedPinUnlock,
             .sendControls,
-            .vfo1Foundation,
         ]
     }
 }

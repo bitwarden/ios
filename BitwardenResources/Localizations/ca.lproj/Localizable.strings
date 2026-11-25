@@ -28,7 +28,6 @@
 "FolderCreated" = "S'ha creat una carpeta nova.";
 "FolderDeleted" = "S'ha eliminat la carpeta.";
 "FolderNone" = "Cap carpeta";
-"Folders" = "Carpetes";
 "FolderUpdated" = "Carpeta guardada";
 "MyFolder" = "La meua carpeta";
 "MyFolders" = "Les meues carpetes";
@@ -262,12 +261,8 @@
 "ShowWebsiteIconsDescription" = "Mostra una imatge reconeixible al costat de cada inici de sessió.";
 "IconsUrl" = "URL del servidor d'icones";
 "AutofillWithBitwarden" = "Ompli automàticament amb Bitwarden";
-/* Section header and screen title for viewing/managing a cipher's collections. */
-"Collections" = "Col·leccions";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "Carpetes compartides";
-/* Empty state message shown when a collection has no items. */
-"NoItemsCollection" = "No hi ha elements en aquesta col·lecció";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "No hi ha cap element en aquesta carpeta compartida";
 "NoItemsFolder" = "No hi ha elements en aquesta carpeta";
@@ -289,8 +284,6 @@
 "RegEx" = "Expressió regular";
 "StartsWith" = "Comença amb";
 "MatchDetection" = "Detecció de coincidències";
-/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
-"Organization" = "Organització";
 "HoldYubikeyNearTop" = "Mantingueu la vostra Yubikey a la part superior del dispositiu.";
 "TryAgain" = "Torneu-ho a provar";
 "YubiKeyInstructionIos" = "Per continuar, manteniu la YubiKey NEO a la part posterior del dispositiu.";
@@ -326,27 +319,17 @@
 "NoItemsToList" = "No hi ha cap element per llistar.";
 "MoveDown" = "Desplaça cap avall";
 "MoveUp" = "Desplaça cap amunt";
-/* Empty state message on the Collections screen shown when a user has no collections. */
-"NoCollectionsToList" = "No hi ha cap col·lecció per llistar.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "No hi ha carpetes compartides per llistar.";
 "MovedItemToOrg" = "%1$@ desplaçat a %2$@.";
-/* Alert message shown when saving an item with no collection selected. */
-"SelectOneCollection" = "Heu d'escollir com a mínim una col·lecció.";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "Has de seleccionar almenys una carpeta compartida.";
 "Share" = "Comparteix";
 "ShareAll" = "Compartir-ho tot";
-/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
-"MoveToOrganization" = "Desplaça a l'organització";
-/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+/* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "No hi ha cofres per llistar.";
-/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
-"NoOrgsToList" = "No hi ha cap organització per llistar.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Tria un cofre al qual vulguis moure aquest element. Moure a un altre cofre transfereix la propietat de l'element a aquesta organització. Ja no seràs el propietari directe d'aquest element un cop s'hagi mogut.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
-"MoveToOrgDesc" = "Trieu una organització a la qual vulgueu desplaçar aquest element. El trasllat a una organització transfereix la propietat de l'element a aquesta organització. Ja no sereu el propietari directe d'aquest element una vegada s'haja mogut.";
 "NumberOfWords" = "Nombre de paraules";
 "Passphrase" = "Frase de pas";
 "WordSeparator" = "Separador de paraules";
@@ -451,9 +434,10 @@
 "HideEmail" = "Amagueu la meua adreça de correu electrònic als destinataris.";
 "SendOptionsPolicyInEffect" = "Una o més polítiques d'organització afecten les vostres opcions del Send.";
 "SendFilePremiumRequired" = "Els comptes gratuïts només es poden compartir text. Cal utilitzar una subscripció premium per utilitzar fitxers amb Send.";
-"SendFileEmailVerificationRequired" = "Heu de verificar el vostre correu electrònic per utilitzar aquesta característica.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -757,10 +741,10 @@
 "TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "El cofre protegeix més que només les teves contrasenyes. Emmagatzema inicis de sessió segurs, identificacions, targetes i notes de manera segura aquí.";
 "SendSensitiveInformationSafely" = "Envieu informació confidencial, de manera segura";
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "Comparteix fitxers i dades de manera segura amb qualsevol persona, en qualsevol plataforma. La teua informació romandrà xifrada de principi a fi i alhora limitarà l'exposició.";
-"AddLogin" = "Afig inici de sessió";
+"AddLogin" = "Afegeix inici de sessió";
 "AddCard" = "Afig una targeta";
 "AddIdentity" = "Afig identitat";
-"AddNote" = "Afig nota";
+"AddNote" = "Afegeix nota";
 "AddSSHKey" = "Afig clau SSH";
 "AddBankAccount" = "Afig compte bancari";
 "AddLicense" = "Afig llicència";
@@ -889,7 +873,6 @@
 "PersonalDetails" = "Detalls personals";
 "ContactInfo" = "Informació de contacte";
 "Identification" = "Identificació";
-"Owner" = "Propietari";
 "VerifyYourIdentity" = "Verifica la teva identitat";
 "ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
@@ -907,13 +890,9 @@
 "ShowMore" = "Mostra'n més";
 "ShowLess" = "Mostra'n menys";
 "ItemNameX" = "Nom de l'element, %1$@";
-"OwnerX" = "Propietari, %1$@";
 "VaultX" = "Cofre, %1$@";
-/* VoiceOver accessibility label for a collection the item belongs to. */
-"CollectionX" = "Col·lecció, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Carpeta compartida, %1$@";
-"FolderX" = "Carpeta, %1$@";
 "MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "Element %1$@ de %2$@";
 "ViewRecordedLogs" = "Veure els registres enregistrats";
@@ -981,8 +960,6 @@
 "DefaultSaveOption" = "Opció de desament per defecte";
 "DownloadTheBitwardenApp" = "Descarrega l'aplicació Bitwarden";
 "EnsureItsValidJsonAndTryAgain" = "Assegura't que és un JSON vàlid i torna-ho a provar.";
-"ExportItemsConfirmationTitle" = "Confirma l'exportació d'elements";
-"ExportItemsWarning" = "Aquesta exportació conté les dades de l'element en un format sense xifrar. No hauríeu d'emmagatzemar ni enviar el fitxer exportat per canals no segurs (com ara el correu electrònic). Suprimiu-lo immediatament després d'haver-lo acabat d'utilitzar.";
 "FileCouldNotBeProcessed" = "No s'ha pogut processar el fitxer";
 "GetVerificationCodesForAllYourAccounts" = "Obteniu codis de verificació per a tots els vostres comptes mitjançant la verificació en dos passos.";
 "Help" = "Ajuda";
@@ -1302,3 +1279,10 @@
 "SyncUnsuccessful" = "Sincronització no exitosa";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "No hem pogut sincronitzar el teu cofre amb el servidor. Potser el teu cofre no reflecteix els teus últims canvis. Pots tornar a provar ara o es sincronitzarà automàticament més tard.";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "Confirma l'exportació";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "Aquesta exportació conté les dades de la vostra caixa forta en un format no xifrat. No hauríeu d'emmagatzemar o enviar el fitxer exportat a través de canals no segurs (com ara el correu electrònic). Elimineu-lo immediatament després d'haver acabat d'usar-lo.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Create login";

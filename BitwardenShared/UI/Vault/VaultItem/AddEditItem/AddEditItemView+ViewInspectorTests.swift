@@ -151,17 +151,6 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     @MainActor
     func test_folderTextField_updateValue() throws {
         let folder = FolderView.fixture(name: "Folder")
-        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.folder)
-        try menuField.select(newValue: DefaultableType<FolderView>.custom(folder))
-        XCTAssertEqual(processor.dispatchedActions.last, .folderChanged(.custom(folder)))
-    }
-
-    /// Updating the folder text field dispatches the `.folderChanged()` action when the
-    /// `vfo1-foundation` feature flag is enabled.
-    @MainActor
-    func test_folderTextField_updateValue_vfo1FoundationEnabled() throws {
-        processor.state.isVfo1FoundationFeatureFlagEnabled = true
-        let folder = FolderView.fixture(name: "Folder")
         let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.myFolder)
         try menuField.select(newValue: DefaultableType<FolderView>.custom(folder))
         XCTAssertEqual(processor.dispatchedActions.last, .folderChanged(.custom(folder)))
@@ -293,12 +282,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// Tapping the save button performs the `.savePressed` effect when adding a new cipher.
     @MainActor
     func test_saveButton_tapAdd() async throws {
-        guard #unavailable(iOS 26) else {
-            // TODO: PM-26079 Remove when toolbar AsyncButton is used.
-            throw XCTSkip("Remove this when the toolbar save button gets updated to use AsyncButton.")
-        }
-
-        let button = try subject.inspect().find(asyncButton: Localizations.save)
+        let button = try subject.inspect().findSaveToolbarButton()
         try await button.tap()
 
         XCTAssertEqual(processor.effects.last, .savePressed)
@@ -307,13 +291,8 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// Tapping the save button performs the `.savePressed` effect when editing an existing cipher.
     @MainActor
     func test_saveButton_tapEdit() async throws {
-        guard #unavailable(iOS 26) else {
-            // TODO: PM-26079 Remove when toolbar AsyncButton is used.
-            throw XCTSkip("Remove this when the toolbar save button gets updated to use AsyncButton.")
-        }
-
         processor.state = CipherItemState(existing: .fixture(), hasPremium: false)!
-        let button = try subject.inspect().find(asyncButton: Localizations.save)
+        let button = try subject.inspect().findSaveToolbarButton()
         try await button.tap()
 
         XCTAssertEqual(processor.effects.last, .savePressed)

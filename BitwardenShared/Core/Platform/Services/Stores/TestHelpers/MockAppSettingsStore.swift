@@ -51,6 +51,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var fillAssistEnabledByUserId = [String: Bool]()
     var fillAssistLastFetchTimestampByUserId = [String: Date]()
     var hasPerformedSyncAfterLogin = [String: Bool]()
+    var hasPersonalSubscriptionByUserId = [String: Bool]()
     var lastActiveTime = [String: Date]()
     var lastRequestToTurnOnCredentialProviderDate: Date? // swiftlint:disable:this identifier_name
     var lastSyncMonotonicTimeByUserId = [String: TimeInterval?]()
@@ -63,8 +64,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pinProtectedUserKey = [String: String]()
     var pinProtectedUserKeyEnvelope = [String: String]()
+    var planBadgeDismissedByUserId = [String: Bool]()
     var premiumUpgradeBannerDismissedByUserId = [String: Bool]()
     var premiumUpgradePendingByUserId = [String: Bool]()
+    var previousPersonalPremiumByUserId = [String: Bool]()
     var subscriptionAttentionCardVisibleByUserId = [String: Bool]()
     var upgradedToPremiumCardVisibleByUserId = [String: Bool]()
     var accountCreationEnvironmentURLs = [String: EnvironmentURLData]()
@@ -170,6 +173,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         hasPerformedSyncAfterLogin[userId] ?? false
     }
 
+    func hasPersonalSubscription(userId: String) -> Bool? {
+        hasPersonalSubscriptionByUserId[userId]
+    }
+
     func lastActiveTime(userId: String) -> Date? {
         lastActiveTime[userId]
     }
@@ -221,12 +228,20 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         pinProtectedUserKeyEnvelope[userId]
     }
 
+    func planBadgeDismissed(userId: String) -> Bool {
+        planBadgeDismissedByUserId[userId] ?? false
+    }
+
     func premiumUpgradeBannerDismissed(userId: String) -> Bool {
         premiumUpgradeBannerDismissedByUserId[userId] ?? false
     }
 
     func premiumUpgradePending(userId: String) -> Bool {
         premiumUpgradePendingByUserId[userId] ?? false
+    }
+
+    func previousPersonalPremium(userId: String) -> Bool? {
+        previousPersonalPremiumByUserId[userId]
     }
 
     func subscriptionAttentionCardVisible(userId: String) -> Bool {
@@ -337,6 +352,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         hasPerformedSyncAfterLogin[userId] = hasBeenPerformed
     }
 
+    func setHasPersonalSubscription(_ hasPersonalSubscription: Bool?, userId: String) {
+        hasPersonalSubscriptionByUserId[userId] = hasPersonalSubscription
+    }
+
     func setLastActiveTime(_ date: Date?, userId: String) {
         lastActiveTime[userId] = date
     }
@@ -392,12 +411,20 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         pinProtectedUserKeyEnvelope[userId] = key
     }
 
+    func setPlanBadgeDismissed(_ dismissed: Bool, userId: String) {
+        planBadgeDismissedByUserId[userId] = dismissed
+    }
+
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String) {
         premiumUpgradeBannerDismissedByUserId[userId] = dismissed
     }
 
     func setPremiumUpgradePending(_ pending: Bool, userId: String) {
         premiumUpgradePendingByUserId[userId] = pending
+    }
+
+    func setPreviousPersonalPremium(_ previousPersonalPremium: Bool?, userId: String) {
+        previousPersonalPremiumByUserId[userId] = previousPersonalPremium
     }
 
     func setSubscriptionAttentionCardVisible(_ visible: Bool, userId: String) {

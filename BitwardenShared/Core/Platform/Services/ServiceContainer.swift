@@ -802,7 +802,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             cipherService: cipherService,
             clientService: clientService,
             collectionService: collectionService,
-            configService: configService,
             fillAssistRepository: fillAssistRepository,
             flightRecorder: flightRecorder,
             folderService: folderService,
@@ -978,7 +977,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             vaultListBuilderFactory: DefaultVaultListSectionsBuilderFactory(
                 clientService: clientService,
                 collectionHelper: collectionHelper,
-                configService: configService,
                 errorReporter: errorReporter,
                 stateService: stateService,
             ),

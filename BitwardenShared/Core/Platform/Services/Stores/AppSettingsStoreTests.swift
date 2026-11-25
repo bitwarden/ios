@@ -547,6 +547,36 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertTrue(subject.hasPerformedSyncAfterLogin(userId: "2"))
     }
 
+    /// `hasPersonalSubscription(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_hasPersonalSubscription_isInitiallyNil() {
+        XCTAssertNil(subject.hasPersonalSubscription(userId: "1"))
+    }
+
+    /// `hasPersonalSubscription(userId:)` keeps a separate value for each user.
+    func test_hasPersonalSubscription_separatePerUser() {
+        subject.setHasPersonalSubscription(true, userId: "1")
+        subject.setHasPersonalSubscription(false, userId: "2")
+
+        XCTAssertEqual(subject.hasPersonalSubscription(userId: "1"), true)
+        XCTAssertEqual(subject.hasPersonalSubscription(userId: "2"), false)
+        XCTAssertNil(subject.hasPersonalSubscription(userId: "3"))
+    }
+
+    /// `hasPersonalSubscription(userId:)` can be used to get, set, and clear the persisted value in user defaults.
+    func test_hasPersonalSubscription_withValue() {
+        subject.setHasPersonalSubscription(true, userId: "1")
+        XCTAssertEqual(subject.hasPersonalSubscription(userId: "1"), true)
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:hasPersonalSubscription_1"), "true")
+
+        subject.setHasPersonalSubscription(false, userId: "1")
+        XCTAssertEqual(subject.hasPersonalSubscription(userId: "1"), false)
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:hasPersonalSubscription_1"), "false")
+
+        subject.setHasPersonalSubscription(nil, userId: "1")
+        XCTAssertNil(subject.hasPersonalSubscription(userId: "1"))
+        XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:hasPersonalSubscription_1"))
+    }
+
     /// `isBiometricAuthenticationEnabled` returns false if there is no previous value.
     func test_isBiometricAuthenticationEnabled_isInitiallyFalse() {
         XCTAssertFalse(subject.isBiometricAuthenticationEnabled(userId: "-1"))
@@ -951,6 +981,30 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:pinProtectedUserKeyEnvelope_1"), "123")
     }
 
+    /// `planBadgeDismissed(userId:)` returns `false` if there isn't a previously stored value.
+    func test_planBadgeDismissed_isInitiallyFalse() {
+        XCTAssertFalse(subject.planBadgeDismissed(userId: "1"))
+    }
+
+    /// `planBadgeDismissed(userId:)` can be used to get and set the persisted value in user defaults.
+    func test_planBadgeDismissed_withValue() {
+        subject.setPlanBadgeDismissed(true, userId: "1")
+        XCTAssertTrue(subject.planBadgeDismissed(userId: "1"))
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:planBadgeDismissed_1"))
+
+        subject.setPlanBadgeDismissed(false, userId: "1")
+        XCTAssertFalse(subject.planBadgeDismissed(userId: "1"))
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:planBadgeDismissed_1"))
+    }
+
+    /// `planBadgeDismissed(userId:)` stores the value separately for each user.
+    func test_planBadgeDismissed_withMultipleUsers() {
+        subject.setPlanBadgeDismissed(true, userId: "1")
+
+        XCTAssertTrue(subject.planBadgeDismissed(userId: "1"))
+        XCTAssertFalse(subject.planBadgeDismissed(userId: "2"))
+    }
+
     /// `preAuthEnvironmentURLs` returns `nil` if there isn't a previously stored value.
     func test_preAuthEnvironmentURLs_isInitiallyNil() {
         XCTAssertNil(subject.preAuthEnvironmentURLs)
@@ -1099,6 +1153,26 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject.setPremiumUpgradePending(false, userId: "1")
         XCTAssertFalse(subject.premiumUpgradePending(userId: "1"))
         XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:premiumUpgradePending_1"))
+    }
+
+    /// `previousPersonalPremium(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_previousPersonalPremium_isInitiallyNil() {
+        XCTAssertNil(subject.previousPersonalPremium(userId: "1"))
+    }
+
+    /// `previousPersonalPremium(userId:)` can be used to get, set, and clear the persisted value in user defaults.
+    func test_previousPersonalPremium_withValue() {
+        subject.setPreviousPersonalPremium(true, userId: "1")
+        XCTAssertEqual(subject.previousPersonalPremium(userId: "1"), true)
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:previousPersonalPremium_1"), "true")
+
+        subject.setPreviousPersonalPremium(false, userId: "1")
+        XCTAssertEqual(subject.previousPersonalPremium(userId: "1"), false)
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:previousPersonalPremium_1"), "false")
+
+        subject.setPreviousPersonalPremium(nil, userId: "1")
+        XCTAssertNil(subject.previousPersonalPremium(userId: "1"))
+        XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:previousPersonalPremium_1"))
     }
 
     /// `upgradedToPremiumActionCardVisible(userId:)` returns `false` if there isn't a previously stored value.

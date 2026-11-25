@@ -28,7 +28,6 @@
 "FolderCreated" = "പുതിയ ഫോൾഡർ സൃഷ്ടിച്ചു.";
 "FolderDeleted" = "ഫോൾഡർ നീക്കംചെയ്തു.";
 "FolderNone" = "ഫോൾഡറിൽ ഉൾപ്പെടാത്ത";
-"Folders" = "ഫോൾഡറുകൾ";
 "FolderUpdated" = "ഫോൾഡർ പുതുക്കി.";
 "MyFolder" = "എന്റെ ഫോൾഡർ";
 "MyFolders" = "എന്റെ ഫോൾഡറുകൾ";
@@ -262,12 +261,8 @@
 "ShowWebsiteIconsDescription" = "ഓരോ ലോഗിനും അടുത്തായി തിരിച്ചറിയാവുന്ന ഒരു ചിത്രം കാണിക്കുക.";
 "IconsUrl" = "ഐക്കണുകളുടെ സെർവർ URL";
 "AutofillWithBitwarden" = "Bitwarden ഉപയോഗിച്ച് ഓട്ടോഫിൽ ചെയ്യുക";
-/* Section header and screen title for viewing/managing a cipher's collections. */
-"Collections" = "കളക്ഷൻസ്";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "പങ്കിട്ട ഫോൾഡറുകൾ";
-/* Empty state message shown when a collection has no items. */
-"NoItemsCollection" = "ഈ ശേഖരത്തിൽ ഇനങ്ങളൊന്നുമില്ല";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "ഈ പങ്കിട്ട ഫോൾഡറിൽ ഇനങ്ങളൊന്നുമില്ല";
 "NoItemsFolder" = "ഈ ഫോൾഡറിൽ ഇനങ്ങളൊന്നുമില്ല";
@@ -289,8 +284,6 @@
 "RegEx" = "പതിവ് പദപ്രയോഗം";
 "StartsWith" = "തുടങ്ങുന്നത്";
 "MatchDetection" = "മാച്ച് ഡിറ്റക്ഷൻ";
-/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
-"Organization" = "സംഘടന";
 "HoldYubikeyNearTop" = "നിങ്ങളുടെ Yubikey ഉപകരണത്തിന്റെ മുകളിൽ പിടിക്കുക.";
 "TryAgain" = "വീണ്ടും ശ്രമിക്കുക";
 "YubiKeyInstructionIos" = "തുടരുന്നതിന്, ഉപകരണത്തിന്റെ പുറകുവശത്ത് നിങ്ങളുടെ Yubikey Neo പിടിക്കുക.";
@@ -326,27 +319,17 @@
 "NoItemsToList" = "പ്രദർശിപ്പിക്കാൻ ഇനങ്ങളൊന്നുമില്ല.";
 "MoveDown" = "താഴേക്കു നീക്കുക";
 "MoveUp" = "മുകളിലൊട്ടു നീക്കുക";
-/* Empty state message on the Collections screen shown when a user has no collections. */
-"NoCollectionsToList" = "പ്രദർശിപ്പിക്കാൻ കളക്ഷനുകൾ  ഒന്നും ഇല്ല.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "ലിസ്റ്റ് ചെയ്യാൻ പങ്കിട്ട ഫോൾഡറുകളൊന്നുമില്ല.";
 "MovedItemToOrg" = "%1$@ %2$@-ലേക്ക് മാറ്റി";
-/* Alert message shown when saving an item with no collection selected. */
-"SelectOneCollection" = "നിങ്ങൾ ഒരു  കളക്ഷനെങ്കിലും  തിരഞ്ഞെടുക്കണം.";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "നിങ്ങൾ കുറഞ്ഞത് ഒരു പങ്കിട്ട ഫോൾഡറെങ്കിലും തിരഞ്ഞെടുക്കണം.";
 "Share" = "പങ്കിടുക";
 "ShareAll" = "എല്ലാം പങ്കിടുക";
-/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
-"MoveToOrganization" = "സംഘടനയിലേക്ക് മാറ്റുക";
-/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+/* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "ലിസ്റ്റ് ചെയ്യാൻ വോൾട്ടുകളൊന്നുമില്ല.";
-/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
-"NoOrgsToList" = "പ്രദർശിപ്പിക്കാൻ സംഘടനകൾ  ഒന്നും ഇല്ല.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "ഈ ഇനം മാറ്റാൻ നിങ്ങൾ ആഗ്രഹിക്കുന്ന ഒരു വോൾട്ട് തിരഞ്ഞെടുക്കുക. മറ്റൊരു വോൾട്ടിലേക്ക് മാറ്റുന്നത് ഇനത്തിന്റെ ഉടമസ്ഥാവകാശം ആ സംഘടനയിലേക്ക് കൈമാറുന്നു. ഇനം മാറ്റിയ ശേഷം നിങ്ങൾ ഇനത്തിന്റെ നേരിട്ടുള്ള ഉടമയായിരിക്കില്ല.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
-"MoveToOrgDesc" = "ഈ ഇനം മാറ്റാൻ നിങ്ങൾ ആഗ്രഹിക്കുന്ന ഒരു സംഘടന തിരഞ്ഞെടുക്കുക. ഒരു സംഘടനയിലേക്ക് മാറ്റുന്നത് ഇനത്തിന്റെ ഉടമസ്ഥാവകാശം ആ സംഘടനയിലേക്ക് കൈമാറുന്നു. ഇനം മാറ്റിയ ശേഷം നിങ്ങൾ ഇനത്തിന്റെ നേരിട്ടുള്ള ഉടമയായിരിക്കില്ല.";
 "NumberOfWords" = "വാക്കുകളുടെ എണ്ണം";
 "Passphrase" = "രഹസ്യ വാചകം";
 "WordSeparator" = "വേര്‍പെടുത്തുക";
@@ -451,9 +434,10 @@
 "HideEmail" = "എന്റെ ഇമെയിൽ വിലാസം സ്വീകർത്താക്കളിൽ നിന്ന് മറയ്ക്കുക";
 "SendOptionsPolicyInEffect" = "ഒന്നോ അതിലധികമോ സംഘടന നയങ്ങൾ നിങ്ങളുടെ Send ഓപ്ഷനുകളെ ബാധിക്കുന്നു.";
 "SendFilePremiumRequired" = "സൗജന്യ അക്കൗണ്ടുകൾ ടെക്സ്റ്റ് മാത്രം പങ്കിടുന്നതിന് പരിമിതപ്പെടുത്തിയിരിക്കുന്നു. Send-നൊപ്പം ഫയലുകൾ ഉപയോഗിക്കുന്നതിന് ഒരു പ്രീമിയം അംഗത്വം ആവശ്യമാണ്.";
-"SendFileEmailVerificationRequired" = "Send-നൊപ്പം ഫയലുകൾ ഉപയോഗിക്കുന്നതിന് നിങ്ങൾ നിങ്ങളുടെ ഇമെയിൽ പരിശോധിക്കണം. നിങ്ങൾക്ക് വെബ് വോൾട്ടിൽ നിങ്ങളുടെ ഇമെയിൽ പരിശോധിക്കാം.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -889,7 +873,6 @@
 "PersonalDetails" = "വ്യക്തിഗത വിശദാംശങ്ങൾ";
 "ContactInfo" = "ബന്ധപ്പെടാനുള്ള വിവരങ്ങൾ";
 "Identification" = "തിരിച്ചറിയൽ";
-"Owner" = "ഉടമ";
 "VerifyYourIdentity" = "നിങ്ങളുടെ ഐഡന്റിറ്റി പരിശോധിക്കുക";
 "ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
@@ -907,13 +890,9 @@
 "ShowMore" = "കൂടുതൽ കാണിക്കുക";
 "ShowLess" = "കുറവ് കാണിക്കുക";
 "ItemNameX" = "ഇനത്തിന്റെ പേര്, %1$@";
-"OwnerX" = "ഉടമ, %1$@";
 "VaultX" = "വോൾട്ട്, %1$@";
-/* VoiceOver accessibility label for a collection the item belongs to. */
-"CollectionX" = "ശേഖരം, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "പങ്കിട്ട ഫോൾഡർ, %1$@";
-"FolderX" = "ഫോൾഡർ, %1$@";
 "MyFolderX" = "എന്റെ ഫോൾഡർ, %1$@";
 "ItemXOfY" = "ഇനം %1$@ / %2$@";
 "ViewRecordedLogs" = "രേഖപ്പെടുത്തിയ ലോഗുകൾ കാണുക";
@@ -981,8 +960,6 @@
 "DefaultSaveOption" = "സ്വതവേയുള്ള സംരക്ഷണ ഓപ്ഷൻ";
 "DownloadTheBitwardenApp" = "Bitwarden ആപ്പ് ഡൗൺലോഡ് ചെയ്യുക";
 "EnsureItsValidJsonAndTryAgain" = "ഇത് സാധുവായ JSON ആണെന്ന് ഉറപ്പാക്കി വീണ്ടും ശ്രമിക്കുക.";
-"ExportItemsConfirmationTitle" = "ഇനങ്ങൾ കയറ്റുമതി സ്ഥിരീകരിക്കുക";
-"ExportItemsWarning" = "ഈ കയറ്റുമതിയിൽ നിങ്ങളുടെ ഇന ഡാറ്റ എൻക്രിപ്റ്റ് ചെയ്യാത്ത ഫോർമാറ്റിൽ അടങ്ങിയിരിക്കുന്നു. കയറ്റുമതി ചെയ്ത ഫയൽ സുരക്ഷിതമല്ലാത്ത ചാനലുകളിൽ (ഉദാ: ഇമെയിൽ) സൂക്ഷിക്കുകയോ അയയ്ക്കുകയോ ചെയ്യരുത്. ഇത് ഉപയോഗിച്ച് കഴിഞ്ഞാലുടൻ ഇത് ഇല്ലാതാക്കുക.";
 "FileCouldNotBeProcessed" = "ഫയൽ പ്രോസസ്സ് ചെയ്യാനായില്ല";
 "GetVerificationCodesForAllYourAccounts" = "2-സ്റ്റെപ്പ് പരിശോധന ഉപയോഗിച്ച് നിങ്ങളുടെ എല്ലാ അക്കൗണ്ടുകൾക്കുമുള്ള പരിശോധന കോഡുകൾ നേടുക.";
 "Help" = "സഹായം";
@@ -1302,3 +1279,10 @@
 "SyncUnsuccessful" = "സമന്വയിപ്പിക്കൽ പരാജയപ്പെട്ടു";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "ഞങ്ങൾക്ക് നിങ്ങളുടെ വോൾട്ട് സെർവറുമായി സമന്വയിപ്പിക്കാൻ കഴിഞ്ഞില്ല. നിങ്ങളുടെ വോൾട്ട് നിങ്ങളുടെ ഏറ്റവും പുതിയ മാറ്റങ്ങൾ പ്രതിഫലിപ്പിച്ചേക്കില്ല. നിങ്ങൾക്ക് ഇപ്പോൾ വീണ്ടും ശ്രമിക്കാം അല്ലെങ്കിൽ അത് പിന്നീട് യാന്ത്രികമായി സമന്വയിപ്പിക്കും.";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "കയറ്റുമതി സ്ഥിരീകരിക്കുക";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "ഈ എക്‌സ്‌പോർട്ടിൽ എൻക്രിപ്റ്റ് ചെയ്യാത്ത ഫോർമാറ്റിൽ നിങ്ങളുടെ വാൾട് ഡാറ്റ അടങ്ങിയിരിക്കുന്നു. എക്‌സ്‌പോർട് ചെയ്ത ഫയൽ സുരക്ഷിതമല്ലാത്ത ചാനലുകളിൽ (ഇമെയിൽ പോലുള്ളവ) നിങ്ങൾ സംഭരിക്കുകയോ അയയ്ക്കുകയോ ചെയ്യരുത്. നിങ്ങൾ ഇത് ഉപയോഗിച്ചുകഴിഞ്ഞാലുടൻ അത് മായ്ച്ചുകളയണം.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Create login";

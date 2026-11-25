@@ -1,7 +1,7 @@
 "About" = "O aplikácii";
 "Add" = "Pridať";
 "AddFolder" = "Pridať priečinok";
-"AnErrorHasOccurred" = "Vyskytla sa chyba.";
+"AnErrorHasOccurred" = "Vyskytla sa chyba";
 "Back" = "Späť";
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Zrušiť";
@@ -28,7 +28,6 @@
 "FolderCreated" = "Nový priečinok vytvorený";
 "FolderDeleted" = "Priečinok bol odstránený.";
 "FolderNone" = "Žiadny priečinok";
-"Folders" = "Priečinky";
 "FolderUpdated" = "Priečinok bol uložený";
 "MyFolder" = "Môj priečinok";
 "MyFolders" = "Moje priečinky";
@@ -262,12 +261,8 @@
 "ShowWebsiteIconsDescription" = "Pri každom prihlásení zobrazí rozpoznateľný obrázok.";
 "IconsUrl" = "URL servera ikon";
 "AutofillWithBitwarden" = "Automaticky vyplniť Bitwardenom";
-/* Section header and screen title for viewing/managing a cipher's collections. */
-"Collections" = "Zbierky";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "Zdieľané priečinky";
-/* Empty state message shown when a collection has no items. */
-"NoItemsCollection" = "V zbierke sa nenachádzajú žiadne položky";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "V tomto zdieľanom priečinku sa nenachádzajú žiadne položky";
 "NoItemsFolder" = "V tomto priečinku sa nenachádzajú žiadne položky";
@@ -289,8 +284,6 @@
 "RegEx" = "Regulárny výraz";
 "StartsWith" = "Začína na";
 "MatchDetection" = "Zisťovanie zhody";
-/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
-"Organization" = "Organizácia";
 "HoldYubikeyNearTop" = "Držte vaše Yubikey blízko hornej časti prístroja.";
 "TryAgain" = "Skúsiť Znovu";
 "YubiKeyInstructionIos" = "Ak chcete pokračovať, podržte YubiKey NEO na zadnej strane prístroja.";
@@ -326,27 +319,17 @@
 "NoItemsToList" = "Neexistujú žiadne položky na zobrazenie.";
 "MoveDown" = "Posunúť nižšie";
 "MoveUp" = "Posunúť vyššie";
-/* Empty state message on the Collections screen shown when a user has no collections. */
-"NoCollectionsToList" = "Neexistujú žiadne zbierky na zobrazenie.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "Na zobrazenie nie sú žiadne zdieľané priečinky.";
 "MovedItemToOrg" = "%1$@ presunuté do %2$@.";
-/* Alert message shown when saving an item with no collection selected. */
-"SelectOneCollection" = "Musíte vybrať aspoň jednu zbierku.";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "Musíte vybrať aspoň jeden zdieľaný priečinok.";
 "Share" = "Zdieľať";
 "ShareAll" = "Zdieľať všetko";
-/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
-"MoveToOrganization" = "Presunúť do Organizácie";
-/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+/* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "Nie sú žiadne trezory na zobrazenie.";
-/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
-"NoOrgsToList" = "Nenašli sa žiadne organizácie.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Vyberte trezor, do ktorého chcete túto položku presunúť. Presunutím do iného trezoru sa vlastníctvo položky prevedie na danú organizáciu. Po presunutí už nebudete priamym vlastníkom tejto položky.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
-"MoveToOrgDesc" = "Vyberte organizáciu, do ktorej chcete presunúť túto položku. Presunom do organizácie sa vlastníctvo položky prenáša na túto organizáciu. Po presunutí už nebudete priamym vlastníkom danej položky.";
 "NumberOfWords" = "Počet slov";
 "Passphrase" = "Prístupová fráza";
 "WordSeparator" = "Oddeľovač slov";
@@ -451,9 +434,10 @@
 "HideEmail" = "Skryť moju e-mailovú adresu pred príjemcami";
 "SendOptionsPolicyInEffect" = "Jedno alebo viac pravidiel organizácie ovplyvňujú vaše možnosti funkcie Send.";
 "SendFilePremiumRequired" = "Bezplatné účty sú obmedzené len na zdieľanie textu. Na odosielanie súborov cez Send sa vyžaduje prémiové členstvo.";
-"SendFileEmailVerificationRequired" = "Na odosielanie súborov cez Send musíte overiť svoj e-mail.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Vzhľadom na pravidlá spoločnosti môžete vytvoriť len %1$@ Send.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Vzhľadom na pravidlá spoločnosti môžete vytvoriť len súborový Send.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Vzhľadom na pravidlá spoločnosti môžete vytvoriť len textový Send.";
 "OrganizationPolicyRestriction" = "Obmedzenie politiky organizácie";
 "TextSendsAreNotAllowedDescriptionLong" = "Vaša organizácia nepovoľuje textové Sendy a tento Send automaticky vyprší v nastavený deň odstránenia.";
 "ThisSendIsNotCompliantDescriptionLong" = "Tento Send nie je v súlade s politikou Sendu vašej organizácie a jeho platnosť automaticky vyprší v stanovený deň odstránenia.";
@@ -889,7 +873,6 @@
 "PersonalDetails" = "Osobné údaje";
 "ContactInfo" = "Kontaktné informácie";
 "Identification" = "Identifikácia";
-"Owner" = "Vlastník";
 "VerifyYourIdentity" = "Overte svoju totožnosť";
 "ThisOperationIsNotAllowedOnThisAccount" = "Táto operácia nie je s týmto účtom povolená";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "Pri pokuse o uzamknutie aktuálneho používateľa sa vyskytla chyba";
@@ -907,13 +890,9 @@
 "ShowMore" = "Zobraziť viac";
 "ShowLess" = "Zobraziť menej";
 "ItemNameX" = "Názov položky, %1$@";
-"OwnerX" = "Vlastník, %1$@";
 "VaultX" = "Trezor, %1$@";
-/* VoiceOver accessibility label for a collection the item belongs to. */
-"CollectionX" = "Zbierka, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Zdieľaný priečinok, %1$@";
-"FolderX" = "Priečinok, %1$@";
 "MyFolderX" = "Môj priečinok, %1$@";
 "ItemXOfY" = "Položka %1$@ z %2$@";
 "ViewRecordedLogs" = "Zobraziť zaznamenané logy";
@@ -981,8 +960,6 @@
 "DefaultSaveOption" = "Predvolená možnosť uloženia";
 "DownloadTheBitwardenApp" = "Stiahnuť apku Bitwarden";
 "EnsureItsValidJsonAndTryAgain" = "Uistite sa, že ide o platný JSON, a skúste to znova.";
-"ExportItemsConfirmationTitle" = "Potvrdiť export položiek";
-"ExportItemsWarning" = "Tento export obsahuje vaše dáta položky v nešifrovanom formáte. Nemali by ste ich ukladať, ani posielať cez nezabezpečené kanály (napr. e-mail). Okamžite ho odstráňte, keď ho prestanete používať.";
 "FileCouldNotBeProcessed" = "Súbor sa nepodarilo spracovať";
 "GetVerificationCodesForAllYourAccounts" = "Získajte overovacie kódy pre všetky svoje účty, ktoré používajú dvojstupňové overenie.";
 "Help" = "Pomoc";
@@ -1302,3 +1279,10 @@
 "SyncUnsuccessful" = "Synchronizácia zlyhala";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Nepodarilo sa nám synchronizovať váš trezor so serverom. Je možné, že váš trezor nezahŕňa vaše najnovšie zmeny. Môžete to skúsiť znova teraz, alebo sa synchronizácia vykoná automaticky neskôr.";
 "TextToShareRequired" = "Text na zdieľanie (povinné)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Zahrnuté v tomto reporte";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Exportovať sa budú len miestne kódy v tomto zariadení. Synchronizované kódy nie sú zahrnuté.";
+"ConfirmExport" = "Potvrdiť export";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "V záujme bezpečnosti nezdieľajte ani neposielajte tento súbor nezabezpečenými kanálmi (napríklad e-mailom) a po skončení ho odstráňte.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Vytvoriť prihlasovacie údaje";

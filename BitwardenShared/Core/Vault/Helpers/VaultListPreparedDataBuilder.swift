@@ -48,7 +48,7 @@ protocol VaultListPreparedDataBuilder { // sourcery: AutoMockable
     func addFavoriteItem(cipher: CipherListView) -> VaultListPreparedDataBuilder
     /// Adds a Fido2 item to the prepared data.
     func addFido2Item(cipher: CipherListView) async -> VaultListPreparedDataBuilder
-    /// Adds a folder item to the prepared data.
+    /// Adds the cipher's folder to the prepared data, if needed, and tracks the cipher's ID in that folder.
     func addFolderItem(
         cipher: CipherListView,
         filter: VaultListFilter,
@@ -82,7 +82,7 @@ protocol VaultListPreparedDataBuilder { // sourcery: AutoMockable
     func incrementCipherTypeCount(cipher: CipherListView) -> VaultListPreparedDataBuilder
     /// Increments the cipher deleted count in the prepared data.
     func incrementCipherDeletedCount() -> VaultListPreparedDataBuilder
-    /// Increments the collection count in the prepared data.
+    /// Tracks the cipher's ID in each of its collections that are in the prepared data.
     func incrementCollectionCount(cipher: CipherListView) -> VaultListPreparedDataBuilder
     /// Increments the TOTP count in the prepared data.
     func incrementTOTPCount(cipher: CipherListView) async -> VaultListPreparedDataBuilder
@@ -203,7 +203,9 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder { // swi
         folders: [Folder],
     ) -> VaultListPreparedDataBuilder {
         if let folderId = cipher.folderId, let folder = folders.first(where: { $0.id == folderId }) {
-            preparedData.foldersCount[folderId, default: 0] += 1
+            if let cipherId = cipher.id {
+                preparedData.folderCipherIds[folderId, default: []].insert(cipherId)
+            }
             if filter.filterType != .allVaults, !preparedData.folders.contains(where: { $0.id == folderId }) {
                 preparedData.folders.append(folder)
             }
@@ -336,14 +338,14 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder { // swi
     }
 
     func incrementCollectionCount(cipher: CipherListView) -> VaultListPreparedDataBuilder {
-        if !cipher.collectionIds.isEmpty {
+        if let cipherId = cipher.id, !cipher.collectionIds.isEmpty {
             let tempCollectionsForCipher = preparedData.collections.filter { collection in
                 guard let colId = collection.id else { return false }
                 return cipher.collectionIds.contains(colId)
             }
             tempCollectionsForCipher.forEach { tempCollection in
                 if let collectionId = tempCollection.id {
-                    preparedData.collectionsCount[collectionId, default: 0] += 1
+                    preparedData.collectionCipherIds[collectionId, default: []].insert(cipherId)
                 }
             }
         }

@@ -28,7 +28,6 @@
 "FolderCreated" = "ဖိုလ်ဒါအသစ် ဖန်တီးပြီးပါပြီ။";
 "FolderDeleted" = "ဖိုလ်ဒါ ဖျက်ပြီးပါပြီ။";
 "FolderNone" = "ဖိုလ်ဒါမရှိ";
-"Folders" = "ဖိုလ်ဒါများ";
 "FolderUpdated" = "ဖိုလ်ဒါ သိမ်းဆည်းပြီးပါပြီ";
 "MyFolder" = "ကျွန်ုပ်၏ ဖိုလ်ဒါ";
 "MyFolders" = "ကျွန်ုပ်၏ ဖိုလ်ဒါများ";
@@ -262,12 +261,8 @@
 "ShowWebsiteIconsDescription" = "ဝင်ရောက်မှုတစ်ခုစီဘေးတွင် မှတ်မိနိုင်သော ပုံကို ပြပါ။";
 "IconsUrl" = "အိုင်ကွန်ဆာဗာ URL";
 "AutofillWithBitwarden" = "Bitwarden ဖြင့် အလိုအလျောက်ဖြည့်ပါ";
-/* Section header and screen title for viewing/managing a cipher's collections. */
-"Collections" = "စုစည်းမှုများ";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "မျှဝေထားသော ဖိုလ်ဒါများ";
-/* Empty state message shown when a collection has no items. */
-"NoItemsCollection" = "ဤစုစည်းမှုတွင် ပစ္စည်းများ မရှိပါ";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "ဤမျှဝေထားသော ဖိုလ်ဒါတွင် ပစ္စည်းများ မရှိပါ";
 "NoItemsFolder" = "ဤဖိုလ်ဒါတွင် ပစ္စည်းများ မရှိပါ";
@@ -289,8 +284,6 @@
 "RegEx" = "ပုံမှန်အသုံးအနှုန်း";
 "StartsWith" = "စတင်သည့်";
 "MatchDetection" = "ကိုက်ညီမှု ရှာဖွေခြင်း";
-/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
-"Organization" = "အဖွဲ့အစည်း";
 "HoldYubikeyNearTop" = "သင့် Yubikey ကို စက်၏အပေါ်ဘက်အနီးတွင် ကိုင်ထားပါ။";
 "TryAgain" = "ထပ်စမ်းကြည့်ပါ";
 "YubiKeyInstructionIos" = "ဆက်လက်ရန်၊ သင့် YubiKey NEO ကို စက်၏အနောက်ဘက်တွင် ကပ်ထားပါ။";
@@ -326,27 +319,17 @@
 "NoItemsToList" = "စာရင်းပြုရန် ပစ္စည်းများ မရှိပါ။";
 "MoveDown" = "အောက်သို့ရွှေ့ပါ";
 "MoveUp" = "အပေါ်သို့ရွှေ့ပါ";
-/* Empty state message on the Collections screen shown when a user has no collections. */
-"NoCollectionsToList" = "စာရင်းပြုရန် စုစည်းမှုများ မရှိပါ။";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "စာရင်းပြုရန် မျှဝေထားသော ဖိုလ်ဒါများ မရှိပါ။";
 "MovedItemToOrg" = "%1$@ ကို %2$@ သို့ ရွှေ့ပြီးပါပြီ။";
-/* Alert message shown when saving an item with no collection selected. */
-"SelectOneCollection" = "အနည်းဆုံး စုစည်းမှုတစ်ခု ရွေးရပါမည်။";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "အနည်းဆုံး မျှဝေထားသော ဖိုလ်ဒါတစ်ခု ရွေးရပါမည်။";
 "Share" = "မျှဝေပါ";
 "ShareAll" = "အားလုံးမျှဝေပါ";
-/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
-"MoveToOrganization" = "အဖွဲ့အစည်းသို့ ရွှေ့ပါ";
-/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+/* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "စာရင်းပြုရန် ဗော်လ်တ်များ မရှိပါ။";
-/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
-"NoOrgsToList" = "စာရင်းပြုရန် အဖွဲ့အစည်းများ မရှိပါ။";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "ဤပစ္စည်းကို ရွှေ့လိုသော ဗော်လ်တ်တစ်ခုကို ရွေးပါ။ အခြားဗော်လ်တ်သို့ ရွှေ့ခြင်းသည် ပစ္စည်း၏ပိုင်ဆိုင်မှုကို ထိုအဖွဲ့အစည်းသို့ လွှဲပြောင်းပေးသည်။ ပစ္စည်းကို ရွှေ့ပြီးသည်နှင့် သင်သည် ထိုပစ္စည်း၏ တိုက်ရိုက်ပိုင်ရှင် မဖြစ်တော့ပါ။";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
-"MoveToOrgDesc" = "ဤပစ္စည်းကို ရွှေ့လိုသော အဖွဲ့အစည်းတစ်ခုကို ရွေးပါ။ အဖွဲ့အစည်းသို့ ရွှေ့ခြင်းသည် ပစ္စည်း၏ပိုင်ဆိုင်မှုကို ထိုအဖွဲ့အစည်းသို့ လွှဲပြောင်းပေးသည်။ ပစ္စည်းကို ရွှေ့ပြီးသည်နှင့် သင်သည် ထိုပစ္စည်း၏ တိုက်ရိုက်ပိုင်ရှင် မဖြစ်တော့ပါ။";
 "NumberOfWords" = "စကားလုံးအရေအတွက်";
 "Passphrase" = "စကားစု";
 "WordSeparator" = "စကားလုံးခွဲခြားကိရိယာ";
@@ -451,9 +434,10 @@
 "HideEmail" = "လက်ခံသူများထံမှ ကျွန်ုပ်၏ အီးမေးလ်လိပ်စာကို ဝှက်ပါ";
 "SendOptionsPolicyInEffect" = "တစ်ခု သို့မဟုတ် တစ်ခုထက်ပိုသော အဖွဲ့အစည်းမူဝါဒများသည် သင့် Send ရွေးချယ်မှုများကို သက်ရောက်နေသည်။";
 "SendFilePremiumRequired" = "အခမဲ့အကောင့်များသည် စာသားမျှဝေခြင်းကိုသာ ကန့်သတ်ထားသည်။ Send ဖြင့် ဖိုင်များသုံးရန် အဆင့်မြင့် အသင်းဝင်မှု လိုအပ်သည်။";
-"SendFileEmailVerificationRequired" = "Send ဖြင့် ဖိုင်များသုံးရန် သင်သည် သင့်အီးမေးလ်ကို အတည်ပြုရပါမည်။ သင့်အီးမေးလ်ကို ဝဘ်ဗော်လ်တ်တွင် အတည်ပြုနိုင်သည်။";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -889,7 +873,6 @@
 "PersonalDetails" = "ကိုယ်ရေးအသေးစိတ်";
 "ContactInfo" = "ဆက်သွယ်ရန်အချက်အလက်";
 "Identification" = "သက်သေခံ";
-"Owner" = "ပိုင်ရှင်";
 "VerifyYourIdentity" = "သင့်ကိုယ်ရေးကို အတည်ပြုပါ";
 "ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
@@ -907,13 +890,9 @@
 "ShowMore" = "ပိုပြပါ";
 "ShowLess" = "လျှော့ပြပါ";
 "ItemNameX" = "ပစ္စည်းအမည်၊ %1$@";
-"OwnerX" = "ပိုင်ရှင်၊ %1$@";
 "VaultX" = "ဗော်လ်တ်၊ %1$@";
-/* VoiceOver accessibility label for a collection the item belongs to. */
-"CollectionX" = "စုစည်းမှု၊ %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "မျှဝေထားသော ဖိုလ်ဒါ၊ %1$@";
-"FolderX" = "ဖိုလ်ဒါ၊ %1$@";
 "MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "ပစ္စည်း %1$@ ၏ %2$@";
 "ViewRecordedLogs" = "မှတ်တမ်းတင်ထားသော မှတ်တမ်းများ ကြည့်ရှုပါ";
@@ -981,8 +960,6 @@
 "DefaultSaveOption" = "မူရင်း သိမ်းဆည်းရန် ရွေးချယ်မှု";
 "DownloadTheBitwardenApp" = "Bitwarden အက်ပ်ကို ဒေါင်းလုဒ်လုပ်ပါ";
 "EnsureItsValidJsonAndTryAgain" = "၎င်းသည် မှန်ကန်သော JSON ဖြစ်ကြောင်း သေချာပြီး ထပ်စမ်းကြည့်ပါ။";
-"ExportItemsConfirmationTitle" = "ပစ္စည်းများ တင်ပို့မှုကို အတည်ပြုပါ";
-"ExportItemsWarning" = "ဤတင်ပို့မှုတွင် သင့်ပစ္စည်းဒေတာကို စာဝှက်မထားသော ပုံစံဖြင့် ပါရှိသည်။ တင်ပို့ထားသော ဖိုင်ကို လုံခြုံမှုမရှိသော လမ်းကြောင်းများ (ဥပမာ အီးမေးလ်) မှတစ်ဆင့် သိမ်းဆည်းခြင်း သို့မဟုတ် ပေးပို့ခြင်း မပြုသင့်ပါ။ ၎င်းကို အသုံးပြုပြီးသည်နှင့် ချက်ချင်းဖျက်ပါ။";
 "FileCouldNotBeProcessed" = "ဖိုင်ကို ဆောင်ရွက်၍ မရပါ";
 "GetVerificationCodesForAllYourAccounts" = "အဆင့်နှစ်ဆင့် အတည်ပြုခြင်းကို သုံး၍ သင့်အကောင့်အားလုံးအတွက် အတည်ပြုကုဒ်များ ရယူပါ။";
 "Help" = "အကူအညီ";
@@ -1302,3 +1279,10 @@
 "SyncUnsuccessful" = "ထပ်တူပြုခြင်း မအောင်မြင်ပါ";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "သင့်ဗော်လ်တ်ကို ဆာဗာနှင့် ထပ်တူပြု၍ မရပါ။ သင့်ဗော်လ်တ်သည် သင့်နောက်ဆုံးပြောင်းလဲမှုများကို ထင်ဟပ်မည် မဟုတ်ပါ။ ယခုထပ်စမ်းကြည့်နိုင်သည် သို့မဟုတ် ၎င်းသည် နောက်မှ အလိုအလျောက် ထပ်တူပြုမည်။";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "တင်ပို့မှုကို အတည်ပြုပါ";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "သင့်လုံခြုံရေးအတွက်၊ ဤဖိုင်ကို လုံခြုံမှုမရှိသော လမ်းကြောင်းများ (ဥပမာ အီးမေးလ်) မှတစ်ဆင့် မျှဝေခြင်း သို့မဟုတ် ပေးပို့ခြင်း မပြုပါနှင့်၊ ပြီးသောအခါ ဖျက်ပါ။";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Create login";

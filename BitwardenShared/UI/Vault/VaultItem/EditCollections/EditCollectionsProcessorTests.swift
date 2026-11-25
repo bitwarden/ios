@@ -9,7 +9,6 @@ import XCTest
 class EditCollectionsProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var configService: MockConfigService!
     var coordinator: MockCoordinator<VaultItemRoute, VaultItemEvent>!
     var delegate: MockEditCollectionsProcessorDelegate!
     var errorReporter: MockErrorReporter!
@@ -21,7 +20,6 @@ class EditCollectionsProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        configService = MockConfigService()
         coordinator = MockCoordinator()
         delegate = MockEditCollectionsProcessorDelegate()
         errorReporter = MockErrorReporter()
@@ -31,7 +29,6 @@ class EditCollectionsProcessorTests: BitwardenTestCase {
             coordinator: coordinator.asAnyCoordinator(),
             delegate: delegate,
             services: ServiceContainer.withMocks(
-                configService: configService,
                 errorReporter: errorReporter,
                 vaultRepository: vaultRepository,
             ),
@@ -42,7 +39,6 @@ class EditCollectionsProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
-        configService = nil
         coordinator = nil
         delegate = nil
         errorReporter = nil
@@ -51,14 +47,6 @@ class EditCollectionsProcessorTests: BitwardenTestCase {
     }
 
     // MARK: Tests
-
-    /// `perform(_:)` with `.fetchCipherOptions` loads the vfo1-foundation feature flag.
-    @MainActor
-    func test_perform_fetchCipherOptions_featureFlags_vfo1Foundation() async {
-        configService.featureFlagsBool[.vfo1Foundation] = true
-        await subject.perform(.fetchCipherOptions)
-        XCTAssertTrue(subject.state.isVfo1FoundationFeatureFlagEnabled)
-    }
 
     /// `perform(_:)` with `.fetchCipherOptions` fetches the ownership options for a cipher from the repository.
     @MainActor
@@ -170,27 +158,9 @@ class EditCollectionsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(errorReporter.errors.last as? UpdateCipherError, UpdateCipherError())
     }
 
-    /// `perform(_:)` with `.save` shows an alert if no collections have been selected when the
-    /// `vfo1-foundation` feature flag is disabled.
+    /// `perform(_:)` with `.save` shows an alert if no collections have been selected.
     @MainActor
-    func test_perform_moveCipher_errorNoCollections_vfo1FoundationDisabled() async {
-        await subject.perform(.save)
-
-        XCTAssertEqual(
-            coordinator.alertShown.last,
-            .defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                message: Localizations.selectOneCollection,
-            ),
-        )
-    }
-
-    /// `perform(_:)` with `.save` shows an alert if no collections have been selected when the
-    /// `vfo1-foundation` feature flag is enabled.
-    @MainActor
-    func test_perform_moveCipher_errorNoCollections_vfo1FoundationEnabled() async {
-        subject.state.isVfo1FoundationFeatureFlagEnabled = true
-
+    func test_perform_moveCipher_errorNoCollections() async {
         await subject.perform(.save)
 
         XCTAssertEqual(

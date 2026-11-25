@@ -17,7 +17,6 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
     typealias Services = HasAuthRepository
         & HasBillingRepository
         & HasBillingService
-        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasEventService
@@ -127,7 +126,6 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
         case let .accessibilityMoreOptionsActionPressed(item, kind):
             await performMoreOptionsAction(kind, for: item)
         case .appeared:
-            await loadFeatureFlags()
             await loadHasPremiumAccount()
             await checkPersonalOwnershipPolicy()
             await loadItemTypesUserCanCreate()
@@ -206,11 +204,6 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
         let isPersonalOwnershipDisabled = await services.policyService.policyAppliesToUser(.personalOwnership)
         state.isPersonalOwnershipDisabled = isPersonalOwnershipDisabled
         state.canShowVaultFilter = await services.vaultRepository.canShowVaultFilter()
-    }
-
-    /// Loads the feature flags required for this processor.
-    private func loadFeatureFlags() async {
-        state.isVfo1FoundationFeatureFlagEnabled = await services.configService.getFeatureFlag(.vfo1Foundation)
     }
 
     /// Loads whether the current account has Premium subscription.

@@ -16,5 +16,10 @@
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>InterVariable-Italic.ttf</string>
+		<string>InterVariable.ttf</string>
+	</array>
 </dict>
 </plist>

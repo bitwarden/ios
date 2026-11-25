@@ -28,7 +28,6 @@
 "FolderCreated" = "Neien Dossier erstellt.";
 "FolderDeleted" = "Dossier geläscht.";
 "FolderNone" = "Keen Dossier";
-"Folders" = "Dossieren";
 "FolderUpdated" = "Dossier gespäichert";
 "MyFolder" = "Mäin Dossier";
 "MyFolders" = "Meng Dossieren";
@@ -68,11 +67,11 @@
 "UseThisButtonToGenerateANewUniquePassword" = "Verwenn dëse Knäppchen, fir en neit, eenzegaartegt Passwuert ze generéieren.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Du muss den Authentifizéierungsschlëssel nëmme fir Zougangsdaten ariichten, déi eng zwee-Faktor-Authentifizéierung mat engem Code erfuerderen. De Schlëssel generéiert kontinuéierlech sechsstelleg Coden, mat deenen s du dech umelle kanns.";
 "UseTheGeneratorToCreateASecurePasswordPassphrasesAndUsernames" = "Benotz de Generator, fir sécher Passwierder, Passphrasen a Benotzernimm z'erstellen.";
-"PassphrasesAreOftenEasierToRememberDescriptionLong" = "Passphrases are often easier to remember and type than random passwords. They can be helpful when you need to log into accounts where autofill is not available, like a streaming service on your TV.";
-"UniqueUsernamesAddAnExtraLayerOfSecurityAndCanHelpPreventHackersFromFindingYourAccounts" = "Unique usernames add an extra layer of security and can help prevent hackers from finding your accounts.";
-"UseTheseOptionsToAdjustYourPasswordToMeetYourAccountWebsitesRequirements" = "Use these options to adjust your password to meet your account website’s requirements.";
-"AfterYouSaveYourNewPasswordToBitwardenDontForgetToUpdateItOnYourAccountWebsite" = "After you save your new password to Bitwarden, don’t forget to update it on your account website.";
-"YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "You must add a web address to use autofill to access this account.";
+"PassphrasesAreOftenEasierToRememberDescriptionLong" = "Passphrasë sinn dacks méi einfach z'erënneren an ze tippe wéi zoufälleg Passwierder. Si kënnen hëllefräich sinn, wann s dudech bei Konten umelle musst, wou d'Automatescht Ausfëllen net disponibel ass, wéi zum Beispill bei engem Streaming-Service op dengem TV.";
+"UniqueUsernamesAddAnExtraLayerOfSecurityAndCanHelpPreventHackersFromFindingYourAccounts" = "Eenzegaarteg Benotzernimm setzen en zousätzleche Sécherheetsniveau bäi a kënnen Hacker dorunner hënneren, deng Konten ze fannen.";
+"UseTheseOptionsToAdjustYourPasswordToMeetYourAccountWebsitesRequirements" = "Benotz dës Optiounen, fir däi Passwuert un d'Ufuerderunge vun denger Kont-Websäit unzepassen.";
+"AfterYouSaveYourNewPasswordToBitwardenDontForgetToUpdateItOnYourAccountWebsite" = "Nodeems du däin neit Passwuert a Bitwarden gespäichert hues, vergiess net, et op denger Konto-Websäit z'aktualiséieren.";
+"YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "Du muss eng Websäiten-Adress bäisetzen, fir automatescht Ausfëlle fir den Zougrëff op dëse Kont benotzen ze kënnen.";
 "Username" = "Benotzernumm";
 "ValidationFieldRequired" = "D'Feld %1$@ ass erfuerderlech.";
 "ValueHasBeenCopied" = "%1$@ kopéiert";
@@ -85,23 +84,23 @@
 "Account" = "Kont";
 "StepOfStep" = "%1$d VU(N) %2$d";
 "AppExtension" = "App-Extensioun";
-"AvoidAmbiguousCharacters" = "Avoid ambiguous characters";
-"ChangeEmailAddress" = "Change email address";
+"AvoidAmbiguousCharacters" = "Zweedeiteg Zeechen evitéieren";
+"ChangeEmailAddress" = "E-Mail-Adress änneren";
 "Close" = "Zoumaachen";
 "Continue" = "Virufueren";
 "CreateAccount" = "Kont erstellen";
 "CreatingAccount" = "Kont gëtt erstallt…";
 "EditItem" = "Element beaarbechten";
 "EnableAutomaticSyncing" = "Automatesch Synchronisatioun zouloossen";
-"EnterEmailForHint" = "Enter your account email address to receive your master password hint.";
-"ReactivateAppExtension" = "Reactivate app extension";
-"ExtensionAlmostDone" = "Almost done!";
-"ExtensionEnable" = "Activate app extension";
-"ExtensionInSafari" = "In Safari, find Bitwarden using the share icon (hint: scroll to the right on the bottom row of the menu).";
-"ExtensionInstantAccess" = "Get instant access to your passwords!";
-"ExtensionReady" = "You’re ready to log in!";
-"ExtensionSetup" = "Your logins are now easily accessible from Safari, Chrome, and other supported apps.";
-"ExtensionSetup2" = "In Safari and Chrome, find Bitwarden using the share icon (hint: scroll to the right on the bottom row of the share menu).";
+"EnterEmailForHint" = "Gëff deng E-Mail-Adress vun dengem Kont an, fir den Hiweis fir däi Master-Passwuert ze kréien.";
+"ReactivateAppExtension" = "App-Erweiderung reaktivéieren";
+"ExtensionAlmostDone" = "Bal fäerdeg!";
+"ExtensionEnable" = "App-Erweiderung aktivéieren";
+"ExtensionInSafari" = "A Safari fënns du Bitwarden ënner dem Deelen-Symbol (Hiweis: scroll op der ënneschter Zeil vum Menu no riets).";
+"ExtensionInstantAccess" = "Erhal direkten Zougang op deng Passwierder!";
+"ExtensionReady" = "Du kanns dech elo umellen!";
+"ExtensionSetup" = "Deng Zougangsdate sinn elo a Safari, Chrome an aneren ënnerstëtzten Appen einfach z'erreechen.";
+"ExtensionSetup2" = "A Safari a Chrome fënns du Bitwarden ënner dem Deelen-Symbol (Hiweis: scroll op der ënneschter Zeil vum Deelen-Menu no riets).";
 "ExtensionTapIcon" = "Tap the Bitwarden icon in the menu to launch the extension.";
 "ExtensionTurnOn" = "To turn on Bitwarden in Safari and other apps, tap the “more” icon on the bottom row of the menu.";
 "Favorite" = "Favorit";
@@ -117,78 +116,78 @@
 "LogInToBitwarden" = "Bei Bitwarden umellen";
 "MasterPasswordConfirmationValMessage" = "Passwuertbestätegung ass net korrekt.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "D'Master-Passwuert ass dat Passwuert, mat deem s du op däin Tresor zougräifs.";
-"MasterPasswordHint" = "Master password hint";
+"MasterPasswordHint" = "Master-Passwuert-Hiweis";
 "NewMasterPasswordHint" = "New master password hint";
 "MinNumbers" = "Minimum numbers";
 "MinSpecial" = "Minimum special";
-"Never" = "Never";
-"NoItems" = "There are no items in your vault.";
+"Never" = "Ni";
+"NoItems" = "Et gëtt keng Elementer an dengem Tresor.";
 "NoItemsTap" = "There are no items in your vault for this website/app. Tap to add one.";
 "NoUsernamePasswordConfigured" = "This login does not have a username or password configured.";
-"OKGotIt" = "OK, got it!";
-"Options" = "Options";
-"Other" = "Other";
-"PasswordHint" = "Password hint";
-"PasswordHintAlert" = "We’ve sent you an email with your master password hint.";
-"PasswordOverrideAlert" = "Are you sure you want to overwrite the current password?";
+"OKGotIt" = "Ok, verstan!";
+"Options" = "Optiounen";
+"Other" = "Aner";
+"PasswordHint" = "Passwuert-Hiweis";
+"PasswordHintAlert" = "Mir hunn der eng E-Mail mat dengem Master-Passwuert-Hiweis geschéckt.";
+"PasswordOverrideAlert" = "Bass du sécher, datt s du d'aktuellt Passwuert iwwerschreiwe wëlls?";
 "PushNotificationAlert" = "Bitwarden keeps your vault automatically synced by using push notifications. For the best possible experience, please select “Allow” on the following prompt when asked to allow push notifications.";
-"Security" = "Security";
-"ItemUpdated" = "Item saved";
-"Submitting" = "Submitting…";
-"Syncing" = "Syncing…";
+"Security" = "Sécherheet";
+"ItemUpdated" = "Element gespäichert";
+"Submitting" = "Gëtt iwwermëttelt…";
+"Syncing" = "Synchronisatioun…";
 "SyncingLogins" = "Syncing logins…";
-"SyncingComplete" = "Syncing complete";
+"SyncingComplete" = "Synchroniséierung ofgeschloss";
 "TouchID" = "Touch ID";
-"TwoStepLogin" = "Two-step login";
-"UnlockWithBiometrics" = "Unlock with biometrics";
-"UnlockWithFaceID" = "Unlock with Face ID";
-"UnlockWithTouchID" = "Unlock with Touch ID";
-"UnlockWithOpticID" = "Unlock with Optic ID";
-"UnlockWithPIN" = "Unlock with PIN code";
-"VerificationCode" = "Verification code";
-"WebVault" = "Bitwarden web vault";
-"Items" = "Items";
-"ExtensionActivated" = "Extension activated!";
-"ItemsForUri" = "Items for %1$@";
+"TwoStepLogin" = "Zwee-Faktor-Authentifizéierung";
+"UnlockWithBiometrics" = "Mat Biometrie entspären";
+"UnlockWithFaceID" = "Mat Face ID entspären";
+"UnlockWithTouchID" = "Mat Touch ID entspären";
+"UnlockWithOpticID" = "Mat Optic ID entspären";
+"UnlockWithPIN" = "Mam PIN-Code entspären";
+"VerificationCode" = "Verifizéierungscode";
+"WebVault" = "Bitwarden Web-Tresor";
+"Items" = "Elementer";
+"ExtensionActivated" = "Erweiderung aktivéiert!";
+"ItemsForUri" = "Elementer fir %1$@";
 "NoItemsForUri" = "There are no items in your vault for %1$@.";
-"Off" = "Off";
-"On" = "On";
-"Autofill" = "Autofill";
-"AutofillEnabled" = "Autofill enabled";
-"MatchingItems" = "Matching items";
-"Search" = "Search";
-"LearnAboutNewLogins" = "Learn about new logins";
+"Off" = "Aus";
+"On" = "Un";
+"Autofill" = "Automatescht Ausfëllen";
+"AutofillEnabled" = "Automatescht Ausfëllen ageschalt";
+"MatchingItems" = "Passend Elementer";
+"Search" = "Sichen";
+"LearnAboutNewLogins" = "Erfuer méi iwwer nei Zougangsdaten";
 "WeWillWalkYouThroughTheKeyFeaturesToAddANewLogin" = "We’ll walk you through the key features to add a new login.";
 "LearnOrg" = "Learn about organizations";
-"AuthenticatorAppTitle" = "Authenticator app";
+"AuthenticatorAppTitle" = "Authentificator-App";
 "EnterVerificationCodeApp" = "Enter the 6 digit verification code from your authenticator app.";
 "EnterVerificationCodeEmail" = "Enter the 6 digit verification code that was emailed to %1$@.";
 "RecoveryCodeTitle" = "Recovery code";
-"RememberMe" = "Remember me";
-"UseAnotherTwoStepMethod" = "Use another two-step login method";
+"RememberMe" = "U mech erënneren";
+"UseAnotherTwoStepMethod" = "Benotz eng aner Zwee-Faktor-Authentifizéierungsmethod";
 "VerificationEmailNotSent" = "Could not send verification email. Try again.";
 "VerificationEmailSent" = "Verification email sent";
 "YubiKeyTitle" = "YubiKey security key";
 "AddNewAttachment" = "Add new attachment";
-"Attachments" = "Attachments";
-"UnableToDownloadFile" = "Unable to download file.";
-"Downloading" = "Downloading…";
+"Attachments" = "Unhäng";
+"UnableToDownloadFile" = "Fichier konnt net erofgeluede ginn.";
+"Downloading" = "Gëtt erofgelueden…";
 "AttachmentLargeWarning" = "This attachment is %1$@ in size. Are you sure you want to download it onto your device?";
 "AuthenticatorKey" = "Authenticator key";
 "VerificationCodeTotp" = "Verification code (TOTP)";
 "AuthenticatorKeyAdded" = "Authenticator key added.";
 "AuthenticatorKeyReadError" = "Cannot read authenticator key.";
 "PointYourCameraAtTheQRCode" = "Point your camera at the QR Code.\nScanning will happen automatically.";
-"ScanQrTitle" = "Scan QR Code";
-"Camera" = "Camera";
-"Photos" = "Photos";
-"CopyTotp" = "Copy TOTP";
+"ScanQrTitle" = "QR-Code scannen";
+"Camera" = "Kamera";
+"Photos" = "Fotoen";
+"CopyTotp" = "TOTP kopéieren";
 "CopyTotpAutomaticallyDescription" = "If a login has an authenticator key, copy the TOTP verification code to your clipboard when you autofill the login.";
 "CopyTotpAutomatically" = "Copy TOTP automatically";
-"AttachementAdded" = "Attachment added";
-"AttachmentDeleted" = "Attachment deleted";
+"AttachementAdded" = "Unhang bäigesat";
+"AttachmentDeleted" = "Unhang ewechgeholl";
 "ChooseFile" = "Choose file";
-"File" = "File";
+"File" = "Fichier";
 "NoAttachments" = "There are no attachments.";
 "MaxFileSize" = "Maximum file size is 100 MB.";
 "RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
@@ -262,12 +261,8 @@
 "ShowWebsiteIconsDescription" = "Show a recognizable image next to each login.";
 "IconsUrl" = "Icons server URL";
 "AutofillWithBitwarden" = "Autofill with Bitwarden";
-/* Section header and screen title for viewing/managing a cipher's collections. */
-"Collections" = "Collections";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "Shared folders";
-/* Empty state message shown when a collection has no items. */
-"NoItemsCollection" = "There are no items in this collection";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
 "NoItemsFolder" = "There are no items in this folder";
@@ -289,8 +284,6 @@
 "RegEx" = "Regular expression";
 "StartsWith" = "Starts with";
 "MatchDetection" = "Match detection";
-/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
-"Organization" = "Organization";
 "HoldYubikeyNearTop" = "Hold your Yubikey near the top of the device.";
 "TryAgain" = "Try again";
 "YubiKeyInstructionIos" = "To continue, hold your YubiKey NEO against the back of the device.";
@@ -326,27 +319,17 @@
 "NoItemsToList" = "There are no items to list.";
 "MoveDown" = "Move down";
 "MoveUp" = "Move Up";
-/* Empty state message on the Collections screen shown when a user has no collections. */
-"NoCollectionsToList" = "There are no collections to list.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
 "MovedItemToOrg" = "%1$@ moved to %2$@.";
-/* Alert message shown when saving an item with no collection selected. */
-"SelectOneCollection" = "You must select at least one collection.";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
 "Share" = "Share";
 "ShareAll" = "Share all";
-/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
-"MoveToOrganization" = "Move to Organization";
-/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+/* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "No vaults to list.";
-/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
-"NoOrgsToList" = "No organizations to list.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
-"MoveToOrgDesc" = "Choose an organization that you wish to move this item to. Moving to an organization transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
 "NumberOfWords" = "Number of words";
 "Passphrase" = "Passphrase";
 "WordSeparator" = "Word separator";
@@ -451,9 +434,10 @@
 "HideEmail" = "Hide my email address from recipients";
 "SendOptionsPolicyInEffect" = "One or more organization policies are affecting your Send options.";
 "SendFilePremiumRequired" = "Free accounts are restricted to sharing text only. A Premium membership is required to use files with Send.";
-"SendFileEmailVerificationRequired" = "You must verify your email to use files with Send. You can verify your email in the web vault.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -512,7 +496,7 @@
 "APremiumPlanGivesYouMoreToolsDescriptionLong" = "A Premium plan gives you more tools to stay secure and in control.";
 "UnlockAdvancedSecurityFeatures" = "Unlock advanced security features";
 "CannotAddAuthenticatorKey" = "Cannot add authenticator key?";
-"ScanQRCode" = "Scan QR Code";
+"ScanQRCode" = "QR-Code scannen";
 "CannotScanQRCode" = "Cannot scan QR Code?";
 "EnterKeyManually" = "Enter key manually";
 "OnceTheKeyIsSuccessfullyEntered" = "Once the key is successfully entered, select Save to store the key safely.";
@@ -758,8 +742,8 @@
 "SendSensitiveInformationSafely" = "Send sensitive information, safely";
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.";
 "AddLogin" = "Add login";
-"AddCard" = "Add card";
-"AddIdentity" = "Add identity";
+"AddCard" = "Kaart bäisetzen";
+"AddIdentity" = "Identitéit bäisetzen";
 "AddNote" = "Notiz bäisetzen";
 "AddSSHKey" = "SSH-Schlëssel bäisetzen";
 "AddBankAccount" = "Add bank account";
@@ -889,7 +873,6 @@
 "PersonalDetails" = "Personal details";
 "ContactInfo" = "Contact info";
 "Identification" = "Identification";
-"Owner" = "Owner";
 "VerifyYourIdentity" = "Verify your identity";
 "ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
@@ -907,13 +890,9 @@
 "ShowMore" = "Show more";
 "ShowLess" = "Show less";
 "ItemNameX" = "Item name, %1$@";
-"OwnerX" = "Owner, %1$@";
 "VaultX" = "Vault, %1$@";
-/* VoiceOver accessibility label for a collection the item belongs to. */
-"CollectionX" = "Collection, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Shared folder, %1$@";
-"FolderX" = "Folder, %1$@";
 "MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "Item %1$@ of %2$@";
 "ViewRecordedLogs" = "View recorded logs";
@@ -981,8 +960,6 @@
 "DefaultSaveOption" = "Default save option";
 "DownloadTheBitwardenApp" = "Download the Bitwarden app";
 "EnsureItsValidJsonAndTryAgain" = "Ensure it’s valid JSON and try again.";
-"ExportItemsConfirmationTitle" = "Confirm items export";
-"ExportItemsWarning" = "This export contains your item data in an unencrypted format. You should not store or send the exported file over unsecure channels (such as email). Delete it immediately after you are done using it.";
 "FileCouldNotBeProcessed" = "File could not be processed";
 "GetVerificationCodesForAllYourAccounts" = "Get verification codes for all your accounts using 2-step verification.";
 "Help" = "Help";
@@ -1302,3 +1279,10 @@
 "SyncUnsuccessful" = "Sync unsuccessful";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "We couldn’t sync your vault with the server. Your vault may not reflect your latest changes. You can try again now or it will sync automatically later.";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "Confirm export";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "For your security, don’t share or send this file over unsecured channels (like email), and delete it when you’re done.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Create login";

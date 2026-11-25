@@ -527,6 +527,75 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(coordinator.routes.last, .cancel)
     }
 
+    /// `perform(_:)` with `.createLoginPressed` doesn't navigate if there's no generated value.
+    @MainActor
+    func test_perform_createLoginPressed_emptyValue() async {
+        subject.state.generatedValue = ""
+
+        await subject.perform(.createLoginPressed)
+
+        XCTAssertTrue(coordinator.routes.isEmpty)
+    }
+
+    /// `perform(_:)` with `.createLoginPressed` navigates to the add login route with the generated
+    /// passphrase prefilled as the password.
+    @MainActor
+    func test_perform_createLoginPressed_passphrase() async {
+        subject.state.generatorType = .passphrase
+        subject.state.generatedValue = "correct-horse-battery"
+
+        await subject.perform(.createLoginPressed)
+
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .addLogin(hasPremium: true, newCipherOptions: NewCipherOptions(password: "correct-horse-battery")),
+        )
+    }
+
+    /// `perform(_:)` with `.createLoginPressed` navigates to the add login route with the generated
+    /// password prefilled and the user's premium status.
+    @MainActor
+    func test_perform_createLoginPressed_password() async {
+        stateService.doesActiveAccountHavePremiumResult = false
+        subject.state.generatorType = .password
+        subject.state.generatedValue = "password"
+
+        await subject.perform(.createLoginPressed)
+
+        XCTAssertTrue(stateService.doesActiveAccountHavePremiumCalled)
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .addLogin(hasPremium: false, newCipherOptions: NewCipherOptions(password: "password")),
+        )
+    }
+
+    /// `perform(_:)` with `.createLoginPressed` doesn't navigate if the generated value is the
+    /// placeholder username, e.g. when a forwarded email service isn't configured.
+    @MainActor
+    func test_perform_createLoginPressed_placeholderUsername() async {
+        subject.state.generatorType = .username
+        subject.state.generatedValue = Constants.defaultGeneratedUsername
+
+        await subject.perform(.createLoginPressed)
+
+        XCTAssertTrue(coordinator.routes.isEmpty)
+    }
+
+    /// `perform(_:)` with `.createLoginPressed` navigates to the add login route with the generated
+    /// username prefilled as the username.
+    @MainActor
+    func test_perform_createLoginPressed_username() async {
+        subject.state.generatorType = .username
+        subject.state.generatedValue = "user@bitwarden.com"
+
+        await subject.perform(.createLoginPressed)
+
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .addLogin(hasPremium: true, newCipherOptions: NewCipherOptions(username: "user@bitwarden.com")),
+        )
+    }
+
     /// `perform(_:)` with `.dismissNewLoginActionCard` will set `.isLearnGeneratorActionCardEligible` to
     /// false  and updates `.learnGeneratorActionCardStatus` via  stateService.
     @MainActor

@@ -30,6 +30,16 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func createCheckoutSession() async throws -> URL
 
+    /// Reveals the "Upgraded to Premium" action card when the account's personal Premium has
+    /// changed from `false` to `true` since the last sync, and records the current value for the
+    /// next comparison. Does nothing but record when no value has been recorded yet, so this can
+    /// safely run after every sync.
+    ///
+    /// - Parameters:
+    ///   - userId: The account that synced.
+    ///
+    func detectOutOfBandUpgrade(userId: String) async
+
     /// Creates a customer portal session for managing the Premium subscription.
     ///
     /// - Returns: A validated HTTPS URL for the customer portal.
@@ -48,6 +58,23 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     /// - Returns: A `PremiumSubscription` containing the flattened subscription details.
     ///
     func getSubscription() async throws -> PremiumSubscription
+
+    /// Gets whether the active account has a Stripe subscription for personal Premium, as last
+    /// recorded by `refreshSubscriptionStatus(subscription:)`.
+    ///
+    /// - Returns: Whether the account has a Stripe subscription, or `nil` if the server hasn't yet
+    ///   answered or the stored value couldn't be read.
+    ///
+    func hasPersonalSubscription() async -> Bool?
+
+    /// Gets whether the Plan badge has been dismissed by the active account.
+    ///
+    /// If the stored value can't be read, the error is logged and the badge is treated as not
+    /// dismissed.
+    ///
+    /// - Returns: Whether the Plan badge has been dismissed.
+    ///
+    func isPlanBadgeDismissed() async -> Bool
 
     /// Gets whether the Premium upgrade banner has been dismissed by the active account.
     ///
@@ -82,7 +109,7 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
 
     /// Notifies that a `premiumStatusChanged` push notification arrived, and force-syncs the
     /// active account. The sync's own completion handling reconciles a pending upgrade and
-    /// refreshes the subscription attention card; this publishes no checkout status.
+    /// refreshes the cached subscription status; this publishes no checkout status.
     ///
     /// This always syncs, whichever account the push names and whether or not the account already
     /// has Premium or is eligible for the Premium upgrade path. The server sends this push for
@@ -103,25 +130,33 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func premiumUpgradeLifecycleState(userId: String?) async -> PremiumUpgradeLifecycleState
 
-    /// Fetches the current subscription status and updates the visibility of the subscription
-    /// attention action card.
+    /// Fetches the current subscription status, updates the visibility of the subscription
+    /// attention action card, and stores whether the account has a Stripe subscription.
     ///
-    /// This runs for all non-self-hosted accounts regardless of their current premium status.
+    /// This runs for all accounts eligible for the Premium upgrade path regardless of their
+    /// current premium status.
     /// A user whose subscription has lapsed (e.g. unpaid after repeated payment failures) still
     /// needs their payment-problem state surfaced even though the server reports them as
     /// non-premium. Accounts with no personal subscription (free users) receive a
-    /// `GetSubscriptionRequestError` and are handled silently — the card is hidden for them.
+    /// `GetSubscriptionRequestError` and are handled silently — the card is hidden for them and
+    /// the account is recorded as having no Stripe subscription. Any other failure leaves the
+    /// stored Stripe subscription state unchanged.
     ///
     /// - Parameters:
     ///   - subscription: A previously fetched subscription to use, or `nil` to fetch fresh.
     ///
-    func refreshSubscriptionAttentionCard(subscription: PremiumSubscription?) async
+    func refreshSubscriptionStatus(subscription: PremiumSubscription?) async
 
     /// Retries an upgrade that is already pending. Like `premiumCheckoutSucceeded()`, but never
     /// marks an upgrade pending, so it's safe for a user-initiated retry that may not follow a
     /// real checkout.
     ///
     func retryPendingUpgrade() async
+
+    /// Sets the Plan badge as dismissed for the active account, so it is not shown again until the
+    /// account logs out.
+    ///
+    func setPlanBadgeDismissed() async
 
     /// Sets the Premium upgrade banner as dismissed for the active account, so it is not shown again.
     ///
@@ -160,7 +195,7 @@ extension BillingService {
 
 /// The default implementation of `BillingService`.
 ///
-class DefaultBillingService: BillingService {
+class DefaultBillingService: BillingService { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// The API service used for billing requests.
@@ -256,6 +291,23 @@ class DefaultBillingService: BillingService {
         return url
     }
 
+    func detectOutOfBandUpgrade(userId: String) async {
+        do {
+            let previous = try await billingStateService.getPreviousPersonalPremium(userId: userId)
+            let current = await stateService.doesAccountHavePremiumPersonally(userId: userId)
+            if previous != current {
+                try await billingStateService.setPreviousPersonalPremium(current, userId: userId)
+            }
+
+            guard previous == false, current, await isEligibleForPremiumUpgradePath() else {
+                return
+            }
+            try await billingStateService.setUpgradedToPremiumActionCardVisible(true, userId: userId)
+        } catch {
+            errorReporter.log(error: error)
+        }
+    }
+
     func getPortalUrl() async throws -> URL {
         let response = try await billingAPIService.getPortalUrl()
         let url = response.url
@@ -272,6 +324,24 @@ class DefaultBillingService: BillingService {
     func getSubscription() async throws -> PremiumSubscription {
         let response = try await billingAPIService.getSubscription()
         return PremiumSubscription(response: response)
+    }
+
+    func hasPersonalSubscription() async -> Bool? {
+        do {
+            return try await billingStateService.getHasPersonalSubscription()
+        } catch {
+            errorReporter.log(error: error)
+            return nil
+        }
+    }
+
+    func isPlanBadgeDismissed() async -> Bool {
+        do {
+            return try await billingStateService.getPlanBadgeDismissed()
+        } catch {
+            errorReporter.log(error: error)
+            return false
+        }
     }
 
     func isPremiumUpgradeBannerDismissed() async -> Bool {
@@ -358,7 +428,7 @@ class DefaultBillingService: BillingService {
         return await stateService.doesAccountHavePremium(userId: resolvedUserId) ? .premium : .notPremium
     }
 
-    func refreshSubscriptionAttentionCard(subscription: PremiumSubscription?) async {
+    func refreshSubscriptionStatus(subscription: PremiumSubscription?) async {
         guard await isEligibleForPremiumUpgradePath() else {
             do {
                 try await billingStateService.setSubscriptionAttentionCardVisible(false)
@@ -374,10 +444,12 @@ class DefaultBillingService: BillingService {
                 try await getSubscription()
             }
             try await billingStateService.setSubscriptionAttentionCardVisible(sub.status.isPaymentProblemState)
-        } catch is GetSubscriptionRequestError {
-            // No personal subscription — free user or subscription fully gone. Card not shown.
+            try await billingStateService.setHasPersonalSubscription(true)
+        } catch GetSubscriptionRequestError.noSubscription {
+            // No personal subscription — free user or subscription fully gone.
             do {
                 try await billingStateService.setSubscriptionAttentionCardVisible(false)
+                try await billingStateService.setHasPersonalSubscription(false)
             } catch {
                 errorReporter.log(error: error)
             }
@@ -399,6 +471,14 @@ class DefaultBillingService: BillingService {
         }
 
         await syncAndReport(userId: userId)
+    }
+
+    func setPlanBadgeDismissed() async {
+        do {
+            try await billingStateService.setPlanBadgeDismissed(true)
+        } catch {
+            errorReporter.log(error: error)
+        }
     }
 
     func setPremiumUpgradeBannerDismissed() async throws {

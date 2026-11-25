@@ -37,11 +37,29 @@ enum PolicyType: Int, Codable {
     /// Activates autofill with page load on the browser extension.
     case activateAutofill = 11
 
+    /// Automatically logs users into apps using single sign-on.
+    case automaticAppLogIn = 12
+
+    /// Removes users' access to the free Bitwarden Families sponsorship benefit.
+    case freeFamiliesSponsorship = 13
+
     /// If enabled, the setting to "Unlock with Pin" is hidden.
     case removeUnlockWithPin = 14
 
     /// If enabled, restricts the types of items that can be shown in the vault.
     case restrictItemTypes = 15
+
+    /// Sets the default URI match detection strategy for autofill.
+    case uriMatchDefaults = 16
+
+    /// Sets the default behavior for the autotype feature.
+    case autotypeDefaultSetting = 17
+
+    /// Automatically confirms invited users into the organization.
+    case automaticUserConfirmation = 18
+
+    /// Blocks account creation for users with email addresses on claimed domains.
+    case blockClaimedDomainAccountCreation = 19
 
     /// Displays a banner notification to organization users.
     case organizationUserNotification = 20
@@ -50,6 +68,13 @@ enum PolicyType: Int, Codable {
     /// supersedes `disableSend` and `sendOptions` when the `pm-31885-send-controls` feature flag
     /// is active on the server.
     case sendControls = 21
+
+    /// Enables the Fill Assist targeting-rules autofill engine as the default for users who haven't
+    /// explicitly set their Fill Assist preference.
+    case fillAssist = 22
+
+    /// Enables the AutoType GA policy for users who haven't explicitly set their AutoType GA preference.
+    case autotypeGaPolicy = 23
 
     /// An unknown policy type.
     case unknown = -1

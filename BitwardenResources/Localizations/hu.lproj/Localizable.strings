@@ -28,7 +28,6 @@
 "FolderCreated" = "Az új mappa létrejött.";
 "FolderDeleted" = "A mappa törlése megtörtént.";
 "FolderNone" = "Nincs mappa";
-"Folders" = "Mappák";
 "FolderUpdated" = "A mappa mentésre került.";
 "MyFolder" = "Saját mappa";
 "MyFolders" = "Saját mappák";
@@ -262,12 +261,8 @@
 "ShowWebsiteIconsDescription" = "Felismerhető kép megjelenítése minden bejelentkezés mellett.";
 "IconsUrl" = "Ikonszerver webcím";
 "AutofillWithBitwarden" = "Töltse ki automatikusan a Bitwarden-nel";
-/* Section header and screen title for viewing/managing a cipher's collections. */
-"Collections" = "Gyűjtemények";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "Megosztott mappák";
-/* Empty state message shown when a collection has no items. */
-"NoItemsCollection" = "Nincsenek elemek a gyűjteményben";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "Nincsenek elemek ebben a megosztott mappában.";
 "NoItemsFolder" = "Nincsenek elemek a mappában";
@@ -289,8 +284,6 @@
 "RegEx" = "Reguláris kifejezés";
 "StartsWith" = "Ezzel kezdődik";
 "MatchDetection" = "Egyezés felismerése";
-/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
-"Organization" = "Szervezet";
 "HoldYubikeyNearTop" = "Tartsuk lenyomva a Yubikey-t, a készülék tetején.";
 "TryAgain" = "Próbáluk újra";
 "YubiKeyInstructionIos" = "A folytatáshoz tartsuk lenyomva a YubiKey NEO-t a készülék hátoldalán.";
@@ -326,27 +319,17 @@
 "NoItemsToList" = "Nincsenek megjeleníthető elemek.";
 "MoveDown" = "Lefelé mozgatás";
 "MoveUp" = "Felfelé mozgatás";
-/* Empty state message on the Collections screen shown when a user has no collections. */
-"NoCollectionsToList" = "Nincsenek megjeleníthető gyűjtemények.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "Nincsenek listázható megosztott mappák.";
 "MovedItemToOrg" = "%1$@ áthelyezésre került: %2$@.";
-/* Alert message shown when saving an item with no collection selected. */
-"SelectOneCollection" = "Legalább egy gyűjteményt ki kell választani.";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "Legalább egy megosztott mappát ki kell választani.";
 "Share" = "Megosztás";
 "ShareAll" = "Összes megosztása";
-/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
-"MoveToOrganization" = "Áthelyezés szervezetbe";
-/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+/* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "Nincsenek listázandó széfek.";
-/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
-"NoOrgsToList" = "Nincs megjeleníthető szervezet.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Válasszunk egy széfet, ahová áthelyezni szeretnénk ezt az elemet. A széfbe áthelyezés átruházza az elem tulajdonjogát az adott szervezetre. Az áthelyezés után többé nem leszünk az elem közvetlen tulajdonosa.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
-"MoveToOrgDesc" = "Válasszunk egy szervezetet, ahová áthelyezni szeretnénk ezt az elemet. A szervezetbe áthelyezés átruházza az elem tulajdonjogát az adott szervezetre. Az áthelyezés után többé nem leszünk az elem közvetlen tulajdonosa.";
 "NumberOfWords" = "Szavak száma";
 "Passphrase" = "Kulcsszó";
 "WordSeparator" = "Szóelválasztó";
@@ -451,9 +434,10 @@
 "HideEmail" = "Saját email cím elrejtése a címzettek elől.";
 "SendOptionsPolicyInEffect" = "Egy vagy több szervezeti szabály érinti a Send opciókat.";
 "SendFilePremiumRequired" = "Ingyenes fiókkal csak szöveget lehet megosztani. Prémium tagság szükséges a fájlok használatához a Sendnél.";
-"SendFileEmailVerificationRequired" = "Ha fájlokat szeretnénk használni a Senddel, ellenőrizni kell az email címet.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "A vállalati szabályzat miatt csak %1$@ Send elem hozható létre.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "A vállalati szabályzat miatt csak fájl típusú Send elem hozható létre.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "A vállalati szabályzat miatt csak szöveg típusú Send elem hozható létre.";
 "OrganizationPolicyRestriction" = "Szervezeti szabályzat korlátozás";
 "TextSendsAreNotAllowedDescriptionLong" = "Ez a szöveges Send elem nem felel meg a szervezet Küldés házirendjének és ez a Send elem automatikusan lejár a beállított törlési napon.";
 "ThisSendIsNotCompliantDescriptionLong" = "Ez a Send elem nem felel meg a szervezet Küldés házirendjének és automatikusan lejár a beállított törlési napon.";
@@ -889,7 +873,6 @@
 "PersonalDetails" = "Személyes adatok";
 "ContactInfo" = "Kapcsolat infó";
 "Identification" = "Azonosítás";
-"Owner" = "Tulajdonos";
 "VerifyYourIdentity" = "Személyazonosság ellenőrzése";
 "ThisOperationIsNotAllowedOnThisAccount" = "Ez a művelet nem engedélyezett ezen a fiókon.";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "Hiba történt az aktuális felhasználó zárolásának kísérlete közben.";
@@ -907,13 +890,9 @@
 "ShowMore" = "Több mutatása";
 "ShowLess" = "Kevesebb mutatása";
 "ItemNameX" = "Elem név, %1$@";
-"OwnerX" = "Tulajdonos, %1$@";
 "VaultX" = "Széf: %1$@";
-/* VoiceOver accessibility label for a collection the item belongs to. */
-"CollectionX" = "Kollekció, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Megosztott mappa, %1$@";
-"FolderX" = "Mappa, %1$@";
 "MyFolderX" = "Saját mappa, %1$@";
 "ItemXOfY" = "Item %1$@ of %2$@";
 "ViewRecordedLogs" = "Rögzített naplók megtekintése";
@@ -981,8 +960,6 @@
 "DefaultSaveOption" = "Alapértelmezett mentés opció";
 "DownloadTheBitwardenApp" = "Bitwarden alkalmazás letöltése";
 "EnsureItsValidJsonAndTryAgain" = "Győződjünk meg arról, hogy érvényes a JSON és próbáljuk újra.";
-"ExportItemsConfirmationTitle" = "Elem exportálás megerősítése";
-"ExportItemsWarning" = "Ez az exportálás titkosítatlan formátumban tartalmazza az elemadatokat. Nem szabad tárolni vagy elküldeni az exportált fájlt nem biztonságos csatornákon (például emailben). Töröljük azonnal, miután befejeztük a használatát.";
 "FileCouldNotBeProcessed" = "A fájl nem dolgozható fel.";
 "GetVerificationCodesForAllYourAccounts" = "Ellenőrző kódok beszerzése minden olyan fiókhoz, amely támogatja a kétlépcsős ellenőrzést.";
 "Help" = "Súgó";
@@ -1302,3 +1279,10 @@
 "SyncUnsuccessful" = "A szinkronizáció sikertelen volt.";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Nem lehetett szinkronizálni a széfet a szerverrel. Előfordulhat, hogy a széf nem tükrözi a legújabb változtatásokat. Most újra próbálkozhatunk vagy később automatikusan szinkronizálódik.";
 "TextToShareRequired" = "Megosztandó szöveg (szükséges)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Bevonva ebbe az exportálásba";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Csak az ezen az eszközön helyileg tárolt kódok kerülnek exportálásra. A szinkronizált kódok nem szerepelnek benne.";
+"ConfirmExport" = "Exportálás megerősítése";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "Az exportált széfadatok titkosítatlan formátumban kerülnek elmentésre. Ne tároljuk sehol, illetve ne küldjük el senkinek a fájlt nem biztonságos felületeken (például email). Használat után azonnal töröljük.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Bejelentkezés létrehozása";

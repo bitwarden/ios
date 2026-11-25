@@ -767,6 +767,266 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         }
     }
 
+    /// `existingLogin(matchingUri:username:password:)` returns the login with the same URI,
+    /// username and password.
+    func test_existingLogin() async {
+        let differentPassword = Cipher.fixture(
+            id: "1",
+            login: .fixture(password: "other", uris: [.fixture(uri: "https://example.com")], username: "user"),
+        )
+        let match = Cipher.fixture(
+            id: "2",
+            login: .fixture(password: "pass", uris: [.fixture(uri: "https://example.com")], username: "user"),
+        )
+        prepareExistingLoginCiphers([differentPassword, match])
+
+        let result = await subject.existingLogin(
+            matchingUri: "https://example.com",
+            username: "user",
+            password: "pass",
+        )
+
+        XCTAssertEqual(result, CipherView(cipher: match))
+    }
+
+    /// `existingLogin(matchingUri:username:password:)` matches a login without a username when the
+    /// username is empty.
+    func test_existingLogin_emptyUsername() async {
+        let match = Cipher.fixture(
+            id: "1",
+            login: .fixture(password: "pass", uris: [.fixture(uri: "https://example.com")], username: nil),
+        )
+        prepareExistingLoginCiphers([match])
+
+        let result = await subject.existingLogin(
+            matchingUri: "https://example.com",
+            username: "",
+            password: "pass",
+        )
+
+        XCTAssertEqual(result, CipherView(cipher: match))
+    }
+
+    /// `existingLogin(matchingUri:username:password:)` ignores archived and deleted logins and
+    /// non-login ciphers.
+    func test_existingLogin_ignoresHiddenAndNonLogins() async {
+        let archived = Cipher.fixture(
+            archivedDate: Date(),
+            id: "3",
+            login: .fixture(password: "pass", uris: [.fixture(uri: "https://example.com")], username: "user"),
+        )
+        let deleted = Cipher.fixture(
+            deletedDate: Date(),
+            id: "1",
+            login: .fixture(password: "pass", uris: [.fixture(uri: "https://example.com")], username: "user"),
+        )
+        let secureNote = Cipher.fixture(
+            id: "2",
+            login: .fixture(password: "pass", uris: [.fixture(uri: "https://example.com")], username: "user"),
+            type: .secureNote,
+        )
+        prepareExistingLoginCiphers([archived, deleted, secureNote])
+
+        let result = await subject.existingLogin(
+            matchingUri: "https://example.com",
+            username: "user",
+            password: "pass",
+        )
+
+        XCTAssertNil(result)
+        XCTAssertNil(cipherService.fetchCipherId)
+    }
+
+    /// `existingLogin(matchingUri:username:password:)` skips URIs that are never used for AutoFill
+    /// when finding a login's first AutoFill URI.
+    func test_existingLogin_matchesFirstAutofillUri() async {
+        let match = Cipher.fixture(
+            id: "1",
+            login: .fixture(
+                password: "pass",
+                uris: [
+                    .fixture(uri: "https://never.com", match: .never),
+                    .fixture(uri: ""),
+                    .fixture(uri: "https://example.com"),
+                ],
+                username: "user",
+            ),
+        )
+        prepareExistingLoginCiphers([match])
+
+        let result = await subject.existingLogin(
+            matchingUri: "https://example.com",
+            username: "user",
+            password: "pass",
+        )
+
+        XCTAssertEqual(result, CipherView(cipher: match))
+    }
+
+    /// `existingLogin(matchingUri:username:password:)` doesn't match a login where the URI isn't the
+    /// first AutoFill URI, since its credential identity is only registered for the first one.
+    func test_existingLogin_notFirstAutofillUri() async {
+        prepareExistingLoginCiphers([
+            .fixture(
+                id: "1",
+                login: .fixture(
+                    password: "pass",
+                    uris: [.fixture(uri: "https://other.com"), .fixture(uri: "https://example.com")],
+                    username: "user",
+                ),
+            ),
+        ])
+
+        let result = await subject.existingLogin(
+            matchingUri: "https://example.com",
+            username: "user",
+            password: "pass",
+        )
+
+        XCTAssertNil(result)
+        XCTAssertNil(cipherService.fetchCipherId)
+    }
+
+    /// `existingLogin(matchingUri:username:password:)` matches a login whose URI was saved without a
+    /// scheme or with a trailing slash, since it refers to the same site.
+    func test_existingLogin_uriWithoutSchemeOrWithTrailingSlash() async {
+        let withoutScheme = Cipher.fixture(
+            id: "1",
+            login: .fixture(password: "pass", uris: [.fixture(uri: "www.example.com")], username: "user"),
+        )
+        prepareExistingLoginCiphers([withoutScheme])
+
+        var result = await subject.existingLogin(
+            matchingUri: "https://www.example.com",
+            username: "user",
+            password: "pass",
+        )
+        XCTAssertEqual(result, CipherView(cipher: withoutScheme))
+
+        let withTrailingSlash = Cipher.fixture(
+            id: "2",
+            login: .fixture(password: "pass", uris: [.fixture(uri: "https://www.example.com/")], username: "user"),
+        )
+        prepareExistingLoginCiphers([withTrailingSlash])
+
+        result = await subject.existingLogin(
+            matchingUri: "https://www.example.com",
+            username: "user",
+            password: "pass",
+        )
+        XCTAssertEqual(result, CipherView(cipher: withTrailingSlash))
+    }
+
+    /// `existingLogin(matchingUri:username:password:)` doesn't match a login saved with an explicit
+    /// `http://` scheme for an `https://` request, since the scheme is part of the site.
+    func test_existingLogin_differentScheme() async {
+        prepareExistingLoginCiphers([
+            .fixture(
+                id: "1",
+                login: .fixture(password: "pass", uris: [.fixture(uri: "http://www.example.com")], username: "user"),
+            ),
+        ])
+
+        let result = await subject.existingLogin(
+            matchingUri: "https://www.example.com",
+            username: "user",
+            password: "pass",
+        )
+
+        XCTAssertNil(result)
+    }
+
+    /// `existingLogin(matchingUri:username:password:)` returns `nil` without fully decrypting any
+    /// cipher when no login has the same URI and username.
+    func test_existingLogin_noCandidates() async {
+        prepareExistingLoginCiphers([
+            .fixture(
+                id: "1",
+                login: .fixture(password: "pass", uris: [.fixture(uri: "https://example.com")], username: "other"),
+            ),
+            .fixture(
+                id: "2",
+                login: .fixture(password: "pass", uris: [.fixture(uri: "https://other.com")], username: "user"),
+            ),
+        ])
+
+        let result = await subject.existingLogin(
+            matchingUri: "https://example.com",
+            username: "user",
+            password: "pass",
+        )
+
+        XCTAssertNil(result)
+        XCTAssertNil(cipherService.fetchCipherId)
+    }
+
+    /// `existingLogin(matchingUri:username:password:)` returns `nil` when the vault has no ciphers.
+    func test_existingLogin_noCiphers() async {
+        cipherService.fetchAllCiphersResult = .success([])
+
+        let result = await subject.existingLogin(
+            matchingUri: "https://example.com",
+            username: "user",
+            password: "pass",
+        )
+
+        XCTAssertNil(result)
+    }
+
+    /// `existingLogin(matchingUri:username:password:)` doesn't match a login whose password is
+    /// canonically equivalent but byte-distinct, since a site may treat them as different passwords.
+    func test_existingLogin_canonicallyEquivalentPassword() async {
+        prepareExistingLoginCiphers([
+            .fixture(
+                id: "1",
+                login: .fixture(password: "\u{00E9}", uris: [.fixture(uri: "https://example.com")], username: "user"),
+            ),
+        ])
+
+        let result = await subject.existingLogin(
+            matchingUri: "https://example.com",
+            username: "user",
+            password: "e\u{0301}",
+        )
+
+        XCTAssertNil(result)
+    }
+
+    /// `existingLogin(matchingUri:username:password:)` doesn't match a login whose username is
+    /// canonically equivalent but byte-distinct.
+    func test_existingLogin_canonicallyEquivalentUsername() async {
+        prepareExistingLoginCiphers([
+            .fixture(
+                id: "1",
+                login: .fixture(password: "pass", uris: [.fixture(uri: "https://example.com")], username: "\u{00E9}"),
+            ),
+        ])
+
+        let result = await subject.existingLogin(
+            matchingUri: "https://example.com",
+            username: "e\u{0301}",
+            password: "pass",
+        )
+
+        XCTAssertNil(result)
+        XCTAssertNil(cipherService.fetchCipherId)
+    }
+
+    /// `existingLogin(matchingUri:username:password:)` logs the error and returns `nil` when fetching
+    /// the ciphers fails.
+    func test_existingLogin_fetchError() async {
+        cipherService.fetchAllCiphersResult = .failure(BitwardenTestError.example)
+
+        let result = await subject.existingLogin(
+            matchingUri: "https://example.com",
+            username: "user",
+            password: "pass",
+        )
+
+        XCTAssertNil(result)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
     /// `fetchCipher(withId:)` returns the cipher if it exists and `nil` otherwise.
     func test_fetchCipher() async throws {
         var cipher = try await subject.fetchCipher(withId: "1")
@@ -800,7 +1060,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(
             ownershipOptions,
             [
-                .personal(displayName: "user@bitwarden.com"),
+                .personal(displayName: Localizations.myVault),
                 .organization(id: "1", name: "Org1"),
                 .organization(id: "2", name: "Org2"),
             ],
@@ -834,28 +1094,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `fetchCipherOwnershipOptions()` returns the ownership options containing the user's personal account.
     func test_fetchCipherOwnershipOptions_personal() async throws {
         stateService.activeAccount = .fixture()
-
-        let ownershipOptions = try await subject.fetchCipherOwnershipOptions(includePersonal: true)
-
-        XCTAssertEqual(ownershipOptions, [.personal(displayName: "user@bitwarden.com")])
-    }
-
-    /// `fetchCipherOwnershipOptions()` shows the account email for the personal option when the
-    /// `.vfo1Foundation` feature flag is disabled.
-    func test_fetchCipherOwnershipOptions_personal_vfo1FoundationDisabled() async throws {
-        stateService.activeAccount = .fixture()
-        configService.featureFlagsBool[.vfo1Foundation] = false
-
-        let ownershipOptions = try await subject.fetchCipherOwnershipOptions(includePersonal: true)
-
-        XCTAssertEqual(ownershipOptions, [.personal(displayName: "user@bitwarden.com")])
-    }
-
-    /// `fetchCipherOwnershipOptions()` shows "My vault" for the personal option when the
-    /// `.vfo1Foundation` feature flag is enabled.
-    func test_fetchCipherOwnershipOptions_personal_vfo1FoundationEnabled() async throws {
-        stateService.activeAccount = .fixture()
-        configService.featureFlagsBool[.vfo1Foundation] = true
 
         let ownershipOptions = try await subject.fetchCipherOwnershipOptions(includePersonal: true)
 
@@ -1973,6 +2211,28 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     // MARK: Private
+
+    /// Sets up the cipher service and SDK mocks so that `ciphers` are the active account's ciphers.
+    private func prepareExistingLoginCiphers(_ ciphers: [Cipher]) {
+        cipherService.fetchAllCiphersResult = .success(ciphers)
+        cipherService.fetchCipherByIdResult = { id in .success(ciphers.first { $0.id == id }) }
+        // `CipherListView(cipher:)` doesn't carry the login's username, so build the list views explicitly.
+        clientCiphers.decryptListWithFailuresClosure = { ciphers in
+            let successes = ciphers.map { cipher in
+                CipherListView.fixture(
+                    id: cipher.id,
+                    type: cipher.type == .login
+                        ? .login(.fixture(
+                            username: cipher.login?.username,
+                            uris: cipher.login?.uris?.map { LoginUriView(loginUri: $0) },
+                        ))
+                        : CipherListViewType(cipher: cipher),
+                    deletedDate: cipher.deletedDate,
+                )
+            }
+            return DecryptCipherListResult(successes: successes, failures: [])
+        }
+    }
 
     private func setupDefaultDecryptFido2AutofillCredentialsMocker(
         expectedCredentialId: Data,

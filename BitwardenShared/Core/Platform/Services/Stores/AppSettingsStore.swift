@@ -208,6 +208,16 @@ protocol AppSettingsStore: AnyObject {
     ///
     func hasPerformedSyncAfterLogin(userId: String) -> Bool
 
+    /// Gets whether the given user has a Stripe subscription for personal Premium, as last reported
+    /// by the server.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID.
+    /// - Returns: Whether the user has a Stripe subscription, or `nil` if the server hasn't yet
+    ///   answered.
+    ///
+    func hasPersonalSubscription(userId: String) -> Bool?
+
     /// Get the user's Biometric Authentication Preference.
     ///
     /// - Parameter userId: The user ID associated with the biometric authentication preference.
@@ -287,6 +297,15 @@ protocol AppSettingsStore: AnyObject {
     ///
     func pinProtectedUserKeyEnvelope(userId: String) -> String?
 
+    /// Whether the Plan badge has been dismissed for the user.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID associated with the Plan badge dismissed value.
+    /// - Returns: Whether the Plan badge has been dismissed. Defaults to `false` if no value has
+    ///   been stored.
+    ///
+    func planBadgeDismissed(userId: String) -> Bool
+
     /// Whether the Premium upgrade banner has been dismissed for the user.
     ///
     /// - Parameter userId: The user ID associated with the Premium upgrade banner dismissed value.
@@ -301,6 +320,15 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: Whether a Premium upgrade is pending.
     ///
     func premiumUpgradePending(userId: String) -> Bool
+
+    /// Gets the personal Premium value last recorded for the given user.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID.
+    /// - Returns: The personal Premium value last recorded, or `nil` if no value has been recorded
+    ///   for the user.
+    ///
+    func previousPersonalPremium(userId: String) -> Bool?
 
     /// Gets whether the "subscription needs attention" action card should be shown for the given user.
     ///
@@ -492,6 +520,15 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the sync after login.
     func setHasPerformedSyncAfterLogin(_ hasBeenPerformed: Bool?, userId: String)
 
+    /// Sets whether the given user has a Stripe subscription for personal Premium.
+    ///
+    /// - Parameters:
+    ///   - hasPersonalSubscription: Whether the user has a Stripe subscription, or `nil` to clear
+    ///     the stored value.
+    ///   - userId: The user ID.
+    ///
+    func setHasPersonalSubscription(_ hasPersonalSubscription: Bool?, userId: String)
+
     /// Sets the time of the last request to turn on credential provider for the user ID.
     ///
     /// - Parameter date: The time of the last request to turn on credential provider.
@@ -573,6 +610,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setPinProtectedUserKeyEnvelope(key: String?, userId: String)
 
+    /// Sets whether the Plan badge has been dismissed for the user.
+    ///
+    /// - Parameters:
+    ///   - dismissed: Whether the Plan badge has been dismissed.
+    ///   - userId: The user ID associated with the Plan badge dismissed value.
+    ///
+    func setPlanBadgeDismissed(_ dismissed: Bool, userId: String)
+
     /// Sets whether the Premium upgrade banner has been dismissed for the user.
     ///
     /// - Parameters:
@@ -588,6 +633,15 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID.
     ///
     func setPremiumUpgradePending(_ pending: Bool, userId: String)
+
+    /// Sets the personal Premium value last recorded for the given user.
+    ///
+    /// - Parameters:
+    ///   - previousPersonalPremium: The personal Premium value to record, or `nil` to clear the
+    ///     recorded value.
+    ///   - userId: The user ID.
+    ///
+    func setPreviousPersonalPremium(_ previousPersonalPremium: Bool?, userId: String)
 
     /// Sets whether the "subscription needs attention" action card should be shown for the given user.
     ///
@@ -923,6 +977,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case fillAssistLastFetchTimestamp(userId: String)
         case flightRecorderData
         case hasPerformedSyncAfterLogin(userId: String)
+        case hasPersonalSubscription(userId: String)
         case introCarouselShown
         case learnNewLoginActionCardStatus
         case lastRequestToTurnOnCredentialProvider
@@ -941,11 +996,13 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case pendingAppIntentActions
         case pinProtectedUserKey(userId: String) // Replaced by `pinProtectedUserKeyEnvelope`.
         case pinProtectedUserKeyEnvelope(userId: String)
+        case planBadgeDismissed(userId: String)
         case preAuthEnvironmentURLs
         case accountCreationEnvironmentURLs(email: String)
         case preAuthServerConfig
         case premiumUpgradeBannerDismissed(userId: String)
         case premiumUpgradePending(userId: String)
+        case previousPersonalPremium(userId: String)
         case rememberedEmail
         case rememberedOrgIdentifier
         case reviewPromptData
@@ -1023,6 +1080,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "flightRecorderData"
             case let .hasPerformedSyncAfterLogin(userId):
                 "hasPerformedSyncAfterLogin_\(userId)"
+            case let .hasPersonalSubscription(userId):
+                "hasPersonalSubscription_\(userId)"
             case .introCarouselShown:
                 "introCarouselShown"
             case .learnNewLoginActionCardStatus:
@@ -1057,6 +1116,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "pinKeyEncryptedUserKey_\(userId)"
             case let .pinProtectedUserKeyEnvelope(userId):
                 "pinProtectedUserKeyEnvelope_\(userId)"
+            case let .planBadgeDismissed(userId):
+                "planBadgeDismissed_\(userId)"
             case .preAuthEnvironmentURLs:
                 "preAuthEnvironmentUrls"
             case let .accountCreationEnvironmentURLs(email):
@@ -1067,6 +1128,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "premiumUpgradeBannerDismissed_\(userId)"
             case let .premiumUpgradePending(userId):
                 "premiumUpgradePending_\(userId)"
+            case let .previousPersonalPremium(userId):
+                "previousPersonalPremium_\(userId)"
             case .rememberedEmail:
                 "rememberedEmail"
             case .rememberedOrgIdentifier:
@@ -1292,6 +1355,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .hasPerformedSyncAfterLogin(userId: userId))
     }
 
+    func hasPersonalSubscription(userId: String) -> Bool? {
+        fetch(for: .hasPersonalSubscription(userId: userId))
+    }
+
     func isBiometricAuthenticationEnabled(userId: String) -> Bool {
         fetch(for: .biometricAuthEnabled(userId: userId))
     }
@@ -1342,12 +1409,20 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .pinProtectedUserKeyEnvelope(userId: userId))
     }
 
+    func planBadgeDismissed(userId: String) -> Bool {
+        fetch(for: .planBadgeDismissed(userId: userId))
+    }
+
     func premiumUpgradeBannerDismissed(userId: String) -> Bool {
         fetch(for: .premiumUpgradeBannerDismissed(userId: userId))
     }
 
     func premiumUpgradePending(userId: String) -> Bool {
         fetch(for: .premiumUpgradePending(userId: userId))
+    }
+
+    func previousPersonalPremium(userId: String) -> Bool? {
+        fetch(for: .previousPersonalPremium(userId: userId))
     }
 
     func subscriptionAttentionCardVisible(userId: String) -> Bool {
@@ -1448,6 +1523,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         store(hasBeenPerformed, for: .hasPerformedSyncAfterLogin(userId: userId))
     }
 
+    func setHasPersonalSubscription(_ hasPersonalSubscription: Bool?, userId: String) {
+        store(hasPersonalSubscription, for: .hasPersonalSubscription(userId: userId))
+    }
+
     func setLastRequestToTurnOnCredentialProvider(_ date: Date?) {
         store(date?.timeIntervalSince1970, for: .lastRequestToTurnOnCredentialProvider)
     }
@@ -1491,12 +1570,20 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         store(key, for: .pinProtectedUserKeyEnvelope(userId: userId))
     }
 
+    func setPlanBadgeDismissed(_ dismissed: Bool, userId: String) {
+        store(dismissed, for: .planBadgeDismissed(userId: userId))
+    }
+
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String) {
         store(dismissed, for: .premiumUpgradeBannerDismissed(userId: userId))
     }
 
     func setPremiumUpgradePending(_ pending: Bool, userId: String) {
         store(pending, for: .premiumUpgradePending(userId: userId))
+    }
+
+    func setPreviousPersonalPremium(_ previousPersonalPremium: Bool?, userId: String) {
+        store(previousPersonalPremium, for: .previousPersonalPremium(userId: userId))
     }
 
     func setSubscriptionAttentionCardVisible(_ visible: Bool, userId: String) {

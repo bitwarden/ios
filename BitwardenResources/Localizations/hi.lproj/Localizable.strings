@@ -28,7 +28,6 @@
 "FolderCreated" = "नया फोल्डर बनाया गया।";
 "FolderDeleted" = "फोल्डर हटाया गया।";
 "FolderNone" = "कोई फोल्डर नहीं है";
-"Folders" = "फोल्डर";
 "FolderUpdated" = "फोल्डर सेव हुआ";
 "MyFolder" = "My folder";
 "MyFolders" = "My folders";
@@ -262,12 +261,8 @@
 "ShowWebsiteIconsDescription" = "हर लॉगइन के बगल में आइकन की फोटो दिखाएं।";
 "IconsUrl" = "आइकन सर्वर यूआरएल";
 "AutofillWithBitwarden" = "Bitwarden के साथ ऑटोफिल करें";
-/* Section header and screen title for viewing/managing a cipher's collections. */
-"Collections" = "कलेक्शन";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "Shared folders";
-/* Empty state message shown when a collection has no items. */
-"NoItemsCollection" = "इस संग्रह में कोई आइटम नहीं हैं";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
 "NoItemsFolder" = "इस फ़ोल्डर में कोई आइटम नहीं हैं";
@@ -289,8 +284,6 @@
 "RegEx" = "रेगुलर एक्सप्रेशन";
 "StartsWith" = "इससे शुरुआत";
 "MatchDetection" = "मैच डिटेक्शन";
-/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
-"Organization" = "ग्रुप";
 "HoldYubikeyNearTop" = "अपनी Yubikey को डिवाइस के ऊपरी हिस्से के पास रखें।";
 "TryAgain" = "वापस कोशिश करें";
 "YubiKeyInstructionIos" = "जारी रखने के लिए, अपनी YubiKey NEO को डिवाइस के पीछे की तरफ रखें।";
@@ -326,27 +319,17 @@
 "NoItemsToList" = "सूचीबद्ध करने के लिए कोई आइटम नहीं हैं।";
 "MoveDown" = "नीचे ले जाएं";
 "MoveUp" = "ऊपर ले जाएं";
-/* Empty state message on the Collections screen shown when a user has no collections. */
-"NoCollectionsToList" = "सूचीबद्ध करने के लिए कोई संग्रह नहीं हैं।";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
 "MovedItemToOrg" = "%1$@ %2$@ पर ट्रांस्फर किया गया।";
-/* Alert message shown when saving an item with no collection selected. */
-"SelectOneCollection" = "आपको कम से कम एक संग्रह का चयन करना होगा।";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
 "Share" = "शेयर करें";
 "ShareAll" = "सभी साझा करें";
-/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
-"MoveToOrganization" = "संगठन में ले जाएँ";
-/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+/* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "No vaults to list.";
-/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
-"NoOrgsToList" = "सूचीबद्ध करने के लिए कोई संगठन नहीं।";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
-"MoveToOrgDesc" = "उस संगठन का चयन करें जिसमें आप इस आइटम को ले जाना चाहते हैं। किसी संगठन में ले जाने पर आइटम का स्वामित्व उस संगठन को स्थानांतरित हो जाता है। एक बार स्थानांतरित होने के बाद आप इस आइटम के प्रत्यक्ष स्वामी नहीं रहेंगे।";
 "NumberOfWords" = "टोटल शब्द";
 "Passphrase" = "पासफ्रेज़";
 "WordSeparator" = "वर्ड सेपरेटर";
@@ -451,9 +434,10 @@
 "HideEmail" = "प्राप्तकर्ताओं से अपना ईमेल पता छुपाएं";
 "SendOptionsPolicyInEffect" = "एक या अधिक संगठन नीतियां आपके Send विकल्पों को प्रभावित कर रही हैं।";
 "SendFilePremiumRequired" = "मुफ्त खाते केवल टेक्स्ट साझा करने तक सीमित हैं। Send के साथ फ़ाइलों का उपयोग करने के लिए प्रीमियम सदस्यता आवश्यक है।";
-"SendFileEmailVerificationRequired" = "Send के साथ फ़ाइलों का उपयोग करने के लिए आपको अपना ईमेल सत्यापित करना होगा। आप वेब वॉल्ट में अपना ईमेल सत्यापित कर सकते हैं।";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -889,7 +873,6 @@
 "PersonalDetails" = "व्यक्तिगत विवरण";
 "ContactInfo" = "संपर्क जानकारी";
 "Identification" = "पहचान";
-"Owner" = "स्वामी";
 "VerifyYourIdentity" = "अपनी पहचान सत्यापित करें";
 "ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
@@ -907,13 +890,9 @@
 "ShowMore" = "अधिक दिखाएँ";
 "ShowLess" = "कम दिखाएँ";
 "ItemNameX" = "आइटम नाम, %1$@";
-"OwnerX" = "स्वामी, %1$@";
 "VaultX" = "Vault, %1$@";
-/* VoiceOver accessibility label for a collection the item belongs to. */
-"CollectionX" = "संग्रह, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Shared folder, %1$@";
-"FolderX" = "फ़ोल्डर, %1$@";
 "MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "%2$@ में से आइटम %1$@";
 "ViewRecordedLogs" = "रिकॉर्ड किए गए लॉग देखें";
@@ -981,8 +960,6 @@
 "DefaultSaveOption" = "डिफ़ॉल्ट सहेजें विकल्प";
 "DownloadTheBitwardenApp" = "Bitwarden ऐप डाउनलोड करें";
 "EnsureItsValidJsonAndTryAgain" = "सुनिश्चित करें कि यह मान्य JSON है और पुनः प्रयास करें।";
-"ExportItemsConfirmationTitle" = "आइटम निर्यात की पुष्टि करें";
-"ExportItemsWarning" = "इस निर्यात में आपका आइटम डेटा एक असुरक्षित प्रारूप में है। आपको निर्यात की गई फ़ाइल को असुरक्षित चैनलों (जैसे ईमेल) पर संग्रहीत या भेजना नहीं चाहिए। इसका उपयोग समाप्त करने के बाद इसे तुरंत हटा दें।";
 "FileCouldNotBeProcessed" = "फ़ाइल संसाधित नहीं की जा सकी";
 "GetVerificationCodesForAllYourAccounts" = "2-चरणीय सत्यापन का उपयोग करके अपने सभी खातों के लिए सत्यापन कोड प्राप्त करें।";
 "Help" = "सहायता";
@@ -1302,3 +1279,10 @@
 "SyncUnsuccessful" = "सिंक असफल";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "हम आपके वॉल्ट को सर्वर के साथ सिंक नहीं कर सके। आपका वॉल्ट आपके नवीनतम परिवर्तनों को प्रतिबिंबित नहीं कर सकता है। आप अभी पुनः प्रयास कर सकते हैं या यह बाद में स्वचालित रूप से सिंक हो जाएगा।";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "निर्यात की पुष्टि करें";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "अपनी सुरक्षा के लिए, इस फ़ाइल को असुरक्षित चैनलों (जैसे ईमेल) पर साझा या भेजें नहीं, और समाप्त करने पर इसे हटा दें।";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Create login";

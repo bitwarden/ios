@@ -23,7 +23,6 @@ final class VaultListProcessor: StateProcessor<
         & HasBillingRepository
         & HasBillingService
         & HasChangeKdfService
-        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasEventService
@@ -139,7 +138,7 @@ final class VaultListProcessor: StateProcessor<
             state.shouldShowUpgradedToPremiumActionCard = false
             await services.billingService.setUpgradedToPremiumActionCardDismissed()
         case let .itemPressed(item):
-            handleItemTapped(item)
+            await handleItemTapped(item)
         case let .morePressed(item):
             await morePressed(item: item)
         case let .profileSwitcher(profileEffect):
@@ -251,8 +250,6 @@ extension VaultListProcessor {
 
     /// Called when the vault list appears on screen.
     private func appeared() async {
-        state.isVfo1FoundationFeatureFlagEnabled = await services.configService.getFeatureFlag(.vfo1Foundation)
-
         // This is being loaded before and after syncing to avoid glitches on which cipher types
         // are allowed while the vault is being refreshed/synced, as feature flags or policies may change that.
         await loadItemTypesUserCanCreate()
@@ -420,7 +417,7 @@ extension VaultListProcessor {
     ///
     /// - Parameter item: The `VaultListItem` that was tapped.
     ///
-    private func handleItemTapped(_ item: VaultListItem) {
+    private func handleItemTapped(_ item: VaultListItem) async {
         switch item.itemType {
         case let .cipher(cipherListView, _):
             if cipherListView.isDecryptionFailure, let cipherId = cipherListView.id {
@@ -432,12 +429,16 @@ extension VaultListProcessor {
             }
         case let .group(group, count):
             if !state.hasPremium, group == .archive, count == 0 {
+                let isInAppUpgradeAvailable = await services.billingRepository.isInAppUpgradeAvailable()
                 coordinator.showAlert(
-                    Alert.archiveUnavailable(action: { [weak self] in
-                        Task { [weak self] in
-                            await self?.navigateToPremiumUpgrade()
-                        }
-                    }),
+                    Alert.archiveUnavailable(
+                        isInAppUpgradeAvailable: isInAppUpgradeAvailable,
+                        action: { [weak self] in
+                            Task { [weak self] in
+                                await self?.navigateToPremiumUpgrade()
+                            }
+                        },
+                    ),
                 )
                 return
             }
@@ -556,7 +557,7 @@ extension VaultListProcessor {
             return
         }
         state.shouldShowPremiumUpgradeActionCard =
-            await services.billingRepository.isInAppUpgradeAvailable()
+            await services.billingRepository.isPremiumUpgradeBannerAvailable()
     }
 
     /// Refreshes the vault's contents.
@@ -859,6 +860,7 @@ extension VaultListProcessor {
         for await _ in services.syncService.syncCompletePublisher() {
             await loadItemTypesUserCanCreate()
             await refreshPremiumActionCards()
+            state.hasPremium = await services.stateService.doesActiveAccountHavePremium()
         }
     }
 

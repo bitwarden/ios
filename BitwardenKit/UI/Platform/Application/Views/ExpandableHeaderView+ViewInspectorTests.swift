@@ -1,4 +1,5 @@
 // swiftlint:disable:this file_name
+import BitwardenResources
 import SwiftUI
 import ViewInspector
 import ViewInspectorTestHelpers
@@ -8,6 +9,28 @@ import XCTest
 
 final class ExpandableHeaderViewTests: BitwardenTestCase {
     // MARK: Tests
+
+    /// The header combines the title and the item count into a single accessibility label.
+    @MainActor
+    func test_header_accessibilityLabel() throws {
+        let subject = ExpandableHeaderView(title: "Title", count: 3) {
+            Text("Child")
+        }
+
+        let label = try subject.inspect().find(ViewType.Button.self).labelView().hStack()
+        XCTAssertEqual(try label.accessibilityLabel().string(), "Title, \(Localizations.xItems(3))")
+    }
+
+    /// The header displays the title and the item count as separate texts.
+    @MainActor
+    func test_header_displaysTitleAndCount() throws {
+        let subject = ExpandableHeaderView(title: "Title", count: 3) {
+            Text("Child")
+        }
+
+        XCTAssertNoThrow(try subject.inspect().find(text: "Title"))
+        XCTAssertNoThrow(try subject.inspect().find(text: "3"))
+    }
 
     /// `init(title:count:buttonAccessibilityIdentifier:content:)` starts in the expanded state.
     @MainActor

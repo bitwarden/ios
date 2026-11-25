@@ -24,7 +24,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     var billingRepository: MockBillingRepository!
     var billingService: MockBillingService!
     var changeKdfService: MockChangeKdfService!
-    var configService: MockConfigService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
@@ -59,6 +58,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         authService = MockAuthService()
         billingRepository = MockBillingRepository()
         billingRepository.isInAppUpgradeAvailableReturnValue = false
+        billingRepository.isPremiumUpgradeBannerAvailableReturnValue = false
         billingService = MockBillingService()
         billingService.isSelfHostedReturnValue = false
         billingService.shouldShowSubscriptionAttentionCardReturnValue = false
@@ -67,7 +67,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         billingService.shouldShowUpgradedToPremiumActionCardReturnValue = false
         errorReporter = MockErrorReporter()
         changeKdfService = MockChangeKdfService()
-        configService = MockConfigService()
         coordinator = MockCoordinator()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
@@ -97,7 +96,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             billingRepository: billingRepository,
             billingService: billingService,
             changeKdfService: changeKdfService,
-            configService: configService,
             errorReporter: errorReporter,
             eventService: eventService,
             flightRecorder: flightRecorder,
@@ -131,7 +129,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         billingRepository = nil
         billingService = nil
         changeKdfService = nil
-        configService = nil
         coordinator = nil
         environmentService = nil
         errorReporter = nil
@@ -325,14 +322,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         )
         XCTAssertEqual(subject.state.vaultFilterType, .allVaults)
         XCTAssertTrue(searchProcessorMediatorFactory.makeCalled)
-    }
-
-    /// `perform(_:)` with `.appeared` loads the vfo1-foundation feature flag.
-    @MainActor
-    func test_perform_appeared_featureFlags_vfo1Foundation() async {
-        configService.featureFlagsBool[.vfo1Foundation] = true
-        await subject.perform(.appeared)
-        XCTAssertTrue(subject.state.isVfo1FoundationFeatureFlagEnabled)
     }
 
     /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.
@@ -563,6 +552,26 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         waitFor(vaultRepository.fetchSyncCalled)
     }
 
+    /// `perform(_:)` with `.streamSyncComplete` lets a tap on an empty Archive group navigate to it
+    /// once a sync reveals that the user has Premium.
+    @MainActor
+    func test_perform_streamSyncComplete_archiveGroupNavigatesAfterPremiumGranted() async throws {
+        stateService.doesActiveAccountHavePremiumResult = true
+        let archiveItem = VaultListItem(id: "Archive", hasPremium: true, itemType: .group(.archive, 0))
+
+        let task = Task { [subject = self.subject] in
+            await subject?.perform(.streamSyncComplete)
+        }
+        defer { task.cancel() }
+        syncService.syncCompleteSubject.send(())
+        try await waitForAsync { self.subject.state.hasPremium }
+
+        await subject.perform(.itemPressed(archiveItem))
+
+        XCTAssertEqual(coordinator.routes.last, .group(.archive, filter: .allVaults))
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
     /// `perform(_:)` with `.streamSyncComplete` reloads the item types the user can create
     /// whenever a sync completes, so feature-flag or policy changes picked up by the sync are
     /// reflected without needing the screen to reappear.
@@ -584,7 +593,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// upgrade is no longer pending.
     @MainActor
     func test_perform_streamSyncComplete_showsPremiumUpgradeActionCardWhenNoLongerPending() {
-        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        billingRepository.isPremiumUpgradeBannerAvailableReturnValue = true
         billingService.premiumUpgradeLifecycleStateReturnValue = .pending
         subject.state.shouldShowPremiumUpgradeActionCard = true
 
@@ -602,6 +611,29 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         waitFor(subject.state.shouldShowPremiumUpgradeActionCard == true)
         XCTAssertTrue(subject.state.shouldShowPremiumUpgradeActionCard)
+    }
+
+    /// `perform(_:)` with `.streamSyncComplete` updates whether the user has Premium each time a
+    /// sync completes, not only when the stream starts.
+    @MainActor
+    func test_perform_streamSyncComplete_updatesHasPremium() {
+        subject.state.hasPremium = false
+        stateService.doesActiveAccountHavePremiumResult = false
+
+        let task = Task { [subject = self.subject] in
+            await subject?.perform(.streamSyncComplete)
+        }
+        defer { task.cancel() }
+        // The sync-complete subject replays on subscribe, so wait for that emission to be handled
+        // before sending a real one.
+        waitFor(stateService.doesActiveAccountHavePremiumCalled)
+
+        stateService.doesActiveAccountHavePremiumCalled = false
+        stateService.doesActiveAccountHavePremiumResult = true
+        syncService.syncCompleteSubject.send(())
+
+        waitFor(subject.state.hasPremium)
+        XCTAssertTrue(subject.state.hasPremium)
     }
 
     /// Loading the item types the user can create discards a stale result from an older,
@@ -1899,7 +1931,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         await subject.perform(.itemPressed(archiveItem))
 
-        XCTAssertEqual(coordinator.alertShown.last, .archiveUnavailable(action: {}))
+        XCTAssertEqual(coordinator.alertShown.last, .archiveUnavailable(isInAppUpgradeAvailable: false, action: {}))
         XCTAssertTrue(coordinator.routes.isEmpty)
     }
 
@@ -1920,6 +1952,20 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         try await waitForAsync { self.premiumUpgradeHelper.navigateToPremiumUpgradeCalled }
 
         XCTAssertTrue(premiumUpgradeHelper.navigateToPremiumUpgradeCalled)
+    }
+
+    /// `perform(_:)` with `.itemPressed` shows the archive unavailable alert with the "Explore Premium"
+    /// action when the in-app upgrade is available.
+    @MainActor
+    func test_perform_itemPressed_archiveGroup_noPremium_noItems_inAppUpgradeAvailable() async {
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        subject.state.hasPremium = false
+        let archiveItem = VaultListItem(id: "Archive", hasPremium: false, itemType: .group(.archive, 0))
+
+        await subject.perform(.itemPressed(archiveItem))
+
+        XCTAssertEqual(coordinator.alertShown.last, .archiveUnavailable(isInAppUpgradeAvailable: true, action: {}))
+        XCTAssertTrue(coordinator.routes.isEmpty)
     }
 
     /// `perform(_:)` with `.itemPressed` navigates to archive when user has Premium.

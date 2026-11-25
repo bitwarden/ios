@@ -30,6 +30,7 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
 
     typealias Module = NavigatorBuilderModule
         & PasswordHistoryModule
+        & VaultItemModule
 
     typealias Services = HasBillingService
         & HasConfigService
@@ -83,6 +84,8 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
 
     func navigate(to route: GeneratorRoute, context _: AnyObject?) {
         switch route {
+        case let .addLogin(hasPremium, newCipherOptions):
+            showAddLogin(hasPremium: hasPremium, newCipherOptions: newCipherOptions)
         case .cancel:
             delegate?.didCancelGenerator()
         case let .complete(type, value):
@@ -106,6 +109,29 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
     }
 
     // MARK: Private Methods
+
+    /// Shows the add login screen, prefilled with a generated value. After the login is saved, the
+    /// add login screen is replaced with the new item's view screen.
+    ///
+    /// - Parameters:
+    ///   - hasPremium: Whether the user has Premium.
+    ///   - newCipherOptions: The options used to prefill the new login.
+    ///
+    private func showAddLogin(hasPremium: Bool, newCipherOptions: NewCipherOptions) {
+        let navigationController = module.makeNavigationController()
+        let coordinator = module.makeVaultItemCoordinator(stackNavigator: navigationController)
+        coordinator.start()
+        coordinator.navigate(
+            to: .addItem(
+                hasPremium: hasPremium,
+                navigatesToViewItemOnSave: true,
+                newCipherOptions: newCipherOptions,
+                type: .login,
+            ),
+        )
+
+        stackNavigator?.present(navigationController)
+    }
 
     /// Shows the generator screen.
     ///

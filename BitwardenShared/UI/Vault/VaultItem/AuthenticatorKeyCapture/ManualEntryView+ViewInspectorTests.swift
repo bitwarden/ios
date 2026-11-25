@@ -55,12 +55,7 @@ class ManualEntryViewTests: BitwardenTestCase {
     /// Tapping the save button dispatches the `.addPressed(:)` action.
     @MainActor
     func test_saveButton_tap_empty() async throws {
-        guard #unavailable(iOS 26) else {
-            // TODO: PM-26079 Remove when toolbar AsyncButton is used.
-            throw XCTSkip("Remove this when the toolbar save button gets updated to use AsyncButton.")
-        }
-
-        let button = try subject.inspect().find(asyncButton: Localizations.save)
+        let button = try subject.inspect().findSaveToolbarButton()
         try await button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .addPressed(code: ""))
     }
@@ -68,13 +63,8 @@ class ManualEntryViewTests: BitwardenTestCase {
     /// Tapping the save button dispatches the `.addPressed(:)` action.
     @MainActor
     func test_saveButton_tap_new() async throws {
-        guard #unavailable(iOS 26) else {
-            // TODO: PM-26079 Remove when toolbar AsyncButton is used.
-            throw XCTSkip("Remove this when the toolbar save button gets updated to use AsyncButton.")
-        }
-
         processor.state.authenticatorKey = "pasta-batman"
-        let button = try subject.inspect().find(asyncButton: Localizations.save)
+        let button = try subject.inspect().findSaveToolbarButton()
         try await button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .addPressed(code: "pasta-batman"))
     }

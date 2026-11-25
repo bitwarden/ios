@@ -2,7 +2,7 @@ options:
   createIntermediateGroups: true
   deploymentTarget:
     iOS: 15.0
-    watchOS: 8.0
+    watchOS: 9.0
   groupSortPosition: top
   usesTabs: false
   indentWidth: 4
@@ -14,7 +14,7 @@ include:
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: 677a979e8f137f67979cabed9a88e9805009e80e # 4.0.0-9039-365fb98
+    revision: d9afe6f534abab5f0dc7934060f89b83155d21e0 # 4.0.0-9679-8da8618
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
     exactVersion: 12.14.0
@@ -23,7 +23,7 @@ packages:
     exactVersion: 1.19.4
   ViewInspector:
     url: https://github.com/nalexn/ViewInspector
-    exactVersion: 0.10.3
+    exactVersion: 0.10.5
 targetTemplates:
   # Adds common include/excludes for app and framework targets.
   CommonTarget:

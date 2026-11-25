@@ -962,9 +962,46 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
     }
 
+    /// `registerExistingPasswordCredential(username:password:uri:)` returns `true` and adds the
+    /// existing login's identities to the identity store when an identical login exists.
+    @available(iOS 26.2, *)
+    func test_registerExistingPasswordCredential_existingLogin() async {
+        vaultRepository.existingLoginResult = .fixture(id: "existing-cipher-id")
+
+        let result = await subject.registerExistingPasswordCredential(
+            username: "user",
+            password: "pass",
+            uri: "https://example.com",
+        )
+
+        XCTAssertTrue(result)
+        XCTAssertEqual(vaultRepository.existingLoginUri, "https://example.com")
+        XCTAssertEqual(vaultRepository.existingLoginUsername, "user")
+        XCTAssertEqual(vaultRepository.existingLoginPassword, "pass")
+        XCTAssertEqual(autofillCredentialService.upsertCredentialsInStoreCipherIds, ["existing-cipher-id"])
+    }
+
+    /// `registerExistingPasswordCredential(username:password:uri:)` returns `false` without updating
+    /// the identity store when no identical login exists.
+    @available(iOS 26.2, *)
+    func test_registerExistingPasswordCredential_noExistingLogin() async {
+        vaultRepository.existingLoginResult = nil
+
+        let result = await subject.registerExistingPasswordCredential(
+            username: "user",
+            password: "pass",
+            uri: "https://example.com",
+        )
+
+        XCTAssertFalse(result)
+        XCTAssertTrue(autofillCredentialService.upsertCredentialsInStoreCipherIds.isEmpty)
+    }
+
     /// `savePasswordCredential(username:password:uri:name:)` saves a new login cipher.
     @available(iOS 26.2, *)
     func test_savePasswordCredential() async throws {
+        vaultRepository.addCipherResult = .success(.fixture(id: "new-cipher-id"))
+
         try await subject.savePasswordCredential(
             username: "user@example.com",
             password: "password1234",
@@ -979,6 +1016,76 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(cipher.login?.password, "password1234")
         XCTAssertEqual(cipher.login?.uris?.first?.uri, "https://example.com")
         XCTAssertEqual(cipher.name, "example.com")
+        XCTAssertEqual(vaultRepository.existingLoginUri, "https://example.com")
+        XCTAssertEqual(vaultRepository.existingLoginUsername, "user@example.com")
+        XCTAssertEqual(vaultRepository.existingLoginPassword, "password1234")
+        XCTAssertEqual(autofillCredentialService.upsertCredentialsInStoreCipherIds, ["new-cipher-id"])
+    }
+
+    /// `savePasswordCredential(username:password:uri:name:)` doesn't add a login or update the
+    /// identity store when adding the cipher fails.
+    @available(iOS 26.2, *)
+    func test_savePasswordCredential_addCipherError() async throws {
+        vaultRepository.addCipherResult = .failure(BitwardenTestError.example)
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.savePasswordCredential(
+                username: "user",
+                password: "pass",
+                uri: "https://example.com",
+                name: nil,
+            )
+        }
+        XCTAssertTrue(autofillCredentialService.upsertCredentialsInStoreCipherIds.isEmpty)
+    }
+
+    /// `savePasswordCredential(username:password:uri:name:)` reuses an identical existing login
+    /// instead of adding a duplicate, and adds its identities to the identity store.
+    @available(iOS 26.2, *)
+    func test_savePasswordCredential_existingLogin() async throws {
+        vaultRepository.existingLoginResult = .fixture(id: "existing-cipher-id")
+
+        try await subject.savePasswordCredential(
+            username: "user",
+            password: "pass",
+            uri: "https://example.com",
+            name: nil,
+        )
+
+        XCTAssertTrue(vaultRepository.addCipherCiphers.isEmpty)
+        XCTAssertEqual(autofillCredentialService.upsertCredentialsInStoreCipherIds, ["existing-cipher-id"])
+    }
+
+    /// `savePasswordCredential(username:password:uri:name:)` doesn't return until the added login's
+    /// identities are in the identity store, since the extension completes the save request as soon
+    /// as it returns.
+    @available(iOS 26.2, *)
+    @MainActor
+    func test_savePasswordCredential_waitsForUpsert() async throws {
+        vaultRepository.addCipherResult = .success(.fixture(id: "new-cipher-id"))
+        autofillCredentialService.upsertCredentialsInStoreSuspends = true
+
+        var didReturn = false
+        let task = Task {
+            try await subject.savePasswordCredential(
+                username: "user",
+                password: "pass",
+                uri: "https://example.com",
+                name: nil,
+            )
+            didReturn = true
+        }
+
+        try await waitForAsync { [weak self] in
+            self?.autofillCredentialService.upsertCredentialsInStoreContinuation != nil
+        }
+        XCTAssertFalse(didReturn)
+
+        autofillCredentialService.resumeUpsertCredentialsInStore()
+        try await task.value
+
+        XCTAssertTrue(didReturn)
+        XCTAssertEqual(autofillCredentialService.upsertCredentialsInStoreCipherIds, ["new-cipher-id"])
     }
 
     /// `savePasswordCredential(username:password:uri:name:)` derives the cipher name from the URI host
@@ -1426,6 +1533,13 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
+    /// `onFetchSyncSucceeded(userId:)` triggers a subscription status refresh on every sync.
+    func test_onFetchSyncSucceeded_refreshesSubscriptionStatus() async {
+        await subject.onFetchSyncSucceeded(userId: "1")
+
+        XCTAssertTrue(billingService.refreshSubscriptionStatusCalled)
+    }
+
     /// `onFetchSyncSucceeded(userId:)` doesn't do anything when
     /// `setHasPerformedSyncAfterLogin(hasBeenPerformed:, userId:)` throws.
     func test_onFetchSyncSucceeded_setHasPerformedSyncAfterLoginThrows() async throws {
@@ -1450,13 +1564,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
-    /// `onFetchSyncSucceeded(userId:)` triggers a subscription attention card refresh on every sync.
-    func test_onFetchSyncSucceeded_refreshesSubscriptionAttentionCard() async {
-        await subject.onFetchSyncSucceeded(userId: "1")
-
-        XCTAssertTrue(billingService.refreshSubscriptionAttentionCardCalled)
-    }
-
     /// `onFetchSyncSucceeded(userId:)` completes a pending Premium upgrade for the account that
     /// synced, on every sync — so an upgrade the checkout's own sync didn't confirm still clears
     /// once a later sync reports it.
@@ -1476,6 +1583,17 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         XCTAssertTrue(billingService.completeUpgradeIfPendingCalled)
         XCTAssertEqual(billingService.completeUpgradeIfPendingReceivedUserId, "1")
+    }
+
+    /// `onFetchSyncSucceeded(userId:)` runs out-of-band upgrade detection for the account that synced, even on
+    /// a repeat sync.
+    func test_onFetchSyncSucceeded_detectsOutOfBandUpgradeOnRepeatSync() async {
+        stateService.hasPerformedSyncAfterLogin["1"] = true
+
+        await subject.onFetchSyncSucceeded(userId: "1")
+
+        XCTAssertTrue(billingService.detectOutOfBandUpgradeCalled)
+        XCTAssertEqual(billingService.detectOutOfBandUpgradeReceivedUserId, "1")
     }
 
     /// `removeMasterPassword(organizationName:)` notifies the coordinator to show the remove

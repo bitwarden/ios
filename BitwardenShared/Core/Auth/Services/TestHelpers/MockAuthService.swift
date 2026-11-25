@@ -12,6 +12,12 @@ class MockAuthService: AuthService {
 
     var callbackUrlScheme: String = "callback"
 
+    // swiftlint:disable identifier_name
+    var checkMasterPasswordPolicyAfterUnlockEmail: String?
+    var checkMasterPasswordPolicyAfterUnlockMasterPassword: String?
+    var checkMasterPasswordPolicyAfterUnlockResult: Result<Void, Error> = .success(())
+    // swiftlint:enable identifier_name
+
     var checkPendingLoginRequestId: String?
     var checkPendingLoginRequestResult: Result<BitwardenShared.LoginRequest, Error> = .success(.fixture())
 
@@ -73,6 +79,12 @@ class MockAuthService: AuthService {
         answerLoginRequestRequest = request
         answerLoginRequestApprove = approve
         try answerLoginRequestResult.get()
+    }
+
+    func checkMasterPasswordPolicyAfterUnlock(email: String, masterPassword: String) async throws {
+        checkMasterPasswordPolicyAfterUnlockEmail = email
+        checkMasterPasswordPolicyAfterUnlockMasterPassword = masterPassword
+        try checkMasterPasswordPolicyAfterUnlockResult.get()
     }
 
     func checkPendingLoginRequest(withId id: String) async throws -> BitwardenShared.LoginRequest {

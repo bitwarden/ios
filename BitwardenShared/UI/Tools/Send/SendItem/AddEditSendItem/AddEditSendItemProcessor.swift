@@ -122,6 +122,7 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
             guard state.focusedRecipientEmailIndex != newValue else { return }
             state.focusedRecipientEmailIndex = newValue
         case .generatePasswordPressed:
+            guard !state.isPasswordFieldDisabled else { return }
             if state.password.isEmpty {
                 coordinator.navigate(to: .generator, context: self)
             } else {
@@ -134,6 +135,7 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
         case .optionsPressed:
             state.isOptionsExpanded.toggle()
         case let .passwordChanged(newValue):
+            guard !state.isPasswordFieldDisabled else { return }
             state.password = newValue
         case let .passwordVisibleChanged(newValue):
             state.isPasswordVisible = newValue
@@ -455,10 +457,16 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
 
         let hasPremium = await services.sendRepository.doesActiveAccountHavePremium()
         guard hasPremium else {
-            coordinator.showAlert(.fileSendPremiumRequired { [weak self] in
-                guard let self else { return }
-                Task { await self.premiumUpgradeHelper.navigateToPremiumUpgrade() }
-            })
+            let isInAppUpgradeAvailable = await services.billingRepository.isInAppUpgradeAvailable()
+            coordinator.showAlert(
+                .fileSendPremiumRequired(
+                    isInAppUpgradeAvailable: isInAppUpgradeAvailable,
+                    action: { [weak self] in
+                        guard let self else { return }
+                        Task { await self.premiumUpgradeHelper.navigateToPremiumUpgrade() }
+                    },
+                ),
+            )
             return false
         }
 
@@ -489,13 +497,19 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
     /// Shows an alert indicating that the "Specific People" feature requires a Premium subscription.
     ///
     private func showSpecificPeoplePremiumRequiredAlert() {
-        let alert = Alert.specificPeopleUnavailable { [weak self] in
-            guard let self else { return }
-            Task {
-                await self.premiumUpgradeHelper.navigateToPremiumUpgrade()
-            }
+        Task {
+            let isInAppUpgradeAvailable = await services.billingRepository.isInAppUpgradeAvailable()
+            let alert = Alert.specificPeopleUnavailable(
+                isInAppUpgradeAvailable: isInAppUpgradeAvailable,
+                action: { [weak self] in
+                    guard let self else { return }
+                    Task {
+                        await self.premiumUpgradeHelper.navigateToPremiumUpgrade()
+                    }
+                },
+            )
+            coordinator.showAlert(alert)
         }
-        coordinator.showAlert(alert)
     }
 }
 

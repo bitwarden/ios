@@ -50,7 +50,7 @@ struct EditAuthenticatorItemView: View {
         }
         .dismissKeyboardImmediately()
         .background(
-            Asset.Colors.backgroundSecondary.swiftUIColor
+            SharedAsset.Colors.backgroundPrimary.swiftUIColor
                 .ignoresSafeArea(),
         )
         .navigationBarTitleDisplayMode(.inline)
@@ -114,7 +114,7 @@ struct EditAuthenticatorItemView: View {
                     .rotationEffect(store.state.isAdvancedExpanded ? Angle(degrees: 180) : .zero)
             }
             .padding(.vertical, 12)
-            .foregroundStyle(Asset.Colors.primaryBitwarden.swiftUIColor)
+            .foregroundStyle(SharedAsset.Colors.textInteraction.swiftUIColor)
         }
         .accessibilityIdentifier("EditShowHideAdvancedButton")
     }
@@ -181,7 +181,7 @@ struct EditAuthenticatorItemView: View {
             await store.perform(.deletePressed)
         }
         .accessibilityIdentifier("EditItemDeleteButton")
-        .buttonStyle(.tertiary(isDestructive: true))
+        .buttonStyle(.secondary(isDestructive: true))
     }
 }
 

@@ -19,6 +19,7 @@ class MockClientService: ClientService {
     var mockPolicies: MockPoliciesClientProtocol
     var mockSends: MockSendClientProtocol
     var mockUserCryptoManagement: MockUserCryptoManagementClientService
+    var mockUserCryptoManagementUserId: String?
     var mockVault: MockVaultClientService
     var platformCallCount = 0
     var platformError: Error?
@@ -98,6 +99,7 @@ class MockClientService: ClientService {
     }
 
     func userCryptoManagement(for userId: String?) throws -> UserCryptoManagementClientService {
+        mockUserCryptoManagementUserId = userId
         if let userCryptoManagementError { throw userCryptoManagementError }
         return mockUserCryptoManagement
     }

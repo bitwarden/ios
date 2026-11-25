@@ -1,6 +1,14 @@
 /// A route to a specific screen in the generator tab.
 ///
 public enum GeneratorRoute: Equatable, Hashable {
+    /// A route to the add login screen, prefilled with a generated value.
+    ///
+    /// - Parameters:
+    ///   - hasPremium: Whether the user has Premium.
+    ///   - newCipherOptions: The options used to prefill the new login.
+    ///
+    case addLogin(hasPremium: Bool, newCipherOptions: NewCipherOptions)
+
     /// A route to cancel the generator.
     case cancel
 

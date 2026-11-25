@@ -51,7 +51,7 @@ struct ImportItemsView: View {
         Button(Localizations.importItems) {
             store.send(.importItemsTapped)
         }
-        .buttonStyle(.tertiary())
+        .buttonStyle(.primary())
         .accessibilityIdentifier("ImportItemsButton")
     }
 

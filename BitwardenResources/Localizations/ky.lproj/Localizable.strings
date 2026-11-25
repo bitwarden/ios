@@ -28,7 +28,6 @@
 "FolderCreated" = "Жаңы папка түзүлдү.";
 "FolderDeleted" = "Папка өчүрүлдү.";
 "FolderNone" = "Папка жок";
-"Folders" = "Папкалар";
 "FolderUpdated" = "Папка сакталды";
 "MyFolder" = "My folder";
 "MyFolders" = "My folders";
@@ -262,12 +261,8 @@
 "ShowWebsiteIconsDescription" = "Ар бир кирүүнүн жанында таанымал сүрөттү көрсөтүү.";
 "IconsUrl" = "Сөлөкөт серверинин URL дареги";
 "AutofillWithBitwarden" = "Bitwarden менен автолуктоо";
-/* Section header and screen title for viewing/managing a cipher's collections. */
-"Collections" = "Жыйындылар";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "Shared folders";
-/* Empty state message shown when a collection has no items. */
-"NoItemsCollection" = "Бул жыйындыда эч кандай элементтер жок";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
 "NoItemsFolder" = "Бул папкада эч кандай элементтер жок";
@@ -289,8 +284,6 @@
 "RegEx" = "Регулярдуу туюнтма";
 "StartsWith" = "Менен башталат";
 "MatchDetection" = "Дал келүүнү аныктоо";
-/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
-"Organization" = "Уюм";
 "HoldYubikeyNearTop" = "Yubikeyиңизди түзмөктүн жогорку бөлүгүнө жакын кармаңыз.";
 "TryAgain" = "Кайра аракет кылуу";
 "YubiKeyInstructionIos" = "Улантуу үчүн, YubiKey NEOну түзмөктүн арткы бетине кармаңыз.";
@@ -326,27 +319,17 @@
 "NoItemsToList" = "Тизмеге алынуучу эч кандай элементтер жок.";
 "MoveDown" = "Төмөн жылдыруу";
 "MoveUp" = "Өйдө жылдыруу";
-/* Empty state message on the Collections screen shown when a user has no collections. */
-"NoCollectionsToList" = "Тизмеге алынуучу жыйындылар жок.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
 "MovedItemToOrg" = "%1$@ %2$@ өткөрүлдү.";
-/* Alert message shown when saving an item with no collection selected. */
-"SelectOneCollection" = "Кеминде бир жыйындыны тандооңуз керек.";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
 "Share" = "Бөлүшүү";
 "ShareAll" = "Баары менен бөлүшүү";
-/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
-"MoveToOrganization" = "Уюмга өткөрүү";
-/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+/* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "No vaults to list.";
-/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
-"NoOrgsToList" = "Тизмеге алынуучу уюмдар жок.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
-"MoveToOrgDesc" = "Бул элементти өткөргүңүз келген уюмду тандаңыз. Уюмга өткөрүү элементтин ээлик укугун ошол уюмга берет. Элемент өткөрүлгөндөн кийин сиз анын түз ээси болбой каласыз.";
 "NumberOfWords" = "Сөздөрдүн саны";
 "Passphrase" = "Шифрфраза";
 "WordSeparator" = "Сөз бөлгүч";
@@ -451,9 +434,10 @@
 "HideEmail" = "Менин электрондук почта дарегимди кабыл алуучулардан жашыруу";
 "SendOptionsPolicyInEffect" = "Бир же бир нече уюм саясаты сиздин Send параметрлериңизге таасир этүүдө.";
 "SendFilePremiumRequired" = "Акысыз аккаунттар текст менен гана бөлүшүүгө чектелген. Send менен файлдарды колдонуу үчүн Premium мүчөлүгү талап кылынат.";
-"SendFileEmailVerificationRequired" = "Send менен файлдарды колдонуу үчүн электрондук почтаңызды текшерүүдөн өтүшүңүз керек. Электрондук почтаңызды веб купчулда текшере аласыз.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -889,7 +873,6 @@
 "PersonalDetails" = "Жеке маалыматтар";
 "ContactInfo" = "Байланыш маалыматы";
 "Identification" = "Иденттөө";
-"Owner" = "Ээси";
 "VerifyYourIdentity" = "Иденттүүлүгүңүздү текшериңиз";
 "ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
@@ -907,13 +890,9 @@
 "ShowMore" = "Көбүрөөк көрсөтүү";
 "ShowLess" = "Азыраак көрсөтүү";
 "ItemNameX" = "Элементтин аты, %1$@";
-"OwnerX" = "Ээси, %1$@";
 "VaultX" = "Vault, %1$@";
-/* VoiceOver accessibility label for a collection the item belongs to. */
-"CollectionX" = "Жыйынды, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Shared folder, %1$@";
-"FolderX" = "Папка, %1$@";
 "MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "%2$@ ичинен %1$@-элемент";
 "ViewRecordedLogs" = "Жазылган журналдарды көрүү";
@@ -981,8 +960,6 @@
 "DefaultSaveOption" = "Дөөлөттүү сактоо опциясы";
 "DownloadTheBitwardenApp" = "Bitwarden колдонмосун жүктөп алыңыз";
 "EnsureItsValidJsonAndTryAgain" = "Анын туура JSON экенин текшерип, кайра аракет кылыңыз.";
-"ExportItemsConfirmationTitle" = "Элементтерди экспорттоону ырастоо";
-"ExportItemsWarning" = "Бул экспорт сиздин элемент маалыматтарыңызды шифрленбеген форматта камтыйт. Экспорттолгон файлды коопсуз эмес каналдар (мисалы, электрондук почта) аркылуу сактабаңыз же жөнөтпөңүз. Аны колдонуп бүткөндөн кийин дароо өчүрүңүз.";
 "FileCouldNotBeProcessed" = "Файлды иштеп чыгуу мүмкүн болбой калды";
 "GetVerificationCodesForAllYourAccounts" = "Эки кадамдуу текшерүүнү колдонуп, бардык аккаунттарыңыз үчүн текшерүү коддорун алыңыз.";
 "Help" = "Жардам";
@@ -1302,3 +1279,10 @@
 "SyncUnsuccessful" = "Синхрондоштуруу ийгиликсиз болду";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Сейфиңизди сервер менен синхрондоштура албадык. Сейфиңиз акыркы өзгөртүүлөрдү чагылдырбашы мүмкүн. Азыр кайра аракет кылсаңыз болот же ал кийинчерээк автоматтык түрдө синхрондошот.";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "Экспортту ырастоо";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "Коопсуздугуңуз үчүн, бул файлды коопсуз эмес каналдар (мисалы, электрондук почта) аркылуу бөлүшпөңүз же жөнөтпөңүз жана колдонуп бүткөндөн кийин өчүрүңүз.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Create login";

@@ -28,7 +28,6 @@
 "FolderCreated" = "Nová složka byla vytvořena";
 "FolderDeleted" = "Složka byla smazána.";
 "FolderNone" = "Žádná složka";
-"Folders" = "Složky";
 "FolderUpdated" = "Složka byla uložena";
 "MyFolder" = "Moje složka";
 "MyFolders" = "Moje složky";
@@ -262,12 +261,8 @@
 "ShowWebsiteIconsDescription" = "Zobrazí rozeznatelný obrázek vedle každého přihlášení.";
 "IconsUrl" = "URL serveru ikon";
 "AutofillWithBitwarden" = "Automatické vyplňování aplikací Bitwarden";
-/* Section header and screen title for viewing/managing a cipher's collections. */
-"Collections" = "Sbírky";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "Sdílené složky";
-/* Empty state message shown when a collection has no items. */
-"NoItemsCollection" = "V této sbírce nejsou žádné položky";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "V této sdílené složce nejsou žádné položky";
 "NoItemsFolder" = "V této složce nejsou žádné položky";
@@ -289,8 +284,6 @@
 "RegEx" = "Regulární výraz";
 "StartsWith" = "Začíná na";
 "MatchDetection" = "Zjišťování shody";
-/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
-"Organization" = "Organizace";
 "HoldYubikeyNearTop" = "Podržte Yubikey u horní části zařízení.";
 "TryAgain" = "Zkusit znovu";
 "YubiKeyInstructionIos" = "Pro pokračování podržte YubiKey NEO u zadní části zařízení.";
@@ -326,27 +319,17 @@
 "NoItemsToList" = "Žádné položky k zobrazení.";
 "MoveDown" = "Přesunout dolů";
 "MoveUp" = "Přesunout nahoru";
-/* Empty state message on the Collections screen shown when a user has no collections. */
-"NoCollectionsToList" = "Žádné sbírky k zobrazení.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "Nejsou k dispozici žádné sdílené složky.";
 "MovedItemToOrg" = "Položka %1$@ byla přesunuta do %2$@.";
-/* Alert message shown when saving an item with no collection selected. */
-"SelectOneCollection" = "Musíte vybrat alespoň jednu sbírku.";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "Musíte vybrat alespoň jednu sdílenou složku.";
 "Share" = "Sdílet";
 "ShareAll" = "Sdílet vše";
-/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
-"MoveToOrganization" = "Přesunout do organizace";
-/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+/* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "Žádné trezory k zobrazení.";
-/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
-"NoOrgsToList" = "Žádné organizace k zobrazení.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Vyberte trezor, do kterého chcete tuto položku přesunout. Přesunutím do jiného trezoru se vlastnictví položky převede na danou organizaci. Jakmile bude položka přesunuta, přestanete být jejím přímým vlastníkem.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
-"MoveToOrgDesc" = "Vyberte organizaci, do které chcete tuto položku přesunout. Přesun do organizace převede vlastnictví položky této organizaci. Po přesunutí této položky již nebudete přímým vlastníkem této položky.";
 "NumberOfWords" = "Počet slov";
 "Passphrase" = "Heslová fráze";
 "WordSeparator" = "Oddělovač slov";
@@ -451,9 +434,10 @@
 "HideEmail" = "Skrýt mou e-mailovou adresu před příjemci";
 "SendOptionsPolicyInEffect" = "Jedna nebo více zásad organizace ovlivňuje nastavení Send.";
 "SendFilePremiumRequired" = "Bezplatné účty jsou omezeny jen na sdílení textu. K používání souborů pomocí Send je vyžadováno členství Premium.";
-"SendFileEmailVerificationRequired" = "Abyste mohli tuto funkci používat, musíte ověřit svůj e-mail. Svůj e-mail můžete ověřit ve webovém trezoru.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "V souladu s podnikovými zásadami můžete vytvořit jen %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "V souladu s podnikovými zásadami můžete vytvořit jen Sends se soubory.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "V souladu s podnikovými zásadami můžete vytvořit jen textové Send.";
 "OrganizationPolicyRestriction" = "Omezení zásad organizace";
 "TextSendsAreNotAllowedDescriptionLong" = "Vaší organizaci není povoleno odesílat textové Sends a tato zpráva automaticky vyprší v nastavený den smazání.";
 "ThisSendIsNotCompliantDescriptionLong" = "Tento Send není v souladu se zásadami Vaší organizace a jeho platnost automaticky vyprší v nastavený den smazání.";
@@ -889,7 +873,6 @@
 "PersonalDetails" = "Osobní údaje";
 "ContactInfo" = "Kontaktní informace";
 "Identification" = "Identifikace";
-"Owner" = "Vlastník";
 "VerifyYourIdentity" = "Ověřte svou totožnost";
 "ThisOperationIsNotAllowedOnThisAccount" = "Tato operace není na tomto účtu povolena";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "Vyskytla se chyba při uzamčení aktuálního uživatele";
@@ -907,13 +890,9 @@
 "ShowMore" = "Zobrazit více";
 "ShowLess" = "Zobrazit méně";
 "ItemNameX" = "Název položky, %1$@";
-"OwnerX" = "Vlastník, %1$@";
 "VaultX" = "Trezor, %1$@";
-/* VoiceOver accessibility label for a collection the item belongs to. */
-"CollectionX" = "Sbírka, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Sdílená složka, %1$@";
-"FolderX" = "Složka, %1$@";
 "MyFolderX" = "Moje složka, %1$@";
 "ItemXOfY" = "Položka %1$@ z %2$@";
 "ViewRecordedLogs" = "Zobrazit zaznamenané logy";
@@ -981,8 +960,6 @@
 "DefaultSaveOption" = "Výchozí volby ukládání";
 "DownloadTheBitwardenApp" = "Stáhnout aplikaci Bitwarden";
 "EnsureItsValidJsonAndTryAgain" = "Ujistěte se, že je to platný JSON a zkuste to znovu.";
-"ExportItemsConfirmationTitle" = "Potvrdit export položek";
-"ExportItemsWarning" = "Tento export obsahuje data položek v nezašifrovaném formátu. Soubor exportu byste neměli ukládat ani odesílat přes nezabezpečené kanály (např. e-mailem). Smažte jej okamžitě po jeho použití.";
 "FileCouldNotBeProcessed" = "Soubor nelze zpracovat";
 "GetVerificationCodesForAllYourAccounts" = "Získejte ověřovací kódy pro všechny své účty pomocí dvoufázového ověření.";
 "Help" = "Nápověda";
@@ -1302,3 +1279,10 @@
 "SyncUnsuccessful" = "Synchronizace byla neúspěšná";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Nepodařilo se nám synchronizovat Váš trezor se serverem. Váš trezor nemusí obsahovat Vaše nejnovější změny. Můžete to zkusit znovu hned teď, nebo se synchronizace provede automaticky později.";
 "TextToShareRequired" = "Text ke sdílení (povinný)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Zahrnuto do této zprávy";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Budou exportovány jen kódy uložené v tomto zařízení. Synchronizované kódy nejsou zahrnuty.";
+"ConfirmExport" = "Potvrdit export";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "Z důvodu bezpečnosti nesdílejte ani neposílejte tento soubor na nezabezpečené kanály (jako je e-mail) a smažte jej, když jste hotovi.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Vytvořit přihlášení";

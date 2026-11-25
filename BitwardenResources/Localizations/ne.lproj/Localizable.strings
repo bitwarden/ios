@@ -28,7 +28,6 @@
 "FolderCreated" = "नयाँ फोल्डर सिर्जना गरियो।";
 "FolderDeleted" = "फोल्डर मेटाइयो।";
 "FolderNone" = "कुनै फोल्डरमा हैन";
-"Folders" = "फोल्डरहरू";
 "FolderUpdated" = "फोल्डर सेभ गरियो";
 "MyFolder" = "मेरो फोल्डर";
 "MyFolders" = "मेरा फोल्डरहरू";
@@ -262,12 +261,8 @@
 "ShowWebsiteIconsDescription" = "प्रत्येक लगइनको छेउमा चिनिने छवि देखाउनुहोस्।";
 "IconsUrl" = "आइकन सर्भर URL";
 "AutofillWithBitwarden" = "Bitwarden सँग स्वत: भरण गर्नुहोस्";
-/* Section header and screen title for viewing/managing a cipher's collections. */
-"Collections" = "संग्रहहरू";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "साझा फोल्डरहरू";
-/* Empty state message shown when a collection has no items. */
-"NoItemsCollection" = "यस संग्रहमा कुनै वस्तुहरू छैनन्";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "यस साझा फोल्डरमा कुनै वस्तुहरू छैनन्";
 "NoItemsFolder" = "यस फोल्डरमा कुनै वस्तुहरू छैनन्";
@@ -289,8 +284,6 @@
 "RegEx" = "नियमित अभिव्यक्ति";
 "StartsWith" = "ले सुरु हुन्छ";
 "MatchDetection" = "मिलान पत्ता लगाउने";
-/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
-"Organization" = "संगठन";
 "HoldYubikeyNearTop" = "आफ्नो Yubikey यन्त्रको माथि नजिक राख्नुहोस्।";
 "TryAgain" = "फेरि प्रयास गर्नुहोस्";
 "YubiKeyInstructionIos" = "जारी राख्न, आफ्नो YubiKey NEO यन्त्रको पछाडि राख्नुहोस्।";
@@ -326,27 +319,17 @@
 "NoItemsToList" = "सूचीकरण गर्न कुनै वस्तुहरू छैनन्।";
 "MoveDown" = "तल सार्नुहोस्";
 "MoveUp" = "माथि सार्नुहोस्";
-/* Empty state message on the Collections screen shown when a user has no collections. */
-"NoCollectionsToList" = "सूचीकरण गर्न कुनै संग्रहहरू छैनन्।";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "सूचीकरण गर्न कुनै साझा फोल्डरहरू छैनन्।";
 "MovedItemToOrg" = "%1$@ %2$@ मा सारियो।";
-/* Alert message shown when saving an item with no collection selected. */
-"SelectOneCollection" = "तपाईंले कम्तीमा एउटा संग्रह चयन गर्नुपर्छ।";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "तपाईंले कम्तीमा एउटा साझा फोल्डर चयन गर्नुपर्छ।";
 "Share" = "साझेदारी गर्नुहोस्";
 "ShareAll" = "सबै साझेदारी गर्नुहोस्";
-/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
-"MoveToOrganization" = "संगठनमा सार्नुहोस्";
-/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+/* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "सूचीकरण गर्न कुनै भल्टहरू छैनन्।";
-/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
-"NoOrgsToList" = "सूचीकरण गर्न कुनै संगठनहरू छैनन्।";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "तपाईं यो वस्तु सार्न चाहनुहुने भल्ट छान्नुहोस्। अर्को भल्टमा सार्दा वस्तुको स्वामित्व त्यो संगठनमा स्थानान्तरण हुन्छ। सारिएपछि तपाईं यस वस्तुको प्रत्यक्ष मालिक हुनुहुने छैन।";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
-"MoveToOrgDesc" = "तपाईं यो वस्तु सार्न चाहनुहुने संगठन छान्नुहोस्। संगठनमा सार्दा वस्तुको स्वामित्व त्यो संगठनमा स्थानान्तरण हुन्छ। सारिएपछि तपाईं यस वस्तुको प्रत्यक्ष मालिक हुनुहुने छैन।";
 "NumberOfWords" = "शब्दहरूको संख्या";
 "Passphrase" = "पासफ्रेज";
 "WordSeparator" = "शब्द विभाजक";
@@ -451,9 +434,10 @@
 "HideEmail" = "प्राप्तकर्ताहरूबाट मेरो इमेल ठेगाना लुकाउनुहोस्";
 "SendOptionsPolicyInEffect" = "एक वा बढी संगठन नीतिहरूले तपाईंको पठाउने विकल्पहरूलाई असर गरिरहेको छ।";
 "SendFilePremiumRequired" = "नि:शुल्क खाताहरू पाठ मात्र साझेदारी गर्न प्रतिबन्धित छन्। पठाउनेसँग फाइलहरू प्रयोग गर्न Premium सदस्यता आवश्यक छ।";
-"SendFileEmailVerificationRequired" = "पठाउनेसँग फाइलहरू प्रयोग गर्न तपाईंले आफ्नो इमेल प्रमाणित गर्नुपर्छ। तपाईं आफ्नो इमेल वेब भल्टमा प्रमाणित गर्न सक्नुहुन्छ।";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -889,7 +873,6 @@
 "PersonalDetails" = "व्यक्तिगत विवरण";
 "ContactInfo" = "सम्पर्क जानकारी";
 "Identification" = "पहिचान";
-"Owner" = "मालिक";
 "VerifyYourIdentity" = "आफ्नो पहिचान प्रमाणित गर्नुहोस्";
 "ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
@@ -907,13 +890,9 @@
 "ShowMore" = "थप देखाउनुहोस्";
 "ShowLess" = "कम देखाउनुहोस्";
 "ItemNameX" = "वस्तु नाम, %1$@";
-"OwnerX" = "मालिक, %1$@";
 "VaultX" = "भल्ट, %1$@";
-/* VoiceOver accessibility label for a collection the item belongs to. */
-"CollectionX" = "संग्रह, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "साझा फोल्डर, %1$@";
-"FolderX" = "फोल्डर, %1$@";
 "MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "%2$@ मध्ये वस्तु %1$@";
 "ViewRecordedLogs" = "रेकर्ड गरिएका लगहरू हेर्नुहोस्";
@@ -981,8 +960,6 @@
 "DefaultSaveOption" = "पूर्वनिर्धारित बचत विकल्प";
 "DownloadTheBitwardenApp" = "Bitwarden एप डाउनलोड गर्नुहोस्";
 "EnsureItsValidJsonAndTryAgain" = "यो मान्य JSON छ भनी सुनिश्चित गर्नुहोस् र फेरि प्रयास गर्नुहोस्।";
-"ExportItemsConfirmationTitle" = "वस्तु निर्यात पुष्टि गर्नुहोस्";
-"ExportItemsWarning" = "यो निर्यातमा तपाईंको वस्तु डाटा असुरक्षित ढाँचामा छ। तपाईंले निर्यात गरिएको फाइल असुरक्षित च्यानलहरू (जस्तै इमेल) मा भण्डारण वा पठाउनु हुँदैन। प्रयोग सकिएपछि यसलाई तुरुन्त मेटाउनुहोस्।";
 "FileCouldNotBeProcessed" = "फाइल प्रशोधन गर्न सकिएन";
 "GetVerificationCodesForAllYourAccounts" = "२-चरण प्रमाणीकरण प्रयोग गरेर आफ्ना सबै खाताहरूको लागि प्रमाणीकरण कोडहरू प्राप्त गर्नुहोस्।";
 "Help" = "सहायता";
@@ -1302,3 +1279,10 @@
 "SyncUnsuccessful" = "सिङ्क असफल";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "हामी तपाईंको भल्टलाई सर्भरसँग सिङ्क गर्न सकेनौं। तपाईंको भल्टले तपाईंको नवीनतम परिवर्तनहरू प्रतिबिम्बित नगर्न सक्छ। तपाईं अहिले फेरि प्रयास गर्न सक्नुहुन्छ वा यो पछि स्वचालित रूपमा सिङ्क हुनेछ।";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "निर्यात पुष्टि गर्नुहोस्";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "आफ्नो सुरक्षाको लागि, यो फाइल असुरक्षित च्यानलहरू (जस्तै इमेल) मा साझेदारी वा पठाउनुहोस् न, र प्रयोग सकिएपछि यसलाई मेटाउनुहोस्।";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Create login";

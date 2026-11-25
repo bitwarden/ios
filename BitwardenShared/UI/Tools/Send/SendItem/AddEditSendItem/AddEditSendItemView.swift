@@ -351,37 +351,49 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         case .specificPeople:
             recipientEmailsList
         case .anyoneWithPassword:
-            BitwardenTextField(
-                title: Localizations.password,
-                text: store.binding(
-                    get: \.password,
-                    send: AddEditSendItemAction.passwordChanged,
-                ),
-                accessibilityIdentifier: "SendPasswordEntry",
-                isPasswordVisible: store.binding(
-                    get: \.isPasswordVisible,
-                    send: AddEditSendItemAction.passwordVisibleChanged,
-                ),
-            ) {
-                AccessoryButton(
-                    asset: SharedAsset.Icons.generate24,
-                    accessibilityLabel: Localizations.generatePassword,
+            if store.state.isPasswordFieldDisabled {
+                // An existing Send's password can't be viewed or changed, so show a masked
+                // placeholder to indicate that the Send is protected by a password.
+                BitwardenTextField(
+                    title: Localizations.password,
+                    text: .constant(String(repeating: "•", count: Constants.hiddenPasswordLength)),
+                    accessibilityIdentifier: "SendPasswordEntry",
+                    canViewPassword: false,
+                )
+                .disabled(true)
+            } else {
+                BitwardenTextField(
+                    title: Localizations.password,
+                    text: store.binding(
+                        get: \.password,
+                        send: AddEditSendItemAction.passwordChanged,
+                    ),
+                    accessibilityIdentifier: "SendPasswordEntry",
+                    isPasswordVisible: store.binding(
+                        get: \.isPasswordVisible,
+                        send: AddEditSendItemAction.passwordVisibleChanged,
+                    ),
                 ) {
-                    store.send(.generatePasswordPressed)
-                }
-                .accessibilityIdentifier("GenerateSendPasswordButton")
-
-                if !store.state.password.isEmpty {
                     AccessoryButton(
-                        asset: SharedAsset.Icons.copy24,
-                        accessibilityLabel: Localizations.copyPassword,
+                        asset: SharedAsset.Icons.generate24,
+                        accessibilityLabel: Localizations.generatePassword,
                     ) {
-                        await store.perform(.copyPasswordPressed)
+                        store.send(.generatePasswordPressed)
                     }
-                    .accessibilityIdentifier("CopySendPasswordButton")
+                    .accessibilityIdentifier("GenerateSendPasswordButton")
+
+                    if !store.state.password.isEmpty {
+                        AccessoryButton(
+                            asset: SharedAsset.Icons.copy24,
+                            accessibilityLabel: Localizations.copyPassword,
+                        ) {
+                            await store.perform(.copyPasswordPressed)
+                        }
+                        .accessibilityIdentifier("CopySendPasswordButton")
+                    }
                 }
+                .textFieldConfiguration(.password)
             }
-            .textFieldConfiguration(.password)
         }
     }
 

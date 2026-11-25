@@ -7,8 +7,7 @@ import BitwardenKit
 final class VaultSettingsProcessor: StateProcessor<VaultSettingsState, VaultSettingsAction, VaultSettingsEffect> {
     // MARK: Types
 
-    typealias Services = HasConfigService
-        & HasEnvironmentService
+    typealias Services = HasEnvironmentService
         & HasErrorReporter
         & HasStateService
 
@@ -46,7 +45,6 @@ final class VaultSettingsProcessor: StateProcessor<VaultSettingsState, VaultSett
         case .dismissImportLoginsActionCard:
             await dismissImportLoginsActionCard()
         case .streamSettingsBadge:
-            await loadFeatureFlags()
             await streamSettingsBadge()
         }
     }
@@ -58,9 +56,7 @@ final class VaultSettingsProcessor: StateProcessor<VaultSettingsState, VaultSett
         case .exportVaultTapped:
             coordinator.navigate(to: .exportVault)
         case .foldersTapped:
-            coordinator.navigate(to: .folders(
-                isVfo1FoundationFeatureFlagEnabled: state.isVfo1FoundationFeatureFlagEnabled,
-            ))
+            coordinator.navigate(to: .folders)
         case .importItemsTapped:
             coordinator.showAlert(.importItemsAlert(
                 importUrl: services.environmentService.importItemsURL.absoluteString,
@@ -83,12 +79,6 @@ final class VaultSettingsProcessor: StateProcessor<VaultSettingsState, VaultSett
             services.errorReporter.log(error: error)
             coordinator.showAlert(.defaultAlert(error: error))
         }
-    }
-
-    /// Loads the feature flags required for this processor.
-    ///
-    private func loadFeatureFlags() async {
-        state.isVfo1FoundationFeatureFlagEnabled = await services.configService.getFeatureFlag(.vfo1Foundation)
     }
 
     /// Streams the state of the badges in the settings tab.

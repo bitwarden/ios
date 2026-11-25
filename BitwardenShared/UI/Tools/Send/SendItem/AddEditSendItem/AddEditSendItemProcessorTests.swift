@@ -13,6 +13,7 @@ import XCTest
 class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var billingRepository: MockBillingRepository!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<SendItemRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
@@ -30,6 +31,8 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     override func setUp() {
         super.setUp()
+        billingRepository = MockBillingRepository()
+        billingRepository.isInAppUpgradeAvailableReturnValue = false
         configService = MockConfigService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
@@ -41,6 +44,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject = AddEditSendItemProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                billingRepository: billingRepository,
                 configService: configService,
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
@@ -55,6 +59,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     override func tearDown() {
         super.tearDown()
+        billingRepository = nil
         configService = nil
         coordinator = nil
         errorReporter = nil
@@ -528,7 +533,24 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
         XCTAssertNil(sendRepository.addTextSendSendView)
-        XCTAssertEqual(coordinator.alertShown, [.fileSendPremiumRequired {}])
+        XCTAssertEqual(coordinator.alertShown, [.fileSendPremiumRequired(isInAppUpgradeAvailable: false) {}])
+    }
+
+    /// `perform(_:)` with `.savePressed` and no Premium shows a Premium required alert with an
+    /// "Explore Premium" action when the in-app upgrade is available.
+    @MainActor
+    func test_perform_savePressed_add_file_noPremium_inAppUpgradeAvailable() async {
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        sendRepository.doesActivateAccountHavePremiumResult = false
+        subject.state.name = "Name"
+        subject.state.fileData = Data("example".utf8)
+        subject.state.fileName = "filename"
+        subject.state.type = .file
+        await subject.perform(.savePressed)
+
+        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
+        XCTAssertNil(sendRepository.addTextSendSendView)
+        XCTAssertEqual(coordinator.alertShown, [.fileSendPremiumRequired(isInAppUpgradeAvailable: true) {}])
     }
 
     /// `perform(_:)` with `.savePressed` tapping "Upgrade to Premium" in the Premium required
@@ -971,6 +993,18 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(coordinator.routes.last, .generator)
     }
 
+    /// `receive(_:)` with `.generatePasswordPressed` does nothing when editing a Send that already
+    /// has a password.
+    @MainActor
+    func test_receive_generatePasswordPressed_passwordFieldDisabled() {
+        subject.state.mode = .edit
+        subject.state.originalSendView = .fixture(hasPassword: true)
+        subject.receive(.generatePasswordPressed)
+
+        XCTAssertTrue(coordinator.routes.isEmpty)
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
     /// `didCancelGenerator()` dismisses the generator.
     @MainActor
     func test_didCancelGenerator() {
@@ -1075,6 +1109,17 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(subject.state.password, "password")
     }
 
+    /// `receive(_:)` with `.passwordChanged` doesn't update the password when editing a Send that
+    /// already has a password.
+    @MainActor
+    func test_receive_passwordChanged_passwordFieldDisabled() {
+        subject.state.mode = .edit
+        subject.state.originalSendView = .fixture(hasPassword: true)
+        subject.receive(.passwordChanged("password"))
+
+        XCTAssertEqual(subject.state.password, "")
+    }
+
     /// `receive(_:)` with `.passwordVisibleChanged` updates the password visibility.
     @MainActor
     func test_receive_passwordVisibleChanged() {
@@ -1133,9 +1178,27 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(subject.state.accessType, .anyoneWithLink)
 
         // Alert should be shown
+        try await waitForAsync { !self.coordinator.alertShown.isEmpty }
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, Localizations.premiumSubscriptionRequired)
         XCTAssertEqual(alert.message, Localizations.sharingWithSpecificPeopleIsPremiumFeatureDescriptionLong)
+        XCTAssertEqual(alert.alertActions.first?.title, Localizations.upgradeToPremium)
+    }
+
+    /// `receive(_:)` with `.accessTypeChanged` to specific people titles the upgrade action
+    /// "Explore Premium" for non-Premium users when the in-app upgrade is available.
+    @MainActor
+    func test_receive_accessTypeChanged_specificPeople_nonPremium_inAppUpgradeAvailable() async throws {
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        subject.state.hasPremium = false
+        subject.state.accessType = .anyoneWithLink
+        subject.receive(.accessTypeChanged(.specificPeople))
+
+        try await waitForAsync { !self.coordinator.alertShown.isEmpty }
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, Localizations.premiumSubscriptionRequired)
+        XCTAssertEqual(alert.message, Localizations.sharingWithSpecificPeopleIsPremiumFeatureDescriptionLong)
+        XCTAssertEqual(alert.alertActions.first?.title, Localizations.explorePremium)
     }
 
     /// `receive(_:)` with `.accessTypeChanged` to specific people triggers the Premium upgrade
@@ -1146,6 +1209,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.state.accessType = .anyoneWithLink
         subject.receive(.accessTypeChanged(.specificPeople))
 
+        try await waitForAsync { !self.coordinator.alertShown.isEmpty }
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         try await alert.tapAction(title: Localizations.upgradeToPremium)
         try await waitForAsync { self.premiumUpgradeHelper.navigateToPremiumUpgradeCalled }

@@ -28,7 +28,6 @@
 "FolderCreated" = "Uus kaust on loodud.";
 "FolderDeleted" = "Kaust on kustutatud.";
 "FolderNone" = "Kaust puudub";
-"Folders" = "Kaustad";
 "FolderUpdated" = "Kaust on uuendatud.";
 "MyFolder" = "My folder";
 "MyFolders" = "My folders";
@@ -262,12 +261,8 @@
 "ShowWebsiteIconsDescription" = "Kuva iga kirje kõrval lehekülje ikooni.";
 "IconsUrl" = "Ikoonide serveri URL";
 "AutofillWithBitwarden" = "Automaattäide Bitwardeniga";
-/* Section header and screen title for viewing/managing a cipher's collections. */
-"Collections" = "Kogumikud";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "Shared folders";
-/* Empty state message shown when a collection has no items. */
-"NoItemsCollection" = "Selles kogus pole ühtegi üksust";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
 "NoItemsFolder" = "Selles kaustas pole ühtegi üksust";
@@ -289,8 +284,6 @@
 "RegEx" = "RegEx";
 "StartsWith" = "Algab";
 "MatchDetection" = "Sobivuse tuvastamine";
-/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
-"Organization" = "Organisatsioon";
 "HoldYubikeyNearTop" = "Hoia oma Yubikey seadme ülaosa lähedal.";
 "TryAgain" = "Proovi uuesti";
 "YubiKeyInstructionIos" = "Jätkamiseks hoia oma YubiKey NEO seadme tagumise poole vastas.";
@@ -326,27 +319,17 @@
 "NoItemsToList" = "Puuduvad kirjed, mida kuvada.";
 "MoveDown" = "Nihuta alla";
 "MoveUp" = "Nihuta üles";
-/* Empty state message on the Collections screen shown when a user has no collections. */
-"NoCollectionsToList" = "Puuduvad kollektsioonid, mida kuvada.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
 "MovedItemToOrg" = "%1$@ teisaldati %2$@'sse.";
-/* Alert message shown when saving an item with no collection selected. */
-"SelectOneCollection" = "Pead valima vähemalt ühe kogumiku.";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
 "Share" = "Jaga";
 "ShareAll" = "Jaga kõiki";
-/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
-"MoveToOrganization" = "Teisalda organisatsiooni";
-/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+/* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "No vaults to list.";
-/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
-"NoOrgsToList" = "Puuduvad organisatsioonid, mida kuvada.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
-"MoveToOrgDesc" = "Vali organisatsioon, kuhu soovid seda kirjet teisaldada. Teisaldamisega saab kirje omanikuks organisatsioon. Pärast kirje teisaldamist ei ole sa enam selle otsene omanik.";
 "NumberOfWords" = "Sõnade arv";
 "Passphrase" = "Paroolifraas";
 "WordSeparator" = "Sõna eraldaja";
@@ -451,9 +434,10 @@
 "HideEmail" = "Ära näita saajatele minu e-posti aadressi.";
 "SendOptionsPolicyInEffect" = "Organisatsiooni seaded mõjutavad sinu Sendi sätteid.";
 "SendFilePremiumRequired" = "Tasuta kontoga on võimalik saata ainult tekste. Failide saatmiseks on vajalik omada tasulist kontot.";
-"SendFileEmailVerificationRequired" = "Sendi kasutamiseks pead kinnitama oma e-posti aadressi. Saad seda teha veebihoidlas.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -889,7 +873,6 @@
 "PersonalDetails" = "Isikuandmed";
 "ContactInfo" = "Kontaktinfo";
 "Identification" = "Tuvastamine";
-"Owner" = "Omanik";
 "VerifyYourIdentity" = "Kinnitage oma identiteet";
 "ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
@@ -907,13 +890,9 @@
 "ShowMore" = "Näita rohkem";
 "ShowLess" = "Näita vähem";
 "ItemNameX" = "Üksuse nimi %1$@";
-"OwnerX" = "Omanik: %1$@";
 "VaultX" = "Vault, %1$@";
-/* VoiceOver accessibility label for a collection the item belongs to. */
-"CollectionX" = "Kogu: %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Shared folder, %1$@";
-"FolderX" = "Kaust: %1$@";
 "MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "Üksus %1$@ / %2$@";
 "ViewRecordedLogs" = "Vaata salvestatud logisid";
@@ -981,8 +960,6 @@
 "DefaultSaveOption" = "Vaikimisi määratud salvestuse valik";
 "DownloadTheBitwardenApp" = "Lae alla Bitwarden'i rakendus";
 "EnsureItsValidJsonAndTryAgain" = "Veenduge, et see on kehtiv JSON, ja proovige uuesti.";
-"ExportItemsConfirmationTitle" = "Kinnita üksuste eksportimine";
-"ExportItemsWarning" = "See eksport sisaldab teie üksuste andmeid krüptimata kujul. Te ei tohiks eksporditud faili hoida ega saata ebaturvaliste kanalite kaudu (nt e-post). Kustutage see kohe pärast kasutamist.";
 "FileCouldNotBeProcessed" = "Faili ei õnnestunud töödelda";
 "GetVerificationCodesForAllYourAccounts" = "Hankige kinnituskoodid kõigi oma kontode jaoks kaheastmelise kinnituse abil.";
 "Help" = "Abi";
@@ -1302,3 +1279,10 @@
 "SyncUnsuccessful" = "Sünkroonimine ebaõnnestus";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Me ei suutnud teie varahoidlat serveriga sünkroonida. Teie vara ei pruugi kajastada teie viimaseid muudatusi. Võite proovida uuesti kohe või see sünkroonub hiljem automaatselt.";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "Kinnita eksportimine";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "Eksporditav fail sisaldab hoidla sisu, mis on krüpteeringuta. Seda faili ei tohiks kaua käidelda ning mitte mingil juhul ebaturvaliselt saata (näiteks e-postiga). Kustuta see koheselt pärast kasutamist.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Create login";

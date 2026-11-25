@@ -28,7 +28,6 @@
 "FolderCreated" = "ახალი პაპკა შეიქმნა.";
 "FolderDeleted" = "პაპკა წაიშალა.";
 "FolderNone" = "პაპკის გარეშე";
-"Folders" = "პაპკები";
 "FolderUpdated" = "პაპკა შენახულია";
 "MyFolder" = "My folder";
 "MyFolders" = "My folders";
@@ -262,12 +261,8 @@
 "ShowWebsiteIconsDescription" = "აჩვენეთ ცნობადი სურათი თითოეულ შესვლასთან.";
 "IconsUrl" = "ხატულების სერვერის URL";
 "AutofillWithBitwarden" = "ავტოშევსება Bitwarden-ით";
-/* Section header and screen title for viewing/managing a cipher's collections. */
-"Collections" = "კოლექციები";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "Shared folders";
-/* Empty state message shown when a collection has no items. */
-"NoItemsCollection" = "ამ კოლექციაში ჩანაწერები არ არის";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
 "NoItemsFolder" = "ამ პაპკაში ჩანაწერები არ არის";
@@ -289,8 +284,6 @@
 "RegEx" = "რეგულარული გამოხატულება";
 "StartsWith" = "იწყება";
 "MatchDetection" = "შესაბამისობის გამოვლენა";
-/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
-"Organization" = "ორგანიზაცია";
 "HoldYubikeyNearTop" = "მოჭერით Yubikey მოწყობილობის ზედა ნაწილთან.";
 "TryAgain" = "სცადეთ ხელახლა";
 "YubiKeyInstructionIos" = "გასაგრძელებლად, მიიტანეთ YubiKey NEO მოწყობილობის უკანა მხარეს.";
@@ -326,27 +319,17 @@
 "NoItemsToList" = "გამოსატანი ჩანაწერები არ არის.";
 "MoveDown" = "ქვემოთ გადატანა";
 "MoveUp" = "ზემოთ გადატანა";
-/* Empty state message on the Collections screen shown when a user has no collections. */
-"NoCollectionsToList" = "გამოსატანი კოლექციები არ არის.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
 "MovedItemToOrg" = "%1$@ გადატანილია %2$@-ში.";
-/* Alert message shown when saving an item with no collection selected. */
-"SelectOneCollection" = "უნდა აირჩიოთ მინიმუმ ერთი კოლექცია.";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
 "Share" = "გაზიარება";
 "ShareAll" = "ყველას გაზიარება";
-/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
-"MoveToOrganization" = "ორგანიზაციაში გადატანა";
-/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+/* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "No vaults to list.";
-/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
-"NoOrgsToList" = "გამოსატანი ორგანიზაციები არ არის.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
-"MoveToOrgDesc" = "აირჩიეთ ორგანიზაცია, რომელშიც გსურთ ამ ჩანაწერის გადატანა. ორგანიზაციაში გადატანა გადასცემს ჩანაწერის საკუთრებას ამ ორგანიზაციას. გადატანის შემდეგ, თქვენ აღარ იქნებით ამ ჩანაწერის პირდაპირი მფლობელი.";
 "NumberOfWords" = "სიტყვების რაოდენობა";
 "Passphrase" = "ფრაზა";
 "WordSeparator" = "სიტყვების გამყოფი";
@@ -451,9 +434,10 @@
 "HideEmail" = "ჩემი ელ. ფოსტის მისამართის დამალვა მიმღებებისგან";
 "SendOptionsPolicyInEffect" = "ერთი ან მეტი ორგანიზაციის პოლიტიკა გავლენას ახდენს თქვენს Send ვარიანტებზე.";
 "SendFilePremiumRequired" = "უფასო ანგარიშები შემოიფარგლება მხოლოდ ტექსტის გაზიარებით. Send-თან ფაილების გამოსაყენებლად საჭიროა Premium წევრობა.";
-"SendFileEmailVerificationRequired" = "Send-თან ფაილების გამოსაყენებლად, უნდა დაადასტუროთ თქვენი ელ. ფოსტა. თქვენი ელ. ფოსტის დადასტურება შეგიძლიათ ვებ-სეიფში.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -889,7 +873,6 @@
 "PersonalDetails" = "პირადი მონაცემები";
 "ContactInfo" = "საკონტაქტო ინფორმაცია";
 "Identification" = "იდენტიფიკაცია";
-"Owner" = "მფლობელი";
 "VerifyYourIdentity" = "დაადასტურეთ თქვენი ვინაობა";
 "ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
@@ -907,13 +890,9 @@
 "ShowMore" = "მეტის ჩვენება";
 "ShowLess" = "ნაკლების ჩვენება";
 "ItemNameX" = "ჩანაწერის სახელი, %1$@";
-"OwnerX" = "მფლობელი, %1$@";
 "VaultX" = "Vault, %1$@";
-/* VoiceOver accessibility label for a collection the item belongs to. */
-"CollectionX" = "კოლექცია, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Shared folder, %1$@";
-"FolderX" = "პაპკა, %1$@";
 "MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "ჩანაწერი %1$@ %2$@-დან";
 "ViewRecordedLogs" = "ჩაწერილი ჟურნალების ნახვა";
@@ -981,8 +960,6 @@
 "DefaultSaveOption" = "ნაგულისხმევი შენახვის ვარიანტი";
 "DownloadTheBitwardenApp" = "Bitwarden-ის აპლიკაციის ჩამოტვირთვა";
 "EnsureItsValidJsonAndTryAgain" = "დარწმუნდით, რომ ის მოქმედი JSON-ია და სცადეთ ხელახლა.";
-"ExportItemsConfirmationTitle" = "ჩანაწერების ექსპორტის დადასტურება";
-"ExportItemsWarning" = "ეს ექსპორტი შეიცავს თქვენს ჩანაწერების მონაცემებს დაშიფრვის გარეშე. არ უნდა შეინახოთ ან გაგზავნოთ ექსპორტირებული ფაილი არაუსაფრთხო არხებით (მაგ. ელ. ფოსტა). წაშალეთ იგი გამოყენების შემდეგ დაუყოვნებლივ.";
 "FileCouldNotBeProcessed" = "ფაილის დამუშავება ვერ მოხერხდა";
 "GetVerificationCodesForAllYourAccounts" = "მიიღეთ დადასტურების კოდები ყველა თქვენი ანგარიშისთვის, რომლებიც იყენებენ 2-საფეხურიან ვერიფიკაციას.";
 "Help" = "დახმარება";
@@ -1302,3 +1279,10 @@
 "SyncUnsuccessful" = "სინქრონიზაცია წარუმატებელია";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "ჩვენ ვერ დავასინქრონეთ თქვენი სეიფი სერვერთან. თქვენს სეიფში შესაძლოა არ აისახოს უახლესი ცვლილებები. შეგიძლიათ ახლავე სცადოთ ხელახლა ან ის ავტომატურად სინქრონიზდება მოგვიანებით.";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "ექსპორტის დადასტურება";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "თქვენი უსაფრთხოებისთვის, არ გააზიაროთ ან გაგზავნოთ ეს ფაილი არაუსაფრთხო არხებით (მაგ. ელ. ფოსტა) და წაშალეთ იგი გამოყენების შემდეგ.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Create login";

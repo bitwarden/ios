@@ -40,7 +40,7 @@ struct ManualEntryView: View {
                 ),
             )
         }
-        .buttonStyle(.tertiary())
+        .buttonStyle(.primary())
         .accessibilityIdentifier("ManualEntryAddCodeButton")
     }
 
@@ -50,6 +50,7 @@ struct ManualEntryView: View {
         VStack(alignment: .center, spacing: 16.0) {
             Text(Localizations.enterKeyManually)
                 .styleGuide(.title2, weight: .bold)
+                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
             BitwardenTextField(
                 title: Localizations.name,
                 text: store.binding(
@@ -71,10 +72,10 @@ struct ManualEntryView: View {
             if store.state.isPasswordManagerSyncActive {
                 if store.state.defaultSaveOption == .saveHere {
                     addPrimaryButton(sendToBitwarden: false)
-                    addTertiaryButton(sendToBitwarden: true)
+                    addSecondaryButton(sendToBitwarden: true)
                 } else {
                     addPrimaryButton(sendToBitwarden: true)
-                    addTertiaryButton(sendToBitwarden: false)
+                    addSecondaryButton(sendToBitwarden: false)
                 }
             } else {
                 addButton
@@ -82,7 +83,7 @@ struct ManualEntryView: View {
             footerButtonContainer
         }
         .background(
-            Asset.Colors.backgroundSecondary.swiftUIColor
+            SharedAsset.Colors.backgroundPrimary.swiftUIColor
                 .ignoresSafeArea(),
         )
         .scrollView()
@@ -139,15 +140,15 @@ struct ManualEntryView: View {
             .buttonStyle(.primary())
     }
 
-    /// A tertiary style button to trigger an `.addPressed(:)` action.
+    /// A secondary style button to trigger an `.addPressed(:)` action.
     ///
     /// - Parameter sendToBitwarden: whether this button sends the code to Bitwarden (`true`) or stores
     ///     it locally (`false`). This is also used to determine the title and accessibility identifier.
     /// - Returns: the `Button`, styled and configured.
     ///
-    private func addTertiaryButton(sendToBitwarden: Bool) -> some View {
+    private func addSecondaryButton(sendToBitwarden: Bool) -> some View {
         addButton(sendToBitwarden: sendToBitwarden)
-            .buttonStyle(.tertiary())
+            .buttonStyle(.secondary())
     }
 
     /// Creates an attributed string with the footer text, styling the "Scan QR Code" portion with
@@ -159,8 +160,9 @@ struct ManualEntryView: View {
         var attributed = AttributedString(
             Localizations.cannotAddAuthenticatorKey + " " + Localizations.scanQRCode,
         )
+        attributed.foregroundColor = SharedAsset.Colors.textSecondary.swiftUIColor
         if let range = attributed.range(of: Localizations.scanQRCode) {
-            attributed[range].foregroundColor = Asset.Colors.primaryBitwarden.swiftUIColor
+            attributed[range].foregroundColor = SharedAsset.Colors.textInteraction.swiftUIColor
         }
         return attributed
     }

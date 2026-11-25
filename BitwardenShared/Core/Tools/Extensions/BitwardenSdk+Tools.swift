@@ -146,12 +146,20 @@ extension BitwardenSdk.SendItem {
         }
 
         // The API model stores the sealed cipher blob verbatim, so it's passed straight through.
-        // TODO: PM-41094 - Share: `SendDataModel` carries no item ID, so the metadata can't be
-        // round-tripped from the API response yet.
+        // TODO: PM-41094 - Share: `SendDataModel` carries no item ID, folder, collection,
+        // organization or date information, so the metadata can't be round-tripped from the API
+        // response yet.
         self.init(
             encryptionVersion: encryptionVersion,
             data: data,
-            metadata: SendItemMetadata(itemId: ""),
+            metadata: SendItemMetadata(
+                itemId: "",
+                folderName: nil,
+                collectionNames: nil,
+                organizationName: nil,
+                creationDate: nil,
+                revisionDate: nil,
+            ),
         )
     }
 }

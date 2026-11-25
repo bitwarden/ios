@@ -41,12 +41,12 @@ struct EnableFlightRecorderView: View {
         VStack(spacing: 12) {
             Text(Localizations.logsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong)
 
-            Text(LocalizedStringKey(
-                Localizations.forDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter(
-                    ExternalLinksConstants.helpAndFeedback,
-                ),
-            ))
-            .tint(SharedAsset.Colors.textInteraction.swiftUIColor)
+            let helpCenterText = Localizations.forDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter(
+                ExternalLinksConstants.helpAndFeedback,
+            )
+            Text(LocalizedStringKey(helpCenterText))
+                .tint(SharedAsset.Colors.textInteraction.swiftUIColor)
+                .accessibilityLinks(in: helpCenterText)
         }
         .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
         .multilineTextAlignment(.center)

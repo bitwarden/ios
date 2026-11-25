@@ -2,6 +2,7 @@
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
+import ViewInspector
 import XCTest
 
 @testable import BitwardenShared

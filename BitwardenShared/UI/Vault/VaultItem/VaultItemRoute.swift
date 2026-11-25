@@ -13,6 +13,8 @@ enum VaultItemRoute: Equatable, Hashable {
     /// - Parameters:
     ///   - group: An optional `VaultListGroup` that the user wants to add an item for.
     ///   - hasPremium: Whether the user has Premium.
+    ///   - navigatesToViewItemOnSave: Whether saving the new item should replace the add item screen
+    ///     with the new item's view screen in the same navigation stack, rather than dismissing.
     ///   - newCipherOptions: Optional options for creating a new cipher.
     ///   - organizationId: The organization id in case an organization was selected in the vault filter.
     ///   - type: The type of item to add.
@@ -20,6 +22,7 @@ enum VaultItemRoute: Equatable, Hashable {
     case addItem(
         group: VaultListGroup? = nil,
         hasPremium: Bool = false,
+        navigatesToViewItemOnSave: Bool = false,
         newCipherOptions: NewCipherOptions? = nil,
         organizationId: String? = nil,
         type: CipherType,

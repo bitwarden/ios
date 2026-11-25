@@ -6,6 +6,26 @@ import Foundation
 /// A service that provides state management functionality around billing.
 ///
 protocol BillingStateService { // sourcery: AutoMockable
+    // MARK: Plan Badge
+
+    /// Gets whether the Plan badge has been dismissed.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID associated with the Plan badge dismissed value.
+    ///     Defaults to the active account if `nil`.
+    /// - Returns: Whether the Plan badge has been dismissed.
+    ///
+    func getPlanBadgeDismissed(userId: String?) async throws -> Bool
+
+    /// Sets whether the Plan badge has been dismissed.
+    ///
+    /// - Parameters:
+    ///   - dismissed: Whether the Plan badge has been dismissed.
+    ///   - userId: The user ID associated with the Plan badge dismissed value.
+    ///     Defaults to the active account if `nil`.
+    ///
+    func setPlanBadgeDismissed(_ dismissed: Bool, userId: String?) async throws
+
     // MARK: Premium Upgrade Banner
 
     /// Gets whether the Premium upgrade banner has been dismissed.
@@ -52,6 +72,46 @@ protocol BillingStateService { // sourcery: AutoMockable
     ///
     func setPremiumUpgradePending(_ pending: Bool, userId: String?) async throws
 
+    // MARK: Previous Personal Premium
+
+    /// Returns the personal Premium value last recorded for the account.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID of the account to check. Defaults to the active account if `nil`.
+    /// - Returns: The personal Premium value last recorded, or `nil` if no value has been recorded
+    ///   for the account.
+    ///
+    func getPreviousPersonalPremium(userId: String?) async throws -> Bool?
+
+    /// Sets the personal Premium value last recorded for the account.
+    ///
+    /// - Parameters:
+    ///   - previousPersonalPremium: The personal Premium value to record, or `nil` to clear the
+    ///     recorded value.
+    ///   - userId: The user ID of the account to update. Defaults to the active account if `nil`.
+    ///
+    func setPreviousPersonalPremium(_ previousPersonalPremium: Bool?, userId: String?) async throws
+
+    // MARK: Subscription
+
+    /// Returns whether the account has a Stripe subscription for personal Premium, as last reported
+    /// by the server.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID of the account to check. Defaults to the active account if `nil`.
+    /// - Returns: Whether the account has a Stripe subscription, or `nil` if the server hasn't yet
+    ///   answered.
+    ///
+    func getHasPersonalSubscription(userId: String?) async throws -> Bool?
+
+    /// Sets whether the account has a Stripe subscription for personal Premium.
+    ///
+    /// - Parameters:
+    ///   - hasPersonalSubscription: Whether the account has a Stripe subscription.
+    ///   - userId: The user ID of the account to update. Defaults to the active account if `nil`.
+    ///
+    func setHasPersonalSubscription(_ hasPersonalSubscription: Bool, userId: String?) async throws
+
     // MARK: Subscription Attention Card
 
     /// Returns whether the "subscription needs attention" action card should be shown for the
@@ -91,6 +151,25 @@ protocol BillingStateService { // sourcery: AutoMockable
 // MARK: - BillingStateService Convenience Methods
 
 extension BillingStateService {
+    // MARK: Plan Badge
+
+    /// Gets whether the Plan badge has been dismissed for the active account.
+    ///
+    /// - Returns: Whether the Plan badge has been dismissed.
+    ///
+    func getPlanBadgeDismissed() async throws -> Bool {
+        try await getPlanBadgeDismissed(userId: nil)
+    }
+
+    /// Sets whether the Plan badge has been dismissed for the active account.
+    ///
+    /// - Parameters:
+    ///   - dismissed: Whether the Plan badge has been dismissed.
+    ///
+    func setPlanBadgeDismissed(_ dismissed: Bool) async throws {
+        try await setPlanBadgeDismissed(dismissed, userId: nil)
+    }
+
     // MARK: Premium Upgrade Banner
 
     /// Gets whether the Premium upgrade banner has been dismissed for the active account.
@@ -127,6 +206,27 @@ extension BillingStateService {
     ///
     func setPremiumUpgradePending(_ pending: Bool) async throws {
         try await setPremiumUpgradePending(pending, userId: nil)
+    }
+
+    // MARK: Subscription
+
+    /// Returns whether the active account has a Stripe subscription for personal Premium, as last
+    /// reported by the server.
+    ///
+    /// - Returns: Whether the account has a Stripe subscription, or `nil` if the server hasn't yet
+    ///   answered.
+    ///
+    func getHasPersonalSubscription() async throws -> Bool? {
+        try await getHasPersonalSubscription(userId: nil)
+    }
+
+    /// Sets whether the active account has a Stripe subscription for personal Premium.
+    ///
+    /// - Parameters:
+    ///   - hasPersonalSubscription: Whether the account has a Stripe subscription.
+    ///
+    func setHasPersonalSubscription(_ hasPersonalSubscription: Bool) async throws {
+        try await setHasPersonalSubscription(hasPersonalSubscription, userId: nil)
     }
 
     // MARK: Upgraded to Premium Card

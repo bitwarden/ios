@@ -41,6 +41,29 @@ class GeneratorCoordinatorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `navigate(to:)` with `.addLogin` presents the add login view, which navigates to the new
+    /// item's view screen in the same sheet when saved.
+    @MainActor
+    func test_navigateTo_addLogin() throws {
+        let newCipherOptions = NewCipherOptions(password: "password")
+        subject.navigate(to: .addLogin(hasPremium: true, newCipherOptions: newCipherOptions))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is UINavigationController)
+
+        XCTAssertTrue(module.vaultItemCoordinator.isStarted)
+        XCTAssertEqual(
+            module.vaultItemCoordinator.routes.last,
+            .addItem(
+                hasPremium: true,
+                navigatesToViewItemOnSave: true,
+                newCipherOptions: newCipherOptions,
+                type: .login,
+            ),
+        )
+    }
+
     /// `navigate(to:)` with `.cancel` instructs the delegate that the generator flow has been
     /// cancelled.
     @MainActor

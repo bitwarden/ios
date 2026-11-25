@@ -28,7 +28,6 @@
 "FolderCreated" = "కొత్త ఫోల్డర్ సృష్టించబడింది.";
 "FolderDeleted" = "ఫోల్డర్ తొలగించబడింది.";
 "FolderNone" = "ఫోల్డర్ లేదు";
-"Folders" = "ఫోల్డర్‌లు";
 "FolderUpdated" = "ఫోల్డర్ భద్రపరచబడింది";
 "MyFolder" = "నా ఫోల్డర్";
 "MyFolders" = "నా ఫోల్డర్‌లు";
@@ -262,12 +261,8 @@
 "ShowWebsiteIconsDescription" = "ప్రతి లాగిన్ పక్కన గుర్తించదగిన చిత్రాన్ని చూపించు.";
 "IconsUrl" = "చిహ్నాల సర్వర్ URL";
 "AutofillWithBitwarden" = "Bitwardenతో ఆటోఫిల్ చేయి";
-/* Section header and screen title for viewing/managing a cipher's collections. */
-"Collections" = "సేకరణలు";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "భాగస్వామ్య ఫోల్డర్‌లు";
-/* Empty state message shown when a collection has no items. */
-"NoItemsCollection" = "ఈ సేకరణలో అంశాలు లేవు";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
 "NoItemsFolder" = "ఈ ఫోల్డర్‌లో అంశాలు లేవు";
@@ -289,8 +284,6 @@
 "RegEx" = "రెగ్యులర్ ఎక్స్‌ప్రెషన్";
 "StartsWith" = "దీనితో ప్రారంభమవుతుంది";
 "MatchDetection" = "మ్యాచ్ గుర్తింపు";
-/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
-"Organization" = "సంస్థ";
 "HoldYubikeyNearTop" = "మీ Yubikeyను పరికరం పైభాగంలో పట్టుకోండి.";
 "TryAgain" = "మళ్లీ ప్రయత్నించండి";
 "YubiKeyInstructionIos" = "కొనసాగించడానికి, మీ YubiKey NEOను పరికరం వెనుక భాగంలో పట్టుకోండి.";
@@ -326,27 +319,17 @@
 "NoItemsToList" = "జాబితా చేయడానికి అంశాలు లేవు.";
 "MoveDown" = "క్రిందికి తరలించు";
 "MoveUp" = "పైకి తరలించు";
-/* Empty state message on the Collections screen shown when a user has no collections. */
-"NoCollectionsToList" = "జాబితా చేయడానికి సేకరణలు లేవు.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "జాబితా చేయడానికి భాగస్వామ్య ఫోల్డర్‌లు లేవు.";
 "MovedItemToOrg" = "%1$@ %2$@కి తరలించబడింది.";
-/* Alert message shown when saving an item with no collection selected. */
-"SelectOneCollection" = "మీరు కనీసం ఒక సేకరణను ఎంచుకోవాలి.";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "మీరు కనీసం ఒక భాగస్వామ్య ఫోల్డర్‌ను ఎంచుకోవాలి.";
 "Share" = "భాగస్వామ్యం చేయి";
 "ShareAll" = "అన్నీ భాగస్వామ్యం చేయి";
-/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
-"MoveToOrganization" = "సంస్థకు తరలించు";
-/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+/* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "జాబితా చేయడానికి ఖజానాలు లేవు.";
-/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
-"NoOrgsToList" = "జాబితా చేయడానికి సంస్థలు లేవు.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "మీరు ఈ అంశాన్ని తరలించాలనుకుంటున్న ఖజానాను ఎంచుకోండి. మరొక ఖజానాకు తరలించడం అంశం యొక్క యాజమాన్యాన్ని ఆ సంస్థకు బదిలీ చేస్తుంది. ఇది తరలించబడిన తర్వాత మీరు ఈ అంశానికి ప్రత్యక్ష యజమానిగా ఉండరు.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
-"MoveToOrgDesc" = "మీరు ఈ అంశాన్ని తరలించాలనుకుంటున్న సంస్థను ఎంచుకోండి. సంస్థకు తరలించడం అంశం యొక్క యాజమాన్యాన్ని ఆ సంస్థకు బదిలీ చేస్తుంది. ఇది తరలించబడిన తర్వాత మీరు ఈ అంశానికి ప్రత్యక్ష యజమానిగా ఉండరు.";
 "NumberOfWords" = "పదాల సంఖ్య";
 "Passphrase" = "పాస్ఫ్రేజ్";
 "WordSeparator" = "పద విభజన";
@@ -451,9 +434,10 @@
 "HideEmail" = "స్వీకర్తల నుండి నా ఇమెయిల్ చిరునామాను దాచు";
 "SendOptionsPolicyInEffect" = "ఒకటి లేదా అంతకంటే ఎక్కువ సంస్థ విధానాలు మీ Send ఎంపికలను ప్రభావితం చేస్తున్నాయి.";
 "SendFilePremiumRequired" = "ఉచిత ఖాతాలు టెక్స్ట్‌ను మాత్రమే భాగస్వామ్యం చేయడానికి పరిమితం చేయబడ్డాయి. Sendతో ఫైల్‌లను ఉపయోగించడానికి ప్రీమియం సభ్యత్వం అవసరం.";
-"SendFileEmailVerificationRequired" = "Sendతో ఫైల్‌లను ఉపయోగించడానికి మీరు మీ ఇమెయిల్‌ను ధృవీకరించాలి. మీరు వెబ్ ఖజానాలో మీ ఇమెయిల్‌ను ధృవీకరించవచ్చు.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -889,7 +873,6 @@
 "PersonalDetails" = "వ్యక్తిగత వివరాలు";
 "ContactInfo" = "సంప్రదింపు సమాచారం";
 "Identification" = "గుర్తింపు";
-"Owner" = "యజమాని";
 "VerifyYourIdentity" = "మీ గుర్తింపును ధృవీకరించండి";
 "ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
@@ -907,13 +890,9 @@
 "ShowMore" = "మరిన్ని చూపించు";
 "ShowLess" = "తక్కువ చూపించు";
 "ItemNameX" = "అంశం పేరు, %1$@";
-"OwnerX" = "యజమాని, %1$@";
 "VaultX" = "Vault, %1$@";
-/* VoiceOver accessibility label for a collection the item belongs to. */
-"CollectionX" = "సేకరణ, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Shared folder, %1$@";
-"FolderX" = "ఫోల్డర్, %1$@";
 "MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "%2$@లో అంశం %1$@";
 "ViewRecordedLogs" = "రికార్డ్ చేసిన లాగ్‌లను చూడండి";
@@ -981,8 +960,6 @@
 "DefaultSaveOption" = "డిఫాల్ట్ భద్రపరిచే ఎంపిక";
 "DownloadTheBitwardenApp" = "Bitwarden యాప్ డౌన్‌లోడ్ చేయి";
 "EnsureItsValidJsonAndTryAgain" = "ఇది చెల్లుబాటు అయ్యే JSON అని నిర్ధారించుకుని మళ్లీ ప్రయత్నించండి.";
-"ExportItemsConfirmationTitle" = "అంశాల ఎగుమతిని నిర్ధారించు";
-"ExportItemsWarning" = "ఈ ఎగుమతి మీ అంశాల డేటాను ఎన్క్రిప్ట్ చేయని ఆకృతిలో కలిగి ఉంటుంది. మీరు ఎగుమతి చేసిన ఫైల్‌ను అసురక్షిత ఛానెల్‌ల (ఇమెయిల్ వంటివి) ద్వారా నిల్వ చేయకూడదు లేదా పంపకూడదు. దీన్ని ఉపయోగించిన వెంటనే తొలగించండి.";
 "FileCouldNotBeProcessed" = "ఫైల్ ప్రాసెస్ చేయలేకపోయింది";
 "GetVerificationCodesForAllYourAccounts" = "2-దశల ధృవీకరణను ఉపయోగించి మీ అన్ని ఖాతాల కోసం ధృవీకరణ కోడ్‌లను పొందండి.";
 "Help" = "సహాయం";
@@ -1302,3 +1279,10 @@
 "SyncUnsuccessful" = "సింక్ విజయవంతం కాలేదు";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "మేము మీ ఖజానాను సర్వర్‌తో సింక్ చేయలేకపోయాము. మీ ఖజానా మీ తాజా మార్పులను ప్రతిబింబించకపోవచ్చు. మీరు ఇప్పుడు మళ్లీ ప్రయత్నించవచ్చు లేదా అది తర్వాత ఆటోమేటిక్‌గా సింక్ అవుతుంది.";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "ఎగుమతిని నిర్ధారించు";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "మీ భద్రత కోసం, ఈ ఫైల్‌ను అసురక్షిత ఛానెల్‌ల (ఇమెయిల్ వంటివి) ద్వారా భాగస్వామ్యం చేయవద్దు లేదా పంపవద్దు మరియు మీరు పూర్తి చేసిన తర్వాత దాన్ని తొలగించండి.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Create login";

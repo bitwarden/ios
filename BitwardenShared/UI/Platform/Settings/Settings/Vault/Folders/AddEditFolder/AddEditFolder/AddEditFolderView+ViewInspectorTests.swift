@@ -71,12 +71,7 @@ class AddEditFolderViewTests: BitwardenTestCase {
     /// Tapping the save button in add mode performs the `.saveTapped` effect.
     @MainActor
     func test_saveButton_tapAdd() async throws {
-        guard #unavailable(iOS 26) else {
-            // TODO: PM-26079 Remove when toolbar AsyncButton is used.
-            throw XCTSkip("Remove this when the toolbar save button gets updated to use AsyncButton.")
-        }
-
-        let button = try subject.inspect().find(asyncButton: Localizations.save)
+        let button = try subject.inspect().findSaveToolbarButton()
         try await button.tap()
 
         XCTAssertEqual(processor.effects.last, .saveTapped)
@@ -85,13 +80,8 @@ class AddEditFolderViewTests: BitwardenTestCase {
     /// Tapping the save button in edit mode performs the `.saveTapped` effect.
     @MainActor
     func test_saveButton_tapEdit() async throws {
-        guard #unavailable(iOS 26) else {
-            // TODO: PM-26079 Remove when toolbar AsyncButton is used.
-            throw XCTSkip("Remove this when the toolbar save button gets updated to use AsyncButton.")
-        }
-
         processor.state.mode = .edit(.fixture())
-        let button = try subject.inspect().find(asyncButton: Localizations.save)
+        let button = try subject.inspect().findSaveToolbarButton()
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .saveTapped)
     }

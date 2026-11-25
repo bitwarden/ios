@@ -28,7 +28,6 @@
 "FolderCreated" = "ಹೊಸ ಫೋಲ್ಡರ್ ರಚಿಸಿದೆ.";
 "FolderDeleted" = "ಫೋಲ್ಡರ್ ಅಳಿಸಲಾಗಿದೆ.";
 "FolderNone" = "ಫೋಲ್ಡರ್ ಇಲ್ಲ";
-"Folders" = "ಫೋಲ್ಡರ್‌ಗಳು";
 "FolderUpdated" = "ಫೋಲ್ಡರ್ ನವೀಕರಿಸಲಾಗಿದೆ.";
 "MyFolder" = "ನನ್ನ ಫೋಲ್ಡರ್";
 "MyFolders" = "ನನ್ನ ಫೋಲ್ಡರ್ಗಳು";
@@ -263,12 +262,8 @@
 "ShowWebsiteIconsDescription" = "ಪ್ರತಿ ಲಾಗಿನ್ ಪಕ್ಕದಲ್ಲಿ ಗುರುತಿಸಬಹುದಾದ ಚಿತ್ರವನ್ನು ತೋರಿಸು.";
 "IconsUrl" = "ಚಿಹ್ನೆಗಳು ಸರ್ವರ್ URL";
 "AutofillWithBitwarden" = "Bitwarden ನೊಂದಿಗೆ ಸ್ವಯಂ ಭರ್ತಿ";
-/* Section header and screen title for viewing/managing a cipher's collections. */
-"Collections" = "ಸಂಗ್ರಹಣೆಗಳು";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "ಹಂಚಿಕೊಂಡ ಫೋಲ್ಡರ್ಗಳು";
-/* Empty state message shown when a collection has no items. */
-"NoItemsCollection" = "ಈ ಸಂಗ್ರಹದಲ್ಲಿ ಯಾವುದೇ ಐಟಂಗಳಿಲ್ಲ";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "ಈ ಹಂಚಿಕೊಂಡ ಫೋಲ್ಡರ್ನಲ್ಲಿ ಯಾವುದೇ ಐಟಂಗಳಿಲ್ಲ";
 "NoItemsFolder" = "ಈ ಫೋಲ್ಡರ್ನಲ್ಲಿ ಯಾವುದೇ ಐಟಂಗಳಿಲ್ಲ";
@@ -290,8 +285,6 @@
 "RegEx" = "ನಿಯಮಿತ ಅಭಿವ್ಯಕ್ತಿ";
 "StartsWith" = "ಇದರೊಂದಿಗೆ ಪ್ರಾರಂಭವಾಗುತ್ತದೆ";
 "MatchDetection" = "ಹೊಂದಾಣಿಕೆ ಪತ್ತೆ";
-/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
-"Organization" = "ಸಂಸ್ಥೆ";
 "HoldYubikeyNearTop" = "ನಿಮ್ಮ ಯುಬಿಕಿಯನ್ನು ಸಾಧನದ ಮೇಲ್ಭಾಗದಲ್ಲಿ ಹಿಡಿದುಕೊಳ್ಳಿ.";
 "TryAgain" = "ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ";
 "YubiKeyInstructionIos" = "ಮುಂದುವರೆಯಲು, ಸಾಧನದ ಹಿಂಭಾಗದಲ್ಲಿ ನಿಮ್ಮ ಯೂಬಿಕೆ ಎನ್ಇಒ ಅನ್ನು ಹಿಡಿದುಕೊಳ್ಳಿ.";
@@ -327,27 +320,17 @@
 "NoItemsToList" = "ಪಟ್ಟಿ ಮಾಡಲು ಯಾವುದೇ ಐಟಂಗಳಿಲ್ಲ.";
 "MoveDown" = "ಕೆಳಕ್ಕೆ ಸರಿಸು";
 "MoveUp" = "ಮೇಲಕ್ಕೆ ಸರಿಸಿ";
-/* Empty state message on the Collections screen shown when a user has no collections. */
-"NoCollectionsToList" = "ಪಟ್ಟಿ ಮಾಡಲು ಯಾವುದೇ ಸಂಗ್ರಹಗಳಿಲ್ಲ.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "ಪಟ್ಟಿ ಮಾಡಲು ಯಾವುದೇ ಹಂಚಿಕೊಂಡ ಫೋಲ್ಡರ್ಗಳಿಲ್ಲ.";
 "MovedItemToOrg" = "%1$@ ಅನ್ನು %2$@ ಗೆ ಸರಿಸಲಾಗಿದೆ.";
-/* Alert message shown when saving an item with no collection selected. */
-"SelectOneCollection" = "ನೀವು ಕನಿಷ್ಠ ಒಂದು ಸಂಗ್ರಹವನ್ನು ಆರಿಸಬೇಕು.";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "ನೀವು ಕನಿಷ್ಟ ಒಂದು ಹಂಚಿಕೊಂಡ ಫೋಲ್ಡರ್ ಅನ್ನು ಆಯ್ಕೆ ಮಾಡಬೇಕು.";
 "Share" = "ಹಂಚಿಕೊಳ್ಳಿ";
 "ShareAll" = "ಎಲ್ಲವನ್ನೂ ಹಂಚಿಕೊಳ್ಳಿ";
-/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
-"MoveToOrganization" = "ಸಂಸ್ಥೆಗೆ ಸರಿಸು";
-/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+/* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "ಪಟ್ಟಿ ಮಾಡಲು ವಾಲ್ಟ್ಗಳಿಲ್ಲ.";
-/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
-"NoOrgsToList" = "ಪಟ್ಟಿ ಮಾಡಲು ಯಾವುದೇ ಸಂಸ್ಥೆಗಳು ಇಲ್ಲ.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "ಈ ಐಟಂ ಅನ್ನು ಸರಿಸಲು ನೀವು ಬಯಸುವ ವಾಲ್ಟ್ ಅನ್ನು ಆಯ್ಕೆಮಾಡಿ. ಇನ್ನೊಂದು ವಾಲ್ಟ್ಗೆ ಸರಿಸುವುದು ಐಟಂನ ಮಾಲೀಕತ್ವವನ್ನು ಆ ಸಂಸ್ಥೆಗೆ ವರ್ಗಾಯಿಸುತ್ತದೆ. ಐಟಂ ಅನ್ನು ಸರಿಸಿದ ನಂತರ ನೀವು ಇನ್ನು ಮುಂದೆ ಅದರ ನೇರ ಮಾಲೀಕರಾಗಿರುವುದಿಲ್ಲ.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
-"MoveToOrgDesc" = "ಈ ಐಟಂ ಅನ್ನು ಸರಿಸಲು ನೀವು ಬಯಸುವ ಸಂಸ್ಥೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ. ಸಂಸ್ಥೆಗೆ ಸರಿಸುವುದು ಐಟಂನ ಮಾಲೀಕತ್ವವನ್ನು ಆ ಸಂಸ್ಥೆಗೆ ವರ್ಗಾಯಿಸುತ್ತದೆ. ಐಟಂ ಅನ್ನು ಸರಿಸಿದ ನಂತರ ನೀವು ಇನ್ನು ಮುಂದೆ ಅದರ ನೇರ ಮಾಲೀಕರಾಗಿರುವುದಿಲ್ಲ.";
 "NumberOfWords" = "ಪದಗಳ ಸಂಖ್ಯೆ";
 "Passphrase" = "ಪಾಸ್ಫ್ರೇಸ್";
 "WordSeparator" = "ಪದ ವಿಭಜಕ";
@@ -452,9 +435,10 @@
 "HideEmail" = "ಸ್ವೀಕರಿಸುವವರಿಂದ ನನ್ನ ಇಮೇಲ್ ವಿಳಾಸವನ್ನು ಮರೆಮಾಡಿ.";
 "SendOptionsPolicyInEffect" = "ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ಸಂಸ್ಥೆಯ ನೀತಿಗಳು ನಿಮ್ಮ ಕಳುಹಿಸುವ ಆಯ್ಕೆಗಳ ಮೇಲೆ ಪರಿಣಾಮ ಬೀರುತ್ತವೆ.";
 "SendFilePremiumRequired" = "Free accounts are restricted to sharing text only. A premium membership is required to use files with Send.";
-"SendFileEmailVerificationRequired" = "ಕಳುಹಿಸುವಿಕೆಯೊಂದಿಗೆ ಫೈಲ್‌ಗಳನ್ನು ಬಳಸಲು ನಿಮ್ಮ ಇಮೇಲ್ ಅನ್ನು ನೀವು ಪರಿಶೀಲಿಸಬೇಕು. ವೆಬ್ ವಾಲ್ಟ್ನಲ್ಲಿ ನಿಮ್ಮ ಇಮೇಲ್ ಅನ್ನು ನೀವು ಪರಿಶೀಲಿಸಬಹುದು.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -890,7 +874,6 @@
 "PersonalDetails" = "ವೈಯಕ್ತಿಕ ವಿವರಗಳು";
 "ContactInfo" = "ಸಂಪರ್ಕ ಮಾಹಿತಿ";
 "Identification" = "ಗುರುತಿಸುವಿಕೆ";
-"Owner" = "ಮಾಲೀಕರು";
 "VerifyYourIdentity" = "ನಿಮ್ಮ ಗುರುತನ್ನು ಪರಿಶೀಲಿಸಿ";
 "ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
@@ -908,13 +891,9 @@
 "ShowMore" = "ಹೆಚ್ಚು ತೋರಿಸು";
 "ShowLess" = "ಕಡಿಮೆ ತೋರಿಸು";
 "ItemNameX" = "ಐಟಂ ಹೆಸರು, %1$@";
-"OwnerX" = "ಮಾಲೀಕರು, %1$@";
 "VaultX" = "ವಾಲ್ಟ್, %1$@";
-/* VoiceOver accessibility label for a collection the item belongs to. */
-"CollectionX" = "ಸಂಗ್ರಹ, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "ಹಂಚಿಕೊಂಡ ಫೋಲ್ಡರ್, %1$@";
-"FolderX" = "ಫೋಲ್ಡರ್, %1$@";
 "MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "%2$@ ರಲ್ಲಿ ಐಟಂ %1$@";
 "ViewRecordedLogs" = "ರೆಕಾರ್ಡ್ ಮಾಡಿದ ಲಾಗ್ಗಳನ್ನು ವೀಕ್ಷಿಸಿ";
@@ -982,8 +961,6 @@
 "DefaultSaveOption" = "ಡೀಫಾಲ್ಟ್ ಉಳಿಸುವ ಆಯ್ಕೆ";
 "DownloadTheBitwardenApp" = "Bitwarden ಅಪ್ಲಿಕೇಶನ್ ಡೌನ್ಲೋಡ್ ಮಾಡಿ";
 "EnsureItsValidJsonAndTryAgain" = "ಇದು ಮಾನ್ಯ JSON ಆಗಿದೆಯೆಂದು ಖಚಿತಪಡಿಸಿಕೊಳ್ಳಿ ಮತ್ತು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.";
-"ExportItemsConfirmationTitle" = "ಐಟಂಗಳ ರಫ್ತನ್ನು ದೃಢೀಕರಿಸಿ";
-"ExportItemsWarning" = "ಈ ರಫ್ತು ನಿಮ್ಮ ಐಟಂ ಡೇಟಾವನ್ನು ಎನ್ಕ್ರಿಪ್ಟ್ ಮಾಡದ ಸ್ವರೂಪದಲ್ಲಿ ಹೊಂದಿದೆ. ನೀವು ರಫ್ತು ಮಾಡಿದ ಫೈಲ್ ಅನ್ನು ಅಸುರಕ್ಷಿತ ಚಾನಲ್ಗಳ ಮೂಲಕ (ಇಮೇಲ್ನಂತಹ) ಸಂಗ್ರಹಿಸಬಾರದು ಅಥವಾ ಕಳುಹಿಸಬಾರದು. ಅದನ್ನು ಬಳಸಿದ ನಂತರ ತಕ್ಷಣ ಅಳಿಸಿ.";
 "FileCouldNotBeProcessed" = "ಫೈಲ್ ಅನ್ನು ಪ್ರಕ್ರಿಯೆಗೊಳಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ";
 "GetVerificationCodesForAllYourAccounts" = "2-ಹಂತದ ಪರಿಶೀಲನೆಯನ್ನು ಬಳಸಿಕೊಂಡು ನಿಮ್ಮ ಎಲ್ಲಾ ಖಾತೆಗಳಿಗೆ ಪರಿಶೀಲನಾ ಕೋಡ್ಗಳನ್ನು ಪಡೆಯಿರಿ.";
 "Help" = "ಸಹಾಯ";
@@ -1303,3 +1280,10 @@
 "SyncUnsuccessful" = "ಸಿಂಕ್ ಯಶಸ್ವಿಯಾಗಿಲ್ಲ";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "ನಮಗೆ ನಿಮ್ಮ ವಾಲ್ಟ್ ಅನ್ನು ಸರ್ವರ್ನೊಂದಿಗೆ ಸಿಂಕ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ನಿಮ್ಮ ವಾಲ್ಟ್ ನಿಮ್ಮ ಇತ್ತೀಚಿನ ಬದಲಾವಣೆಗಳನ್ನು ಪ್ರತಿಬಿಂಬಿಸದಿರಬಹುದು. ನೀವು ಈಗ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಬಹುದು ಅಥವಾ ಅದು ನಂತರ ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಸಿಂಕ್ ಆಗುತ್ತದೆ.";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "ರಫ್ತು ದೃಢೀಕರಿಸಿ";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "ಈ ರಫ್ತು ನಿಮ್ಮ ವಾಲ್ಟ್ ಡೇಟಾವನ್ನು ಎನ್‌ಕ್ರಿಪ್ಟ್ ಮಾಡದ ಸ್ವರೂಪದಲ್ಲಿ ಒಳಗೊಂಡಿದೆ. ನೀವು ರಫ್ತು ಮಾಡಿದ ಫೈಲ್ ಅನ್ನು ಅಸುರಕ್ಷಿತ ಚಾನಲ್‌ಗಳಲ್ಲಿ (ಇಮೇಲ್ ನಂತಹ) ಸಂಗ್ರಹಿಸಬಾರದು ಅಥವಾ ಕಳುಹಿಸಬಾರದು. ನೀವು ಅದನ್ನು ಬಳಸಿದ ನಂತರ ಅದನ್ನು ಅಳಿಸಿ.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Create login";

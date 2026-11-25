@@ -171,8 +171,8 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         try clearMasterPasswordUnlockForActiveAccountResult.get()
     }
 
-    func clearPins() async throws {
-        let userId = try unwrapUserId(nil)
+    func clearPins(userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
         accountVolatileData.removeValue(forKey: userId)
         pinProtectedUserKeyValue[userId] = nil
         encryptedPinByUserId[userId] = nil

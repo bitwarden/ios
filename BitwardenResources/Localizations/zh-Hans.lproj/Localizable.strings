@@ -28,7 +28,6 @@
 "FolderCreated" = "新文件夹已创建";
 "FolderDeleted" = "文件夹已删除。";
 "FolderNone" = "无文件夹";
-"Folders" = "文件夹";
 "FolderUpdated" = "文件夹已保存";
 "MyFolder" = "我的文件夹";
 "MyFolders" = "我的文件夹";
@@ -262,12 +261,8 @@
 "ShowWebsiteIconsDescription" = "在每个登录项目旁边显示一个可识别的图像。";
 "IconsUrl" = "图标服务器 URL";
 "AutofillWithBitwarden" = "使用 Bitwarden 自动填充";
-/* Section header and screen title for viewing/managing a cipher's collections. */
-"Collections" = "集合";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "共享文件夹";
-/* Empty state message shown when a collection has no items. */
-"NoItemsCollection" = "此集合中没有项目";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "此共享文件夹中没有项目";
 "NoItemsFolder" = "此文件夹中没有项目";
@@ -289,8 +284,6 @@
 "RegEx" = "正则表达式";
 "StartsWith" = "开始于";
 "MatchDetection" = "匹配检测";
-/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
-"Organization" = "组织";
 "HoldYubikeyNearTop" = "将您的 YubiKey 靠近设备的顶部。";
 "TryAgain" = "重试";
 "YubiKeyInstructionIos" = "要继续，请将您的 YubiKey NEO 靠在设备背面。";
@@ -301,7 +294,7 @@
 "AutofillTurnOn1" = "1. 前往 iOS 的「设置」App";
 "AutofillTurnOn2" = "2. 点击「密码」";
 "AutofillTurnOn3" = "3. 点击「自动填充密码」";
-"AutofillTurnOn4" = "4. 启用自动填充";
+"AutofillTurnOn4" = "4. 开启自动填充";
 "AutofillTurnOn5" = "5. 选择「Bitwarden」";
 "PasswordAutofill" = "密码自动填充";
 "BitwardenAutofillAlert2" = "向您的密码库中添加新登录的最简单方法，就是使用 Bitwarden 密码自动填充扩展。转到「设置」界面进一步了解 Bitwarden 密码自动填充扩展的使用。";
@@ -326,27 +319,17 @@
 "NoItemsToList" = "没有可列出的项目。";
 "MoveDown" = "下移";
 "MoveUp" = "上移";
-/* Empty state message on the Collections screen shown when a user has no collections. */
-"NoCollectionsToList" = "没有可列出的集合。";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "没有可列出的共享文件夹。";
 "MovedItemToOrg" = "%1$@ 已移动到 %2$@。";
-/* Alert message shown when saving an item with no collection selected. */
-"SelectOneCollection" = "您必须至少选择一个集合。";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "您必须至少选择一个共享文件夹。";
 "Share" = "分享";
 "ShareAll" = "分享所有";
-/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
-"MoveToOrganization" = "移动到组织";
-/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+/* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "没有可列出的密码库。";
-/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
-"NoOrgsToList" = "没有可列出的组织。";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "选择一个您想将此项目移至的密码库。移动到其他密码库会将该项目的所有权转移给对应组织。移动后，您将不再是此项目的直接所有者。";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
-"MoveToOrgDesc" = "选择一个您想将此项目移至的组织。移动到组织会将该项目的所有权转移给该组织。移动后，您将不再是此项目的直接所有者。";
 "NumberOfWords" = "单词个数";
 "Passphrase" = "密码短语";
 "WordSeparator" = "单词分隔符";
@@ -451,9 +434,10 @@
 "HideEmail" = "对接收者隐藏我的电子邮箱地址";
 "SendOptionsPolicyInEffect" = "一个或多个组织策略正在影响您的 Send 设置。";
 "SendFilePremiumRequired" = "免费账户仅限于共享文本。需要高级版成员资格才能使用文件 Send。";
-"SendFileEmailVerificationRequired" = "您必须验证电子邮箱才能使用文件 Send。您可以在网页密码库中验证您的电子邮箱。";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "由于某个企业策略，您只能创建 %1$@ Send。";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "由于某个企业策略，您只能创建文件 Send。";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "由于某个企业策略，您只能创建文本 Send。";
 "OrganizationPolicyRestriction" = "组织策略限制";
 "TextSendsAreNotAllowedDescriptionLong" = "您的组织不允许文本 Send，此 Send 将在设置的删除日期自动过期。";
 "ThisSendIsNotCompliantDescriptionLong" = "此 Send 不符合您组织的 Send 策略，将在设置的删除日期自动过期。";
@@ -609,7 +593,7 @@
 "RequestAdminApproval" = "请求管理员批准";
 "ApproveWithMasterPassword" = "使用主密码批准";
 "TurnOffUsingPublicDevice" = "不允许使用公共设备";
-"TurnOnFillAssist" = "启用填充辅助";
+"TurnOnFillAssist" = "开启填充辅助";
 "TurnOnFillAssistDescriptionLong" = "填充辅助通过使用站点特定的规则，提高在受支持站点上的自动填充的准确性。";
 "RememberThisDevice" = "记住此设备";
 "Passkey" = "通行密钥";
@@ -741,11 +725,11 @@
 "FromYourDeviceSettingsToggleOnAutoFillPasswordsAndPasskeys" = "在您的设备设置中，**打开自动填充密码和通行密钥**。";
 "ToggleOffICloudToMakeBitwardenYourDefaultAutoFillSource" = "**关闭 iCloud 钥匙串**使 Bitwarden 成为默认的自动填充源。";
 "ToggleOnBitwardenToUseYourSavedPasswordsToLogIntoYourAccounts" = "**打开 Bitwarden** 使用已保存的密码登录您的账户。";
-"TurnOnAutoFill" = "启用自动填充";
+"TurnOnAutoFill" = "开启自动填充";
 "UseAutoFillToLogIntoYourAccountsWithASingleTap" = "使用自动填充，只需点击一下即可登录您的账户。";
 "NeedHelpCheckOutAutofillHelp" = "需要帮助吗？查看 **[自动填充帮助](%1$@)**";
-"TurnOnLater" = "稍后启用";
-"TurnOnAutoFillLaterQuestion" = "稍后启用自动填充吗？";
+"TurnOnLater" = "稍后开启";
+"TurnOnAutoFillLaterQuestion" = "稍后开启自动填充吗？";
 "YouCanReturnToCompleteThisStepAnytimeInSettings" = "您可以随时回到「设置」中完成此步骤。";
 "ContinueToBitwarden" = "前往 Bitwarden";
 "BackToSettings" = "返回设置";
@@ -889,7 +873,6 @@
 "PersonalDetails" = "个人详细信息";
 "ContactInfo" = "联系信息";
 "Identification" = "身份";
-"Owner" = "所有者";
 "VerifyYourIdentity" = "验证您的身份";
 "ThisOperationIsNotAllowedOnThisAccount" = "此账户上不允许此操作";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "尝试锁定当前用户时发生错误";
@@ -900,20 +883,16 @@
 "EnableFlightRecorder" = "启用 Flight Recorder";
 "ExperiencingAnIssue" = "遇到问题了吗？";
 "EnableTemporaryLoggingDescriptionLong" = "启用临时日志记录，以在本地收集和检查日志。启用后，可能会记录应用程序状态和网络调用，但绝不会记录敏感的密码库信息。";
-"ToGetStartedSetALoggingDurationDescriptionLong" = "要开始使用，请设置日志记录持续时间，以便您在复现问题时捕获相关活动。日志记录将在该时间段后自动停用。";
+"ToGetStartedSetALoggingDurationDescriptionLong" = "要开始使用，请设置日志记录持续时间，以便您在复现问题时捕获相关活动。日志记录将在该时间段后自动关闭。";
 "LoggingDuration" = "日志记录持续时间";
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "日志将在 30 天后自动删除。只有当您分享它时，Bitwarden 才能访问您的日志数据。";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "要了解哪些内容会被记录、哪些不会被记录，请访问 **[Bitwarden 帮助中心](%1$@)**。";
 "ShowMore" = "显示更多";
 "ShowLess" = "显示更少";
 "ItemNameX" = "项目名称，%1$@";
-"OwnerX" = "所有者，%1$@";
 "VaultX" = "密码库，%1$@";
-/* VoiceOver accessibility label for a collection the item belongs to. */
-"CollectionX" = "集合，%1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "共享文件夹，%1$@";
-"FolderX" = "文件夹，%1$@";
 "MyFolderX" = "我的文件夹，%1$@";
 "ItemXOfY" = "项目 %1$@ / %2$@";
 "ViewRecordedLogs" = "查看记录的日志";
@@ -945,7 +924,7 @@
 "ViewTextSend" = "查看文本 Send";
 "DeleteSend" = "删除 Send";
 "FlightRecorderOn" = "Flight Recorder 已开启";
-"FlightRecorderWillBeActiveUntilDescriptionLong" = "Flight Recorder 将持续激活至 %1$@ %2$@。现在返回设置以将其停用。";
+"FlightRecorderWillBeActiveUntilDescriptionLong" = "Flight Recorder 将持续活动至 %1$@ %2$@。现在返回设置以将其停用。";
 "GoToSettings" = "前往设置";
 "SiriAndShortcutsAccess" = "Siri & 快捷指令访问权限";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "启用以允许此 App 使用 App Intent 响应 Siri 和快捷指令。";
@@ -981,8 +960,6 @@
 "DefaultSaveOption" = "默认保存选项";
 "DownloadTheBitwardenApp" = "下载 Bitwarden App";
 "EnsureItsValidJsonAndTryAgain" = "请确保它是有效的 JSON 文件然后重试。";
-"ExportItemsConfirmationTitle" = "确认项目导出";
-"ExportItemsWarning" = "此导出包含未加密格式的项目数据。您不应该通过不安全的渠道（例如电子邮件）来存储或发送此导出文件。使用完后请立即将其删除。";
 "FileCouldNotBeProcessed" = "文件无法处理";
 "GetVerificationCodesForAllYourAccounts" = "获取使用两步验证的所有账户的验证码。";
 "Help" = "帮助";
@@ -1124,7 +1101,7 @@
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "由于 App 需要重新验证身份，您的请求被中断。请重试。";
 "AutofillWithBitwardenDescriptionLong" = "当您登录到 App 和网站时，Bitwarden 可以建议要使用的密码和其他凭据。";
 "LearnMoreAboutAutofill" = "进一步了解自动填充";
-"TurnOnNow" = "立即启用";
+"TurnOnNow" = "立即开启";
 "AcceptTransfer" = "接受转移";
 "YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "您的密码和密码提示不能一样。请选择一个不同的提示。";
 "Plan" = "方案";
@@ -1302,3 +1279,10 @@
 "SyncUnsuccessful" = "同步失败";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "我们无法将您的密码库与服务器同步。您的密码库可能无法反映您的最新更改。您可以现在重试，或稍后它将自动同步。";
 "TextToShareRequired" = "要分享的文本（必填）";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "包含在此报告中";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "仅会导出此设备上本地存储的代码。不包括已同步的代码。";
+"ConfirmExport" = "确认导出";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "为了您的安全，请不要通过不安全的渠道（例如电子邮件）分享或发送此文件，并在使用完后将其删除。";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "创建登录";

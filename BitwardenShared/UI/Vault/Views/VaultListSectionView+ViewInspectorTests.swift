@@ -51,10 +51,10 @@ class VaultListSectionViewTests: BitwardenTestCase {
         let item = VaultListItem.fixture()
         let section = VaultListSection(id: "1", items: [item], name: "Name")
         let subject = VaultListSectionView(section: section, isExpanded: .constant(true)) { item in
-            Text(item.id)
+            Text("Row \(item.id)")
         }
 
-        XCTAssertNoThrow(try subject.inspect().find(text: item.id))
+        XCTAssertNoThrow(try subject.inspect().find(text: "Row \(item.id)"))
     }
 
     /// When the `isExpanded` binding is `false`, the section's items are hidden.
@@ -63,9 +63,9 @@ class VaultListSectionViewTests: BitwardenTestCase {
         let item = VaultListItem.fixture()
         let section = VaultListSection(id: "1", items: [item], name: "Name")
         let subject = VaultListSectionView(section: section, isExpanded: .constant(false)) { item in
-            Text(item.id)
+            Text("Row \(item.id)")
         }
 
-        XCTAssertThrowsError(try subject.inspect().find(text: item.id))
+        XCTAssertThrowsError(try subject.inspect().find(text: "Row \(item.id)"))
     }
 }

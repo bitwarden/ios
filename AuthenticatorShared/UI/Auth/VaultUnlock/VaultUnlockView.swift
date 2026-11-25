@@ -28,9 +28,9 @@ struct VaultUnlockView: View {
     private var content: some View {
         ZStack {
             if colorScheme == .light {
-                Asset.Colors.primaryBitwarden.swiftUIColor
+                SharedAsset.Colors.tintPrimary.swiftUIColor
             } else {
-                Asset.Colors.backgroundSecondary.swiftUIColor
+                SharedAsset.Colors.backgroundPrimary.swiftUIColor
             }
 
             Image(decorative: Asset.Images.authenticatorLogo)
@@ -54,8 +54,8 @@ struct VaultUnlockView: View {
             }
             .if(colorScheme == .light) { view in
                 view.buttonStyle(.secondary(shouldFillWidth: true))
-                    .background(Asset.Colors.backgroundPrimary.swiftUIColor)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
+                    .clipShape(Capsule())
             }
             .if(colorScheme == .dark) { view in
                 view.buttonStyle(.primary(shouldFillWidth: true))

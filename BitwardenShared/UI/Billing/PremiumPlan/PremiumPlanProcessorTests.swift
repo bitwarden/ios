@@ -53,6 +53,16 @@ struct PremiumPlanProcessorTests {
         #expect(subject.state.loadingState == .loading(nil))
     }
 
+    /// `perform(_:)` with `.appeared` marks the Plan badge as dismissed.
+    @Test
+    func perform_appeared_dismissesPlanBadge() async {
+        billingService.getPremiumPlanThrowableError = CancellationError()
+
+        await subject.perform(.appeared)
+
+        #expect(billingService.setPlanBadgeDismissedCallsCount == 1)
+    }
+
     /// `perform(_:)` with `.appeared` sets the error state and logs on failure.
     @Test
     func perform_appeared_failure() async {
@@ -87,6 +97,26 @@ struct PremiumPlanProcessorTests {
         #expect(subject.state.loadingState == .error(
             errorMessage: Localizations.weCouldntLoadYourSubscriptionDetailsPleaseRetry,
         ))
+    }
+
+    /// `perform(_:)` with `.appeared` calls `refreshSubscriptionStatus(subscription:)` after
+    /// loading the subscription, passing the fetched subscription to avoid a redundant API call.
+    @Test
+    func perform_appeared_refreshesSubscriptionStatus() async throws {
+        let subscription = PremiumSubscription.fixture(status: .pastDue)
+        billingService.getPremiumPlanReturnValue = PremiumPlanResponseModel(
+            available: true,
+            legacyYear: nil,
+            name: "Premium",
+            seat: PlanPricingResponseModel(price: 10, provided: 1, stripePriceId: "seat"),
+            storage: PlanPricingResponseModel(price: 0, provided: 0, stripePriceId: "storage"),
+        )
+        billingService.getSubscriptionReturnValue = .fixture(status: .pastDue)
+
+        await subject.perform(.appeared)
+
+        let received = billingService.refreshSubscriptionStatusReceivedSubscription
+        #expect(received?.status == subscription.status)
     }
 
     /// `perform(_:)` with `.appeared` skips `getSubscription()` when a subscription is pre-loaded in state.
@@ -199,26 +229,6 @@ struct PremiumPlanProcessorTests {
         #expect(coordinator.alertShown.first?.alertActions.count == 2)
         #expect(coordinator.alertShown.first?.alertActions.first?.title == Localizations.cancel)
         #expect(coordinator.alertShown.first?.alertActions.last?.title == Localizations.continue)
-    }
-
-    /// `perform(_:)` with `.appeared` calls `refreshSubscriptionAttentionCard(subscription:)` after
-    /// loading the subscription, passing the fetched subscription to avoid a redundant API call.
-    @Test
-    func perform_appeared_refreshesSubscriptionAttentionCard() async throws {
-        let subscription = PremiumSubscription.fixture(status: .pastDue)
-        billingService.getPremiumPlanReturnValue = PremiumPlanResponseModel(
-            available: true,
-            legacyYear: nil,
-            name: "Premium",
-            seat: PlanPricingResponseModel(price: 10, provided: 1, stripePriceId: "seat"),
-            storage: PlanPricingResponseModel(price: 0, provided: 0, stripePriceId: "storage"),
-        )
-        billingService.getSubscriptionReturnValue = .fixture(status: .pastDue)
-
-        await subject.perform(.appeared)
-
-        let received = billingService.refreshSubscriptionAttentionCardReceivedSubscription
-        #expect(received?.status == subscription.status)
     }
 
     /// `perform(_:)` with `.managePlanTapped`, after confirming, sets `urlToOpen` to the subscription URL.

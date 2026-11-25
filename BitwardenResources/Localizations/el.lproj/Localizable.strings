@@ -28,7 +28,6 @@
 "FolderCreated" = "Δημιουργήθηκε νέος φάκελος.";
 "FolderDeleted" = "Ο φάκελος διαγράφηκε";
 "FolderNone" = "Δεν υπάρχει φάκελος";
-"Folders" = "Φάκελοι";
 "FolderUpdated" = "Ο φάκελος ενημερώθηκε";
 "MyFolder" = "Ο φάκελός μου";
 "MyFolders" = "My folders";
@@ -262,12 +261,8 @@
 "ShowWebsiteIconsDescription" = "Εμφάνιση μιας αναγνωρίσιμης εικόνας δίπλα σε κάθε σύνδεση.";
 "IconsUrl" = "URL διακομιστή εικονιδίων";
 "AutofillWithBitwarden" = "Αυτόματη συμπλήρωση με Bitwarden";
-/* Section header and screen title for viewing/managing a cipher's collections. */
-"Collections" = "Συλλογές";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "Shared folders";
-/* Empty state message shown when a collection has no items. */
-"NoItemsCollection" = "Δεν υπάρχουν αντικείμενα σε αυτή τη συλλογή";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "There are no items in this shared folder";
 "NoItemsFolder" = "Δεν υπάρχουν αντικείμενα σε αυτόν τον φάκελο";
@@ -289,8 +284,6 @@
 "RegEx" = "Κανονική έκφραση";
 "StartsWith" = "Έναρξη με";
 "MatchDetection" = "Εντοπισμός αντιστοίχισης";
-/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
-"Organization" = "Οργανισμός";
 "HoldYubikeyNearTop" = "Κρατήστε το Yubikey κοντά στην κορυφή της συσκευής.";
 "TryAgain" = "Προσπαθήστε ξανά";
 "YubiKeyInstructionIos" = "Για να συνεχίσετε, κρατήστε παρατεταμένα το YubiKey NEO στο πίσω μέρος της συσκευής.";
@@ -326,27 +319,17 @@
 "NoItemsToList" = "Δεν υπάρχουν στοιχεία στη λίστα.";
 "MoveDown" = "Μετακίνηση κάτω";
 "MoveUp" = "Μετακίνηση πάνω";
-/* Empty state message on the Collections screen shown when a user has no collections. */
-"NoCollectionsToList" = "Δεν υπάρχουν επιλογές στη λίστα.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "There are no shared folders to list.";
 "MovedItemToOrg" = "%1$@ μετακινήθηκε στο %2$@.";
-/* Alert message shown when saving an item with no collection selected. */
-"SelectOneCollection" = "Πρέπει να επιλέξετε τουλάχιστον μία συλλογή.";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "You must select at least one shared folder.";
 "Share" = "Κοινοποίηση";
 "ShareAll" = "Κοινή χρήση όλων";
-/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
-"MoveToOrganization" = "Μετακίνηση στον Οργανισμό";
-/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+/* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "No vaults to list.";
-/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
-"NoOrgsToList" = "Δεν υπάρχουν οργανισμοί προς εμφάνιση.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choose a vault that you wish to move this item to. Moving to another vault transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
-"MoveToOrgDesc" = "Επιλέξτε έναν οργανισμό στον οποίο θέλετε να μετακινήσετε αυτό το στοιχείο. Η μετακίνηση σε έναν οργανισμό μεταβιβάζει την ιδιοκτησία του στοιχείου σε αυτό τον οργανισμό. Δεν θα είστε πλέον ο άμεσος ιδιοκτήτης αυτού του στοιχείου μόλις το μετακινήσετε.";
 "NumberOfWords" = "Αριθμός λέξεων";
 "Passphrase" = "Συνθηματικό";
 "WordSeparator" = "Διαχωριστής λέξεων";
@@ -451,9 +434,10 @@
 "HideEmail" = "Απόκρυψη της διεύθυνσης email μου από τους παραλήπτες.";
 "SendOptionsPolicyInEffect" = "Μία ή περισσότερες οργανωτικές πολιτικές επηρεάζουν τις επιλογές send σας.";
 "SendFilePremiumRequired" = "Οι δωρεάν λογαριασμοί περιορίζονται μόνο στην κοινή χρήση κειμένου. Μια premium συνδρομή απαιτείται για τη χρήση αρχείων με Αποστολή.";
-"SendFileEmailVerificationRequired" = "Πρέπει να επαληθεύσετε το email σας για να χρησιμοποιήσετε τα αρχεία με το send.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "Due to an enterprise policy, you can only create %1$@ Sends.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "Organization policy restriction";
 "TextSendsAreNotAllowedDescriptionLong" = "Text Sends are not allowed for your organization and this Send will automatically expire at the set deletion date.";
 "ThisSendIsNotCompliantDescriptionLong" = "This Send is not compliant with your organization's Send policy and will automatically expire at the set deletion date.";
@@ -889,7 +873,6 @@
 "PersonalDetails" = "Προσωπικά στοιχεία";
 "ContactInfo" = "Στοιχεία επικοινωνίας";
 "Identification" = "Ταυτοποίηση";
-"Owner" = "Ιδιοκτήτης";
 "VerifyYourIdentity" = "Επαλήθευση ταυτότητας";
 "ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
@@ -907,13 +890,9 @@
 "ShowMore" = "Εμφάνιση περισσότερων";
 "ShowLess" = "Εμφάνιση λιγότερων";
 "ItemNameX" = "Όνομα στοιχείου, %1$@";
-"OwnerX" = "Ιδιοκτήτης, %1$@";
 "VaultX" = "Vault, %1$@";
-/* VoiceOver accessibility label for a collection the item belongs to. */
-"CollectionX" = "Συλλογή, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Shared folder, %1$@";
-"FolderX" = "Φάκελος, %1$@";
 "MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "Στοιχείο %1$@ από %2$@";
 "ViewRecordedLogs" = "Προβολή καταγεγραμμένων αρχείων καταγραφής";
@@ -981,8 +960,6 @@
 "DefaultSaveOption" = "Προεπιλεγμένη επιλογή αποθήκευσης";
 "DownloadTheBitwardenApp" = "Λήψη της εφαρμογής Bitwarden";
 "EnsureItsValidJsonAndTryAgain" = "Βεβαιωθείτε ότι είναι έγκυρο JSON και δοκιμάστε ξανά.";
-"ExportItemsConfirmationTitle" = "Επιβεβαίωση εξαγωγής στοιχείων";
-"ExportItemsWarning" = "Αυτή η εξαγωγή περιέχει τα δεδομένα σας σε αποκρυπτογραφημένη μορφή. Δεν πρέπει να αποθηκεύσετε ή να στείλετε το εξαχθέν αρχείο μέσω μη ασφαλών τρόπων (όπως μέσω ηλ. ταχυδρομείου). Διαγράψτε το αμέσως μόλις τελειώσετε με τη χρήση του.";
 "FileCouldNotBeProcessed" = "Δεν ήταν δυνατή η επεξεργασία του αρχείου";
 "GetVerificationCodesForAllYourAccounts" = "Λάβετε κωδικούς επαλήθευσης για όλους τους λογαριασμούς σας με επαλήθευση 2 βημάτων.";
 "Help" = "Βοήθεια";
@@ -1302,3 +1279,10 @@
 "SyncUnsuccessful" = "Ο συγχρονισμός ήταν ανεπιτυχής";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "Δεν μπορέσαμε να συγχρονίσουμε το θησαυροφυλάκιό σας με τον διακομιστή. Το θησαυροφυλάκιό σας μπορεί να μην αντικατοπτρίζει τις τελευταίες σας αλλαγές. Μπορείτε να δοκιμάσετε ξανά τώρα ή θα συγχρονιστεί αυτόματα αργότερα.";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "Επιβεβαίωση εξαγωγής";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "Αυτή η εξαγωγή περιέχει τα δεδομένα σε αποκρυπτογραφημένη μορφή. Δεν πρέπει να αποθηκεύετε ή να στείλετε το εξαγόμενο αρχείο μέσω μη ασφαλών τρόπων (όπως μέσω ηλ. ταχυδρομείου). Διαγράψτε το αμέσως μόλις τελειώσετε με τη χρήση του.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Create login";

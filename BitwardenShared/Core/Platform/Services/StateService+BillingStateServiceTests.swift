@@ -11,7 +11,7 @@ import Testing
 // MARK: - StateServiceBillingStateServiceTests
 
 @MainActor
-struct StateServiceBillingStateServiceTests {
+struct StateServiceBillingStateServiceTests { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     let appSettingsStore: MockAppSettingsStore
@@ -34,6 +34,69 @@ struct StateServiceBillingStateServiceTests {
             timeProvider: timeProvider,
             userSessionKeychainRepository: MockUserSessionKeychainRepository(),
         )
+    }
+
+    // MARK: Plan Badge
+
+    /// `getPlanBadgeDismissed(userId:)` returns whether the Plan badge has been dismissed.
+    @Test
+    func getPlanBadgeDismissed() async throws {
+        await subject.addAccount(.fixture())
+        var hasDismissedBadge = try await subject.getPlanBadgeDismissed(userId: nil)
+        #expect(!hasDismissedBadge)
+
+        appSettingsStore.planBadgeDismissedByUserId["1"] = true
+        hasDismissedBadge = try await subject.getPlanBadgeDismissed(userId: nil)
+        #expect(hasDismissedBadge)
+    }
+
+    /// `getPlanBadgeDismissed(userId:)` returns the value for the given user instead of the active account.
+    @Test
+    func getPlanBadgeDismissed_userId() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.planBadgeDismissedByUserId["2"] = true
+
+        let hasDismissedBadge = try await subject.getPlanBadgeDismissed(userId: "2")
+
+        #expect(hasDismissedBadge)
+    }
+
+    /// `getPlanBadgeDismissed(userId:)` throws errors if no user exists.
+    @Test
+    func getPlanBadgeDismissed_error() async {
+        await #expect(throws: StateServiceError.noActiveAccount) {
+            _ = try await subject.getPlanBadgeDismissed(userId: nil)
+        }
+    }
+
+    /// `setPlanBadgeDismissed(_:userId:)` sets whether the Plan badge has been dismissed.
+    @Test
+    func setPlanBadgeDismissed() async throws {
+        await subject.addAccount(.fixture())
+
+        try await subject.setPlanBadgeDismissed(true, userId: nil)
+        #expect(appSettingsStore.planBadgeDismissedByUserId["1"] == true)
+
+        try await subject.setPlanBadgeDismissed(false, userId: nil)
+        #expect(appSettingsStore.planBadgeDismissedByUserId["1"] == false)
+    }
+
+    /// `setPlanBadgeDismissed(_:userId:)` sets the value for the given user instead of the active account.
+    @Test
+    func setPlanBadgeDismissed_userId() async throws {
+        await subject.addAccount(.fixture())
+
+        try await subject.setPlanBadgeDismissed(true, userId: "2")
+
+        #expect(appSettingsStore.planBadgeDismissedByUserId == ["2": true])
+    }
+
+    /// `setPlanBadgeDismissed(_:userId:)` throws errors if no user exists.
+    @Test
+    func setPlanBadgeDismissed_error() async {
+        await #expect(throws: StateServiceError.noActiveAccount) {
+            try await subject.setPlanBadgeDismissed(true, userId: nil)
+        }
     }
 
     // MARK: Premium Upgrade Banner
@@ -221,6 +284,101 @@ struct StateServiceBillingStateServiceTests {
         #expect(otherAccountPending)
     }
 
+    // MARK: Previous Personal Premium
+
+    /// `getPreviousPersonalPremium(userId:)` returns the stored value for the active account.
+    @Test(arguments: [nil, false, true] as [Bool?])
+    func getPreviousPersonalPremium(storedValue: Bool?) async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.previousPersonalPremiumByUserId["1"] = storedValue
+
+        let result = try await subject.getPreviousPersonalPremium(userId: nil)
+
+        #expect(result == storedValue)
+    }
+
+    /// `getPreviousPersonalPremium(userId:)` throws when there is no active account.
+    @Test
+    func getPreviousPersonalPremium_noActiveAccount() async {
+        await #expect(throws: StateServiceError.noActiveAccount) {
+            _ = try await subject.getPreviousPersonalPremium(userId: nil)
+        }
+    }
+
+    /// `setPreviousPersonalPremium(_:userId:)` persists the value for the active account, and
+    /// clears it when given `nil`.
+    @Test
+    func setPreviousPersonalPremium() async throws {
+        await subject.addAccount(.fixture())
+
+        try await subject.setPreviousPersonalPremium(true, userId: nil)
+        #expect(appSettingsStore.previousPersonalPremiumByUserId["1"] == true)
+
+        try await subject.setPreviousPersonalPremium(false, userId: nil)
+        #expect(appSettingsStore.previousPersonalPremiumByUserId["1"] == false)
+
+        try await subject.setPreviousPersonalPremium(nil, userId: nil)
+        #expect(appSettingsStore.previousPersonalPremiumByUserId["1"] == nil)
+    }
+
+    // MARK: Subscription
+
+    /// `getHasPersonalSubscription(userId:)` returns the stored value for the active account,
+    /// which is `nil` when no value has been stored.
+    @Test(arguments: [nil, false, true] as [Bool?])
+    func getHasPersonalSubscription(storedValue: Bool?) async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.hasPersonalSubscriptionByUserId["1"] = storedValue
+
+        let result = try await subject.getHasPersonalSubscription(userId: nil)
+
+        #expect(result == storedValue)
+    }
+
+    /// `getHasPersonalSubscription(userId:)` throws when there is no active account.
+    @Test
+    func getHasPersonalSubscription_noActiveAccount() async {
+        await #expect(throws: StateServiceError.noActiveAccount) {
+            _ = try await subject.getHasPersonalSubscription(userId: nil)
+        }
+    }
+
+    /// `getHasPersonalSubscription(userId:)` and `setHasPersonalSubscription(_:userId:)` operate on
+    /// the given account regardless of which account is currently active.
+    @Test
+    func hasPersonalSubscription_explicitUserId_notActiveAccount() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+        await subject.addAccount(.fixture(profile: .fixture(userId: "2")))
+        try await subject.setActiveAccount(userId: "1")
+
+        try await subject.setHasPersonalSubscription(true, userId: "2")
+
+        let activeAccountValue = try await subject.getHasPersonalSubscription()
+        let otherAccountValue = try await subject.getHasPersonalSubscription(userId: "2")
+        #expect(activeAccountValue == nil)
+        #expect(otherAccountValue == true)
+    }
+
+    /// `setHasPersonalSubscription(_:userId:)` persists the value for the active account.
+    @Test
+    func setHasPersonalSubscription() async throws {
+        await subject.addAccount(.fixture())
+
+        try await subject.setHasPersonalSubscription(true, userId: nil)
+        #expect(appSettingsStore.hasPersonalSubscriptionByUserId["1"] == true)
+
+        try await subject.setHasPersonalSubscription(false, userId: nil)
+        #expect(appSettingsStore.hasPersonalSubscriptionByUserId["1"] == false)
+    }
+
+    /// `setHasPersonalSubscription(_:userId:)` throws errors if no user exists.
+    @Test
+    func setHasPersonalSubscription_error() async {
+        await #expect(throws: StateServiceError.noActiveAccount) {
+            try await subject.setHasPersonalSubscription(true, userId: nil)
+        }
+    }
+
     // MARK: Subscription Attention Card
 
     /// `getSubscriptionAttentionCardVisible()` returns `false` when no value has been set.
@@ -316,4 +474,4 @@ struct StateServiceBillingStateServiceTests {
         #expect(!activeAccountVisible)
         #expect(otherAccountVisible)
     }
-}
+} // swiftlint:disable:this file_length

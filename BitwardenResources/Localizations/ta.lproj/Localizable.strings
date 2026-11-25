@@ -28,7 +28,6 @@
 "FolderCreated" = "புதிய கோப்புறை உருவாக்கப்பட்டது";
 "FolderDeleted" = "கோப்புறை அழிக்கப்பட்டது.";
 "FolderNone" = "கோப்புறையற்றவை";
-"Folders" = "கோப்புறைகள்";
 "FolderUpdated" = "கோப்புறை சேமிக்கப்பட்டது";
 "MyFolder" = "எனது கோப்புறை";
 "MyFolders" = "எனது கோப்புறைகள்";
@@ -263,12 +262,8 @@
 "ShowWebsiteIconsDescription" = "ஒவ்வொரு உள்நுழைவுக்கு அடுத்தும் அறியம்படியான படத்தைக் காட்டு.";
 "IconsUrl" = "படவுரு தேக்க உரலி";
 "AutofillWithBitwarden" = "பிட்வார்டனுடன் தானாக நிரப்பு";
-/* Section header and screen title for viewing/managing a cipher's collections. */
-"Collections" = "தொகுப்புகள்";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "பகிரப்பட்ட கோப்புறைகள்";
-/* Empty state message shown when a collection has no items. */
-"NoItemsCollection" = "இந்தத் தொகுப்பில் எந்தப் பொருளும் இல்லை";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "இந்த பகிரப்பட்ட கோப்புறையில் எந்த உருப்படிகளும் இல்லை";
 "NoItemsFolder" = "இந்தக் கோப்புறையில் எந்தப் பொருளும் இல்லை";
@@ -290,8 +285,6 @@
 "RegEx" = "சுருங்குறித்தொடர்";
 "StartsWith" = "தொடக்கம்";
 "MatchDetection" = "பொருத்தம் கண்டறிதல்";
-/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
-"Organization" = "நிறுவனம்";
 "HoldYubikeyNearTop" = "உம் யூபிவிசையை சாதனத்தின் உச்சிக்கருகில் பிடித்திரு.";
 "TryAgain" = "மீண்டும் முயல்";
 "YubiKeyInstructionIos" = "தொடர, உம் யீபிகீ NEOவை சாதனத்தின் பின்புறத்திற்கெதிரே பிடித்திரு.";
@@ -327,27 +320,17 @@
 "NoItemsToList" = "பட்டியலிட உருப்படிகளில்லை.";
 "MoveDown" = "கீழே நகரவும்";
 "MoveUp" = "மேலே நகரவும்";
-/* Empty state message on the Collections screen shown when a user has no collections. */
-"NoCollectionsToList" = "பட்டியலிட தொகுப்புகளில்லை.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "பட்டியலிட பகிரப்பட்ட கோப்புறைகள் எதுவும் இல்லை.";
 "MovedItemToOrg" = "%1$@ %2$@-க்கு நகர்த்தப்பட்டது.";
-/* Alert message shown when saving an item with no collection selected. */
-"SelectOneCollection" = "நீங்கள் ஒரு தொகுப்பாவது தேர்ந்தெடுக்க வேண்டும்.";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "குறைந்தது ஒரு பகிரப்பட்ட கோப்புறையையாவது தேர்ந்தெடுக்க வேண்டும்.";
 "Share" = "பகிர்";
 "ShareAll" = "அனைத்தையும் பகிர்";
-/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
-"MoveToOrganization" = "நிறுவனத்துக்கு நகர்த்து";
-/* Empty state message shown when a user has no vaults available to move an item into, when the "vfo1-foundation" feature flag is enabled. */
+/* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "பட்டியலிட பாதுகாப்பு பைகள் இல்லை.";
-/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
-"NoOrgsToList" = "பட்டியலிட நிறுவனங்களில்லை.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization, when the "vfo1-foundation" feature flag is enabled. */
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "இந்த பொருளை நகர்த்த விரும்பும் ஒரு பாதுகாப்பு பையைத் தேர்ந்தெடுக்கவும். மற்றொரு பாதுகாப்பு பைக்கு நகர்த்துவது பொருளின் உரிமையை அந்த நிறுவனத்திற்கு மாற்றுகிறது. பொருள் நகர்த்தப்பட்டவுடன் நீங்கள் அதன் நேரடி உரிமையாளராக இருக்க மாட்டீர்கள்.";
-/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
-"MoveToOrgDesc" = "இவ்வுருப்படியை நகர்த்த நிறுவனத்தைத் தேர்வுசெய். நிறுவனத்திற்கு நகர்த்தல் உருப்படியின் உரிமையை அந்நிறுவனத்திற்கு மாற்றும். நகர்த்தியபின் இவ்வுருப்படிக்கு நேரடி உரிமையாளராக இருக்கமாட்டீர்.";
 "NumberOfWords" = "சொற்களின் எண்ணிக்கை";
 "Passphrase" = "கடவுச்சொற்றொடர்";
 "WordSeparator" = "சொல் பிரிப்பான்";
@@ -452,9 +435,10 @@
 "HideEmail" = "பெறுநர்களிடமிருந்து என் மின்னஞ்சல் முகவரியை மறை";
 "SendOptionsPolicyInEffect" = "ஒன்று அ மேற்பட்ட நிறுவன கொள்கைகள் உமது Send தெரிவுகளை பாதிக்கிறது.";
 "SendFilePremiumRequired" = "இலவச கணக்குகள் சொற்சரம் மட்டும் பகிர்தலுக்கு கட்டுப்படுத்தப்பட்டுள்ளது. Send உடன் கோப்புகளை பயன்படுத்த உயர்தர உறுப்பினர் தகுதி தேவை.";
-"SendFileEmailVerificationRequired" = "Send உடன் கோப்புகளைப் பயன்படுத்த உம் மின்னஞ்சலைக் கட்டாயம் சரிபார்க்க வேண்டும்.  உம் மின்னஞ்சலை வலைப்பெட்டகத்தில் சரிபார்க்கலாம்.";
-/* Alert message shown when Send Controls policy restricts creation to one Send type. %1$@ is the allowed Send type, either "File" or "Text". */
-"DueToAnEnterprisePolicyYouCanOnlyCreateXSends" = "நிறுவனக் கொள்கை காரணமாக, நீங்கள் %1$@ Sends மட்டுமே உருவாக்க முடியும்.";
+/* Alert message shown when Send Controls policy restricts creation to File Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateFileSends" = "Due to an enterprise policy, you can only create File Sends.";
+/* Alert message shown when Send Controls policy restricts creation to Text Sends only. */
+"DueToAnEnterprisePolicyYouCanOnlyCreateTextSends" = "Due to an enterprise policy, you can only create Text Sends.";
 "OrganizationPolicyRestriction" = "நிறுவனக் கொள்கை கட்டுப்பாடு";
 "TextSendsAreNotAllowedDescriptionLong" = "உங்கள் நிறுவனத்திற்கு உரை Sends அனுமதிக்கப்படவில்லை மற்றும் இந்த Send அமைக்கப்பட்ட நீக்கல் தேதியில் தானாகவே காலாவதியாகும்.";
 "ThisSendIsNotCompliantDescriptionLong" = "இந்த Send உங்கள் நிறுவனத்தின் Send கொள்கைக்கு இணங்கவில்லை மற்றும் அமைக்கப்பட்ட நீக்கல் தேதியில் தானாகவே காலாவதியாகும்.";
@@ -890,7 +874,6 @@
 "PersonalDetails" = "தனிப்பட்ட விவரங்கள்";
 "ContactInfo" = "தொடர்பு தகவல்";
 "Identification" = "அடையாளம்";
-"Owner" = "உரிமையாளர்";
 "VerifyYourIdentity" = "உங்கள் அடையாளத்தைச் சரிபார்க்கவும்";
 "ThisOperationIsNotAllowedOnThisAccount" = "இந்தக் கணக்கில் இந்தச் செயல்பாடு அனுமதிக்கப்படவில்லை";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "தற்போதைய பயனரைப் பூட்ட முயற்சிக்கும்போது ஒரு பிழை ஏற்பட்டது";
@@ -908,13 +891,9 @@
 "ShowMore" = "மேலும் காட்டு";
 "ShowLess" = "குறைவாக காட்டு";
 "ItemNameX" = "பொருள் பெயர், %1$@";
-"OwnerX" = "உரிமையாளர், %1$@";
 "VaultX" = "பெட்டகம், %1$@";
-/* VoiceOver accessibility label for a collection the item belongs to. */
-"CollectionX" = "தொகுப்பு, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "பகிரப்பட்ட கோப்புறை, %1$@";
-"FolderX" = "கோப்புறை, %1$@";
 "MyFolderX" = "எனது கோப்புறை, %1$@";
 "ItemXOfY" = "பொருள் %1$@ இல் %2$@";
 "ViewRecordedLogs" = "பதிவு செய்யப்பட்ட பதிவுகளைப் பார்";
@@ -982,8 +961,6 @@
 "DefaultSaveOption" = "இயல்புநிலைச் சேமிப்பு விருப்பம்";
 "DownloadTheBitwardenApp" = "Bitwarden பயன்பாட்டைப் பதிவிறக்கவும்";
 "EnsureItsValidJsonAndTryAgain" = "இது ஒரு சரியான JSON என்பதை உறுதிசெய்து மீண்டும் முயற்சிக்கவும்.";
-"ExportItemsConfirmationTitle" = "பொருட்களின் ஏற்றுமதியை உறுதிப்படுத்து";
-"ExportItemsWarning" = "இந்த ஏற்றுமதி உங்கள் பொருள் தரவை என்க்ரிப்ட் செய்யப்படாத வடிவத்தில் கொண்டுள்ளது. ஏற்றுமதி செய்யப்பட்ட கோப்பை பாதுகாப்பற்ற சேனல்களில் (மின்னஞ்சல் போன்றவை) சேமிக்கவோ அல்லது அனுப்பவோ கூடாது. அதைப் பயன்படுத்திய உடனேயே அதை நீக்கிவிட வேண்டும்.";
 "FileCouldNotBeProcessed" = "கோப்பைச் செயல்படுத்த முடியவில்லை";
 "GetVerificationCodesForAllYourAccounts" = "2-படி சரிபார்ப்பைப் பயன்படுத்தி உங்கள் அனைத்துக் கணக்குகளுக்கும் சரிபார்ப்புக் குறியீடுகளைப் பெறுங்கள்.";
 "Help" = "உதவி";
@@ -1303,3 +1280,10 @@
 "SyncUnsuccessful" = "ஒத்திசைவு வெற்றிபெறவில்லை";
 "WeCouldntSyncYourVaultWithTheServerDescriptionLong" = "உங்கள் பாதுகாப்பு பையை சேவையகத்துடன் ஒத்திசைக்க முடியவில்லை. உங்கள் பாதுகாப்பு பை உங்கள் சமீபத்திய மாற்றங்களைப் பிரதிபலிக்காமல் இருக்கலாம். நீங்கள் இப்போது மீண்டும் முயற்சிக்கலாம் அல்லது அது பின்னர் தானாக ஒத்திசைக்கும்.";
 "TextToShareRequired" = "Text to share (required)";
+/* Header on the Authenticator export screen, shown above a description of which codes are exported. */
+"IncludedInThisReport" = "Included in this report";
+"OnlyCodesStoredLocallyOnThisDeviceDescriptionLong" = "Only codes stored locally on this device will be exported. Synced codes aren’t included.";
+"ConfirmExport" = "ஏற்றுமதியை உறுதிப்படுத்து";
+"ForYourSecurityDontShareOrSendDescriptionLong" = "இவ்வேற்றுமதி உம் பெட்டக தரவை மறையாக்கப்படா வடிவில் கொண்டுள்ளது. சேமிக்கவோ பாதுகாப்பற்ற தடங்களில் (மின்னஞ்சல் போன்றவை) அனுப்பவோ கூடாது. பயன்படுத்தியவுடன் அழித்துவிடவும்.";
+/* Primary button on the generator screen that opens the add login screen, prefilled with the generated value. */
+"CreateLogin" = "Create login";
