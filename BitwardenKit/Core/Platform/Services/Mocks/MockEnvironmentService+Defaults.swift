@@ -5,6 +5,8 @@ import Foundation
 public extension MockEnvironmentService {
     /// Creates a `MockEnvironmentService` pre-configured with self-hosted `example.com` URLs.
     ///
+    /// Sets every URL and the region, which the generated mock leaves unset.
+    ///
     /// - Returns: A `MockEnvironmentService` with every URL and the region set.
     ///
     static func withDefaults() -> MockEnvironmentService {

@@ -25,7 +25,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     var billingService: MockBillingService!
     var changeKdfService: MockChangeKdfService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
-    var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
     var eventService: MockEventService!
     var flightRecorder: MockFlightRecorder!
@@ -65,10 +64,8 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         billingService.isPremiumUpgradeBannerDismissedReturnValue = false
         billingService.premiumUpgradeLifecycleStateReturnValue = .notPremium
         billingService.shouldShowUpgradedToPremiumActionCardReturnValue = false
-        errorReporter = MockErrorReporter()
         changeKdfService = MockChangeKdfService()
         coordinator = MockCoordinator()
-        environmentService = MockEnvironmentService.withDefaults()
         errorReporter = MockErrorReporter()
         eventService = MockEventService()
         flightRecorder = MockFlightRecorder()
@@ -130,7 +127,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         billingService = nil
         changeKdfService = nil
         coordinator = nil
-        environmentService = nil
         errorReporter = nil
         eventService = nil
         flightRecorder = nil
