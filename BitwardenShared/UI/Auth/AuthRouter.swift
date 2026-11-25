@@ -7,6 +7,7 @@ final class AuthRouter: NSObject, Router {
     // MARK: Types
 
     typealias Services = HasAuthRepository
+        & HasAutofillCredentialService
         & HasBiometricsRepository
         & HasClientService
         & HasConfigService
@@ -60,6 +61,8 @@ final class AuthRouter: NSObject, Router {
             return await handleAuthAction(authAction)
         case .didCompleteAuth:
             return await completeAuthRedirect()
+        case .didCompleteVaultUnlockSetup:
+            return await completeVaultUnlockSetupRedirect()
         case .didDeleteAccount:
             return await deleteAccountRedirect()
         case let .didLockAccount(

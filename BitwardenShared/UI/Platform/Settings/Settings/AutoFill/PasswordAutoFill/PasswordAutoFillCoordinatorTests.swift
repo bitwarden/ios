@@ -52,11 +52,22 @@ class PasswordAutoFillCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(action.type, .popped)
     }
 
-    /// `navigate(to:)` with `.passwordAutofill(mode:)` pushes the password autofill view onto the
-    /// stack navigator.
+    /// `navigate(to:)` with `.passwordAutofill(mode: .onboarding)` replaces the stack navigator's
+    /// stack with the password autofill view.
     @MainActor
-    func test_navigateTo_passwordAutofill() throws {
+    func test_navigateTo_passwordAutofill_onboarding() throws {
         subject.navigate(to: .passwordAutofill(mode: .onboarding))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .replaced)
+        XCTAssertTrue(action.view is PasswordAutoFillView)
+    }
+
+    /// `navigate(to:)` with `.passwordAutofill(mode: .settings)` pushes the password autofill view
+    /// onto the stack navigator.
+    @MainActor
+    func test_navigateTo_passwordAutofill_settings() throws {
+        subject.navigate(to: .passwordAutofill(mode: .settings))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .pushed)

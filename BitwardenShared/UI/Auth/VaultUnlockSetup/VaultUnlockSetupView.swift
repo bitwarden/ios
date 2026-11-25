@@ -19,7 +19,7 @@ struct VaultUnlockSetupView: View {
             IllustratedMessageView(
                 image: Asset.Images.Illustrations.biometricsPhone,
                 title: Localizations.setUpUnlock,
-                message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,
+                message: store.state.message,
             )
             .padding(.top, 12)
 

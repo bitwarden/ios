@@ -13,6 +13,13 @@ class MockAutofillCredentialService: AutofillCredentialService {
     var provideFido2CredentialResult: Result<PasskeyAssertionCredential, Error> = .failure(BitwardenTestError.example)
     var provideOTPCredentialResult: Result<OneTimeCodeCredential, Error> = .failure(BitwardenTestError.example)
     var updateCredentialsInStoreCalled = false
+    var updateCredentialsInStoreCallsCount = 0
+    var upsertCredentialsInStoreCipherIds = [String]()
+    /// The continuation of a suspended `upsertCredentialsInStore(forCipherId:)` call, if any.
+    var upsertCredentialsInStoreContinuation: CheckedContinuation<Void, Never>?
+    /// When `true`, `upsertCredentialsInStore(forCipherId:)` suspends until
+    /// `resumeUpsertCredentialsInStore()` is called.
+    var upsertCredentialsInStoreSuspends = false
 
     func isAutofillCredentialsEnabled() async -> Bool {
         isAutofillCredentialsEnabled
@@ -67,8 +74,23 @@ class MockAutofillCredentialService: AutofillCredentialService {
         return credential
     }
 
+    /// Resumes a suspended `upsertCredentialsInStore(forCipherId:)` call.
+    func resumeUpsertCredentialsInStore() {
+        upsertCredentialsInStoreContinuation?.resume()
+        upsertCredentialsInStoreContinuation = nil
+    }
+
     func updateCredentialsInStore() async {
         updateCredentialsInStoreCalled = true
+        updateCredentialsInStoreCallsCount += 1
+    }
+
+    func upsertCredentialsInStore(forCipherId cipherId: String) async {
+        upsertCredentialsInStoreCipherIds.append(cipherId)
+        guard upsertCredentialsInStoreSuspends else { return }
+        await withCheckedContinuation { continuation in
+            upsertCredentialsInStoreContinuation = continuation
+        }
     }
 }
 
