@@ -29,7 +29,7 @@ struct PremiumUpgradeHelperTests { // swiftlint:disable:this type_body_length
         billingService = MockBillingService()
         billingService.premiumUpgradeLifecycleStateReturnValue = .notPremium
         coordinator = MockCoordinator()
-        environmentService = MockEnvironmentService()
+        environmentService = MockEnvironmentService.withDefaults()
     }
 
     // MARK: Helpers

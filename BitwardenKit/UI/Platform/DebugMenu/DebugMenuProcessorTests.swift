@@ -26,7 +26,7 @@ class DebugMenuProcessorTests: BitwardenTestCase {
         configService = MockConfigService()
         coordinator = MockCoordinator<DebugMenuRoute, Void>()
         debugStateService = MockDebugStateService()
-        environmentService = MockEnvironmentService()
+        environmentService = MockEnvironmentService.withDefaults()
         errorReportBuilder = MockErrorReportBuilder()
         errorReporter = MockErrorReporter()
         serverCommunicationConfigClientSingleton = MockServerCommunicationConfigClientSingleton()

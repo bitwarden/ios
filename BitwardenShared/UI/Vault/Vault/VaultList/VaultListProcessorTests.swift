@@ -68,7 +68,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         errorReporter = MockErrorReporter()
         changeKdfService = MockChangeKdfService()
         coordinator = MockCoordinator()
-        environmentService = MockEnvironmentService()
+        environmentService = MockEnvironmentService.withDefaults()
         errorReporter = MockErrorReporter()
         eventService = MockEventService()
         flightRecorder = MockFlightRecorder()

@@ -16,7 +16,7 @@ extension APIService {
     ) {
         self.init(
             client: client,
-            environmentService: MockEnvironmentService(),
+            environmentService: MockEnvironmentService.withDefaults(),
             flightRecorder: flightRecorder,
             userAgentBuilder: userAgentBuilder,
         )

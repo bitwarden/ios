@@ -69,7 +69,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         coordinator = MockCoordinator()
         appModule.authRouter = router
         appModule.appCoordinator = coordinator
-        environmentService = MockEnvironmentService()
+        environmentService = MockEnvironmentService.withDefaults()
         errorReporter = MockErrorReporter()
         fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
         eventService = MockEventService()
@@ -1744,7 +1744,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     @MainActor
     func test_prepareEnvironmentConfig() async throws {
         await subject.prepareEnvironmentConfig()
-        XCTAssertTrue(environmentService.didLoadURLsForActiveAccount)
+        XCTAssertTrue(environmentService.loadURLsForActiveAccountCalled)
         XCTAssertTrue(configService.configMocker.called)
     }
 
@@ -1761,7 +1761,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await subject.prepareEnvironmentConfig()
 
         XCTAssertEqual(
-            environmentService.setPreAuthEnvironmentURLsData,
+            environmentService.setPreAuthURLsReceivedUrls,
             EnvironmentURLData(base: URL(string: "https://vault.example.com")),
         )
     }
@@ -1777,7 +1777,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await subject.applyDebugEnvironmentOverride(userDefaults: userDefaults, hostHomeDirectory: nil)
 
         XCTAssertEqual(
-            environmentService.setPreAuthEnvironmentURLsData,
+            environmentService.setPreAuthURLsReceivedUrls,
             EnvironmentURLData(base: URL(string: "https://vault.example.com")),
         )
     }
@@ -1811,7 +1811,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await subject.applyDebugEnvironmentOverride(userDefaults: userDefaults, hostHomeDirectory: homeDirectory)
 
         XCTAssertEqual(
-            environmentService.setPreAuthEnvironmentURLsData,
+            environmentService.setPreAuthURLsReceivedUrls,
             EnvironmentURLData(
                 api: URL(string: "https://api.example.com"),
                 base: URL(string: "https://vault.example.com"),
@@ -1838,7 +1838,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await subject.applyDebugEnvironmentOverride(userDefaults: userDefaults, hostHomeDirectory: homeDirectory)
 
         XCTAssertEqual(
-            environmentService.setPreAuthEnvironmentURLsData,
+            environmentService.setPreAuthURLsReceivedUrls,
             EnvironmentURLData(base: URL(string: "https://vault.example.com")),
         )
         XCTAssertEqual(errorReporter.errors.count, 1)
@@ -1857,7 +1857,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await subject.applyDebugEnvironmentOverride(userDefaults: userDefaults, hostHomeDirectory: homeDirectory)
 
         XCTAssertEqual(
-            environmentService.setPreAuthEnvironmentURLsData,
+            environmentService.setPreAuthURLsReceivedUrls,
             EnvironmentURLData(base: URL(string: "https://vault.example.com")),
         )
     }
@@ -1871,7 +1871,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         await subject.applyDebugEnvironmentOverride(userDefaults: userDefaults, hostHomeDirectory: nil)
 
-        XCTAssertNil(environmentService.setPreAuthEnvironmentURLsData)
+        XCTAssertNil(environmentService.setPreAuthURLsReceivedUrls)
     }
 
     /// `applyDebugEnvironmentOverride(userDefaults:hostHomeDirectory:)` ignores a value that isn't a valid
@@ -1884,7 +1884,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         await subject.applyDebugEnvironmentOverride(userDefaults: userDefaults, hostHomeDirectory: nil)
 
-        XCTAssertNil(environmentService.setPreAuthEnvironmentURLsData)
+        XCTAssertNil(environmentService.setPreAuthURLsReceivedUrls)
     }
 
     /// Writes the contents to the debug environment file inside a new temporary home directory.

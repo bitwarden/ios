@@ -25,7 +25,7 @@ struct PremiumPlanProcessorTests {
     init() {
         billingService = MockBillingService()
         coordinator = MockCoordinator<BillingRoute, Void>()
-        environmentService = MockEnvironmentService()
+        environmentService = MockEnvironmentService.withDefaults()
         errorReporter = MockErrorReporter()
         let services = ServiceContainer.withMocks(
             billingService: billingService,

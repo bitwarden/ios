@@ -54,7 +54,7 @@ extension ServiceContainer {
         configService: ConfigService = MockConfigService(),
         debugStateService: any DebugStateService = MockDebugStateService(),
         errorReportBuilder: ErrorReportBuilder = MockErrorReportBuilder(),
-        environmentService: EnvironmentService = MockEnvironmentService(),
+        environmentService: EnvironmentService = MockEnvironmentService.withDefaults(),
         errorReporter: ErrorReporter = MockErrorReporter(),
         flightRecorder: FlightRecorder = MockFlightRecorder(),
         languageStateService: LanguageStateService = MockLanguageStateService(),

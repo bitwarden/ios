@@ -32,7 +32,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         authRepository = MockAuthRepository()
         authService = MockAuthService()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
-        environmentService = MockEnvironmentService()
+        environmentService = MockEnvironmentService.withDefaults()
         errorReporter = MockErrorReporter()
         nfcReaderService = MockNFCReaderService()
 

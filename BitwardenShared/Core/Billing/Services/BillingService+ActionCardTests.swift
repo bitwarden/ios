@@ -36,7 +36,7 @@ struct BillingServiceActionCardTests {
         billingStateService.getPremiumUpgradeBannerDismissedReturnValue = false
         configService = MockConfigService()
         configService.featureFlagsBool[.premiumUpgradePath] = true
-        environmentService = MockEnvironmentService()
+        environmentService = MockEnvironmentService.withDefaults()
         environmentService.region = .unitedStates
         errorReporter = MockErrorReporter()
         subject = DefaultBillingService(

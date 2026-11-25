@@ -20,7 +20,7 @@ class ClientBuilderTests: BitwardenTestCase {
 
         appIDService = AppIDService(appIDSettingsStore: MockAppIDSettingsStore())
         clientManagedTokens = MockClientManagedTokens()
-        environmentService = MockEnvironmentService()
+        environmentService = MockEnvironmentService.withDefaults()
         subject = DefaultClientBuilder(
             appIDService: appIDService,
             environmentService: environmentService,

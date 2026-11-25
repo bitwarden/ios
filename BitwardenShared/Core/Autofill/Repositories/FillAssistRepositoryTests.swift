@@ -28,7 +28,7 @@ struct FillAssistRepositoryTests {
     init() {
         appSettingsStore = MockAppSettingsStore()
         configService = MockConfigService()
-        environmentService = MockEnvironmentService()
+        environmentService = MockEnvironmentService.withDefaults()
         errorReporter = MockErrorReporter()
         fillAssistAPIService = MockFillAssistAPIService()
         dataFingerprintService = MockDataFingerprintService()

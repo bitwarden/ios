@@ -37,7 +37,7 @@ struct BillingServicePremiumUpgradePendingTests { // swiftlint:disable:this type
         billingStateService.getPremiumUpgradePendingReturnValue = false
         configService = MockConfigService()
         configService.featureFlagsBool[.premiumUpgradePath] = true
-        environmentService = MockEnvironmentService()
+        environmentService = MockEnvironmentService.withDefaults()
         environmentService.region = .unitedStates
         errorReporter = MockErrorReporter()
         stateService = MockStateService()

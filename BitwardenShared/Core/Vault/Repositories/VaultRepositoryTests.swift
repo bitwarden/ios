@@ -61,7 +61,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         collectionHelper = MockCollectionHelper()
         collectionService = MockCollectionService()
         configService = MockConfigService()
-        environmentService = MockEnvironmentService()
+        environmentService = MockEnvironmentService.withDefaults()
         errorReporter = MockErrorReporter()
         fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
         folderService = MockFolderService()
