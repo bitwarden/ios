@@ -11,8 +11,6 @@ class MockStateService: StateService {
     var appId: String = "mockAppId"
     var appLanguage: LanguageOption = .default
     var appTheme: AppTheme?
-    var clearClipboardValues = [String: ClearClipboardValue]()
-    var clearClipboardResult: Result<Void, Error> = .success(())
     var getSecretKeyResult: Result<String, Error> = .success("qwerty")
     var hasSeenWelcomeTutorial: Bool = false
     var flightRecorderData: FlightRecorderData?
@@ -31,12 +29,6 @@ class MockStateService: StateService {
 
     func getAppTheme() async -> AppTheme {
         appTheme ?? .default
-    }
-
-    func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
-        try clearClipboardResult.get()
-        let userId = try unwrapUserId(userId)
-        return clearClipboardValues[userId] ?? .never
     }
 
     func getFlightRecorderData() async -> FlightRecorderData? {
@@ -58,12 +50,6 @@ class MockStateService: StateService {
 
     func setAppTheme(_ appTheme: AppTheme) async {
         self.appTheme = appTheme
-    }
-
-    func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
-        try clearClipboardResult.get()
-        let userId = try unwrapUserId(userId)
-        clearClipboardValues[userId] = clearClipboardValue
     }
 
     func setFlightRecorderData(_ data: FlightRecorderData?) async {

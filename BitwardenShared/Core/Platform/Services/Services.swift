@@ -329,13 +329,6 @@ protocol HasNotificationService {
     var notificationService: NotificationService { get }
 }
 
-/// Protocol for an object that provides a `PasteboardService`.
-///
-protocol HasPasteboardService {
-    /// The service used by the application for sharing data with other apps.
-    var pasteboardService: PasteboardService { get }
-}
-
 /// Protocol for an object that provides a `NotificationCenterService`.
 ///
 protocol HasNotificationCenterService {

@@ -158,7 +158,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     let notificationService: NotificationService
 
     /// The service used by the application for sharing data with other apps.
-    let pasteboardService: PasteboardService
+    public let pasteboardService: PasteboardService
 
     /// The mediator to execute pending `AppIntent` actions.
     let pendingAppIntentActionMediator: PendingAppIntentActionMediator
@@ -828,6 +828,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let twoStepLoginService = DefaultTwoStepLoginService(environmentService: environmentService)
 
         let pasteboardService = DefaultPasteboardService(
+            activeAccountIdPublisherProvider: stateService,
             errorReporter: errorReporter,
             stateService: stateService,
         )

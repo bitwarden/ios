@@ -727,6 +727,21 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(value)
     }
 
+    /// `getAllowUniversalClipboard(userId:)` returns the Universal Clipboard setting for the active account.
+    func test_getAllowUniversalClipboard() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.allowUniversalClipboardByUserId["1"] = true
+        let value = try await subject.getAllowUniversalClipboard(userId: nil)
+        XCTAssertTrue(value)
+    }
+
+    /// `getAllowUniversalClipboard(userId:)` defaults to `false` if the active account doesn't have a value set.
+    func test_getAllowUniversalClipboard_notSet() async throws {
+        await subject.addAccount(.fixture())
+        let value = try await subject.getAllowUniversalClipboard(userId: nil)
+        XCTAssertFalse(value)
+    }
+
     /// `getAppRehydrationState(userId:)` returns the app rehydration state for the active account.
     func test_getAppRehydrationState() async throws {
         await subject.addAccount(.fixture())
@@ -785,11 +800,11 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(valueUser2)
     }
 
-    /// `getClearClipboardValue()` returns the clear clipboard value for the active account.
+    /// `getClearClipboardValue(userId:)` returns the clear clipboard value for the active account.
     func test_getClearClipboardValue() async throws {
         await subject.addAccount(.fixture())
         appSettingsStore.clearClipboardValues["1"] = .twoMinutes
-        let value = try await subject.getClearClipboardValue()
+        let value = try await subject.getClearClipboardValue(userId: nil)
         XCTAssertEqual(value, .twoMinutes)
     }
 
@@ -818,10 +833,10 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(value)
     }
 
-    /// `getClearClipboardValue()` returns `.never` if the active account doesn't have a value set.
+    /// `getClearClipboardValue(userId:)` returns `.never` if the active account doesn't have a value set.
     func test_getClearClipboardValue_notSet() async throws {
         await subject.addAccount(.fixture())
-        let value = try await subject.getClearClipboardValue()
+        let value = try await subject.getClearClipboardValue(userId: nil)
         XCTAssertEqual(value, .never)
     }
 
@@ -2071,6 +2086,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.allowSyncOnRefreshes["1"], true)
     }
 
+    /// `setAllowUniversalClipboard(_:userId:)` sets the Universal Clipboard setting for a user.
+    func test_setAllowUniversalClipboard() async throws {
+        await subject.addAccount(.fixture())
+
+        try await subject.setAllowUniversalClipboard(true, userId: nil)
+        XCTAssertEqual(appSettingsStore.allowUniversalClipboardByUserId["1"], true)
+    }
+
     /// `setAppRehydrationState(_:userId:)` sets the app rehydration state for the given account.
     func test_setAppRehydrationState() async throws {
         await subject.addAccount(.fixture())
@@ -2132,7 +2155,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_setClearClipboardValue() async throws {
         await subject.addAccount(.fixture())
 
-        try await subject.setClearClipboardValue(.thirtySeconds)
+        try await subject.setClearClipboardValue(.thirtySeconds, userId: nil)
         XCTAssertEqual(appSettingsStore.clearClipboardValues["1"], .thirtySeconds)
     }
 

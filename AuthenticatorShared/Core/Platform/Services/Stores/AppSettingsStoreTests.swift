@@ -23,6 +23,24 @@ struct AppSettingsStoreTests {
 
     // MARK: Tests
 
+    /// `allowUniversalClipboard(userId:)` returns `false` if there isn't a previously stored value.
+    @Test
+    func allowUniversalClipboard_isInitiallyFalse() {
+        #expect(!subject.allowUniversalClipboard(userId: "-1"))
+    }
+
+    /// `allowUniversalClipboard(userId:)` can be used to get the allow universal clipboard value for a user.
+    @Test
+    func allowUniversalClipboard_withValue() {
+        subject.setAllowUniversalClipboard(true, userId: "1")
+        subject.setAllowUniversalClipboard(false, userId: "2")
+
+        #expect(subject.allowUniversalClipboard(userId: "1"))
+        #expect(!subject.allowUniversalClipboard(userId: "2"))
+        #expect(userDefaults.bool(forKey: "bwaPreferencesStorage:allowUniversalClipboard_1"))
+        #expect(!userDefaults.bool(forKey: "bwaPreferencesStorage:allowUniversalClipboard_2"))
+    }
+
     /// `appID` returns `nil` if there isn't a previously stored value.
     @Test
     func appID_isInitiallyNil() {

@@ -143,13 +143,6 @@ protocol StateService: AnyObject, DebugStateService {
     ///
     func getAllowSyncOnRefresh(userId: String?) async throws -> Bool
 
-    /// Gets the Universal Clipboard setting for a user account.
-    ///
-    /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
-    /// - Returns: A Boolean value indicating whether Universal Clipboard is allowed.
-    ///
-    func getAllowUniversalClipboard(userId: String?) async throws -> Bool
-
     /// Gets the app rehydration state.
     /// - Parameter userId: The user ID associated with this state.
     /// - Returns: The rehydration state.
@@ -166,14 +159,6 @@ protocol StateService: AnyObject, DebugStateService {
     /// - Returns: Whether the archive onboarding has been shown.
     ///
     func getArchiveOnboardingShown() async -> Bool
-
-    /// Gets the clear clipboard value for an account.
-    ///
-    /// - Parameter userId: The user ID associated with the clear clipboard value. Defaults to the active
-    ///   account if `nil`
-    /// - Returns: The time after which the clipboard should clear.
-    ///
-    func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue
 
     /// Gets the IDs of the collapsed vault list sections for the user ID.
     ///
@@ -572,14 +557,6 @@ protocol StateService: AnyObject, DebugStateService {
     ///
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool, userId: String?) async throws
 
-    /// Sets the Universal Clipboard setting for a user account.
-    ///
-    /// - Parameters:
-    ///   - allowUniversalClipboard: A Boolean value indicating whether Universal Clipboard should be allowed.
-    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
-    ///
-    func setAllowUniversalClipboard(_ allowUniversalClipboard: Bool, userId: String?) async throws
-
     /// Sets the app theme.
     ///
     /// - Parameter appTheme: The new app theme.
@@ -591,14 +568,6 @@ protocol StateService: AnyObject, DebugStateService {
     /// - Parameter shown: Whether the archive onboarding has been shown.
     ///
     func setArchiveOnboardingShown(_ shown: Bool) async
-
-    /// Sets the clear clipboard value for an account.
-    ///
-    /// - Parameters:
-    ///   - clearClipboardValue: The time after which to clear the clipboard.
-    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
-    ///
-    func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws
 
     /// Sets the IDs of the collapsed vault list sections for the user ID.
     ///
@@ -1060,26 +1029,10 @@ extension StateService {
         try await getAllowSyncOnRefresh(userId: nil)
     }
 
-    /// Gets the Universal Clipboard setting for the active account.
-    ///
-    /// - Returns: A Boolean value indicating whether Universal Clipboard is allowed.
-    ///
-    func getAllowUniversalClipboard() async throws -> Bool {
-        try await getAllowUniversalClipboard(userId: nil)
-    }
-
     /// Gets the app rehydration state for the active account.
     /// - Returns: The rehydration state.
     func getAppRehydrationState() async throws -> AppRehydrationState? {
         try await getAppRehydrationState(userId: nil)
-    }
-
-    /// Gets the clear clipboard value for the active account.
-    ///
-    /// - Returns: The clear clipboard value.
-    ///
-    func getClearClipboardValue() async throws -> ClearClipboardValue {
-        try await getClearClipboardValue(userId: nil)
     }
 
     /// Gets the IDs of the collapsed vault list sections for the active account.
@@ -1346,22 +1299,6 @@ extension StateService {
         try await setAllowSyncOnRefresh(allowSyncOnRefresh, userId: nil)
     }
 
-    /// Sets the Universal Clipboard setting for the active account.
-    ///
-    /// - Parameter allowUniversalClipboard: A Boolean value indicating whether Universal Clipboard should be allowed.
-    ///
-    func setAllowUniversalClipboard(_ allowUniversalClipboard: Bool) async throws {
-        try await setAllowUniversalClipboard(allowUniversalClipboard, userId: nil)
-    }
-
-    /// Sets the clear clipboard value for the active account.
-    ///
-    /// - Parameter clearClipboardValue: The time after which to clear the clipboard.
-    ///
-    func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?) async throws {
-        try await setClearClipboardValue(clearClipboardValue, userId: nil)
-    }
-
     /// Sets the IDs of the collapsed vault list sections for the active account.
     ///
     /// - Parameter ids: The IDs of the vault list sections that are currently collapsed.
@@ -1553,7 +1490,7 @@ enum StateServiceError: LocalizedError {
 
 /// A default implementation of `StateService`.
 ///
-actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigStateService, FlightRecorderStateService, LanguageStateService { // swiftlint:disable:this type_body_length line_length
+actor DefaultStateService: StateService, ActiveAccountIdPublisherProvider, ActiveAccountStateProvider, ConfigStateService, FlightRecorderStateService, LanguageStateService { // swiftlint:disable:this type_body_length line_length
     // MARK: Properties
 
     /// The language option currently selected for the app.
@@ -1777,11 +1714,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         return appSettingsStore.allowSyncOnRefresh(userId: userId)
     }
 
-    func getAllowUniversalClipboard(userId: String?) async throws -> Bool {
-        let userId = try userId ?? getActiveAccountUserId()
-        return appSettingsStore.allowUniversalClipboard(userId: userId)
-    }
-
     func getAppRehydrationState(userId: String?) async throws -> AppRehydrationState? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.appRehydrationState(userId: userId)
@@ -1793,11 +1725,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
 
     func getArchiveOnboardingShown() async -> Bool {
         appSettingsStore.archiveOnboardingShown
-    }
-
-    func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
-        let userId = try userId ?? getActiveAccountUserId()
-        return appSettingsStore.clearClipboardValue(userId: userId)
     }
 
     func getCollapsedVaultListSectionIds(userId: String?) async throws -> [String] {
@@ -2169,11 +2096,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.setAllowSyncOnRefresh(allowSyncOnRefresh, userId: userId)
     }
 
-    func setAllowUniversalClipboard(_ allowUniversalClipboard: Bool, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setAllowUniversalClipboard(allowUniversalClipboard, userId: userId)
-    }
-
     func setAppTheme(_ appTheme: AppTheme) async {
         appSettingsStore.appTheme = appTheme.value
         appThemeSubject.send(appTheme)
@@ -2181,11 +2103,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
 
     func setArchiveOnboardingShown(_ shown: Bool) async {
         appSettingsStore.archiveOnboardingShown = shown
-    }
-
-    func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setClearClipboardValue(clearClipboardValue, userId: userId)
     }
 
     func setCollapsedVaultListSectionIds(_ ids: [String], userId: String?) async throws {
@@ -2567,6 +2484,18 @@ struct AccountVolatileData {
     var hasBeenUnlockedInteractively = false
 }
 
+// MARK: Autofill
+
+extension DefaultStateService: AutofillStateService {
+    func getLastRequestToTurnOnCredentialProvider() async -> Date? {
+        appSettingsStore.lastRequestToTurnOnCredentialProvider()
+    }
+
+    func setLastRequestToTurnOnCredentialProvider(_ date: Date?) async {
+        appSettingsStore.setLastRequestToTurnOnCredentialProvider(date)
+    }
+}
+
 // MARK: BillingStateService
 
 extension DefaultStateService: BillingStateService {
@@ -2744,92 +2673,27 @@ extension DefaultStateService {
     }
 }
 
-// MARK: User Session
+// MARK: PasteboardStateService
 
-extension DefaultStateService: UserSessionStateService {
-    // MARK: Last Active Time
-
-    func getLastActiveTime(userId: String?) async throws -> Date? {
+extension DefaultStateService: PasteboardStateService {
+    func getAllowUniversalClipboard(userId: String?) async throws -> Bool {
         let userId = try userId ?? getActiveAccountUserId()
-        return try await userSessionKeychainRepository.getLastActiveTime(userId: userId)
+        return appSettingsStore.allowUniversalClipboard(userId: userId)
     }
 
-    func setLastActiveTime(_ date: Date?, userId: String?) async throws {
+    func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
         let userId = try userId ?? getActiveAccountUserId()
-        try await userSessionKeychainRepository.setLastActiveTime(date, userId: userId)
+        return appSettingsStore.clearClipboardValue(userId: userId)
     }
 
-    func getLastActiveMonotonicTime(userId: String?) async throws -> TimeInterval? {
+    func setAllowUniversalClipboard(_ allowUniversalClipboard: Bool, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
-        return try await userSessionKeychainRepository.getLastActiveMonotonicTime(userId: userId)
+        appSettingsStore.setAllowUniversalClipboard(allowUniversalClipboard, userId: userId)
     }
 
-    func setLastActiveMonotonicTime(_ monotonicTime: TimeInterval?, userId: String?) async throws {
+    func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
-        try await userSessionKeychainRepository.setLastActiveMonotonicTime(monotonicTime, userId: userId)
-    }
-
-    func getLastActiveBootEpoch(userId: String?) async throws -> TimeInterval? {
-        let userId = try userId ?? getActiveAccountUserId()
-        return try await userSessionKeychainRepository.getLastActiveBootEpoch(userId: userId)
-    }
-
-    func setLastActiveBootEpoch(_ bootEpoch: TimeInterval?, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccountUserId()
-        try await userSessionKeychainRepository.setLastActiveBootEpoch(bootEpoch, userId: userId)
-    }
-
-    // MARK: Unsuccessful Unlock Attempts
-
-    func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int {
-        let userId = try userId ?? getActiveAccountUserId()
-        let attempts = try? await userSessionKeychainRepository.getUnsuccessfulUnlockAttempts(userId: userId)
-        return attempts ?? 0
-    }
-
-    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccountUserId()
-        try await userSessionKeychainRepository.setUnsuccessfulUnlockAttempts(attempts, userId: userId)
-    }
-
-    // MARK: Vault Timeout
-
-    func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue {
-        let userId = try getAccount(userId: userId).profile.userId
-        let userAuthKey = try? await keychainRepository.getUserAuthKeyValue(for: .neverLock(userId: userId))
-        guard let rawValue = try? await userSessionKeychainRepository.getVaultTimeout(userId: userId)
-        else {
-            // If there isn't a stored value, it may be because MAUI stored `nil` for never timeout.
-            // So if the never lock key exists, set the timeout to never, otherwise to default.
-            return userAuthKey != nil ? .never : .fifteenMinutes
-        }
-
-        let timeoutValue = SessionTimeoutValue(rawValue: rawValue)
-        if timeoutValue == .never, userAuthKey == nil {
-            // If never lock but no key (possibly due to logging out), return the default timeout.
-            return .fifteenMinutes
-        }
-        return timeoutValue
-    }
-
-    func setVaultTimeout(_ value: SessionTimeoutValue, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccountUserId()
-        try await userSessionKeychainRepository.setVaultTimeout(
-            minutes: value.rawValue,
-            userId: userId,
-        )
-    }
-}
-
-// MARK: Autofill
-
-extension DefaultStateService: AutofillStateService {
-    func getLastRequestToTurnOnCredentialProvider() async -> Date? {
-        appSettingsStore.lastRequestToTurnOnCredentialProvider()
-    }
-
-    func setLastRequestToTurnOnCredentialProvider(_ date: Date?) async {
-        appSettingsStore.setLastRequestToTurnOnCredentialProvider(date)
+        appSettingsStore.setClearClipboardValue(clearClipboardValue, userId: userId)
     }
 }
 
@@ -2974,5 +2838,82 @@ extension DefaultStateService: SdkStateBridgeStateService {
 
     func setV2UpgradeToken(_ token: V2UpgradeToken?, userId: String) async {
         appSettingsStore.setV2UpgradeToken(token, userId: userId)
+    }
+}
+
+// MARK: User Session
+
+extension DefaultStateService: UserSessionStateService {
+    // MARK: Last Active Time
+
+    func getLastActiveTime(userId: String?) async throws -> Date? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return try await userSessionKeychainRepository.getLastActiveTime(userId: userId)
+    }
+
+    func setLastActiveTime(_ date: Date?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        try await userSessionKeychainRepository.setLastActiveTime(date, userId: userId)
+    }
+
+    func getLastActiveMonotonicTime(userId: String?) async throws -> TimeInterval? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return try await userSessionKeychainRepository.getLastActiveMonotonicTime(userId: userId)
+    }
+
+    func setLastActiveMonotonicTime(_ monotonicTime: TimeInterval?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        try await userSessionKeychainRepository.setLastActiveMonotonicTime(monotonicTime, userId: userId)
+    }
+
+    func getLastActiveBootEpoch(userId: String?) async throws -> TimeInterval? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return try await userSessionKeychainRepository.getLastActiveBootEpoch(userId: userId)
+    }
+
+    func setLastActiveBootEpoch(_ bootEpoch: TimeInterval?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        try await userSessionKeychainRepository.setLastActiveBootEpoch(bootEpoch, userId: userId)
+    }
+
+    // MARK: Unsuccessful Unlock Attempts
+
+    func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int {
+        let userId = try userId ?? getActiveAccountUserId()
+        let attempts = try? await userSessionKeychainRepository.getUnsuccessfulUnlockAttempts(userId: userId)
+        return attempts ?? 0
+    }
+
+    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        try await userSessionKeychainRepository.setUnsuccessfulUnlockAttempts(attempts, userId: userId)
+    }
+
+    // MARK: Vault Timeout
+
+    func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue {
+        let userId = try getAccount(userId: userId).profile.userId
+        let userAuthKey = try? await keychainRepository.getUserAuthKeyValue(for: .neverLock(userId: userId))
+        guard let rawValue = try? await userSessionKeychainRepository.getVaultTimeout(userId: userId)
+        else {
+            // If there isn't a stored value, it may be because MAUI stored `nil` for never timeout.
+            // So if the never lock key exists, set the timeout to never, otherwise to default.
+            return userAuthKey != nil ? .never : .fifteenMinutes
+        }
+
+        let timeoutValue = SessionTimeoutValue(rawValue: rawValue)
+        if timeoutValue == .never, userAuthKey == nil {
+            // If never lock but no key (possibly due to logging out), return the default timeout.
+            return .fifteenMinutes
+        }
+        return timeoutValue
+    }
+
+    func setVaultTimeout(_ value: SessionTimeoutValue, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        try await userSessionKeychainRepository.setVaultTimeout(
+            minutes: value.rawValue,
+            userId: userId,
+        )
     }
 }

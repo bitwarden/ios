@@ -26,14 +26,6 @@ protocol StateService: AnyObject, DebugStateService {
     ///
     func getAppTheme() async -> AppTheme
 
-    /// Gets the clear clipboard value for an account.
-    ///
-    /// - Parameter userId: The user ID associated with the clear clipboard value. Defaults to the active
-    ///   account if `nil`
-    /// - Returns: The time after which the clipboard should clear.
-    ///
-    func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue
-
     /// Gets the data for the flight recorder.
     ///
     /// - Returns: The flight recorder data.
@@ -57,14 +49,6 @@ protocol StateService: AnyObject, DebugStateService {
     /// - Parameter appTheme: The new app theme.
     ///
     func setAppTheme(_ appTheme: AppTheme) async
-
-    /// Sets the clear clipboard value for an account.
-    ///
-    /// - Parameters:
-    ///   - clearClipboardValue: The time after which to clear the clipboard.
-    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
-    ///
-    func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws
 
     /// Sets the data for the flight recorder.
     ///
@@ -190,11 +174,6 @@ actor DefaultStateService:
         AppTheme(appSettingsStore.appTheme)
     }
 
-    func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
-        let userId = try userId ?? getActiveAccountUserId()
-        return appSettingsStore.clearClipboardValue(userId: userId)
-    }
-
     func getFlightRecorderData() async -> FlightRecorderData? {
         appSettingsStore.flightRecorderData
     }
@@ -223,11 +202,6 @@ actor DefaultStateService:
     func setAppTheme(_ appTheme: AppTheme) async {
         appSettingsStore.appTheme = appTheme.value
         appThemeSubject.send(appTheme)
-    }
-
-    func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setClearClipboardValue(clearClipboardValue, userId: userId)
     }
 
     func setFlightRecorderData(_ data: FlightRecorderData?) async {
@@ -265,6 +239,52 @@ actor DefaultStateService:
     }
 }
 
+// MARK: ActiveAccountIdPublisherProvider
+
+extension DefaultStateService: ActiveAccountIdPublisherProvider {
+    func activeAccountIdPublisher() async -> AnyPublisher<String?, Never> {
+        Just(appSettingsStore.localUserId).eraseToAnyPublisher()
+    }
+}
+
+// MARK: BiometricsStateService
+
+extension DefaultStateService: BiometricsStateService {
+    func getBiometricAuthenticationEnabled(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.isBiometricAuthenticationEnabled(userId: userId)
+    }
+
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setBiometricAuthenticationEnabled(isEnabled, for: userId)
+    }
+}
+
+// MARK: PasteboardStateService
+
+extension DefaultStateService: PasteboardStateService {
+    func getAllowUniversalClipboard(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.allowUniversalClipboard(userId: userId)
+    }
+
+    func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.clearClipboardValue(userId: userId)
+    }
+
+    func setAllowUniversalClipboard(_ allowUniversalClipboard: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setAllowUniversalClipboard(allowUniversalClipboard, userId: userId)
+    }
+
+    func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setClearClipboardValue(clearClipboardValue, userId: userId)
+    }
+}
+
 // MARK: TOTPItemDisplayStateService
 
 extension DefaultStateService: TOTPItemDisplayStateService {
@@ -287,19 +307,5 @@ extension DefaultStateService: TOTPItemDisplayStateService {
 
     func showWebIconsPublisher() async -> AnyPublisher<Bool, Never> {
         showWebIconsSubject.eraseToAnyPublisher()
-    }
-}
-
-// MARK: BiometricsStateService
-
-extension DefaultStateService: BiometricsStateService {
-    func getBiometricAuthenticationEnabled(userId: String?) async throws -> Bool {
-        let userId = try userId ?? getActiveAccountUserId()
-        return appSettingsStore.isBiometricAuthenticationEnabled(userId: userId)
-    }
-
-    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setBiometricAuthenticationEnabled(isEnabled, for: userId)
     }
 }
