@@ -94,6 +94,10 @@ public struct ToastView: View {
             .accessibilityElement(children: .combine)
             .padding(.horizontal, 12)
             .task(id: toast.id) {
+                // The toast isn't part of the focused view hierarchy and may dismiss before
+                // VoiceOver can reach it, so announce its contents.
+                postAccessibilityAnnouncement(for: toast)
+
                 guard self.toast?.mode == .automaticDismiss else { return }
                 do {
                     try await Task.sleep(nanoseconds: 3 * NSEC_PER_SEC)
@@ -116,6 +120,30 @@ public struct ToastView: View {
     ///   - toast: A binding to the toast to show.
     public init(toast: Binding<Toast?>) {
         _toast = toast
+    }
+
+    // MARK: Private Methods
+
+    /// Posts a VoiceOver announcement with the contents of the toast.
+    ///
+    /// - Parameter toast: The toast to announce.
+    ///
+    private func postAccessibilityAnnouncement(for toast: Toast) {
+        let message = [toast.title, toast.subtitle]
+            .compactMap(\.self)
+            .joined(separator: ", ")
+
+        if #available(iOS 17, *) {
+            // Use a high priority so the announcement isn't dropped when shown alongside a
+            // screen transition, such as dismissing the share sheet.
+            let announcement = NSAttributedString(
+                string: message,
+                attributes: [.accessibilitySpeechAnnouncementPriority: UIAccessibilityPriority.high],
+            )
+            UIAccessibility.post(notification: .announcement, argument: announcement)
+        } else {
+            UIAccessibility.post(notification: .announcement, argument: message)
+        }
     }
 }
 

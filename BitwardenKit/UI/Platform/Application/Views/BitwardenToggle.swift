@@ -5,7 +5,20 @@ import SwiftUI
 
 /// A wrapper around a `Toggle` that is customized based on the Bitwarden design system.
 ///
-public struct BitwardenToggle<TitleContent: View, FooterContent: View, AccessoryContent: View>: View {
+public struct BitwardenToggle<TitleContent: View, FooterContent: View>: View {
+    // MARK: Types
+
+    /// A help button displayed adjacent to the toggle's title that opens an external link.
+    ///
+    struct HelpButton {
+        /// The accessibility label for the help button. This is also used as the name of the
+        /// custom accessibility action added to the toggle.
+        let accessibilityLabel: String
+
+        /// The URL to open when the help button is tapped.
+        let url: URL
+    }
+
     // MARK: Properties
 
     /// The accessibility identifier for the toggle.
@@ -14,11 +27,6 @@ public struct BitwardenToggle<TitleContent: View, FooterContent: View, Accessory
     /// The accessibility label for the toggle.
     let accessibilityLabel: String?
 
-    /// Additional content displayed adjacent to the title, outside of the toggle's own
-    /// accessibility element so it remains independently reachable by VoiceOver (e.g. an
-    /// info button that opens an external link).
-    let accessoryContent: AccessoryContent?
-
     /// The footer text displayed below the toggle.
     let footer: String?
 
@@ -26,8 +34,11 @@ public struct BitwardenToggle<TitleContent: View, FooterContent: View, Accessory
     /// than just plain text. The `footer` string will take precedence over this if provided.
     let footerContent: FooterContent?
 
-    /// A value indicating whether the toggle is currently enabled or disabled.
-    @Environment(\.isEnabled) private var isEnabled
+    /// A help button displayed adjacent to the title, which opens an external link.
+    let helpButton: HelpButton?
+
+    /// An object used to open urls from this view.
+    @Environment(\.openURL) private var openURL
 
     /// A binding for whether the toggle is on.
     @Binding var isOn: Bool
@@ -39,35 +50,32 @@ public struct BitwardenToggle<TitleContent: View, FooterContent: View, Accessory
 
     public var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            if let accessoryContent {
+            Toggle(isOn: $isOn) {
                 HStack(spacing: 8) {
                     titleContent
-                        .bitwardenToggleLabelStyle(isEnabled: isEnabled)
-                    accessoryContent
-                    Spacer(minLength: 0)
-                    Toggle(isOn: $isOn) { EmptyView() }
-                        .labelsHidden()
-                        .toggleStyle(.bitwarden)
-                        .accessibilityIdentifier(accessibilityIdentifier ?? "")
-                        .accessibilityLabel(accessibilityLabel ?? "")
+
+                    if let helpButton {
+                        // SwiftUI merges a button within a toggle's label into the toggle's
+                        // accessibility element and exposes it as a custom action, which is reachable
+                        // from Full Keyboard Access (Tab+Z) and the VoiceOver actions rotor. The
+                        // action's name comes from the button's label content, so the accessibility
+                        // label must be applied to the image rather than the button.
+                        Button {
+                            openURL(helpButton.url)
+                        } label: {
+                            SharedAsset.Icons.questionCircle16.swiftUIImage
+                                .scaledFrame(width: 16, height: 16)
+                                .accessibilityLabel(helpButton.accessibilityLabel)
+                        }
+                        .buttonStyle(.fieldLabelIcon)
+                    }
                 }
-                .padding(.vertical, 12)
-                .padding(.horizontal, 16)
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    guard isEnabled else { return }
-                    isOn.toggle()
-                }
-            } else {
-                Toggle(isOn: $isOn) {
-                    titleContent
-                }
-                .toggleStyle(.bitwarden)
-                .padding(.vertical, 12)
-                .accessibilityIdentifier(accessibilityIdentifier ?? "")
-                .accessibilityLabel(accessibilityLabel ?? "")
-                .padding(.horizontal, 16)
             }
+            .toggleStyle(.bitwarden)
+            .padding(.vertical, 12)
+            .accessibilityIdentifier(accessibilityIdentifier ?? "")
+            .accessibilityLabel(accessibilityLabel ?? "")
+            .padding(.horizontal, 16)
 
             if footer != nil || footerContent != nil {
                 Divider()
@@ -100,11 +108,11 @@ public struct BitwardenToggle<TitleContent: View, FooterContent: View, Accessory
         _ title: String,
         isOn: Binding<Bool>,
         accessibilityIdentifier: String? = nil,
-    ) where TitleContent == Text, FooterContent == EmptyView, AccessoryContent == EmptyView {
+    ) where TitleContent == Text, FooterContent == EmptyView {
         self.accessibilityIdentifier = accessibilityIdentifier
         accessibilityLabel = title
         _isOn = isOn
-        accessoryContent = nil
+        helpButton = nil
         footer = nil
         footerContent = nil
         titleContent = Text(title)
@@ -123,11 +131,11 @@ public struct BitwardenToggle<TitleContent: View, FooterContent: View, Accessory
         footer: String,
         isOn: Binding<Bool>,
         accessibilityIdentifier: String? = nil,
-    ) where TitleContent == Text, FooterContent == EmptyView, AccessoryContent == EmptyView {
+    ) where TitleContent == Text, FooterContent == EmptyView {
         self.accessibilityIdentifier = accessibilityIdentifier
         accessibilityLabel = title
         _isOn = isOn
-        accessoryContent = nil
+        helpButton = nil
         self.footer = footer
         footerContent = nil
         titleContent = Text(title)
@@ -146,11 +154,11 @@ public struct BitwardenToggle<TitleContent: View, FooterContent: View, Accessory
         isOn: Binding<Bool>,
         accessibilityIdentifier: String? = nil,
         @ViewBuilder footerContent: () -> FooterContent,
-    ) where TitleContent == Text, AccessoryContent == EmptyView {
+    ) where TitleContent == Text {
         self.accessibilityIdentifier = accessibilityIdentifier
         accessibilityLabel = title
         _isOn = isOn
-        accessoryContent = nil
+        helpButton = nil
         footer = nil
         self.footerContent = footerContent()
         titleContent = Text(title)
@@ -171,41 +179,43 @@ public struct BitwardenToggle<TitleContent: View, FooterContent: View, Accessory
         accessibilityIdentifier: String? = nil,
         accessibilityLabel: String? = nil,
         @ViewBuilder title titleContent: () -> TitleContent,
-    ) where FooterContent == EmptyView, AccessoryContent == EmptyView {
+    ) where FooterContent == EmptyView {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.accessibilityLabel = accessibilityLabel
         self.titleContent = titleContent()
         _isOn = isOn
-        accessoryContent = nil
+        helpButton = nil
         self.footer = footer
         footerContent = nil
     }
 
-    /// Initialize a `BitwardenToggle` with accessory content displayed adjacent to the title,
-    /// outside of the toggle's own accessibility element. This is useful for elements like an
-    /// info button that need to remain independently reachable by VoiceOver.
+    /// Initialize a `BitwardenToggle` with a help button displayed adjacent to the title, which
+    /// opens an external link. For accessibility, the help button is exposed as a custom action on
+    /// the toggle, which is reachable from Full Keyboard Access (Tab+Z) and the VoiceOver actions rotor.
     ///
     /// - Parameters:
     ///   - footer: The footer text displayed below the toggle.
     ///   - isOn: A binding for whether the toggle is on.
     ///   - accessibilityIdentifier: The accessibility identifier for the toggle.
     ///   - accessibilityLabel: The accessibility label for the toggle.
+    ///   - helpURL: The URL to open when the help button is tapped.
+    ///   - helpAccessibilityLabel: The accessibility label for the help button.
     ///   - title: The content to display in the title of the toggle.
-    ///   - accessory: The accessory content displayed adjacent to the title.
     ///
     public init(
         footer: String? = nil,
         isOn: Binding<Bool>,
         accessibilityIdentifier: String? = nil,
         accessibilityLabel: String? = nil,
+        helpURL: URL,
+        helpAccessibilityLabel: String = Localizations.learnMore,
         @ViewBuilder title titleContent: () -> TitleContent,
-        @ViewBuilder accessory accessoryContent: () -> AccessoryContent,
     ) where FooterContent == EmptyView {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.accessibilityLabel = accessibilityLabel
         self.titleContent = titleContent()
         _isOn = isOn
-        self.accessoryContent = accessoryContent()
+        helpButton = HelpButton(accessibilityLabel: helpAccessibilityLabel, url: helpURL)
         self.footer = footer
         footerContent = nil
     }
@@ -224,14 +234,9 @@ public struct BitwardenToggle<TitleContent: View, FooterContent: View, Accessory
 
         BitwardenToggle(
             isOn: .constant(true),
+            helpURL: URL(string: "https://bitwarden.com")!,
             title: {
                 Text("Toggle")
-            },
-            accessory: {
-                Button {} label: {
-                    SharedAsset.Icons.cog16.swiftUIImage
-                }
-                .buttonStyle(.fieldLabelIcon)
             },
         )
         .contentBlock()

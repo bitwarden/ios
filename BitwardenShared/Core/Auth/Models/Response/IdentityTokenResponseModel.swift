@@ -30,9 +30,6 @@ struct IdentityTokenResponseModel: Equatable, JSONResponse, KdfConfigProtocol, A
     /// The user's key.
     let key: String?
 
-    /// The user's key connector URL.
-    let keyConnectorUrl: String?
-
     /// Policies related to the user's master password.
     let masterPasswordPolicy: MasterPasswordPolicyResponseModel?
 

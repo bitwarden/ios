@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "mobilebuildmcp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "mobilebuildmcp@2.7.1", "mcp"],
+      "env": {
+        "MOBILEBUILDMCP_SENTRY_DISABLED": "true"
+      }
+    }
+  }
+}

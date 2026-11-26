@@ -4,7 +4,8 @@ import TestHelpers
 import XCTest
 
 class ToastDisplayHelperTests: BitwardenTestCase {
-    /// `show(in:state:)` shows the toast in the parent view controller.
+    /// `show(in:toast:additionalBottomPadding:duration:)` shows the toast in the parent view
+    /// controller with a clear background so the margins beside the toast match the content behind it.
     @MainActor
     func test_show() throws {
         let parentViewController = UIViewController()
@@ -19,10 +20,7 @@ class ToastDisplayHelperTests: BitwardenTestCase {
 
         let overlayView = try XCTUnwrap(window.viewWithTag(ToastDisplayHelper.toastTag))
         XCTAssertEqual(overlayView.layer.opacity, 1)
-        guard #unavailable(iOS 26) else {
-            return
-        }
-        XCTAssertNil(overlayView.layer.backgroundColor)
+        XCTAssertEqual(overlayView.backgroundColor, .clear)
     }
 
     /// `hide(from:)` hides the toast from the parent view controller.

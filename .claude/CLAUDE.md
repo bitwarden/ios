@@ -171,6 +171,10 @@ Or in Xcode: **Product → Clean Build Folder** (⇧⌘K). Stale build outputs f
 
 **Do not duplicate information from these files — reference them instead.**
 
+## MCPs
+
+- ✅ If using MobileBuildMCP, use the `mobilebuildmcp` skill before calling MobileBuildMCP tools.
+
 ## Skills & Commands
 
 | Skill | Triggers |
@@ -183,6 +187,7 @@ Or in Xcode: **Product → Clean Build Folder** (⇧⌘K). Stale build outputs f
 | `converting-xctest-to-swift-testing` | "convert to Swift Testing", "migrate XCTest", "xctest to swift testing" |
 | `converting-mocks-to-automockable` | "convert mock", "migrate mock to AutoMockable", "replace bespoke mock" |
 | `build-test-verify` | "build", "run tests", "lint", "format", "verify build" |
+| `mobilebuildmcp` | "run on simulator", "screenshot the app", "UI automation", before any MobileBuildMCP tool |
 | `audit-build-warnings` | "audit build warnings", "fix warnings", "clean up warnings", "build warnings" |
 | `evaluating-sdk-internal-updates` | "SDK bump PR", "BitwardenSdk revision change", "sdk-internal breaking changes" |
 | `bitwarden-delivery-tools:perform-preflight` | "preflight", "self review", "ready to commit" |

@@ -52,10 +52,6 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
         .onChange(of: isSearching) { newValue in
             store.send(.searchStateChanged(isSearching: newValue))
         }
-        .toast(store.binding(
-            get: \.toast,
-            send: ItemListAction.toastShown,
-        ))
         .flightRecorderToastBanner(
             activeLog: store.state.flightRecorderToastBanner.activeLog,
             isVisible: store.bindingAsync(

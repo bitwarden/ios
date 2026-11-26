@@ -2,6 +2,7 @@
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
+import ViewInspector
 import XCTest
 
 // MARK: - AppearanceViewTests
@@ -66,11 +67,12 @@ class AppearanceViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .toggleShowWebsiteIcons(true))
     }
 
-    /// The show website icons info button is independently reachable by VoiceOver and is
-    /// announced as an external link.
+    /// The show website icons info button's image has an accessibility label, which names the
+    /// custom accessibility action exposed on the toggle.
     @MainActor
     func test_showWebsiteIconsToggle_learnMoreButton_accessibility() throws {
-        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.learnMore)
-        try XCTAssertEqual(button.accessibilityHint().string(), Localizations.externalLink)
+        XCTAssertNoThrow(try subject.inspect().find(ViewType.Image.self) { image in
+            try image.accessibilityLabel().string() == Localizations.learnMore
+        })
     }
 }
