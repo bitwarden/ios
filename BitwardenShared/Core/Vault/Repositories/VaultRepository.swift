@@ -521,8 +521,14 @@ class DefaultVaultRepository {
         }
 
         var sameUsernameLogins = [CipherView]()
+        // A login with the same URI and username that can't be fully decrypted could be the one being
+        // changed, so no other login is updated if there's one.
+        var hasUndecryptableLogin = false
         for cipherId in sameUsernameIds {
-            guard let cipherView = try await fetchCipher(withId: cipherId) else { continue }
+            guard let cipherView = try await fetchCipher(withId: cipherId) else {
+                hasUndecryptableLogin = true
+                continue
+            }
             if let existingPassword = cipherView.login?.password,
                existingPassword.utf8.elementsEqual(password.utf8) {
                 return .identical(cipherView)
@@ -531,7 +537,8 @@ class DefaultVaultRepository {
         }
 
         // Without a username, any login for the URI could be the one being changed, so none is updated.
-        guard !username.isEmpty else { return .none }
+        // The same applies if a matching login couldn't be decrypted.
+        guard !username.isEmpty, !hasUndecryptableLogin else { return .none }
 
         // Only update a login saved for the same host. A match on the base domain (e.g.
         // `mail.example.com` for `hr.example.com`) or an equivalent domain could be a different account.
@@ -580,19 +587,30 @@ class DefaultVaultRepository {
         return updatedCipher
     }
 
-    /// Returns whether one of the login's AutoFill URIs has the same host as `uri`. URIs saved without
-    /// a scheme are treated as `https://`.
+    /// Returns whether one of the login's AutoFill URIs has the same host as `uri`, and a scheme that
+    /// `uri` can update. URIs saved without a scheme are treated as `https://`. An `http://` request
+    /// only matches `http://` URIs, so an insecure page can't change a login saved for `https://`.
     ///
     /// - Parameters:
     ///   - cipher: The login to check.
     ///   - uri: The URI whose host the login must have.
-    /// - Returns: `true` if one of the login's URIs has the same host as `uri`.
+    /// - Returns: `true` if one of the login's URIs has the same host as `uri` and a scheme it can update.
     ///
     private func login(_ cipher: CipherView, hasHostOf uri: String) -> Bool {
-        guard let host = URL(string: uri)?.sanitized.hostWithPort?.lowercased() else { return false }
+        guard let requestUrl = URL(string: uri)?.sanitized,
+              let host = requestUrl.hostWithPort?.lowercased() else {
+            return false
+        }
+        let requestScheme = requestUrl.scheme?.lowercased()
         return cipher.login?.uris?.contains { loginUri in
-            guard loginUri.match != .never, let uri = loginUri.uri, !uri.isEmpty else { return false }
-            return URL(string: uri)?.sanitized.hostWithPort?.lowercased() == host
+            guard loginUri.match != .never,
+                  let uri = loginUri.uri,
+                  !uri.isEmpty,
+                  let loginUrl = URL(string: uri)?.sanitized,
+                  loginUrl.hostWithPort?.lowercased() == host else {
+                return false
+            }
+            return requestScheme == "https" || loginUrl.scheme?.lowercased() == requestScheme
         } ?? false
     }
 }

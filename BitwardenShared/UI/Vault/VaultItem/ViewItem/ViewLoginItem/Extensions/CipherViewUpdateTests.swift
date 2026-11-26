@@ -347,6 +347,31 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertEqual(subject.update(password: "same", timeProvider: timeProvider), subject)
     }
 
+    /// `update(password:timeProvider:)` updates a password that's canonically equivalent but
+    /// byte-distinct, since a website treats them as different passwords.
+    func test_update_password_canonicallyEquivalentPassword() {
+        let subject = CipherView.loginFixture(login: .fixture(password: "\u{00E9}"))
+
+        let updated = subject.update(password: "e\u{0301}", timeProvider: timeProvider)
+
+        XCTAssertTrue(updated.login?.password?.utf8.elementsEqual("e\u{0301}".utf8) ?? false)
+        XCTAssertEqual(updated.login?.passwordRevisionDate, now)
+        XCTAssertEqual(updated.passwordHistory?.count, 1)
+        XCTAssertTrue(updated.passwordHistory?.first?.password.utf8.elementsEqual("\u{00E9}".utf8) ?? false)
+    }
+
+    /// `update(password:timeProvider:)` sets the password without changing the password revision date
+    /// or adding history when the login had no password, matching the add/edit item screen.
+    func test_update_password_noPreviousPassword() {
+        let subject = CipherView.loginFixture(login: .fixture(password: nil, username: "user"))
+
+        let updated = subject.update(password: "new", timeProvider: timeProvider)
+
+        XCTAssertEqual(updated.login?.password, "new")
+        XCTAssertNil(updated.login?.passwordRevisionDate)
+        XCTAssertEqual(updated.passwordHistory, subject.passwordHistory)
+    }
+
     /// `update(password:timeProvider:)` returns the cipher unchanged when it isn't a login.
     func test_update_password_notLogin() {
         let subject = CipherView.fixture(login: nil, type: .secureNote)

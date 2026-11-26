@@ -1665,19 +1665,121 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `matchSavePasswordRequest(uri:username:password:)` doesn't offer a login for an update when
     /// the request has no username, even if only one login matches the URI.
     func test_matchSavePasswordRequest_emptyUsername_noUpdate() async {
-        let withUsername = Cipher.fixture(
+        let withoutUsername = Cipher.fixture(
             id: "1",
-            login: .fixture(password: "old", uris: [.fixture(uri: "https://example.com")], username: "user"),
+            login: .fixture(password: "old", uris: [.fixture(uri: "https://example.com")], username: nil),
         )
-        let otherSite = Cipher.fixture(
-            id: "2",
-            login: .fixture(password: "old", uris: [.fixture(uri: "https://other.com")], username: "user"),
-        )
-        prepareExistingLoginCiphers([withUsername, otherSite])
+        prepareExistingLoginCiphers([withoutUsername])
 
         let result = await subject.matchSavePasswordRequest(
             uri: "https://example.com",
             username: "",
+            password: "new",
+        )
+
+        XCTAssertEqual(result, SavePasswordMatch.none)
+    }
+
+    /// `matchSavePasswordRequest(uri:username:password:)` doesn't offer a login saved for `https://`
+    /// for an update from an `http://` request, so an insecure page can't change its password.
+    func test_matchSavePasswordRequest_httpRequest_httpsLogin_noUpdate() async {
+        prepareExistingLoginCiphers([
+            .fixture(
+                id: "1",
+                login: .fixture(password: "old", uris: [.fixture(uri: "https://example.com")], username: "user"),
+            ),
+        ])
+
+        let result = await subject.matchSavePasswordRequest(
+            uri: "http://example.com",
+            username: "user",
+            password: "new",
+        )
+
+        XCTAssertEqual(result, SavePasswordMatch.none)
+    }
+
+    /// `matchSavePasswordRequest(uri:username:password:)` offers a login saved for `http://` for an
+    /// update from an `http://` or `https://` request.
+    func test_matchSavePasswordRequest_httpLogin_singleUpdateCandidate() async {
+        let existing = Cipher.fixture(
+            id: "1",
+            login: .fixture(password: "old", uris: [.fixture(uri: "http://example.com")], username: "user"),
+        )
+        prepareExistingLoginCiphers([existing])
+
+        var result = await subject.matchSavePasswordRequest(
+            uri: "http://example.com",
+            username: "user",
+            password: "new",
+        )
+        XCTAssertEqual(result, .singleUpdateCandidate(CipherView(cipher: existing)))
+
+        result = await subject.matchSavePasswordRequest(
+            uri: "https://example.com",
+            username: "user",
+            password: "new",
+        )
+        XCTAssertEqual(result, .singleUpdateCandidate(CipherView(cipher: existing)))
+    }
+
+    /// `matchSavePasswordRequest(uri:username:password:)` still offers a login for an update when
+    /// another login couldn't be decrypted for the list, since its URI and username can't be checked
+    /// and one failed login shouldn't block updates to every other login.
+    func test_matchSavePasswordRequest_listDecryptFailure_singleUpdateCandidate() async {
+        let existing = Cipher.fixture(
+            id: "1",
+            login: .fixture(password: "old", uris: [.fixture(uri: "https://example.com")], username: "user"),
+        )
+        let undecryptable = Cipher.fixture(
+            id: "2",
+            login: .fixture(password: "old", uris: [.fixture(uri: "https://example.com")], username: "user"),
+        )
+        prepareExistingLoginCiphers([existing, undecryptable])
+        clientCiphers.decryptListWithFailuresClosure = { _ in
+            DecryptCipherListResult(
+                successes: [
+                    .fixture(
+                        id: "1",
+                        type: .login(.fixture(
+                            username: "user",
+                            uris: [LoginUriView(uri: "https://example.com", match: nil, uriChecksum: nil)],
+                        )),
+                    ),
+                ],
+                failures: [undecryptable],
+            )
+        }
+
+        let result = await subject.matchSavePasswordRequest(
+            uri: "https://example.com",
+            username: "user",
+            password: "new",
+        )
+
+        XCTAssertEqual(result, .singleUpdateCandidate(CipherView(cipher: existing)))
+    }
+
+    /// `matchSavePasswordRequest(uri:username:password:)` doesn't offer a login for an update when
+    /// another login with the same URI and username couldn't be fully decrypted.
+    func test_matchSavePasswordRequest_fullDecryptFailure_noUpdate() async {
+        let existing = Cipher.fixture(
+            id: "1",
+            login: .fixture(password: "old", uris: [.fixture(uri: "https://example.com")], username: "user"),
+        )
+        let undecryptable = Cipher.fixture(
+            id: "2",
+            login: .fixture(password: "old2", uris: [.fixture(uri: "https://example.com")], username: "user"),
+        )
+        prepareExistingLoginCiphers([existing, undecryptable])
+        clientCiphers.decryptClosure = { cipher in
+            guard cipher.id != "2" else { throw BitwardenTestError.example }
+            return CipherView(cipher: cipher)
+        }
+
+        let result = await subject.matchSavePasswordRequest(
+            uri: "https://example.com",
+            username: "user",
             password: "new",
         )
 

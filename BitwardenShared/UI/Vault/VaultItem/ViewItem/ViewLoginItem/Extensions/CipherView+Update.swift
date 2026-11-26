@@ -409,9 +409,12 @@ extension CipherView {
         )
     }
 
-    /// Returns a copy of the existing login with a new password. If the password changed, the
-    /// previous password is added to the password history and the password revision date is
-    /// updated, matching edits made in the add/edit item screen.
+    /// Returns a copy of the existing login with a new password. If the login had a different
+    /// password, the previous password is added to the password history and the password revision
+    /// date is updated, matching edits made in the add/edit item screen.
+    ///
+    /// Passwords are compared byte for byte, since `String` equality treats canonically equivalent
+    /// Unicode (e.g. "é" and "e" + combining accent) as equal, but a website doesn't.
     ///
     /// - Parameters:
     ///   - password: The new password.
@@ -419,7 +422,7 @@ extension CipherView {
     /// - Returns: A copy of the existing cipher, with the password updated.
     ///
     func update(password: String, timeProvider: TimeProvider = CurrentTime()) -> CipherView {
-        guard let login, login.password != password else { return self }
+        guard let login, login.password?.utf8.elementsEqual(password.utf8) != true else { return self }
 
         let now = timeProvider.presentTime
         let previousPasswordHistory = login.password.map { previousPassword in
@@ -430,7 +433,10 @@ extension CipherView {
             collectionIds: collectionIds,
             deletedDate: deletedDate,
             folderId: folderId,
-            login: login.update(password: password, passwordRevisionDate: now),
+            login: login.update(
+                password: password,
+                passwordRevisionDate: login.password == nil ? login.passwordRevisionDate : now,
+            ),
             organizationId: organizationId,
             passwordHistory: prependingPasswordHistory(previousPasswordHistory),
         )
