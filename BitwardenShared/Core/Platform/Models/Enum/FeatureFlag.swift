@@ -42,6 +42,9 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// An SDK flag that enables individual cipher encryption.
     static let enableCipherKeyEncryption = FeatureFlag(rawValue: "enableCipherKeyEncryption")
 
+    /// Flag to enable/disable sharing the user session key across app extensions.
+    static let enableUserSessionKeySharing = FeatureFlag(rawValue: "pm-23301-enable-user-session-key-sharing")
+
     /// A feature flag to enable/disable the FedRAMP (.gov) region in the region picker.
     static let fedrampGovRegion = FeatureFlag(rawValue: "fedramp-gov-region")
 
@@ -94,6 +97,7 @@ extension FeatureFlag: @retroactive CaseIterable {
             .debugDisableSelfHostPremiumCheck,
             .deviceAuthKey,
             .enableCipherKeyEncryption,
+            .enableUserSessionKeySharing,
             .fedrampGovRegion,
             .fillAssistTargetingRules,
             .manageDevices,

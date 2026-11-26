@@ -157,7 +157,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         case let .checkEmail(email):
             showCheckEmail(email)
         case .complete,
-             .completeWithNeverUnlockKey:
+             .completeWithNeverUnlockKey,
+             .completeWithUserSessionKey:
             completeAuth()
         case let .completeRegistration(emailVerificationToken, userEmail):
             showCompleteRegistration(
