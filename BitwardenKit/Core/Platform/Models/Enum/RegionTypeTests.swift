@@ -7,6 +7,18 @@ import Testing
 struct RegionTypeTests {
     // MARK: Tests
 
+    /// `errorReporterName` returns the name used by the error reporter for each region.
+    @Test(arguments: [
+        (RegionType.europe, "EU"),
+        (RegionType.gov, "Gov"),
+        (RegionType.internal, "Internal"),
+        (RegionType.selfHosted, "Self-Hosted"),
+        (RegionType.unitedStates, "US"),
+    ])
+    func errorReporterName(region: RegionType, expectedName: String) {
+        #expect(region.errorReporterName == expectedName)
+    }
+
     /// `init(baseURL:)` resolves an environment base URL to the matching region.
     @Test(arguments: [
         (EnvironmentURLData.defaultUS.base, RegionType.unitedStates),

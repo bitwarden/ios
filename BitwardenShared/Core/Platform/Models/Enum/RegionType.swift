@@ -58,17 +58,6 @@ extension RegionType {
         }
     }
 
-    /// The name to be used by the error reporter.
-    var errorReporterName: String {
-        switch self {
-        case .europe: "EU"
-        case .gov: "Gov"
-        case .internal: "Internal"
-        case .selfHosted: "Self-Hosted"
-        case .unitedStates: "US"
-        }
-    }
-
     /// Whether the user can choose this region in the region picker. Internal/QA regions (e.g.
     /// `.internal`) are excluded — they're detected automatically from the configured URL, never
     /// offered as a selectable option.
