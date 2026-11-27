@@ -16,7 +16,7 @@
 "UseThisUsername" = "Use this username";
 "Delete" = "Slett";
 "DeleteAll" = "Delete all";
-"Deleting" = "Sletter...";
+"Deleting" = "Sletter…";
 "DoYouReallyWantToDelete" = "Vil du virkelig slette den? Dette kan ikke angres på.";
 "Edit" = "Rediger";
 "EditFolder" = "Rediger mappe";
@@ -28,6 +28,7 @@
 "FolderCreated" = "En ny mappe er opprettet.";
 "FolderDeleted" = "Mappen er slettet.";
 "FolderNone" = "Ingen mappe";
+"Folders" = "Mapper";
 "FolderUpdated" = "Mappen er lagret";
 "MyFolder" = "Min mappe";
 "MyFolders" = "Mine mapper";
@@ -58,7 +59,7 @@
 "Save" = "Lagre";
 /* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "Flytt";
-"Saving" = "Lagrer...";
+"Saving" = "Lagrer…";
 "Settings" = "Innstillinger";
 "ShowNextCode" = "Show next code";
 "ItemDeleted" = "Elementet har blitt slettet.";
@@ -89,7 +90,7 @@
 "Close" = "Lukk";
 "Continue" = "Fortsett";
 "CreateAccount" = "Opprett konto";
-"CreatingAccount" = "Lager konto...";
+"CreatingAccount" = "Lager konto…";
 "EditItem" = "Rediger elementet";
 "EnableAutomaticSyncing" = "Aktiver automatisk synkronisering";
 "EnterEmailForHint" = "Skriv inn kontoens e-postadresse for å motta hint om hovedpassordet ditt.";
@@ -112,7 +113,7 @@
 "Lock" = "Lås";
 "Immediately" = "Umiddelbart";
 "VaultTimeoutLogOutConfirmation" = "Dersom du logger ut vil all tilgang til hvelvet fjernes og du må autentisere online etter tidsavbruddet. Er du sikker på at du vil bruke denne innstillingen?";
-"LoggingIn" = "Logger inn...";
+"LoggingIn" = "Logger inn…";
 "LogInToBitwarden" = "Logg inn på Bitwarden";
 "MasterPasswordConfirmationValMessage" = "Passordbekreftelsen er ikke riktig.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Hovedpassordet er det passordet du bruker for å få tilgang til hvelvet ditt.";
@@ -134,8 +135,8 @@
 "Security" = "Sikkerhet";
 "ItemUpdated" = "Element oppdatert.";
 "Submitting" = "Sender inn…";
-"Syncing" = "Synkroniserer...";
-"SyncingLogins" = "Syncing logins...";
+"Syncing" = "Synkroniserer…";
+"SyncingLogins" = "Syncing logins…";
 "SyncingComplete" = "Synkronisering fullført.";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "2-trinnsinnlogging";
@@ -261,8 +262,12 @@
 "ShowWebsiteIconsDescription" = "Vis et gjenkjennelig bilde ved siden av hver innlogging.";
 "IconsUrl" = "Ikonenes tjenernettadresse";
 "AutofillWithBitwarden" = "Auto-utfyll med Bitwarden";
+/* Section header and screen title for viewing/managing a cipher's collections. */
+"Collections" = "Samlinger";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "Delte mapper";
+/* Empty state message shown when a collection has no items. */
+"NoItemsCollection" = "Det er ingen gjenstander i denne samlingen";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "Det er ingen elementer i denne delte mappen";
 "NoItemsFolder" = "Det er ingen gjenstander i denne mappen";
@@ -284,6 +289,8 @@
 "RegEx" = "Regulært uttrykk";
 "StartsWith" = "Starter med";
 "MatchDetection" = "Match-gjenkjenning";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
+"Organization" = "Organisasjon";
 "HoldYubikeyNearTop" = "Hold din Yubikey nær toppen av enheten.";
 "TryAgain" = "Prøv på nytt";
 "YubiKeyInstructionIos" = "For å fortsette, hold din YubiKey NEO mot baksiden av enheten.";
@@ -308,7 +315,7 @@
 "Identities" = "Identiteter";
 "Logins" = "Innlogginger";
 "SecureNotes" = "Sikre notater";
-"CheckingPassword" = "Sjekker passord...";
+"CheckingPassword" = "Sjekker passord…";
 "CheckPassword" = "Sjekk om passordet har blitt eksponert.";
 "PasswordSafe" = "Dette passordet ble ikke funnet i noen kjente datalekkasjer. Det bør være trygt å bruke.";
 "IdentityName" = "Identitetsnavn";
@@ -319,17 +326,27 @@
 "NoItemsToList" = "Det er ingen elementer å vise.";
 "MoveDown" = "Flytt ned";
 "MoveUp" = "Flytt opp";
+/* Empty state message on the Collections screen shown when a user has no collections. */
+"NoCollectionsToList" = "Det er ingen samlinger å vise.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "Det er ingen delte mapper å liste.";
 "MovedItemToOrg" = "%1$@ flyttet til %2$@.";
+/* Alert message shown when saving an item with no collection selected. */
+"SelectOneCollection" = "Du må velge minst én samling.";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "Du må velge minst én delt mappe.";
 "Share" = "Del";
 "ShareAll" = "Share all";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
+"MoveToOrganization" = "Flytt til organisasjon";
 /* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "Ingen hvelv å liste.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
+"NoOrgsToList" = "Det er ingen organisasjoner å vise.";
 /* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Velg et hvelv du ønsker å flytte dette elementet til. Flytting til et annet hvelv overfører eierskapet av elementet til den organisasjonen. Du vil ikke lenger være direkte eier av dette elementet etter at det er flyttet.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
+"MoveToOrgDesc" = "Velg en organisasjon som du ønsker å flytte dette elementet til. Flytting til en organisasjon overfører eierskap til den aktuelle organisasjonen. Du vil ikke lenger være eier av dette elementet etter det er flyttet.";
 "NumberOfWords" = "Antall ord";
 "Passphrase" = "Passfrase";
 "WordSeparator" = "Orddeler";
@@ -379,7 +396,7 @@
 "SoftDeleting" = "Sender til papirkurv…";
 "ItemSoftDeleted" = "Elementet ble sendt til papirkurven.";
 "Restore" = "Gjenopprett";
-"Restoring" = "Gjenoppretter ...";
+"Restoring" = "Gjenoppretter …";
 "ItemRestored" = "Elementet har blitt gjenopprettet.";
 "Trash" = "Papirkurv";
 "DoYouReallyWantToPermanentlyDeleteCipher" = "Vil du virkelig slette denne permanent? Dette kan ikke angres.";
@@ -873,6 +890,7 @@
 "PersonalDetails" = "Personlige detaljer";
 "ContactInfo" = "Kontaktinfo";
 "Identification" = "Identifikasjon";
+"Owner" = "Eier";
 "VerifyYourIdentity" = "Bekreft identiteten din";
 "ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
@@ -890,9 +908,13 @@
 "ShowMore" = "Vis mer";
 "ShowLess" = "Vis mindre";
 "ItemNameX" = "Elementnavn, %1$@";
+"OwnerX" = "Eier, %1$@";
 "VaultX" = "Hvelv, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
+"CollectionX" = "Samling, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Delt mappe, %1$@";
+"FolderX" = "Mappe, %1$@";
 "MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "Element %1$@ av %2$@";
 "ViewRecordedLogs" = "View recorded logs";
@@ -1026,7 +1048,7 @@
 "DefaultX" = "Standard (%1$@)";
 "UpdateYourEncryptionSettings" = "Update your encryption settings";
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
-"Updating" = "Oppdaterer...";
+"Updating" = "Oppdaterer…";
 "EncryptionSettingsUpdated" = "Encryption settings updated";
 "IntroducingArchive" = "Presenterer Arkiv";
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Hold elementer du ikke trenger akkurat nå trygge, men utenfor syne.";

@@ -28,6 +28,7 @@
 "FolderCreated" = "புதிய கோப்புறை உருவாக்கப்பட்டது";
 "FolderDeleted" = "கோப்புறை அழிக்கப்பட்டது.";
 "FolderNone" = "கோப்புறையற்றவை";
+"Folders" = "கோப்புறைகள்";
 "FolderUpdated" = "கோப்புறை சேமிக்கப்பட்டது";
 "MyFolder" = "எனது கோப்புறை";
 "MyFolders" = "எனது கோப்புறைகள்";
@@ -262,8 +263,12 @@
 "ShowWebsiteIconsDescription" = "ஒவ்வொரு உள்நுழைவுக்கு அடுத்தும் அறியம்படியான படத்தைக் காட்டு.";
 "IconsUrl" = "படவுரு தேக்க உரலி";
 "AutofillWithBitwarden" = "பிட்வார்டனுடன் தானாக நிரப்பு";
+/* Section header and screen title for viewing/managing a cipher's collections. */
+"Collections" = "தொகுப்புகள்";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "பகிரப்பட்ட கோப்புறைகள்";
+/* Empty state message shown when a collection has no items. */
+"NoItemsCollection" = "இந்தத் தொகுப்பில் எந்தப் பொருளும் இல்லை";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "இந்த பகிரப்பட்ட கோப்புறையில் எந்த உருப்படிகளும் இல்லை";
 "NoItemsFolder" = "இந்தக் கோப்புறையில் எந்தப் பொருளும் இல்லை";
@@ -285,6 +290,8 @@
 "RegEx" = "சுருங்குறித்தொடர்";
 "StartsWith" = "தொடக்கம்";
 "MatchDetection" = "பொருத்தம் கண்டறிதல்";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
+"Organization" = "நிறுவனம்";
 "HoldYubikeyNearTop" = "உம் யூபிவிசையை சாதனத்தின் உச்சிக்கருகில் பிடித்திரு.";
 "TryAgain" = "மீண்டும் முயல்";
 "YubiKeyInstructionIos" = "தொடர, உம் யீபிகீ NEOவை சாதனத்தின் பின்புறத்திற்கெதிரே பிடித்திரு.";
@@ -320,17 +327,27 @@
 "NoItemsToList" = "பட்டியலிட உருப்படிகளில்லை.";
 "MoveDown" = "கீழே நகரவும்";
 "MoveUp" = "மேலே நகரவும்";
+/* Empty state message on the Collections screen shown when a user has no collections. */
+"NoCollectionsToList" = "பட்டியலிட தொகுப்புகளில்லை.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "பட்டியலிட பகிரப்பட்ட கோப்புறைகள் எதுவும் இல்லை.";
 "MovedItemToOrg" = "%1$@ %2$@-க்கு நகர்த்தப்பட்டது.";
+/* Alert message shown when saving an item with no collection selected. */
+"SelectOneCollection" = "நீங்கள் ஒரு தொகுப்பாவது தேர்ந்தெடுக்க வேண்டும்.";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "குறைந்தது ஒரு பகிரப்பட்ட கோப்புறையையாவது தேர்ந்தெடுக்க வேண்டும்.";
 "Share" = "பகிர்";
 "ShareAll" = "அனைத்தையும் பகிர்";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
+"MoveToOrganization" = "நிறுவனத்துக்கு நகர்த்து";
 /* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "பட்டியலிட பாதுகாப்பு பைகள் இல்லை.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
+"NoOrgsToList" = "பட்டியலிட நிறுவனங்களில்லை.";
 /* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "இந்த பொருளை நகர்த்த விரும்பும் ஒரு பாதுகாப்பு பையைத் தேர்ந்தெடுக்கவும். மற்றொரு பாதுகாப்பு பைக்கு நகர்த்துவது பொருளின் உரிமையை அந்த நிறுவனத்திற்கு மாற்றுகிறது. பொருள் நகர்த்தப்பட்டவுடன் நீங்கள் அதன் நேரடி உரிமையாளராக இருக்க மாட்டீர்கள்.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
+"MoveToOrgDesc" = "இவ்வுருப்படியை நகர்த்த நிறுவனத்தைத் தேர்வுசெய். நிறுவனத்திற்கு நகர்த்தல் உருப்படியின் உரிமையை அந்நிறுவனத்திற்கு மாற்றும். நகர்த்தியபின் இவ்வுருப்படிக்கு நேரடி உரிமையாளராக இருக்கமாட்டீர்.";
 "NumberOfWords" = "சொற்களின் எண்ணிக்கை";
 "Passphrase" = "கடவுச்சொற்றொடர்";
 "WordSeparator" = "சொல் பிரிப்பான்";
@@ -834,7 +851,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "நீங்கள் சாதன கடவுச்சொல் அல்லது பயோமெட்ரிக்ஸை இயக்க வேண்டியிருக்கலாம்.";
 "StartImportCXFDescriptionLong" = "மற்றொரு கடவுச்சொல் மேலாளரிடமிருந்து கடவுச்சொற்கள், பாஸ்கீகள், கிரெடிட் கார்டுகள் மற்றும் தனிப்பட்ட அடையாள தகவல்களை இறக்குமதி செய்யவும்.\n\nஉங்கள் தரவு உங்கள் முந்தைய வழங்குநரிடமிருந்து **நீக்கப்படாது**.";
 "ImportPasswords" = "கடவுச்சொற்களை இறக்குமதி செய்";
-"ImportingEllipsis" = "இறக்குமதி செய்கிறது...";
+"ImportingEllipsis" = "இறக்குமதி செய்கிறது…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "நீங்கள் இறக்குமதி செயல்முறையை ரத்துசெய்ய விரும்புகிறீர்களா?";
 "ImportFailed" = "இறக்குமதி தோல்வியடைந்தது";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "உங்கள் எல்லா கடவுச்சொற்களையும் இறக்குமதி செய்வதில் ஒரு சிக்கல் ஏற்பட்டது.\n\nதரவு எதுவும் நீக்கப்படவில்லை.";
@@ -874,6 +891,7 @@
 "PersonalDetails" = "தனிப்பட்ட விவரங்கள்";
 "ContactInfo" = "தொடர்பு தகவல்";
 "Identification" = "அடையாளம்";
+"Owner" = "உரிமையாளர்";
 "VerifyYourIdentity" = "உங்கள் அடையாளத்தைச் சரிபார்க்கவும்";
 "ThisOperationIsNotAllowedOnThisAccount" = "இந்தக் கணக்கில் இந்தச் செயல்பாடு அனுமதிக்கப்படவில்லை";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "தற்போதைய பயனரைப் பூட்ட முயற்சிக்கும்போது ஒரு பிழை ஏற்பட்டது";
@@ -891,9 +909,13 @@
 "ShowMore" = "மேலும் காட்டு";
 "ShowLess" = "குறைவாக காட்டு";
 "ItemNameX" = "பொருள் பெயர், %1$@";
+"OwnerX" = "உரிமையாளர், %1$@";
 "VaultX" = "பெட்டகம், %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
+"CollectionX" = "தொகுப்பு, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "பகிரப்பட்ட கோப்புறை, %1$@";
+"FolderX" = "கோப்புறை, %1$@";
 "MyFolderX" = "எனது கோப்புறை, %1$@";
 "ItemXOfY" = "பொருள் %1$@ இல் %2$@";
 "ViewRecordedLogs" = "பதிவு செய்யப்பட்ட பதிவுகளைப் பார்";
