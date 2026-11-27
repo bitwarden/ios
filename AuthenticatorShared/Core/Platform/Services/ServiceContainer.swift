@@ -252,7 +252,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
         errorReporter.add(logger: flightRecorder)
 
-        let environmentService = DefaultEnvironmentService()
+        let environmentService = DefaultEnvironmentService(errorReporter: errorReporter, stateService: stateService)
 
         let apiService = APIService(
             environmentService: environmentService,
