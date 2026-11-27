@@ -36,6 +36,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // Exit early if testing to avoid running any app functionality.
         guard !isTesting else { return true }
 
+        #if DEBUG
+        // Must run before the services are created: they read stored state as soon as they exist.
+        DebugAppStateResetter.resetIfRequested()
+        #endif
+
         UNUserNotificationCenter.current().delegate = self
 
         let services = ServiceContainer.shared(

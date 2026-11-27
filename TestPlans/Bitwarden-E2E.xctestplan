@@ -1,0 +1,36 @@
+{
+  "configurations" : [
+    {
+      "id" : "6D2E5C0B-3A51-4E0B-9E7B-0C5E0B7A1408",
+      "name" : "DefaultConfig",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "defaultTestExecutionTimeAllowance" : 180,
+    "environmentVariableEntries" : [
+      {
+        "key" : "OS_ACTIVITY_MODE",
+        "value" : "disable"
+      }
+    ],
+    "language" : "en",
+    "maximumTestExecutionTimeAllowance" : 300,
+    "region" : "US",
+    "testExecutionOrdering" : "random",
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:Bitwarden.xcodeproj",
+        "identifier" : "BitwardenE2ETests",
+        "name" : "BitwardenE2ETests"
+      }
+    }
+  ],
+  "version" : 1
+}

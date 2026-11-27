@@ -218,3 +218,11 @@ extension Constants {
         static let preAuthEnvironmentBaseURL = "BWPreAuthEnvironmentBaseURL"
     }
 }
+
+#if DEBUG
+extension Constants.DebugLaunchArguments {
+    /// The launch argument (`-BWResetAppState YES`) that erases all of the app's stored state at
+    /// launch, handled by `DebugAppStateResetter`. Compiled into debug builds only.
+    static let resetAppState = "BWResetAppState"
+}
+#endif
