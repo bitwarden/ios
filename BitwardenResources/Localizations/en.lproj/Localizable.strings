@@ -1,6 +1,7 @@
 "About" = "About";
 "Add" = "Add";
 "AddFolder" = "Add folder";
+"AllItems" = "All items";
 "AnErrorHasOccurred" = "An error has occurred";
 "Back" = "Back";
 "Bitwarden" = "Bitwarden";
@@ -164,6 +165,7 @@
 "EnterVerificationCodeApp" = "Enter the 6 digit verification code from your authenticator app.";
 "EnterVerificationCodeEmail" = "Enter the 6 digit verification code that was emailed to %1$@.";
 "RecoveryCodeTitle" = "Recovery code";
+"Recommended" = "Recommended";
 "RememberMe" = "Remember me";
 "UseAnotherTwoStepMethod" = "Use another two-step login method";
 "VerificationEmailNotSent" = "Could not send verification email. Try again.";

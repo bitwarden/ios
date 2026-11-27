@@ -18,6 +18,9 @@ struct VaultListSectionView<Content: View>: View {
     /// Whether the items count should be shown.
     let showCount: Bool
 
+    /// Whether the section header should be shown.
+    let showHeader: Bool
+
     /// A closure that returns the content for a `VaultListItem` in the section.
     @ViewBuilder var itemContent: (VaultListItem) -> Content
 
@@ -35,11 +38,13 @@ struct VaultListSectionView<Content: View>: View {
             }
         } else {
             VStack(alignment: .leading, spacing: 7) {
-                if showCount {
-                    SectionHeaderView("\(section.name) (\(section.items.count))")
-                        .accessibilityLabel("\(section.name), \(Localizations.xItems(section.items.count))")
-                } else {
-                    SectionHeaderView(section.name)
+                if showHeader {
+                    if showCount {
+                        SectionHeaderView("\(section.name) (\(section.items.count))")
+                            .accessibilityLabel("\(section.name), \(Localizations.xItems(section.items.count))")
+                    } else {
+                        SectionHeaderView(section.name)
+                    }
                 }
 
                 itemsContent
@@ -66,17 +71,20 @@ struct VaultListSectionView<Content: View>: View {
     /// - Parameters:
     ///   - section: The section with the values.
     ///   - showCount: Whether the items count should be shown.
+    ///   - showHeader: Whether the section header should be shown.
     ///   - isExpanded: An optional binding driving the section's expanded state. When provided, the
     ///     section renders a collapsible `ExpandableHeaderView`; when `nil`, a static header is used.
     ///   - itemContent: The content for each item.
     init(
         section: VaultListSection,
         showCount: Bool = true,
+        showHeader: Bool = true,
         isExpanded: Binding<Bool>? = nil,
         itemContent: @escaping (VaultListItem) -> Content,
     ) {
         self.section = section
         self.showCount = showCount
+        self.showHeader = showHeader
         self.isExpanded = isExpanded
         self.itemContent = itemContent
     }

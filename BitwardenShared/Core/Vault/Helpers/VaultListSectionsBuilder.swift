@@ -181,18 +181,41 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
     }
 
     func addAutofillPasswordsSection() -> VaultListSectionsBuilder {
-        guard !preparedData.exactMatchItems.isEmpty || !preparedData.fuzzyMatchItems.isEmpty else {
+        let matchingItems = preparedData.exactMatchItems.sorted(using: VaultListItem.defaultSortDescriptor)
+            + preparedData.fuzzyMatchItems.sorted(using: VaultListItem.defaultSortDescriptor)
+        let otherItems = preparedData.otherMatchItems.sorted(using: VaultListItem.defaultSortDescriptor)
+
+        guard !matchingItems.isEmpty || !otherItems.isEmpty else {
             return self
         }
 
-        let matchingItems = preparedData.exactMatchItems.sorted(using: VaultListItem.defaultSortDescriptor)
-            + preparedData.fuzzyMatchItems.sorted(using: VaultListItem.defaultSortDescriptor)
+        // When nothing matches the current URI, keep a single header-less section listing every
+        // login so the picker is never empty.
+        guard !matchingItems.isEmpty else {
+            vaultListData.sections.append(VaultListSection(
+                id: "AutofillPasswords",
+                items: otherItems,
+                name: "",
+            ))
+            return self
+        }
 
         vaultListData.sections.append(VaultListSection(
             id: "AutofillPasswords",
             items: matchingItems,
-            name: "",
+            name: Localizations.recommended,
         ))
+
+        // Logins that don't match the current URI (for example, ones imported without an Autofill
+        // URI) are still listed below the recommendations so they remain selectable.
+        if !otherItems.isEmpty {
+            vaultListData.sections.append(VaultListSection(
+                id: "AutofillAllItems",
+                items: otherItems,
+                name: Localizations.allItems,
+            ))
+        }
+
         return self
     }
 
@@ -560,6 +583,13 @@ struct VaultListPreparedData {
 
     /// Vault list items that are not assigned to any folder.
     var noFolderItems: [VaultListItem] = []
+
+    /// Vault list items that don't match the current autofill URI.
+    ///
+    /// These are still shown in the password autofill picker (below the matching items) so that
+    /// logins without a matching Autofill URI—for example ones imported without a URI—remain
+    /// selectable.
+    var otherMatchItems: [VaultListItem] = []
 
     /// Organization IDs with the `.restrictItemTypes` policy enabled.
     var restrictedOrganizationIds: [String] = []

@@ -210,7 +210,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
-            Section[AutofillPasswords]: 
+            Section[AutofillPasswords]: Recommended
               - Cipher: Exact1
               - Cipher: Exact2
               - Cipher: Exact42
@@ -235,7 +235,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
-            Section[AutofillPasswords]: 
+            Section[AutofillPasswords]: Recommended
               - Cipher: Exact1
               - Cipher: Exact2
               - Cipher: Exact42
@@ -258,7 +258,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
-            Section[AutofillPasswords]: 
+            Section[AutofillPasswords]: Recommended
               - Cipher: Fuzzy1
               - Cipher: Fuzzy2
               - Cipher: Fuzzy42
@@ -277,6 +277,57 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
+            """
+        }
+    }
+
+    /// `addAutofillPasswordsSection()` lists non-matching logins in a separate section below the
+    /// recommended matches, so logins without a matching Autofill URI remain selectable.
+    func test_addAutofillPasswordsSection_withOtherItems() {
+        setUpSubject(withData: VaultListPreparedData(
+            exactMatchItems: [
+                .fixture(cipherListView: .fixture(id: "1", name: "Exact1")),
+            ],
+            fuzzyMatchItems: [],
+            otherMatchItems: [
+                .fixture(cipherListView: .fixture(id: "2", name: "Other42")),
+                .fixture(cipherListView: .fixture(id: "3", name: "Other1")),
+            ],
+        ))
+
+        let vaultListData = subject.addAutofillPasswordsSection().build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[AutofillPasswords]: Recommended
+              - Cipher: Exact1
+
+            Section[AutofillAllItems]: All items
+              - Cipher: Other1
+              - Cipher: Other42
+            """
+        }
+    }
+
+    /// `addAutofillPasswordsSection()` shows a single header-less section with every login when
+    /// none of them match the current URI.
+    func test_addAutofillPasswordsSection_onlyOtherItems() {
+        setUpSubject(withData: VaultListPreparedData(
+            exactMatchItems: [],
+            fuzzyMatchItems: [],
+            otherMatchItems: [
+                .fixture(cipherListView: .fixture(id: "2", name: "Other42")),
+                .fixture(cipherListView: .fixture(id: "3", name: "Other1")),
+            ],
+        ))
+
+        let vaultListData = subject.addAutofillPasswordsSection().build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[AutofillPasswords]: 
+              - Cipher: Other1
+              - Cipher: Other42
             """
         }
     }

@@ -242,8 +242,7 @@ private struct VaultAutofillListSearchableView: View {
                 store.state.isAutofillingTextToInsertList {
                 cipherCombinedListView(sections)
             } else {
-                let items = sections.first?.items ?? []
-                cipherSimpleListView(items)
+                cipherPasswordSectionsView(sections)
             }
         }
         .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
@@ -265,16 +264,23 @@ private struct VaultAutofillListSearchableView: View {
         }
     }
 
-    /// A view for displaying a list of ciphers without sections.
+    /// A view for displaying the password autofill sections.
+    ///
+    /// URI-matching logins are shown under a "Recommended" header, with any remaining logins listed
+    /// below under "All items". When nothing matches, a single header-less section is shown.
     @ViewBuilder
-    private func cipherSimpleListView(_ items: [VaultListItem]) -> some View {
-        LazyVStack(spacing: 0) {
-            ForEach(items) { item in
-                vaultItemRow(for: item, isLastInSection: items.last == item)
+    private func cipherPasswordSectionsView(_ sections: [VaultListSection]) -> some View {
+        VStack(spacing: 16) {
+            ForEach(sections) { section in
+                VaultListSectionView(
+                    section: section,
+                    showCount: false,
+                    showHeader: !section.name.isEmpty,
+                ) { item in
+                    vaultItemRow(for: item, isLastInSection: section.items.last == item)
+                }
             }
         }
-        .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
-        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
     /// A view that displays the empty vault interface.
