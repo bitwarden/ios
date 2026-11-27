@@ -272,7 +272,7 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder { // swi
         withMatchResult matchResult: CipherMatchResult,
         cipher: CipherListView,
     ) async -> VaultListPreparedDataBuilder {
-        guard matchResult != .none, let vaultListItem = VaultListItem(cipherListView: cipher) else {
+        guard let vaultListItem = VaultListItem(cipherListView: cipher) else {
             return self
         }
 
@@ -282,7 +282,7 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder { // swi
         case .fuzzy:
             preparedData.fuzzyMatchItems.append(vaultListItem)
         case .none:
-            break
+            preparedData.otherMatchItems.append(vaultListItem)
         }
 
         return self
