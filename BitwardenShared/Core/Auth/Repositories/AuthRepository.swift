@@ -472,6 +472,9 @@ class DefaultAuthRepository {
     /// The service used by the application to manage the environment settings.
     private let environmentService: EnvironmentService
 
+    /// The service used by the application to manage environment URL state.
+    private let environmentStateService: EnvironmentStateService
+
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
@@ -529,6 +532,7 @@ class DefaultAuthRepository {
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - configService: The service to get server-specified configuration.
     ///   - environmentService: The service used by the application to manage the environment settings.
+    ///   - environmentStateService: The service used by the application to manage environment URL state.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - fillAssistRepository: The repository used to manage cached Fill Assist targeting rules.
     ///   - flightRecorder: The service used by the application for recording temporary debug logs.
@@ -556,6 +560,7 @@ class DefaultAuthRepository {
         clientService: ClientService,
         configService: ConfigService,
         environmentService: EnvironmentService,
+        environmentStateService: EnvironmentStateService,
         errorReporter: ErrorReporter,
         fillAssistRepository: FillAssistRepository,
         flightRecorder: FlightRecorder,
@@ -581,6 +586,7 @@ class DefaultAuthRepository {
         self.clientService = clientService
         self.configService = configService
         self.environmentService = environmentService
+        self.environmentStateService = environmentStateService
         self.errorReporter = errorReporter
         self.fillAssistRepository = fillAssistRepository
         self.flightRecorder = flightRecorder
@@ -772,7 +778,7 @@ extension DefaultAuthRepository: AuthRepository {
                 errorReporter.log(error: error)
             }
 
-            if let baseURL = try? await stateService.getEnvironmentURLs(userId: userId)?.base,
+            if let baseURL = try? await environmentStateService.getEnvironmentURLs(userId: userId)?.base,
                baseURL == environmentService.baseURL {
                 return userId
             }

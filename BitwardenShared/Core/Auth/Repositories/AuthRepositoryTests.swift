@@ -25,6 +25,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     var clientService: MockClientService!
     var configService: MockConfigService!
     var environmentService: MockEnvironmentService!
+    var environmentStateService: MockEnvironmentStateService!
     var errorReporter: MockErrorReporter!
     var fillAssistRepository: MockFillAssistRepository!
     var flightRecorder: MockFlightRecorder!
@@ -112,6 +113,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         clientRegistration = MockRegistrationClientProtocol()
         configService = MockConfigService()
         environmentService = MockEnvironmentService.withDefaults()
+        environmentStateService = MockEnvironmentStateService()
         errorReporter = MockErrorReporter()
         fillAssistRepository = MockFillAssistRepository()
         flightRecorder = MockFlightRecorder()
@@ -150,6 +152,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             clientService: clientService,
             configService: configService,
             environmentService: environmentService,
+            environmentStateService: environmentStateService,
             errorReporter: errorReporter,
             fillAssistRepository: fillAssistRepository,
             flightRecorder: flightRecorder,
@@ -182,6 +185,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         clientService = nil
         configService = nil
         environmentService = nil
+        environmentStateService = nil
         errorReporter = nil
         fillAssistRepository = nil
         keychainService = nil
@@ -535,7 +539,10 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_existingAccountUserId() async throws {
         environmentService.baseURL = try XCTUnwrap(EnvironmentURLData.defaultUS.base)
         stateService.activeAccount = .fixture(profile: .fixture(email: "user@bitwarden.com", userId: "1"))
-        stateService.environmentURLs["1"] = .defaultUS
+        let environmentURLsByUserId: [String: EnvironmentURLData] = ["1": .defaultUS]
+        environmentStateService.getEnvironmentURLsClosure = { userId in
+            userId.flatMap { environmentURLsByUserId[$0] }
+        }
         stateService.isAuthenticated["1"] = true
         stateService.userIds = ["1"]
 
@@ -548,7 +555,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_existingAccountUserId_getEnvironmentURLsError() async throws {
         environmentService.baseURL = try XCTUnwrap(EnvironmentURLData.defaultUS.base)
         stateService.activeAccount = .fixture(profile: .fixture(email: "user@bitwarden.com", userId: "1"))
-        stateService.environmentURLsError = StateServiceError.noAccounts
+        environmentStateService.getEnvironmentURLsThrowableError = StateServiceError.noAccounts
         stateService.isAuthenticated["1"] = true
         stateService.userIds = ["1"]
 
@@ -561,7 +568,10 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_existingAccountUserId_isAuthenticatedError() async throws {
         environmentService.baseURL = try XCTUnwrap(EnvironmentURLData.defaultUS.base)
         stateService.activeAccount = .fixture(profile: .fixture(email: "user@bitwarden.com", userId: "1"))
-        stateService.environmentURLs["1"] = .defaultUS
+        let environmentURLsByUserId: [String: EnvironmentURLData] = ["1": .defaultUS]
+        environmentStateService.getEnvironmentURLsClosure = { userId in
+            userId.flatMap { environmentURLsByUserId[$0] }
+        }
         stateService.isAuthenticatedError = BitwardenTestError.example
         stateService.userIds = ["1"]
 
@@ -576,7 +586,10 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_existingAccountUserId_matchingAccountDifferentBaseURL() async throws {
         environmentService.baseURL = try XCTUnwrap(EnvironmentURLData.defaultEU.base)
         stateService.activeAccount = .fixture(profile: .fixture(email: "user@bitwarden.com", userId: "1"))
-        stateService.environmentURLs["1"] = .defaultUS
+        let environmentURLsByUserId: [String: EnvironmentURLData] = ["1": .defaultUS]
+        environmentStateService.getEnvironmentURLsClosure = { userId in
+            userId.flatMap { environmentURLsByUserId[$0] }
+        }
         stateService.isAuthenticated["1"] = true
         stateService.userIds = ["1"]
 
@@ -589,8 +602,13 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// there are multiple matches for the user's email.
     func test_existingAccountUserId_multipleMatching() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(email: "user@bitwarden.com", userId: "1"))
-        stateService.environmentURLs["1"] = .defaultUS
-        stateService.environmentURLs["2"] = .defaultEU
+        let environmentURLsByUserId: [String: EnvironmentURLData] = [
+            "1": .defaultUS,
+            "2": .defaultEU,
+        ]
+        environmentStateService.getEnvironmentURLsClosure = { userId in
+            userId.flatMap { environmentURLsByUserId[$0] }
+        }
         stateService.isAuthenticated["1"] = true
         stateService.isAuthenticated["2"] = true
         stateService.userIds = ["1", "2"]
@@ -609,7 +627,10 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_existingAccountUserId_notAuthenticated() async throws {
         environmentService.baseURL = try XCTUnwrap(EnvironmentURLData.defaultUS.base)
         stateService.activeAccount = .fixture(profile: .fixture(email: "user@bitwarden.com", userId: "1"))
-        stateService.environmentURLs["1"] = .defaultUS
+        let environmentURLsByUserId: [String: EnvironmentURLData] = ["1": .defaultUS]
+        environmentStateService.getEnvironmentURLsClosure = { userId in
+            userId.flatMap { environmentURLsByUserId[$0] }
+        }
         stateService.isAuthenticated["1"] = false
         stateService.userIds = ["1"]
 
