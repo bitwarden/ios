@@ -28,6 +28,7 @@
 "FolderCreated" = "Nouveau dossier créé.";
 "FolderDeleted" = "Dossier supprimé.";
 "FolderNone" = "Aucun dossier";
+"Folders" = "Dossiers";
 "FolderUpdated" = "Dossier sauvegardé";
 "MyFolder" = "Mon dossier";
 "MyFolders" = "Mes dossiers";
@@ -261,8 +262,12 @@
 "ShowWebsiteIconsDescription" = "Affichez une image reconnaissable à côté de chaque identifiant.";
 "IconsUrl" = "Icônes URL du serveur";
 "AutofillWithBitwarden" = "Saisie automatique avec Bitwarden";
+/* Section header and screen title for viewing/managing a cipher's collections. */
+"Collections" = "Collections";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "Dossiers partagés";
+/* Empty state message shown when a collection has no items. */
+"NoItemsCollection" = "Il n'y a aucun élément dans cette collection";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "Il n'y a aucun élément dans ce dossier partagé";
 "NoItemsFolder" = "Il n'y a aucun élément dans ce dossier";
@@ -284,6 +289,8 @@
 "RegEx" = "Expression régulière";
 "StartsWith" = "Commence par";
 "MatchDetection" = "Détection de correspondance";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
+"Organization" = "Organisation";
 "HoldYubikeyNearTop" = "Gardez votre Yubikey près du haut de l'appareil.";
 "TryAgain" = "Réessayer";
 "YubiKeyInstructionIos" = "Pour continuer, gardez votre Yubikey NEO à l'arrière de l'appareil.";
@@ -319,17 +326,27 @@
 "NoItemsToList" = "Il n'y a aucun élément à lister.";
 "MoveDown" = "Déplacer vers le bas";
 "MoveUp" = "Déplacer vers le haut";
+/* Empty state message on the Collections screen shown when a user has no collections. */
+"NoCollectionsToList" = "Il n'y a aucune collection à lister.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "Aucun dossier partagé à lister.";
 "MovedItemToOrg" = "%1$@ déplacé vers %2$@.";
+/* Alert message shown when saving an item with no collection selected. */
+"SelectOneCollection" = "Vous devez sélectionner au moins une collection.";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "Vous devez sélectionner au moins un dossier partagé.";
 "Share" = "Partager";
 "ShareAll" = "Partager tout";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
+"MoveToOrganization" = "Déplacer vers l'organisation";
 /* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "Aucun coffre à afficher.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
+"NoOrgsToList" = "Aucune organisation à lister.";
 /* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Choisissez un coffre vers lequel vous souhaitez déplacer cet élément. Le déplacement vers un autre coffre transfère la propriété de l'élément à cette organisation. Vous ne serez plus le propriétaire direct de cet élément une fois qu'il aura été déplacé.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
+"MoveToOrgDesc" = "Choisissez une organisation vers laquelle vous souhaitez déplacer cet élément. Le déplacement vers une organisation transfère le Propriétaire de l'élément à cette organisation. Vous ne serez plus le propriétaire direct de cet élément une fois qu'il aura été déplacé.";
 "NumberOfWords" = "Nombre de mots";
 "Passphrase" = "Phrase de passe";
 "WordSeparator" = "Séparateur de mots";
@@ -873,6 +890,7 @@
 "PersonalDetails" = "Détails personnels";
 "ContactInfo" = "Coordonnées";
 "Identification" = "Identification";
+"Owner" = "Propriétaire";
 "VerifyYourIdentity" = "Vérifiez votre identité";
 "ThisOperationIsNotAllowedOnThisAccount" = "Cette opération n'est pas autorisée sur ce compte";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "Une erreur s'est produite en essayant de verrouiller l'utilisateur actuel";
@@ -890,9 +908,13 @@
 "ShowMore" = "Afficher plus";
 "ShowLess" = "Afficher moins";
 "ItemNameX" = "Nom de l’élément, %1$@";
+"OwnerX" = "Propriétaire, %1$@";
 "VaultX" = "Coffre, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
+"CollectionX" = "Collection, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Dossier partagé, %1$@";
+"FolderX" = "Dossier, %1$@";
 "MyFolderX" = "Mon dossier, %1$@";
 "ItemXOfY" = "Élément %1$@ sur %2$@";
 "ViewRecordedLogs" = "Voir les journaux enregistrés";

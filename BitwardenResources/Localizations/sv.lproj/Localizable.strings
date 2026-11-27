@@ -28,6 +28,7 @@
 "FolderCreated" = "Ny mapp skapad.";
 "FolderDeleted" = "Mapp borttagen.";
 "FolderNone" = "Ingen mapp";
+"Folders" = "Mappar";
 "FolderUpdated" = "Mappen uppdaterades";
 "MyFolder" = "Min mapp";
 "MyFolders" = "Mina mappar";
@@ -261,8 +262,12 @@
 "ShowWebsiteIconsDescription" = "Visa en identifierbar bild bredvid varje inloggning.";
 "IconsUrl" = "Ikonserver-URL";
 "AutofillWithBitwarden" = "Autofyll med Bitwarden";
+/* Section header and screen title for viewing/managing a cipher's collections. */
+"Collections" = "Samlingar";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "Delade mappar";
+/* Empty state message shown when a collection has no items. */
+"NoItemsCollection" = "Det finns inga objekt i denna samling";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "Det finns inga objekt i den här delade mappen";
 "NoItemsFolder" = "Det finns inga objekt i den här mappen";
@@ -284,6 +289,8 @@
 "RegEx" = "Reguljärt uttryck";
 "StartsWith" = "Börjar med";
 "MatchDetection" = "Matchning";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
+"Organization" = "Organisation";
 "HoldYubikeyNearTop" = "Håll din Yubikey nära ovansidan av enheten.";
 "TryAgain" = "Försök igen";
 "YubiKeyInstructionIos" = "För att fortsätta, håll din YubiKey NEO mot baksidan av enheten.";
@@ -319,17 +326,27 @@
 "NoItemsToList" = "Det finns inga objekt att visa.";
 "MoveDown" = "Flytta ner";
 "MoveUp" = "Flytta upp";
+/* Empty state message on the Collections screen shown when a user has no collections. */
+"NoCollectionsToList" = "Det finns inga samlingar att visa.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "Det finns inga delade mappar att lista.";
 "MovedItemToOrg" = "%1$@ flyttades till %2$@.";
+/* Alert message shown when saving an item with no collection selected. */
+"SelectOneCollection" = "Du måste markera minst en samling.";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "Du måste välja minst en delad mapp.";
 "Share" = "Dela";
 "ShareAll" = "Dela alla";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
+"MoveToOrganization" = "Flytta till organisation";
 /* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "Det finns inga valv att lista.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
+"NoOrgsToList" = "Inga organisationer att lista.";
 /* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Välj det valv du vill flytta det här objektet till. Om du flyttar det till ett annat valv överförs äganderätten till objektet till den organisationen. Du är inte längre direkt ägare till objektet när det har flyttats.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
+"MoveToOrgDesc" = "Välj en organisation som du vill flytta detta objektet till. Flytt till en organisation överför ägandet av objektet till den organisationen. Du kommer inte längre att vara direkt ägare till detta objekt när det har flyttats.";
 "NumberOfWords" = "Antal ord";
 "Passphrase" = "Lösenordsfras";
 "WordSeparator" = "Ordavgränsare";
@@ -873,6 +890,7 @@
 "PersonalDetails" = "Personuppgifter";
 "ContactInfo" = "Kontaktinformation";
 "Identification" = "Identifiering";
+"Owner" = "Ägare";
 "VerifyYourIdentity" = "Verifiera din identitet";
 "ThisOperationIsNotAllowedOnThisAccount" = "Den här åtgärden är inte tillåten för det här kontot";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "Ett fel uppstod när det aktuella användarkontot skulle låsas";
@@ -890,9 +908,13 @@
 "ShowMore" = "Visa mer";
 "ShowLess" = "Visa mindre";
 "ItemNameX" = "Artikelns namn, %1$@";
+"OwnerX" = "Ägare, %1$@";
 "VaultX" = "Valv, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
+"CollectionX" = "Samling, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Delad mapp, %1$@";
+"FolderX" = "Mapp, %1$@";
 "MyFolderX" = "Min mapp, %1$@";
 "ItemXOfY" = "Objekt %1$@ av %2$@";
 "ViewRecordedLogs" = "Visa inspelade loggar";

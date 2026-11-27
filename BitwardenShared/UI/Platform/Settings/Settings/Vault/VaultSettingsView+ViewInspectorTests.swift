@@ -43,6 +43,16 @@ class VaultSettingsViewTests: BitwardenTestCase {
     /// Tapping the folders button dispatches the `.foldersTapped` action.
     @MainActor
     func test_foldersButton_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.folders)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .foldersTapped)
+    }
+
+    /// Tapping the folders button dispatches the `.foldersTapped` action when the
+    /// `vfo1-foundation` feature flag is enabled.
+    @MainActor
+    func test_foldersButton_tap_vfo1FoundationEnabled() throws {
+        processor.state.isVfo1FoundationFeatureFlagEnabled = true
         let button = try subject.inspect().find(button: Localizations.myFolders)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .foldersTapped)
