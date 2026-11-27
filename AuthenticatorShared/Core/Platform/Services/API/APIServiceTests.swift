@@ -39,7 +39,7 @@ class APIServiceTests: BitwardenTestCase {
         let mockFlightRecorder = MockFlightRecorder()
         let subject = APIService(
             client: MockHTTPClient(),
-            environmentService: MockEnvironmentService(),
+            environmentService: MockEnvironmentService.withDefaults(),
             flightRecorder: mockFlightRecorder,
             userAgentBuilder: UserAgentBuilder(
                 appName: "TestApp",

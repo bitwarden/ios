@@ -29,7 +29,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         authRepository = MockAuthRepository()
         configService = MockConfigService()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
-        environmentService = MockEnvironmentService()
+        environmentService = MockEnvironmentService.withDefaults()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
 
@@ -72,7 +72,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         await subject.didChangeRegion()
         XCTAssertEqual(subject.state.region, .selfHosted)
         XCTAssertEqual(
-            environmentService.setPreAuthEnvironmentURLsData,
+            environmentService.setPreAuthURLsReceivedUrls,
             EnvironmentURLData(base: .example),
         )
     }
@@ -87,7 +87,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(subject.state.region, .selfHosted)
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.environmentSaved))
         XCTAssertEqual(
-            environmentService.setPreAuthEnvironmentURLsData,
+            environmentService.setPreAuthURLsReceivedUrls,
             EnvironmentURLData(base: .example),
         )
     }
@@ -99,7 +99,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject.state.region = .unitedStates
         await subject.didSaveEnvironment(urls: EnvironmentURLData())
         XCTAssertEqual(subject.state.region, .unitedStates)
-        XCTAssertNil(environmentService.setPreAuthEnvironmentURLsData)
+        XCTAssertNil(environmentService.setPreAuthURLsReceivedUrls)
     }
 
     /// `perform(.appeared)` seeds `isCreateAccountButtonHidden` from the cached pre-auth config when
@@ -173,7 +173,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     func test_perform_appeared_loadsRegion_noPreAuthUrls() async {
         await subject.perform(.appeared)
         XCTAssertEqual(subject.state.region, .unitedStates)
-        XCTAssertEqual(environmentService.setPreAuthEnvironmentURLsData, .defaultUS)
+        XCTAssertEqual(environmentService.setPreAuthURLsReceivedUrls, .defaultUS)
     }
 
     /// `perform(.appeared)` with EU pre-auth URLs sets the state to the EU region and sets the
@@ -183,7 +183,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         stateService.preAuthEnvironmentURLs = .defaultEU
         await subject.perform(.appeared)
         XCTAssertEqual(subject.state.region, .europe)
-        XCTAssertEqual(environmentService.setPreAuthEnvironmentURLsData, .defaultEU)
+        XCTAssertEqual(environmentService.setPreAuthURLsReceivedUrls, .defaultEU)
     }
 
     /// `perform(.appeared)` with self-hosted pre-auth URLs sets the state to the self-hosted region
@@ -194,7 +194,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         stateService.preAuthEnvironmentURLs = urls
         await subject.perform(.appeared)
         XCTAssertEqual(subject.state.region, .selfHosted)
-        XCTAssertEqual(environmentService.setPreAuthEnvironmentURLsData, urls)
+        XCTAssertEqual(environmentService.setPreAuthURLsReceivedUrls, urls)
     }
 
     /// `perform(.appeared)` with US pre-auth URLs sets the state to the US region and sets the
@@ -204,7 +204,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         stateService.preAuthEnvironmentURLs = .defaultUS
         await subject.perform(.appeared)
         XCTAssertEqual(subject.state.region, .unitedStates)
-        XCTAssertEqual(environmentService.setPreAuthEnvironmentURLsData, .defaultUS)
+        XCTAssertEqual(environmentService.setPreAuthURLsReceivedUrls, .defaultUS)
     }
 
     /// `perform(.appeared)` with an active account and accounts should yield a profile switcher state.

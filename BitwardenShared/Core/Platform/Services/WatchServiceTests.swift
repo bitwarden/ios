@@ -33,7 +33,7 @@ struct WatchServiceTests { // swiftlint:disable:this type_body_length
     init() async throws {
         cipherService = MockCipherService()
         clientService = MockClientService()
-        environmentService = MockEnvironmentService()
+        environmentService = MockEnvironmentService.withDefaults()
         errorReporter = MockErrorReporter()
         organizationService = MockOrganizationService()
         stateService = MockStateService()

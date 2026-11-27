@@ -17,7 +17,7 @@ extension ServiceContainer {
         cameraService: CameraService = MockCameraService(),
         clientService: ClientService = MockClientService(),
         configService: ConfigService = MockConfigService(),
-        environmentService: EnvironmentService = MockEnvironmentService(),
+        environmentService: EnvironmentService = MockEnvironmentService.withDefaults(),
         cryptographyService: CryptographyService = MockCryptographyService(),
         errorReportBuilder: ErrorReportBuilder = MockErrorReportBuilder(),
         errorReporter: ErrorReporter = MockErrorReporter(),

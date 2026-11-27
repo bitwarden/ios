@@ -39,7 +39,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         authClient = MockAuthClientService()
         configService = MockConfigService()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
-        environmentService = MockEnvironmentService()
+        environmentService = MockEnvironmentService.withDefaults()
         errorReporter = MockErrorReporter()
         mockRegistrationClient = MockRegistrationClientProtocol()
         stateService = MockStateService()
@@ -104,7 +104,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         subject.state.fromEmail = true
         await stateService.setAccountCreationEnvironmentURLs(urls: .defaultEU, email: email)
         await subject.perform(.appeared)
-        XCTAssertEqual(environmentService.setPreAuthEnvironmentURLsData, .defaultEU)
+        XCTAssertEqual(environmentService.setPreAuthURLsReceivedUrls, .defaultEU)
     }
 
     /// `perform(.appeared)` fromEmail false  returns.
@@ -116,7 +116,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         await stateService.setAccountCreationEnvironmentURLs(urls: .defaultEU, email: email)
         await subject.perform(.appeared)
         XCTAssertNil(coordinator.alertShown.last)
-        XCTAssertEqual(environmentService.setPreAuthEnvironmentURLsData, nil)
+        XCTAssertEqual(environmentService.setPreAuthURLsReceivedUrls, nil)
     }
 
     /// `perform(.appeared)` fromEmail true and no saved region for given email shows alert.
@@ -134,7 +134,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
                 message: Localizations.theRegionForTheGivenEmailCouldNotBeLoaded,
             ),
         )
-        XCTAssertEqual(environmentService.setPreAuthEnvironmentURLsData, nil)
+        XCTAssertEqual(environmentService.setPreAuthURLsReceivedUrls, nil)
     }
 
     /// `perform(.appeared)` verify user email show toast on success.

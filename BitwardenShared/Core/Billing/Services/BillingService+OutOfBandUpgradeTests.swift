@@ -49,7 +49,7 @@ struct BillingServiceOutOfBandUpgradeTests {
         billingStateService = MockBillingStateService()
         configService = MockConfigService()
         configService.featureFlagsBool[.premiumUpgradePath] = true
-        let environmentService = MockEnvironmentService()
+        let environmentService = MockEnvironmentService.withDefaults()
         environmentService.region = .unitedStates
         errorReporter = MockErrorReporter()
         stateService = MockStateService()

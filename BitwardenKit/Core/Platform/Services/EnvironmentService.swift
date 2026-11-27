@@ -4,7 +4,7 @@ import Foundation
 
 /// A protocol for an `EnvironmentService` which manages the app's environment URLs.
 ///
-public protocol EnvironmentService {
+public protocol EnvironmentService { // sourcery: AutoMockable
     /// The URL for the API.
     var apiURL: URL { get }
 

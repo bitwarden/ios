@@ -28,7 +28,7 @@ class AboutProcessorTests: BitwardenTestCase {
         appInfoService = MockAppInfoService()
         configService = MockConfigService()
         coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
-        environmentService = MockEnvironmentService()
+        environmentService = MockEnvironmentService.withDefaults()
         errorReporter = MockErrorReporter()
         flightRecorder = MockFlightRecorder()
         pasteboardService = MockPasteboardService()

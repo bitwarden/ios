@@ -29,7 +29,7 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         super.setUp()
         client = MockHTTPClient()
         clientService = MockClientService()
-        environmentService = MockEnvironmentService()
+        environmentService = MockEnvironmentService.withDefaults()
         organizationService = MockOrganizationService()
         sendService = MockSendService()
         stateService = MockStateService()

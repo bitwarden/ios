@@ -53,7 +53,7 @@ struct BillingServicePremiumUpgradeLifecycleStateTests {
             billingAPIService: MockBillingAPIService(),
             billingStateService: billingStateService,
             configService: MockConfigService(),
-            environmentService: MockEnvironmentService(),
+            environmentService: MockEnvironmentService.withDefaults(),
             errorReporter: errorReporter,
             stateService: stateService,
             syncService: MockSyncService(),

@@ -11,7 +11,7 @@ extension APIService {
         appIDService: AppIDService = AppIDService(appIDSettingsStore: MockAppIDSettingsStore()),
         client: HTTPClient,
         fillAssistClient: HTTPClient? = nil,
-        environmentService: EnvironmentService = MockEnvironmentService(),
+        environmentService: EnvironmentService = MockEnvironmentService.withDefaults(),
         errorReporter: ErrorReporter = MockErrorReporter(),
         flightRecorder: FlightRecorder = MockFlightRecorder(),
         // swiftlint:disable:next line_length

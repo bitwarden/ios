@@ -19,7 +19,7 @@ struct ClientCertificateServiceTests {
     // MARK: Initialization
 
     init() {
-        environmentService = MockEnvironmentService()
+        environmentService = MockEnvironmentService.withDefaults()
         errorReporter = MockErrorReporter()
         keychainRepository = MockKeychainRepository()
         stateService = MockStateService()

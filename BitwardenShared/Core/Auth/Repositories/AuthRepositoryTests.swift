@@ -111,7 +111,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         clientCertificateService = MockClientCertificateService()
         clientRegistration = MockRegistrationClientProtocol()
         configService = MockConfigService()
-        environmentService = MockEnvironmentService()
+        environmentService = MockEnvironmentService.withDefaults()
         errorReporter = MockErrorReporter()
         fillAssistRepository = MockFillAssistRepository()
         flightRecorder = MockFlightRecorder()
@@ -2191,7 +2191,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let account = Account.fixture(settings: .fixture(environmentURLs: urls))
         stateService.accounts = [account]
         _ = try await subject.setActiveAccount(userId: account.profile.userId)
-        XCTAssertTrue(environmentService.didLoadURLsForActiveAccount)
+        XCTAssertTrue(environmentService.loadURLsForActiveAccountCalled)
     }
 
     /// `setActiveAccount(userId: )` succeeds when there is a match.

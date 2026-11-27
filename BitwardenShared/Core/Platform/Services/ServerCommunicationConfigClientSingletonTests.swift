@@ -31,7 +31,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase { // swif
 
         clientService = MockClientService()
         configService = MockConfigService()
-        environmentService = MockEnvironmentService()
+        environmentService = MockEnvironmentService.withDefaults()
         errorReporter = MockErrorReporter()
         sdkRepositoryFactory = MockSdkRepositoryFactory()
         serverCommunicationConfigAPIService = MockServerCommunicationConfigAPIService()

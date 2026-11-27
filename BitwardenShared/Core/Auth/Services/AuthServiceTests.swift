@@ -56,7 +56,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             ))
         configService.featureFlagsBool[.accountSetupOnboardingOnSignIn] = true
         credentialIdentityStore = MockCredentialIdentityStore()
-        environmentService = MockEnvironmentService()
+        environmentService = MockEnvironmentService.withDefaults()
         errorReporter = MockErrorReporter()
         keychainRepository = MockKeychainRepository()
         policyService = MockPolicyService()
