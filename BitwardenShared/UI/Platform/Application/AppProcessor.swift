@@ -160,7 +160,7 @@ public class AppProcessor {
 
         await services.migrationService.performMigrations()
         await prepareEnvironmentConfig()
-        await completeAutofillAccountSetupIfEnabled()
+        await updateAutofillStatus()
 
         if let initialRoute {
             coordinator.navigate(to: initialRoute)
@@ -651,7 +651,7 @@ extension AppProcessor {
                     await self?.coordinator?.handleEvent(.didTimeout(userId: activeUserId))
                 }
                 await handleNeverTimeOutAccountBecameActive()
-                await completeAutofillAccountSetupIfEnabled()
+                await updateAutofillStatus()
                 #if DEBUG
                 debugWillEnterForeground?()
                 #endif
@@ -685,6 +685,20 @@ extension AppProcessor {
     private func stopEventTimer() {
         sendEventTimer?.fire()
         sendEventTimer?.invalidate()
+    }
+
+    /// Updates the app's knowledge of whether autofill is turned on. When the autofill off action
+    /// card is enabled, this refreshes the live autofill status that drives the action cards (a
+    /// no-op in app extensions). Otherwise, it completes the user's autofill account setup if
+    /// autofill is enabled. This should be called on app startup and when entering the foreground.
+    ///
+    private func updateAutofillStatus() async {
+        guard await services.configService.getFeatureFlag(.autofillOffActionCard) else {
+            await completeAutofillAccountSetupIfEnabled()
+            return
+        }
+        guard appExtensionDelegate?.isInAppExtension != true else { return }
+        await services.autofillPromptService.refreshAutofillStatus()
     }
 
     /// Sends organization events to the server. Also sets up that regular upload

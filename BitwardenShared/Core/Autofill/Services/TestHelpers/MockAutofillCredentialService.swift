@@ -13,6 +13,7 @@ class MockAutofillCredentialService: AutofillCredentialService {
     var provideFido2CredentialResult: Result<PasskeyAssertionCredential, Error> = .failure(BitwardenTestError.example)
     var provideOTPCredentialResult: Result<OneTimeCodeCredential, Error> = .failure(BitwardenTestError.example)
     var updateCredentialsInStoreCalled = false
+    var updateCredentialsInStoreCallsCount = 0
     var upsertCredentialsInStoreCipherIds = [String]()
     /// The continuation of a suspended `upsertCredentialsInStore(forCipherId:)` call, if any.
     var upsertCredentialsInStoreContinuation: CheckedContinuation<Void, Never>?
@@ -81,6 +82,7 @@ class MockAutofillCredentialService: AutofillCredentialService {
 
     func updateCredentialsInStore() async {
         updateCredentialsInStoreCalled = true
+        updateCredentialsInStoreCallsCount += 1
     }
 
     func upsertCredentialsInStore(forCipherId cipherId: String) async {

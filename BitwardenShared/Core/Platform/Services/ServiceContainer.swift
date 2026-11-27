@@ -57,6 +57,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service which manages the ciphers exposed to the system for AutoFill suggestions.
     let autofillCredentialService: AutofillCredentialService
 
+    /// The service that tracks whether autofill is on and whether to prompt the user to turn it on.
+    let autofillPromptService: AutofillPromptService
+
     /// The repository used by the application to manage billing data for the UI layer.
     let billingRepository: BillingRepository
 
@@ -259,6 +262,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - authenticatorSyncService: The service used by the application to sync TOTP codes with the Authenticator app.
     ///   - autofillCredentialService: The service which manages the ciphers exposed to the system
     ///     for AutoFill suggestions.
+    ///   - autofillPromptService: The service that tracks whether autofill is on and whether to
+    ///     prompt the user to turn it on.
     ///   - billingRepository: The repository used by the application to manage billing data for the UI layer.
     ///   - billingService: The service used by the application to manage billing operations.
     ///   - biometricsRepository: The repository to manage biometric unlock policies and access
@@ -338,6 +343,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         authService: AuthService,
         authenticatorSyncService: AuthenticatorSyncService,
         autofillCredentialService: AutofillCredentialService,
+        autofillPromptService: AutofillPromptService,
         billingRepository: BillingRepository,
         billingService: BillingService,
         biometricsRepository: BiometricsRepository,
@@ -410,6 +416,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.authService = authService
         self.authenticatorSyncService = authenticatorSyncService
         self.autofillCredentialService = autofillCredentialService
+        self.autofillPromptService = autofillPromptService
         self.billingRepository = billingRepository
         self.billingService = billingService
         self.biometricsRepository = biometricsRepository
@@ -1094,6 +1101,18 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             vaultTimeoutService: vaultTimeoutService,
         )
 
+        let autofillPromptService = DefaultAutofillPromptService(
+            activeAccountStateProvider: stateService,
+            appContextHelper: appContextHelper,
+            asSettingsMediator: asSettingsMediator,
+            autofillCredentialService: autofillCredentialService,
+            autofillStateService: stateService,
+            errorReporter: errorReporter,
+            notificationCenterService: notificationCenterService,
+            timeProvider: timeProvider,
+            vaultTimeoutService: vaultTimeoutService,
+        )
+
         let credentialManagerFactory = DefaultCredentialManagerFactory()
         let cxfCredentialsResultBuilder = DefaultCXFCredentialsResultBuilder()
 
@@ -1194,6 +1213,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             authService: authService,
             authenticatorSyncService: authenticatorSyncService,
             autofillCredentialService: autofillCredentialService,
+            autofillPromptService: autofillPromptService,
             billingRepository: billingRepository,
             billingService: billingService,
             biometricsRepository: biometricsRepository,

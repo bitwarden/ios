@@ -15,6 +15,7 @@ typealias Services = HasAPIService
     & HasAuthRepository
     & HasAuthService
     & HasAutofillCredentialService
+    & HasAutofillPromptService
     & HasBillingAPIService
     & HasBillingRepository
     & HasBillingService
@@ -151,6 +152,13 @@ protocol HasAuthService {
 protocol HasAutofillCredentialService {
     /// /// The service which manages the ciphers exposed to the system for AutoFill suggestions..
     var autofillCredentialService: AutofillCredentialService { get }
+}
+
+/// Protocol for an object that provides an `AutofillPromptService`.
+///
+protocol HasAutofillPromptService {
+    /// The service that tracks whether autofill is on and whether to prompt the user to turn it on.
+    var autofillPromptService: AutofillPromptService { get }
 }
 
 /// Protocol for an object that provides a `BillingAPIService`.
