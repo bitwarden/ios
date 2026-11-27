@@ -26,3 +26,26 @@ extension XCUIApplication {
         launch()
     }
 }
+
+extension SystemApps {
+    /// Restarts Safari, which opens on the tab it showed last.
+    ///
+    @MainActor
+    static func relaunchSafari() -> XCUIApplication {
+        let safari = safari
+        safari.terminate()
+        safari.launch()
+        return safari
+    }
+
+    /// Restarts Settings, so that it opens on its first screen. System apps are started here, next
+    /// to the launch of the app under test, so that no test or robot launches an app itself.
+    ///
+    @MainActor
+    static func relaunchSettings() -> XCUIApplication {
+        let settings = settings
+        settings.terminate()
+        settings.launch()
+        return settings
+    }
+}

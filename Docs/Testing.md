@@ -200,11 +200,20 @@ Otherwise, tests will fail due to rendering differences between iOS versions.
 - Every test class inherits `E2ETestCase`. Before each test it launches the app with all stored state erased (`-BWResetAppState YES`) and pointed at the server under test (`-BWPreAuthEnvironmentBaseURL`), then checks the intro carousel is shown. Tests never launch the app themselves; SwiftLint rejects `.launch()` and `.activate()` outside `XCUIApplication+Launch.swift`.
 - Server data comes from the seeder API through `SeederClient`. Each test gets its own play ID, deleted when the test ends, so tests share nothing and run in any order.
 - Screens are driven through robots (`BitwardenE2ETests/Robots`): one robot per screen, holding that screen's actions and assertions. A robot waits for its screen when created and doesn't return other robots. Flows that span screens live in `RobotFlows`.
-- Elements are found by accessibility identifier, declared as private properties of the robot.
+- Elements are found by accessibility identifier, declared as private properties of the robot. System UI and web pages have no identifiers of ours and are found by label.
 - Timeouts come from `E2ETimeouts`. No sleeps, retries or optional steps.
+- XCUITest's waits check once a second, the first time about a second after the call, even when their condition already holds. Assertions and screen anchors check the current state first and then every `E2ETimeouts.pollInterval` (`XCUIElement+Waits.swift`, `Robot.waitFor`). That polling loop is the suite's only pause; it is not a fixed sleep, because it ends as soon as the condition holds. Taps and typing keep XCUITest's own wait (`Robot.tap`, `Robot.type`, `Robot.waitToActOn`): a tap sent the moment a control appears, or right after typing, is sometimes dropped.
 - Nothing a test prints may name the server under test: CI logs are public. Errors carry paths and status codes, never hosts, and the test plan sets `OS_ACTIVITY_MODE=disable` so the system's networking logs, which do name hosts, stay out of the output.
 - Test methods are synchronous (`func test_...() throws`, never `async`). XCTest can't stop an `async` test at a failed assertion, so a failing robot would hang the test until its time allowance runs out. `SeederClient` blocks for the same reason.
 - Name tests `test_<function>_<behavior>` and put the Testmo case ID in the doc comment.
+
+**Flows that leave the app** (AutoFill, passkeys):
+- Other apps are reached through `SystemApps` (Settings, Safari, SpringBoard). The AutoFill extension has no application of its own in XCUITest: its screens are in the element tree of the app that hosts them. That is the requesting app (Safari) for password AutoFill and SpringBoard for passkeys, which is also where the system passkey sheets are. `ExtensionUnlockRobot` and `ExtensionItemListRobot` take the hosting app.
+- A test makes Bitwarden the only AutoFill provider itself, with `IOSAutoFillSettingsRobot.useBitwardenAsOnlyProvider()`: Apple Passwords off, Bitwarden on. A freshly booted simulator needs no preparation. With a single provider the keyboard's Passwords key opens Bitwarden directly; with two, iOS first asks which one to use. **Log in first**: turning Bitwarden on starts the extension, and a Debug build of it crashes when there is no account.
+- AutoFill starts from the software keyboard, which carries the Passwords key. A test fails when the keyboard doesn't appear; it never works around a missing one.
+- Web pages are opened in a freshly started Safari that is in Private Browsing. A test class that uses Safari calls `SafariRobot.switchToPrivateBrowsing()` once, in its class `setUp()`; Safari stays in Private Browsing across restarts, so every page a test opens afterwards gets a new private tab. A private tab starts without the data sites stored earlier, such as the username webauthn.io remembers. Tabs aren't closed and pile up on a simulator that is reused. Each page has a `SafariRobot` subclass. Password forms use webtests.dev, the public host of [test-the-web](https://github.com/bitwarden/test-the-web). It has no passkey page, so passkeys use webauthn.io, the suite's only third-party site; each run leaves one registered username there.
+- `-BWResetAppState` erases the app's state, not the device's. Three things outlive a test: the AutoFill provider settings, Safari's own data, and the passkey sheet's behavior (see `PasskeySheetRobot`). Tests must not depend on any of them: they set the providers every time and restart Safari. Bitwarden's setting lasts until the simulator restarts; **Apple Passwords stays off on that simulator** until it's turned back on in Settings > General > AutoFill & Passwords.
+- iOS 27 simulators drop typing until the keyboard is up, and a tap where a minimized keyboard used to be reopens the keyboard instead of reaching the page. `SafariRobot` waits for the keyboard before typing and closes it with its Done button before a page button is tapped.
 
 **Debug builds only**: both launch arguments are compiled out of Release builds. The reset doesn't clear the iOS notification permission (the login flow handles its prompts) or the app group data shared with Authenticator; keychain items shared with Authenticator are erased, as on a fresh install.
 
@@ -846,6 +855,13 @@ Production servers are rejected. The run also fails if `~/.bitwarden/debug-envir
 The first login on an install shows the app's notification alert and the system permission prompt. XCUITest's default interruption handler accepts both at the next interaction, so a fresh simulator needs no preparation.
 
 The result bundle records the server URL in the app's launch arguments, so don't attach it to public issues or PRs.
+
+The AutoFill and passkey tests add four local requirements:
+
+- **The software keyboard.** In Simulator, turn off I/O > Keyboard > Connect Hardware Keyboard. With a hardware keyboard connected the software keyboard, and with it the Passwords key, never appears.
+- **One Bitwarden app on the simulator.** A second install, for example one built with another bundle identifier, adds a second provider that is also named Bitwarden. The tests then open the wrong one and fail with "Invalid master password".
+- **Network access to webtests.dev and webauthn.io** from the simulator.
+- **A trusted root certificate if your network inspects TLS.** A new simulator doesn't trust the proxy's certificate and Safari shows "This Connection Is Not Private". Add it once per simulator: `xcrun simctl keychain <device> add-root-cert <certificate.pem>`.
 
 ### Running Tests from Xcode
 

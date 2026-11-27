@@ -12,6 +12,12 @@ enum E2ETimeouts {
     /// and the first sync.
     static let login: TimeInterval = 60
 
+    /// How long to hold a long press.
+    static let longPress: TimeInterval = 1
+
+    /// How long to wait between two checks of a condition that doesn't hold yet.
+    static let pollInterval: TimeInterval = 0.2
+
     /// How long to wait for a screen to appear after a navigation.
     static let screen: TimeInterval = 15
 
