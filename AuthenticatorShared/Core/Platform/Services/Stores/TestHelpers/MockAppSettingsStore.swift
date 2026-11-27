@@ -19,6 +19,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var localUserId: String = "localtest"
     var migrationVersion = 0
     var overrideDebugFeatureFlagCalled = false
+    var preAuthEnvironmentURLs: EnvironmentURLData?
     var preAuthServerConfig: ServerConfig?
     var rememberedEmail: String?
     var rememberedOrgIdentifier: String?
