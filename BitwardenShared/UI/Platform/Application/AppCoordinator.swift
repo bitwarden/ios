@@ -451,7 +451,7 @@ extension AppCoordinator: AuthCoordinatorDelegate {
             if let credentialProviderExtensionDelegate = appExtensionDelegate as? CredentialProviderExtensionDelegate,
                credentialProviderExtensionDelegate.isSavingPasswordCredential {
                 // Only show the add item screen once it's known that the save request can't be
-                // completed with an identical existing login, so the user can't save a duplicate.
+                // completed with, or applied to, an existing login, so the user can't save a duplicate.
                 Task {
                     guard await !credentialProviderExtensionDelegate.completeSavePasswordRequestIfLoginExists() else {
                         return

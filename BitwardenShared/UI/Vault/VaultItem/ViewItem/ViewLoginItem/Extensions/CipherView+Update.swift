@@ -244,18 +244,7 @@ extension CipherView {
             lastUsedDate: lastUsedDate,
         )
 
-        // Password history is stored newest-first. When new entries are added, sort the existing
-        // history by date so that history in either order is normalized, prepend the new entries,
-        // then cap the list so the oldest entries are dropped. The new entries are prepended rather
-        // than sorted with the existing history so they're always kept, even if an existing entry
-        // has a later date (e.g. clock skew between devices).
-        var passwordHistory = passwordHistory
-        if !newPasswordHistory.isEmpty {
-            let existingPasswordHistory = (passwordHistory ?? []).sorted { $0.lastUsedDate > $1.lastUsedDate }
-            passwordHistory = Array(
-                (newPasswordHistory + existingPasswordHistory).prefix(Constants.maxCipherPasswordHistoryCount),
-            )
-        }
+        let passwordHistory = prependingPasswordHistory(newPasswordHistory)
 
         // Return the updated cipher.
         return CipherView(
@@ -348,6 +337,7 @@ extension CipherView {
             folderId: folderId,
             login: login,
             organizationId: organizationId,
+            passwordHistory: passwordHistory,
         )
     }
 
@@ -364,6 +354,7 @@ extension CipherView {
             folderId: folderId,
             login: login,
             organizationId: organizationId,
+            passwordHistory: passwordHistory,
         )
     }
 
@@ -380,6 +371,7 @@ extension CipherView {
             folderId: folderId,
             login: login,
             organizationId: organizationId,
+            passwordHistory: passwordHistory,
         )
     }
 
@@ -396,6 +388,7 @@ extension CipherView {
             folderId: folderId,
             login: login,
             organizationId: organizationId,
+            passwordHistory: passwordHistory,
         )
     }
 
@@ -412,10 +405,61 @@ extension CipherView {
             folderId: folderId,
             login: login,
             organizationId: organizationId,
+            passwordHistory: passwordHistory,
+        )
+    }
+
+    /// Returns a copy of the existing login with a new password. If the login had a different
+    /// password, the previous password is added to the password history and the password revision
+    /// date is updated, matching edits made in the add/edit item screen.
+    ///
+    /// Passwords are compared byte for byte, since `String` equality treats canonically equivalent
+    /// Unicode (e.g. "é" and "e" + combining accent) as equal, but a website doesn't.
+    ///
+    /// - Parameters:
+    ///   - password: The new password.
+    ///   - timeProvider: The provider used to get the current time.
+    /// - Returns: A copy of the existing cipher, with the password updated.
+    ///
+    func update(password: String, timeProvider: TimeProvider = CurrentTime()) -> CipherView {
+        guard let login, login.password?.utf8.elementsEqual(password.utf8) != true else { return self }
+
+        let now = timeProvider.presentTime
+        let previousPasswordHistory = login.password.map { previousPassword in
+            [PasswordHistoryView(password: previousPassword, lastUsedDate: now)]
+        } ?? []
+        return update(
+            archivedDate: archivedDate,
+            collectionIds: collectionIds,
+            deletedDate: deletedDate,
+            folderId: folderId,
+            login: login.update(
+                password: password,
+                passwordRevisionDate: login.password == nil ? login.passwordRevisionDate : now,
+            ),
+            organizationId: organizationId,
+            passwordHistory: prependingPasswordHistory(previousPasswordHistory),
         )
     }
 
     // MARK: Private
+
+    /// Returns the cipher's password history with new entries added.
+    ///
+    /// Password history is stored newest-first. When new entries are added, the existing history is
+    /// sorted by date so that history in either order is normalized, the new entries are prepended,
+    /// and the list is capped so the oldest entries are dropped. The new entries are prepended rather
+    /// than sorted with the existing history so they're always kept, even if an existing entry has a
+    /// later date (e.g. clock skew between devices).
+    ///
+    /// - Parameter newEntries: The new password history entries, newest first.
+    /// - Returns: The updated password history, or the existing one if there are no new entries.
+    ///
+    private func prependingPasswordHistory(_ newEntries: [PasswordHistoryView]) -> [PasswordHistoryView]? {
+        guard !newEntries.isEmpty else { return passwordHistory }
+        let existingPasswordHistory = (passwordHistory ?? []).sorted { $0.lastUsedDate > $1.lastUsedDate }
+        return Array((newEntries + existingPasswordHistory).prefix(Constants.maxCipherPasswordHistoryCount))
+    }
 
     /// Returns a copy of the existing cipher, updating any of the specified properties.
     ///
@@ -426,6 +470,7 @@ extension CipherView {
     ///   - folderId: The identifier of the cipher's folder
     ///   - login: Login data if the cipher is a login.
     ///   - organizationId: The identifier of the cipher's organization.
+    ///   - passwordHistory: The password history of the cipher.
     /// - Returns: A copy of the existing cipher, with the specified properties updated.
     ///
     private func update( // swiftlint:disable:this function_parameter_count
@@ -435,6 +480,7 @@ extension CipherView {
         folderId: String?,
         login: BitwardenSdk.LoginView?,
         organizationId: String?,
+        passwordHistory: [PasswordHistoryView]?,
     ) -> CipherView {
         CipherView(
             id: id,
@@ -474,6 +520,25 @@ extension CipherView {
 }
 
 extension BitwardenSdk.LoginView {
+    /// Returns a copy of the existing login with an updated password.
+    ///
+    /// - Parameters:
+    ///   - password: The new password.
+    ///   - passwordRevisionDate: The date the password was changed.
+    /// - Returns: A copy of the existing login, with the specified properties updated.
+    ///
+    func update(password: String?, passwordRevisionDate: Date?) -> BitwardenSdk.LoginView {
+        BitwardenSdk.LoginView(
+            username: username,
+            password: password,
+            passwordRevisionDate: passwordRevisionDate,
+            uris: uris,
+            totp: totp,
+            autofillOnPageLoad: autofillOnPageLoad,
+            fido2Credentials: fido2Credentials,
+        )
+    }
+
     /// Returns a copy of the existing login with an updated TOTP key.
     ///
     /// - Parameter totp: The TOTP key to update.

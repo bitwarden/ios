@@ -36,7 +36,8 @@ public protocol CredentialProviderExtensionDelegate: AppExtensionDelegate {
     func completeSavePasswordRequest()
 
     /// Completes the save password request if the vault already has a login with the same URI,
-    /// username and password as the credential being saved, so a duplicate isn't added.
+    /// username and password as the credential being saved, or a single login that's updated with
+    /// the password, so a duplicate isn't added.
     ///
     /// The vault must be unlocked before calling this.
     ///

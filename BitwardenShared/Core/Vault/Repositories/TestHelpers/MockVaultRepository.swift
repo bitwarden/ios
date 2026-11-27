@@ -48,11 +48,6 @@ class MockVaultRepository: VaultRepository { // swiftlint:disable:this type_body
     var downloadAttachmentAttachment: AttachmentView?
     var downloadAttachmentResult: Result<URL?, Error> = .success(nil)
 
-    var existingLoginPassword: String?
-    var existingLoginResult: CipherView?
-    var existingLoginUri: String?
-    var existingLoginUsername: String?
-
     var fetchCipherId: String?
     var fetchCipherResult: Result<CipherView?, Error> = .success(nil)
 
@@ -93,6 +88,10 @@ class MockVaultRepository: VaultRepository { // swiftlint:disable:this type_body
     var isVaultEmptyCalled = false
     var isVaultEmptyResult: Result<Bool, Error> = .success(false)
 
+    var matchSavePasswordRequestPassword: String?
+    var matchSavePasswordRequestResult = SavePasswordMatch.none
+    var matchSavePasswordRequestUri: String?
+    var matchSavePasswordRequestUsername: String?
     var migratePersonalVaultOrganizationId: String?
     var migratePersonalVaultResult: Result<Void, Error> = .success(())
 
@@ -226,13 +225,6 @@ class MockVaultRepository: VaultRepository { // swiftlint:disable:this type_body
         return try downloadAttachmentResult.get()
     }
 
-    func existingLogin(matchingUri uri: String, username: String, password: String) async -> CipherView? {
-        existingLoginPassword = password
-        existingLoginUri = uri
-        existingLoginUsername = username
-        return existingLoginResult
-    }
-
     func fetchCipher(withId id: String) async throws -> CipherView? {
         fetchCipherId = id
         return try fetchCipherResult.get()
@@ -293,6 +285,13 @@ class MockVaultRepository: VaultRepository { // swiftlint:disable:this type_body
     func isVaultEmpty() async throws -> Bool {
         isVaultEmptyCalled = true
         return try isVaultEmptyResult.get()
+    }
+
+    func matchSavePasswordRequest(uri: String, username: String, password: String) async -> SavePasswordMatch {
+        matchSavePasswordRequestPassword = password
+        matchSavePasswordRequestUri = uri
+        matchSavePasswordRequestUsername = username
+        return matchSavePasswordRequestResult
     }
 
     func migratePersonalVault(to organizationId: String) async throws {

@@ -342,6 +342,7 @@ extension CredentialProviderViewController {
 
     @available(iOSApplicationExtension 26.2, *)
     override func performWithoutUserInteractionIfPossible(savePasswordRequest: ASSavePasswordRequest) {
+        guard !completeIfGeneratedPasswordFilled(savePasswordRequest) else { return }
         Task {
             await initializeAppWithoutUserInteraction(
                 with: DefaultCredentialProviderContext(
@@ -354,12 +355,27 @@ extension CredentialProviderViewController {
 
     @available(iOSApplicationExtension 26.2, *)
     override func prepareInterface(for savePasswordRequest: ASSavePasswordRequest) {
+        guard !completeIfGeneratedPasswordFilled(savePasswordRequest) else { return }
         initializeApp(with: DefaultCredentialProviderContext(
             .savePasswordCredential(savePasswordRequest, userInteraction: true),
         ))
     }
 
     // MARK: Private methods
+
+    /// Completes a save-password request for a generated password that was filled into a form that
+    /// hasn't been submitted yet, without saving it, so cancelling the form doesn't change the vault.
+    /// iOS sends another save-password request when the form is submitted, which saves the password.
+    ///
+    /// - Parameter savePasswordRequest: The save-password request to check.
+    /// - Returns: `true` if the request was for a filled generated password and was completed.
+    ///
+    @available(iOSApplicationExtension 26.2, *)
+    private func completeIfGeneratedPasswordFilled(_ savePasswordRequest: ASSavePasswordRequest) -> Bool {
+        guard savePasswordRequest.event == .generatedPasswordFilled else { return false }
+        extensionContext.completeSavePasswordRequest(completionHandler: nil)
+        return true
+    }
 
     /// Generates a password for the requesting app using the developer-specified rules in the request.
     ///
@@ -558,12 +574,21 @@ extension CredentialProviderViewController: CredentialProviderExtensionDelegate 
         guard #available(iOSApplicationExtension 26.2, *),
               case let .savePasswordCredential(request, _) = context?.extensionMode,
               let savePasswordRequest = request as? ASSavePasswordRequest,
-              let appProcessor,
-              await appProcessor.registerExistingPasswordCredential(
-                  username: savePasswordRequest.credential.user,
-                  password: savePasswordRequest.credential.password,
-                  uri: savePasswordRequest.serviceIdentifier.normalizedURI,
-              ) else {
+              let appProcessor else {
+            return false
+        }
+
+        do {
+            guard try await appProcessor.updateExistingPasswordCredential(
+                username: savePasswordRequest.credential.user,
+                password: savePasswordRequest.credential.password,
+                uri: savePasswordRequest.serviceIdentifier.normalizedURI,
+            ) else {
+                return false
+            }
+        } catch {
+            // Fall back to the add item screen, so the user can still save the credential.
+            Logger.appExtension.error("Error updating existing login for save password request: \(error)")
             return false
         }
 

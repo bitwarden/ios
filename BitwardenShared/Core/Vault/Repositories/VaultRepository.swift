@@ -99,21 +99,6 @@ public protocol VaultRepository: AnyObject {
         cipher: CipherView,
     ) async throws -> URL?
 
-    /// Returns an existing login in the active account's vault whose first AutoFill URI matches
-    /// `uri` and that has the same username and password, if one exists. URIs are compared with a
-    /// default `https://` scheme and without a trailing slash. Deleted and archived logins are ignored.
-    ///
-    /// Errors are logged and `nil` is returned, since failing to find a duplicate shouldn't prevent
-    /// the caller from saving the login.
-    ///
-    /// - Parameters:
-    ///   - uri: The URI the login must contain.
-    ///   - username: The username the login must have. An empty username matches a login without one.
-    ///   - password: The password the login must have.
-    /// - Returns: The matching login, or `nil` if there's no match.
-    ///
-    func existingLogin(matchingUri uri: String, username: String, password: String) async -> CipherView?
-
     /// Attempt to fetch a cipher with the given id.
     ///
     /// - Parameter id: The id of the cipher to find.
@@ -176,6 +161,25 @@ public protocol VaultRepository: AnyObject {
     /// - Returns: Whether the user's vault is empty.
     ///
     func isVaultEmpty() async throws -> Bool
+
+    /// Matches a save-password request against the logins in the active account's vault. Logins are
+    /// matched to `uri` the same way the AutoFill list matches them, following each login URI's match
+    /// detection setting and the user's equivalent domains, so a request for a different page on the
+    /// same site matches. Deleted and archived logins are ignored. A login is only offered for an
+    /// update when it's the only login with the same username that the user can edit and see the
+    /// password of, matches exactly and is saved for the same host.
+    ///
+    /// Errors are logged and `.none` is returned, since failing to match shouldn't prevent the
+    /// caller from saving the login.
+    ///
+    /// - Parameters:
+    ///   - uri: The URI of the credential being saved.
+    ///   - username: The username of the credential being saved. An empty username matches a login
+    ///     without one for an identical match, and never offers a login for an update.
+    ///   - password: The password of the credential being saved.
+    /// - Returns: How the request relates to the existing logins.
+    ///
+    func matchSavePasswordRequest(uri: String, username: String, password: String) async -> SavePasswordMatch
 
     /// Migrates the user's personal vault items to an organization's default collection.
     ///
@@ -349,6 +353,9 @@ class DefaultVaultRepository {
     /// The mediator that helps with some cipher operations involving encryption.
     private let cipherEncryptionMediator: CipherEncryptionMediator
 
+    /// The factory used to make helpers that check which ciphers match a URI.
+    private let cipherMatchingHelperFactory: CipherMatchingHelperFactory
+
     /// The service used to manage syncing and updates to the user's ciphers.
     private let cipherService: CipherService
 
@@ -406,6 +413,7 @@ class DefaultVaultRepository {
     ///
     /// - Parameters:
     ///   - cipherEncryptionMediator: The mediator that helps with some cipher operations involving encryption.
+    ///   - cipherMatchingHelperFactory: The factory used to make helpers that check which ciphers match a URI.
     ///   - cipherService: The service used to manage syncing and updates to the user's ciphers.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - collectionHelper: The helper functions for collections.
@@ -426,6 +434,7 @@ class DefaultVaultRepository {
     ///
     init(
         cipherEncryptionMediator: CipherEncryptionMediator,
+        cipherMatchingHelperFactory: CipherMatchingHelperFactory,
         cipherService: CipherService,
         clientService: ClientService,
         collectionHelper: CollectionHelper,
@@ -445,6 +454,7 @@ class DefaultVaultRepository {
         vaultTimeoutService: VaultTimeoutService,
     ) {
         self.cipherEncryptionMediator = cipherEncryptionMediator
+        self.cipherMatchingHelperFactory = cipherMatchingHelperFactory
         self.cipherService = cipherService
         self.clientService = clientService
         self.collectionHelper = collectionHelper
@@ -468,56 +478,79 @@ class DefaultVaultRepository {
 
     // MARK: Private
 
-    /// The throwing implementation of `existingLogin(matchingUri:username:password:)`, which logs
-    /// the errors.
+    /// The throwing implementation of `matchSavePasswordRequest(uri:username:password:)`, which
+    /// logs the errors.
     ///
-    private func findExistingLogin(
-        matchingUri uri: String,
+    private func findSavePasswordMatch(
+        uri: String,
         username: String,
         password: String,
-    ) async throws -> CipherView? {
+    ) async throws -> SavePasswordMatch {
         // Filter on the encrypted ciphers first so only active logins are decrypted. Deleted and
         // archived logins are excluded, matching the identities synced to the identity store.
         let logins = try await cipherService.fetchAllCiphers().filter { cipher in
             cipher.type == .login && !cipher.isHidden
         }
-        guard !logins.isEmpty else { return nil }
+        guard !logins.isEmpty else { return .none }
+        // Only logins the user can edit and see the password of can be updated, since the previous
+        // password goes into the password history, where the user can read it.
+        let updatableIds = Set(logins.filter { $0.edit && $0.viewPassword }.compactMap(\.id))
 
-        let normalizedUri = uri.httpsNormalized()
-
-        // Use the lightweight list views to narrow down candidates before fully decrypting any cipher.
-        let candidateIds = try await clientService.vault().ciphers()
+        // Match logins the same way the AutoFill list does, so a request for another page on the same
+        // site (e.g. a change-password page) matches the login that was used to fill the form.
+        let cipherMatchingHelper = await cipherMatchingHelperFactory.make(uri: uri)
+        let cipherListViews = try await clientService.vault().ciphers()
             .decryptListWithFailures(ciphers: logins)
             .successes
-            .compactMap { cipherListView -> String? in
-                // TODO: PM-47259 - Revisit matching only the first AutoFill URI when
-                // `CredentialIdentityFactory` registers more of the login's URIs.
-                // Match the first AutoFill URI, using the same rules as `CredentialIdentityFactory`.
-                // It's the only URI the login's credential identity is registered under. URIs are
-                // compared with a default `https://` scheme and without a trailing slash, so a login
-                // saved as `www.example.com` matches a request for `https://www.example.com`.
-                let firstAutofillUri = cipherListView.type.loginListView?.uris?
-                    .first { $0.match != .never && $0.uri.isEmptyOrNil == false }?
-                    .uri
-                // Usernames and passwords are compared byte for byte, since `String` equality treats
-                // canonically equivalent Unicode (e.g. "é" and "e" + combining accent) as equal.
-                guard let login = cipherListView.type.loginListView,
-                      (login.username ?? "").utf8.elementsEqual(username.utf8),
-                      firstAutofillUri?.httpsNormalized() == normalizedUri else {
-                    return nil
-                }
-                return cipherListView.id
+        var exactMatchIds = Set<String>()
+        var uriMatches = [CipherListView]()
+        for cipherListView in cipherListViews {
+            let matchResult = cipherMatchingHelper.doesCipherMatch(cipher: cipherListView)
+            guard matchResult != .none else { continue }
+            uriMatches.append(cipherListView)
+            if matchResult == .exact, let cipherId = cipherListView.id {
+                exactMatchIds.insert(cipherId)
             }
+        }
 
-        for cipherId in candidateIds {
-            guard let cipherView = try await fetchCipher(withId: cipherId),
-                  let existingPassword = cipherView.login?.password,
-                  existingPassword.utf8.elementsEqual(password.utf8) else {
+        // Usernames and passwords are compared byte for byte, since `String` equality treats
+        // canonically equivalent Unicode (e.g. "é" and "e" + combining accent) as equal.
+        let sameUsernameIds = uriMatches.compactMap { cipherListView -> String? in
+            let loginUsername = cipherListView.type.loginListView?.username ?? ""
+            return loginUsername.utf8.elementsEqual(username.utf8) ? cipherListView.id : nil
+        }
+
+        var sameUsernameLogins = [CipherView]()
+        // A login with the same URI and username that can't be fully decrypted could be the one being
+        // changed, so no other login is updated if there's one.
+        var hasUndecryptableLogin = false
+        for cipherId in sameUsernameIds {
+            guard let cipherView = try await fetchCipher(withId: cipherId) else {
+                hasUndecryptableLogin = true
                 continue
             }
-            return cipherView
+            if let existingPassword = cipherView.login?.password,
+               existingPassword.utf8.elementsEqual(password.utf8) {
+                return .identical(cipherView)
+            }
+            sameUsernameLogins.append(cipherView)
         }
-        return nil
+
+        // Without a username, any login for the URI could be the one being changed, so none is updated.
+        // The same applies if a matching login couldn't be decrypted.
+        guard !username.isEmpty, !hasUndecryptableLogin else { return .none }
+
+        // Only update a login saved for the same host. A match on the base domain (e.g.
+        // `mail.example.com` for `hr.example.com`) or an equivalent domain could be a different account.
+        let candidates = sameUsernameLogins.filter { $0.id.map(updatableIds.contains) ?? false }
+        guard candidates.count == 1,
+              let candidate = candidates.first,
+              let candidateId = candidate.id,
+              exactMatchIds.contains(candidateId),
+              login(candidate, hasHostOf: uri) else {
+            return .none
+        }
+        return .singleUpdateCandidate(candidate)
     }
 
     /// Downloads, re-encrypts, and re-uploads an attachment without an attachment key so that it
@@ -552,6 +585,33 @@ class DefaultVaultRepository {
         }
 
         return updatedCipher
+    }
+
+    /// Returns whether one of the login's AutoFill URIs has the same host as `uri`, and a scheme that
+    /// `uri` can update. URIs saved without a scheme are treated as `https://`. An `http://` request
+    /// only matches `http://` URIs, so an insecure page can't change a login saved for `https://`.
+    ///
+    /// - Parameters:
+    ///   - cipher: The login to check.
+    ///   - uri: The URI whose host the login must have.
+    /// - Returns: `true` if one of the login's URIs has the same host as `uri` and a scheme it can update.
+    ///
+    private func login(_ cipher: CipherView, hasHostOf uri: String) -> Bool {
+        guard let requestUrl = URL(string: uri)?.sanitized,
+              let host = requestUrl.hostWithPort?.lowercased() else {
+            return false
+        }
+        let requestScheme = requestUrl.scheme?.lowercased()
+        return cipher.login?.uris?.contains { loginUri in
+            guard loginUri.match != .never,
+                  let uri = loginUri.uri,
+                  !uri.isEmpty,
+                  let loginUrl = URL(string: uri)?.sanitized,
+                  loginUrl.hostWithPort?.lowercased() == host else {
+                return false
+            }
+            return requestScheme == "https" || loginUrl.scheme?.lowercased() == requestScheme
+        } ?? false
     }
 }
 
@@ -764,15 +824,6 @@ extension DefaultVaultRepository: VaultRepository {
         return temporaryUrl
     }
 
-    func existingLogin(matchingUri uri: String, username: String, password: String) async -> CipherView? {
-        do {
-            return try await findExistingLogin(matchingUri: uri, username: username, password: password)
-        } catch {
-            errorReporter.log(error: error)
-            return nil
-        }
-    }
-
     func fetchOrganization(withId id: String) async throws -> Organization? {
         let organizations = try await organizationService.fetchAllOrganizations()
         return organizations.first(where: { $0.id == id })
@@ -820,6 +871,15 @@ extension DefaultVaultRepository: VaultRepository {
 
     func isVaultEmpty() async throws -> Bool {
         try await cipherService.cipherCount() == 0
+    }
+
+    func matchSavePasswordRequest(uri: String, username: String, password: String) async -> SavePasswordMatch {
+        do {
+            return try await findSavePasswordMatch(uri: uri, username: username, password: password)
+        } catch {
+            errorReporter.log(error: error)
+            return .none
+        }
     }
 
     func migratePersonalVault(to organizationId: String) async throws {

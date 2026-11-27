@@ -42,6 +42,20 @@ final class LoginViewUpdateTests: BitwardenTestCase {
         XCTAssertEqual(comparison, subject)
     }
 
+    /// `update(password:passwordRevisionDate:)` returns a copy of the login with the new password and
+    /// revision date, keeping the other properties.
+    func test_update_password() {
+        let date = Date(year: 2026, month: 11, day: 23)
+
+        let updated = subject.update(password: "new", passwordRevisionDate: date)
+
+        XCTAssertEqual(updated.password, "new")
+        XCTAssertEqual(updated.passwordRevisionDate, date)
+        XCTAssertEqual(updated.username, subject.username)
+        XCTAssertEqual(updated.uris, subject.uris)
+        XCTAssertEqual(updated.totp, subject.totp)
+    }
+
     /// Tests that the init succeeds with a LoginView.
     func test_update_loginView_changes() {
         loginState.username = "Username"
