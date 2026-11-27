@@ -4,6 +4,10 @@ import BitwardenSdk
 /// Protocol of the factory to create credential identities.
 protocol CredentialIdentityFactory {
     /// Creates the `ASCredentialIdentity` array from a `CipherView` (it may return empty).
+    ///
+    /// Identities are created for each of the login's URIs that's used for AutoFill, so the login is
+    /// suggested on every site or app it's saved for.
+    ///
     /// - Parameters:
     ///   - cipher: The cipher to get the identities from.
     ///   - accountHasPremium: Whether the active account has Premium access.
@@ -11,10 +15,12 @@ protocol CredentialIdentityFactory {
     @available(iOS 17.0, *)
     func createCredentialIdentities(from cipher: CipherView, accountHasPremium: Bool) async -> [ASCredentialIdentity]
 
-    /// Tries to create a `ASPasswordCredentialIdentity` from the given `cipher`
-    /// - Parameter cipher: CIpher to create the password identity.
-    /// - Returns: The password credential identity or `nil` if it can't be created.
-    func tryCreatePasswordCredentialIdentity(from cipher: CipherView) -> ASPasswordCredentialIdentity?
+    /// Creates an `ASPasswordCredentialIdentity` for each of the `cipher`'s login URIs that's used
+    /// for AutoFill.
+    ///
+    /// - Parameter cipher: Cipher to create the password identities.
+    /// - Returns: The password credential identities, or an empty array if they can't be created.
+    func createPasswordCredentialIdentities(from cipher: CipherView) -> [ASPasswordCredentialIdentity]
 }
 
 /// Default implementation of `CredentialIdentityFactory` to create credential identities.
@@ -24,8 +30,8 @@ struct DefaultCredentialIdentityFactory: CredentialIdentityFactory {
         var identities = [ASCredentialIdentity]()
 
         let isTotpAuthorized = accountHasPremium || cipher.organizationUseTotp
-        if isTotpAuthorized, let oneTimeCodeIdentity = tryCreateOneTimeCodeIdentity(from: cipher) {
-            identities.append(oneTimeCodeIdentity)
+        if isTotpAuthorized {
+            identities.append(contentsOf: createOneTimeCodeIdentities(from: cipher))
         }
 
         guard !cipher.hasFido2Credentials || cipher.login?.password != nil else {
@@ -34,111 +40,65 @@ struct DefaultCredentialIdentityFactory: CredentialIdentityFactory {
             return identities
         }
 
-        if let passwordIdentity = tryCreatePasswordCredentialIdentity(from: cipher) {
-            identities.append(passwordIdentity)
-        }
+        identities.append(contentsOf: createPasswordCredentialIdentities(from: cipher))
         return identities
     }
 
-    func tryCreatePasswordCredentialIdentity(from cipher: BitwardenSdk.CipherView) -> ASPasswordCredentialIdentity? {
-        guard let serviceIdentifier = createServiceIdentifierFromFirstLoginUri(of: cipher),
-              let username = cipher.login?.username, !username.isEmpty
-        else {
-            return nil
+    func createPasswordCredentialIdentities(from cipher: BitwardenSdk.CipherView) -> [ASPasswordCredentialIdentity] {
+        guard let username = cipher.login?.username, !username.isEmpty else {
+            return []
         }
 
-        return ASPasswordCredentialIdentity(
-            serviceIdentifier: serviceIdentifier,
-            user: username,
-            recordIdentifier: cipher.id,
-        )
+        return createServiceIdentifiers(of: cipher).map { serviceIdentifier in
+            ASPasswordCredentialIdentity(
+                serviceIdentifier: serviceIdentifier,
+                user: username,
+                recordIdentifier: cipher.id,
+            )
+        }
     }
 
     // MARK: Private
 
-    /// Returns the URI with an `https://` scheme added if it doesn't already have a scheme.
+    /// Creates an `ASOneTimeCodeCredentialIdentity` for each of the `cipher`'s login URIs that's
+    /// used for AutoFill, if the cipher has a TOTP.
     ///
-    /// `httpsNormalized()` isn't used because it would also add `https://` before URIs with a
-    /// non-web scheme, such as app URIs (e.g. `iosapp://`), and remove trailing slashes.
-    ///
-    /// - Parameter uri: The login URI.
-    /// - Returns: The URI unchanged if it has a scheme, otherwise the URI prefixed with `https://`.
-    ///
-    private func addingHttpsSchemeIfNeeded(to uri: String) -> String {
-        uri.contains("://") ? uri : "https://" + uri
-    }
-
-    /// Gets the service identifier based on the first login uri, if there's one.
-    private func createServiceIdentifierFromFirstLoginUri(of cipher: CipherView) -> ASCredentialServiceIdentifier? {
-        let uris = cipher.login?.uris?.filter { $0.match != .never && $0.uri.isEmptyOrNil == false }
-        guard let firstUri = uris?.first, let uriString = firstUri.uri else {
-            return nil
-        }
-
-        // Web URIs matched by domain or host are registered as a `.domain` service identifier with the
-        // URI's host, so the system matches them regardless of the website's scheme or path. URIs
-        // matched exactly or by prefix, regular expressions, and non-web URIs (e.g. app URIs) are
-        // registered as a `.URL` service identifier with the URI as it's saved.
-        if let host = domainIdentifier(for: uriString, match: firstUri.match) {
-            return ASCredentialServiceIdentifier(identifier: host, type: .domain)
-        }
-
-        // The system doesn't match a `.URL` service identifier without a scheme (e.g. `www.example.com`)
-        // to the website, so add one to an exact match URI that doesn't have one.
-        // This is "best effort" fix because we don't know for sure the scheme should be `https://`.
-        let urlIdentifier = firstUri.match == .exact ? addingHttpsSchemeIfNeeded(to: uriString) : uriString
-        return ASCredentialServiceIdentifier(identifier: urlIdentifier, type: .URL)
-    }
-
-    /// Returns the host to register as a `.domain` service identifier for a login URI, if the URI
-    /// is matched by domain or host.
-    ///
-    /// - Parameters:
-    ///   - uri: The login URI as it's saved, with or without a scheme.
-    ///   - match: The login URI's match type.
-    /// - Returns: The lowercased host (without a scheme, port, or path) for a `.domain`, `.host`, or
-    ///   default match type, or `nil` if the URI has a different match type or isn't an `http` or
-    ///   `https` URI with a host.
-    ///
-    private func domainIdentifier(for uri: String, match: BitwardenSdk.UriMatchType?) -> String? {
-        switch match {
-        case .domain, .host, nil:
-            break
-        case .exact, .never, .regularExpression, .startsWith:
-            return nil
-        }
-
-        // A URI with surrounding whitespace or without a scheme (e.g. `www.example.com`) may not be
-        // parsed for its host, so trim it and add a scheme before parsing.
-        let uriWithScheme = addingHttpsSchemeIfNeeded(to: uri.trimmingCharacters(in: .whitespacesAndNewlines))
-
-        guard let url = URL(string: uriWithScheme),
-              let scheme = url.scheme?.lowercased(),
-              scheme == "http" || scheme == "https",
-              let host = url.host, !host.isEmpty else {
-            return nil
-        }
-        return host.lowercased()
-    }
-
-    /// Tries to create a one time code credential identity if possible from the `cipher`.
-    /// - Parameter cipher: The cipher to get the one time code identity.
-    /// - Returns: An `ASOneTimeCodeCredentialIdentity` if possible, `nil` otherwise.
+    /// - Parameter cipher: The cipher to get the one time code identities.
+    /// - Returns: The one time code credential identities, or an empty array if they can't be created.
     @available(iOS 17.0, *)
-    private func tryCreateOneTimeCodeIdentity(from cipher: CipherView) -> ASCredentialIdentity? {
-        guard #available(iOSApplicationExtension 18.0, *) else {
-            return nil
+    private func createOneTimeCodeIdentities(from cipher: CipherView) -> [ASCredentialIdentity] {
+        guard #available(iOSApplicationExtension 18.0, *), cipher.login?.totp != nil else {
+            return []
         }
 
-        guard let serviceIdentifier = createServiceIdentifierFromFirstLoginUri(of: cipher),
-              cipher.login?.totp != nil else {
-            return nil
+        return createServiceIdentifiers(of: cipher).map { serviceIdentifier in
+            ASOneTimeCodeCredentialIdentity(
+                serviceIdentifier: serviceIdentifier,
+                label: cipher.name,
+                recordIdentifier: cipher.id,
+            )
         }
+    }
 
-        return ASOneTimeCodeCredentialIdentity(
-            serviceIdentifier: serviceIdentifier,
-            label: cipher.name,
-            recordIdentifier: cipher.id,
-        )
+    /// Creates a service identifier for each of the cipher's login URIs that's used for AutoFill.
+    ///
+    /// URIs that map to the same service identifier (e.g. `https://example.com` and
+    /// `https://example.com/login`, which are both registered as the `example.com` domain) are only
+    /// included once.
+    ///
+    /// - Parameter cipher: The cipher to get the service identifiers from.
+    /// - Returns: The unique service identifiers, in the order of the login's URIs.
+    ///
+    private func createServiceIdentifiers(of cipher: CipherView) -> [ASCredentialServiceIdentifier] {
+        var serviceIdentifiers = [ASCredentialServiceIdentifier]()
+        for serviceIdentifier in cipher.login?.uris?.compactMap(\.credentialServiceIdentifier) ?? [] {
+            let isDuplicate = serviceIdentifiers.contains { existing in
+                existing.type == serviceIdentifier.type && existing.identifier == serviceIdentifier.identifier
+            }
+            if !isDuplicate {
+                serviceIdentifiers.append(serviceIdentifier)
+            }
+        }
+        return serviceIdentifiers
     }
 }

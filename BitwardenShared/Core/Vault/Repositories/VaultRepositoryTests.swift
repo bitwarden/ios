@@ -837,16 +837,44 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertNil(cipherService.fetchCipherId)
     }
 
-    /// `existingLogin(matchingUri:username:password:)` skips URIs that are never used for AutoFill
-    /// when finding a login's first AutoFill URI.
-    func test_existingLogin_matchesFirstAutofillUri() async {
+    /// `existingLogin(matchingUri:username:password:)` doesn't match a login by a URI that's never used
+    /// for AutoFill, since no credential identity is registered for it.
+    func test_existingLogin_ignoresNeverMatchUri() async {
+        prepareExistingLoginCiphers([
+            .fixture(
+                id: "1",
+                login: .fixture(
+                    password: "pass",
+                    uris: [
+                        .fixture(uri: "https://example.com", match: .never),
+                        .fixture(uri: ""),
+                        .fixture(uri: "https://other.com"),
+                    ],
+                    username: "user",
+                ),
+            ),
+        ])
+
+        let result = await subject.existingLogin(
+            matchingUri: "https://example.com",
+            username: "user",
+            password: "pass",
+        )
+
+        XCTAssertNil(result)
+        XCTAssertNil(cipherService.fetchCipherId)
+    }
+
+    /// `existingLogin(matchingUri:username:password:)` matches a login by any of its AutoFill URIs,
+    /// since a credential identity is registered for each of them.
+    func test_existingLogin_matchesAnyAutofillUri() async {
         let match = Cipher.fixture(
             id: "1",
             login: .fixture(
                 password: "pass",
                 uris: [
                     .fixture(uri: "https://never.com", match: .never),
-                    .fixture(uri: ""),
+                    .fixture(uri: "https://other.com"),
                     .fixture(uri: "https://example.com"),
                 ],
                 username: "user",
@@ -863,28 +891,73 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(result, CipherView(cipher: match))
     }
 
-    /// `existingLogin(matchingUri:username:password:)` doesn't match a login where the URI isn't the
-    /// first AutoFill URI, since its credential identity is only registered for the first one.
-    func test_existingLogin_notFirstAutofillUri() async {
+    /// `existingLogin(matchingUri:username:password:)` matches a login whose URI is matched by domain
+    /// to a request for the same host with a different path, since the login's credential identity
+    /// is registered for the host.
+    func test_existingLogin_domainMatchDifferentPath() async {
+        let match = Cipher.fixture(
+            id: "1",
+            login: .fixture(
+                password: "pass",
+                uris: [.fixture(uri: "https://www.example.com/login", match: .domain)],
+                username: "user",
+            ),
+        )
+        prepareExistingLoginCiphers([match])
+
+        let result = await subject.existingLogin(
+            matchingUri: "https://www.example.com",
+            username: "user",
+            password: "pass",
+        )
+
+        XCTAssertEqual(result, CipherView(cipher: match))
+    }
+
+    /// `existingLogin(matchingUri:username:password:)` doesn't match a login whose URI is matched by
+    /// domain to a request for a different host.
+    func test_existingLogin_domainMatchDifferentHost() async {
         prepareExistingLoginCiphers([
             .fixture(
                 id: "1",
                 login: .fixture(
                     password: "pass",
-                    uris: [.fixture(uri: "https://other.com"), .fixture(uri: "https://example.com")],
+                    uris: [.fixture(uri: "https://login.example.com", match: .domain)],
                     username: "user",
                 ),
             ),
         ])
 
         let result = await subject.existingLogin(
-            matchingUri: "https://example.com",
+            matchingUri: "https://www.example.com",
             username: "user",
             password: "pass",
         )
 
         XCTAssertNil(result)
-        XCTAssertNil(cipherService.fetchCipherId)
+    }
+
+    /// `existingLogin(matchingUri:username:password:)` doesn't match a login whose URI is matched
+    /// exactly to a request with a different path.
+    func test_existingLogin_exactMatchDifferentPath() async {
+        prepareExistingLoginCiphers([
+            .fixture(
+                id: "1",
+                login: .fixture(
+                    password: "pass",
+                    uris: [.fixture(uri: "https://www.example.com/login", match: .exact)],
+                    username: "user",
+                ),
+            ),
+        ])
+
+        let result = await subject.existingLogin(
+            matchingUri: "https://www.example.com",
+            username: "user",
+            password: "pass",
+        )
+
+        XCTAssertNil(result)
     }
 
     /// `existingLogin(matchingUri:username:password:)` matches a login whose URI was saved without a
@@ -917,13 +990,36 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(result, CipherView(cipher: withTrailingSlash))
     }
 
+    /// `existingLogin(matchingUri:username:password:)` matches a login saved with an `http://` scheme
+    /// and the default match type to an `https://` request, since the login's credential identity is
+    /// registered for the host regardless of the scheme.
+    func test_existingLogin_differentSchemeDefaultMatch() async {
+        let match = Cipher.fixture(
+            id: "1",
+            login: .fixture(password: "pass", uris: [.fixture(uri: "http://www.example.com")], username: "user"),
+        )
+        prepareExistingLoginCiphers([match])
+
+        let result = await subject.existingLogin(
+            matchingUri: "https://www.example.com",
+            username: "user",
+            password: "pass",
+        )
+
+        XCTAssertEqual(result, CipherView(cipher: match))
+    }
+
     /// `existingLogin(matchingUri:username:password:)` doesn't match a login saved with an explicit
-    /// `http://` scheme for an `https://` request, since the scheme is part of the site.
-    func test_existingLogin_differentScheme() async {
+    /// `http://` scheme and exact matching to an `https://` request, since the scheme is part of the URI.
+    func test_existingLogin_differentSchemeExactMatch() async {
         prepareExistingLoginCiphers([
             .fixture(
                 id: "1",
-                login: .fixture(password: "pass", uris: [.fixture(uri: "http://www.example.com")], username: "user"),
+                login: .fixture(
+                    password: "pass",
+                    uris: [.fixture(uri: "http://www.example.com", match: .exact)],
+                    username: "user",
+                ),
             ),
         ])
 

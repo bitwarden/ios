@@ -1,6 +1,7 @@
 // swiftlint:disable:this file_name
 
 import AuthenticationServices
+import BitwardenKit
 import BitwardenSdk
 
 // MARK: - GetAssertionRequest
@@ -104,6 +105,46 @@ extension ASPasskeyCredentialIdentity {
             userHandle: metadata.userHandle,
             recordIdentifier: metadata.cipherId,
         )
+    }
+}
+
+// MARK: - LoginUriView
+
+extension LoginUriView {
+    /// The service identifier that the login URI's credential identities are registered under in
+    /// the identity store, or `nil` if the URI is empty or its match type is `.never`, since it
+    /// isn't used for AutoFill. Surrounding whitespace in the URI is ignored.
+    ///
+    /// - Domain, host, or default match: `.domain` with the URI's lowercased host, for `http`,
+    ///   `https`, and scheme-less URIs.
+    /// - Exact match: `.URL` with the URI normalized by `httpsNormalized()`, which adds `https://` if
+    ///   it has no scheme and removes a trailing slash.
+    /// - Starts with or regular expression match, and non-web URIs (e.g. `iosapp://`): `.URL` with
+    ///   the URI as saved.
+    ///
+    var credentialServiceIdentifier: ASCredentialServiceIdentifier? {
+        guard let uri = uri?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !uri.isEmpty,
+              match != .never else {
+            return nil
+        }
+
+        // Web URIs matched by domain or host are registered as a `.domain` service identifier with the
+        // URI's host, so the system matches them regardless of the website's scheme or path.
+        switch match {
+        case .domain, .host, nil:
+            if let host = uri.httpHost {
+                return ASCredentialServiceIdentifier(identifier: host, type: .domain)
+            }
+        case .exact, .never, .regularExpression, .startsWith:
+            break
+        }
+
+        // The system doesn't match a `.URL` service identifier without a scheme (e.g. `www.example.com`)
+        // to the website, so add one to an exact match URI that doesn't have one.
+        // This is "best effort" fix because we don't know for sure the scheme should be `https://`.
+        let urlIdentifier = match == .exact ? uri.httpsNormalized() : uri
+        return ASCredentialServiceIdentifier(identifier: urlIdentifier, type: .URL)
     }
 }
 

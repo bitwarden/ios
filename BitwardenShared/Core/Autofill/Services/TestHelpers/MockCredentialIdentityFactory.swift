@@ -7,8 +7,7 @@ import TestHelpers
 class MockCredentialIdentityFactory: CredentialIdentityFactory {
     var createCredentialIdentitiesMocker = InvocationMockerWithThrowingResult<CipherView, [CredentialIdentity]>()
         .throwing(BitwardenTestError.example)
-    // swiftlint:disable:next identifier_name
-    var tryCreatePasswordCredentialIdentityResult: ASPasswordCredentialIdentity?
+    var createPasswordCredentialIdentitiesResult = [ASPasswordCredentialIdentity]()
 
     @available(iOS 17.0, *)
     func createCredentialIdentities(
@@ -23,7 +22,7 @@ class MockCredentialIdentityFactory: CredentialIdentityFactory {
         }
     }
 
-    func tryCreatePasswordCredentialIdentity(from cipher: BitwardenSdk.CipherView) -> ASPasswordCredentialIdentity? {
-        tryCreatePasswordCredentialIdentityResult
+    func createPasswordCredentialIdentities(from cipher: BitwardenSdk.CipherView) -> [ASPasswordCredentialIdentity] {
+        createPasswordCredentialIdentitiesResult
     }
 }

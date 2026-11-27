@@ -1,3 +1,4 @@
+import AuthenticationServices
 import BitwardenKit
 import BitwardenResources
 import BitwardenSdk
@@ -99,9 +100,11 @@ public protocol VaultRepository: AnyObject {
         cipher: CipherView,
     ) async throws -> URL?
 
-    /// Returns an existing login in the active account's vault whose first AutoFill URI matches
-    /// `uri` and that has the same username and password, if one exists. URIs are compared with a
-    /// default `https://` scheme and without a trailing slash. Deleted and archived logins are ignored.
+    /// Returns an existing login in the active account's vault with an AutoFill URI that matches
+    /// `uri` and that has the same username and password, if one exists. URIs are matched against the
+    /// service identifiers the login's credential identities are registered under (see
+    /// `LoginUriView.credentialServiceIdentifier`), so URIs matched by domain or host match by their
+    /// host. Deleted and archived logins are ignored.
     ///
     /// Errors are logged and `nil` is returned, since failing to find a duplicate shouldn't prevent
     /// the caller from saving the login.
@@ -483,27 +486,23 @@ class DefaultVaultRepository {
         }
         guard !logins.isEmpty else { return nil }
 
-        let normalizedUri = uri.httpsNormalized()
-
         // Use the lightweight list views to narrow down candidates before fully decrypting any cipher.
         let candidateIds = try await clientService.vault().ciphers()
             .decryptListWithFailures(ciphers: logins)
             .successes
             .compactMap { cipherListView -> String? in
-                // TODO: PM-47259 - Revisit matching only the first AutoFill URI when
-                // `CredentialIdentityFactory` registers more of the login's URIs.
-                // Match the first AutoFill URI, using the same rules as `CredentialIdentityFactory`.
-                // It's the only URI the login's credential identity is registered under. URIs are
-                // compared with a default `https://` scheme and without a trailing slash, so a login
-                // saved as `www.example.com` matches a request for `https://www.example.com`.
-                let firstAutofillUri = cipherListView.type.loginListView?.uris?
-                    .first { $0.match != .never && $0.uri.isEmptyOrNil == false }?
-                    .uri
                 // Usernames and passwords are compared byte for byte, since `String` equality treats
                 // canonically equivalent Unicode (e.g. "é" and "e" + combining accent) as equal.
+                // URIs are matched the same way `CredentialIdentityFactory` registers the login's
+                // credential identities, so a login is found when the system already has an identity
+                // for the request's site under any of its AutoFill URIs (e.g. a login saved as
+                // `www.example.com` or `https://www.example.com/login` matches a request for
+                // `https://www.example.com`).
                 guard let login = cipherListView.type.loginListView,
                       (login.username ?? "").utf8.elementsEqual(username.utf8),
-                      firstAutofillUri?.httpsNormalized() == normalizedUri else {
+                      login.uris?.contains(where: { loginUri in
+                          loginUri.credentialServiceIdentifier?.matches(uri: uri) == true
+                      }) == true else {
                     return nil
                 }
                 return cipherListView.id
