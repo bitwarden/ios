@@ -74,7 +74,7 @@ class ClientBuilderTests: BitwardenTestCase {
     }
 
     /// `validateSettings(urls:)` accepts self-hosted URLs without a client certificate.
-    func test_validateSettings() async {
+    func test_validateSettings_withoutClientCertificate() async {
         await assertAsyncDoesNotThrow {
             try await subject.validateSettings(urls: EnvironmentURLData(base: URL(string: "https://example.com")!))
         }
