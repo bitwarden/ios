@@ -28,6 +28,7 @@
 "FolderCreated" = "ဖိုလ်ဒါအသစ် ဖန်တီးပြီးပါပြီ။";
 "FolderDeleted" = "ဖိုလ်ဒါ ဖျက်ပြီးပါပြီ။";
 "FolderNone" = "ဖိုလ်ဒါမရှိ";
+"Folders" = "ဖိုလ်ဒါများ";
 "FolderUpdated" = "ဖိုလ်ဒါ သိမ်းဆည်းပြီးပါပြီ";
 "MyFolder" = "ကျွန်ုပ်၏ ဖိုလ်ဒါ";
 "MyFolders" = "ကျွန်ုပ်၏ ဖိုလ်ဒါများ";
@@ -261,8 +262,12 @@
 "ShowWebsiteIconsDescription" = "ဝင်ရောက်မှုတစ်ခုစီဘေးတွင် မှတ်မိနိုင်သော ပုံကို ပြပါ။";
 "IconsUrl" = "အိုင်ကွန်ဆာဗာ URL";
 "AutofillWithBitwarden" = "Bitwarden ဖြင့် အလိုအလျောက်ဖြည့်ပါ";
+/* Section header and screen title for viewing/managing a cipher's collections. */
+"Collections" = "စုစည်းမှုများ";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "မျှဝေထားသော ဖိုလ်ဒါများ";
+/* Empty state message shown when a collection has no items. */
+"NoItemsCollection" = "ဤစုစည်းမှုတွင် ပစ္စည်းများ မရှိပါ";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "ဤမျှဝေထားသော ဖိုလ်ဒါတွင် ပစ္စည်းများ မရှိပါ";
 "NoItemsFolder" = "ဤဖိုလ်ဒါတွင် ပစ္စည်းများ မရှိပါ";
@@ -284,6 +289,8 @@
 "RegEx" = "ပုံမှန်အသုံးအနှုန်း";
 "StartsWith" = "စတင်သည့်";
 "MatchDetection" = "ကိုက်ညီမှု ရှာဖွေခြင်း";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
+"Organization" = "အဖွဲ့အစည်း";
 "HoldYubikeyNearTop" = "သင့် Yubikey ကို စက်၏အပေါ်ဘက်အနီးတွင် ကိုင်ထားပါ။";
 "TryAgain" = "ထပ်စမ်းကြည့်ပါ";
 "YubiKeyInstructionIos" = "ဆက်လက်ရန်၊ သင့် YubiKey NEO ကို စက်၏အနောက်ဘက်တွင် ကပ်ထားပါ။";
@@ -319,17 +326,27 @@
 "NoItemsToList" = "စာရင်းပြုရန် ပစ္စည်းများ မရှိပါ။";
 "MoveDown" = "အောက်သို့ရွှေ့ပါ";
 "MoveUp" = "အပေါ်သို့ရွှေ့ပါ";
+/* Empty state message on the Collections screen shown when a user has no collections. */
+"NoCollectionsToList" = "စာရင်းပြုရန် စုစည်းမှုများ မရှိပါ။";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "စာရင်းပြုရန် မျှဝေထားသော ဖိုလ်ဒါများ မရှိပါ။";
 "MovedItemToOrg" = "%1$@ ကို %2$@ သို့ ရွှေ့ပြီးပါပြီ။";
+/* Alert message shown when saving an item with no collection selected. */
+"SelectOneCollection" = "အနည်းဆုံး စုစည်းမှုတစ်ခု ရွေးရပါမည်။";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "အနည်းဆုံး မျှဝေထားသော ဖိုလ်ဒါတစ်ခု ရွေးရပါမည်။";
 "Share" = "မျှဝေပါ";
 "ShareAll" = "အားလုံးမျှဝေပါ";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
+"MoveToOrganization" = "အဖွဲ့အစည်းသို့ ရွှေ့ပါ";
 /* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "စာရင်းပြုရန် ဗော်လ်တ်များ မရှိပါ။";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
+"NoOrgsToList" = "စာရင်းပြုရန် အဖွဲ့အစည်းများ မရှိပါ။";
 /* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "ဤပစ္စည်းကို ရွှေ့လိုသော ဗော်လ်တ်တစ်ခုကို ရွေးပါ။ အခြားဗော်လ်တ်သို့ ရွှေ့ခြင်းသည် ပစ္စည်း၏ပိုင်ဆိုင်မှုကို ထိုအဖွဲ့အစည်းသို့ လွှဲပြောင်းပေးသည်။ ပစ္စည်းကို ရွှေ့ပြီးသည်နှင့် သင်သည် ထိုပစ္စည်း၏ တိုက်ရိုက်ပိုင်ရှင် မဖြစ်တော့ပါ။";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
+"MoveToOrgDesc" = "ဤပစ္စည်းကို ရွှေ့လိုသော အဖွဲ့အစည်းတစ်ခုကို ရွေးပါ။ အဖွဲ့အစည်းသို့ ရွှေ့ခြင်းသည် ပစ္စည်း၏ပိုင်ဆိုင်မှုကို ထိုအဖွဲ့အစည်းသို့ လွှဲပြောင်းပေးသည်။ ပစ္စည်းကို ရွှေ့ပြီးသည်နှင့် သင်သည် ထိုပစ္စည်း၏ တိုက်ရိုက်ပိုင်ရှင် မဖြစ်တော့ပါ။";
 "NumberOfWords" = "စကားလုံးအရေအတွက်";
 "Passphrase" = "စကားစု";
 "WordSeparator" = "စကားလုံးခွဲခြားကိရိယာ";
@@ -873,6 +890,7 @@
 "PersonalDetails" = "ကိုယ်ရေးအသေးစိတ်";
 "ContactInfo" = "ဆက်သွယ်ရန်အချက်အလက်";
 "Identification" = "သက်သေခံ";
+"Owner" = "ပိုင်ရှင်";
 "VerifyYourIdentity" = "သင့်ကိုယ်ရေးကို အတည်ပြုပါ";
 "ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
@@ -890,9 +908,13 @@
 "ShowMore" = "ပိုပြပါ";
 "ShowLess" = "လျှော့ပြပါ";
 "ItemNameX" = "ပစ္စည်းအမည်၊ %1$@";
+"OwnerX" = "ပိုင်ရှင်၊ %1$@";
 "VaultX" = "ဗော်လ်တ်၊ %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
+"CollectionX" = "စုစည်းမှု၊ %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "မျှဝေထားသော ဖိုလ်ဒါ၊ %1$@";
+"FolderX" = "ဖိုလ်ဒါ၊ %1$@";
 "MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "ပစ္စည်း %1$@ ၏ %2$@";
 "ViewRecordedLogs" = "မှတ်တမ်းတင်ထားသော မှတ်တမ်းများ ကြည့်ရှုပါ";

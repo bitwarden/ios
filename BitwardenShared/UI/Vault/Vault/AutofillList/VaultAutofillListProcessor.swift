@@ -145,6 +145,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                 await initFido2State()
             }
         case .loadData:
+            await loadFeatureFlags()
             await refreshProfileState()
             await fetchInitialSyncIfNecessary()
         case let .profileSwitcher(profileEffect):
@@ -337,6 +338,11 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                 }
             },
         )
+    }
+
+    /// Loads the feature flags required for this processor.
+    private func loadFeatureFlags() async {
+        state.isVfo1FoundationFeatureFlagEnabled = await services.configService.getFeatureFlag(.vfo1Foundation)
     }
 
     /// Navigates to the add item screen to create a new login.

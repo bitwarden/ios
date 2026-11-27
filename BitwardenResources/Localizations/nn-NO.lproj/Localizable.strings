@@ -28,6 +28,7 @@
 "FolderCreated" = "Ei ny mappe vart laga.";
 "FolderDeleted" = "Mappa vart fjerna.";
 "FolderNone" = "Inga mappe";
+"Folders" = "Mapper";
 "FolderUpdated" = "Retta mappa.";
 "MyFolder" = "Mappa mi";
 "MyFolders" = "Mappene mine";
@@ -261,8 +262,12 @@
 "ShowWebsiteIconsDescription" = "Vis eit gjenkjenneleg bilete ved sida av kvar pålogging.";
 "IconsUrl" = "Ikon-tenar-URL";
 "AutofillWithBitwarden" = "Autoutfyll med Bitwarden";
+/* Section header and screen title for viewing/managing a cipher's collections. */
+"Collections" = "Samlingar";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "Delte mapper";
+/* Empty state message shown when a collection has no items. */
+"NoItemsCollection" = "Det finst ingen element i denne samlinga";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "Det finst ingen element i denne delte mappa";
 "NoItemsFolder" = "Det finst ingen element i denne mappa";
@@ -284,6 +289,8 @@
 "RegEx" = "Regulært uttrykk";
 "StartsWith" = "Startar med";
 "MatchDetection" = "Samsvarsregistrering";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
+"Organization" = "Samskipnad";
 "HoldYubikeyNearTop" = "Hald Yubikeyen nær toppen av eininga.";
 "TryAgain" = "Prøv igjen";
 "YubiKeyInstructionIos" = "For å halde fram, hald YubiKey NEO mot baksida av eininga.";
@@ -319,17 +326,27 @@
 "NoItemsToList" = "Det er ingen oppføringar å syna.";
 "MoveDown" = "Flytta ned";
 "MoveUp" = "Flytta opp";
+/* Empty state message on the Collections screen shown when a user has no collections. */
+"NoCollectionsToList" = "Det finst ingen samlingar å liste.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "Det finst ingen delte mapper å liste.";
 "MovedItemToOrg" = "%1$@ er flytta til %2$@.";
+/* Alert message shown when saving an item with no collection selected. */
+"SelectOneCollection" = "Du må velje minst éi samling.";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "Du må velje minst éi delt mappe.";
 "Share" = "Del";
 "ShareAll" = "Del alle";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
+"MoveToOrganization" = "Flytta til samskipnad";
 /* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "Ingen kvelv å liste.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
+"NoOrgsToList" = "Det er ingen samskipnader å syna.";
 /* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Vel eit kvelv du ønskjer å flytte dette elementet til. Å flytte til eit anna kvelv overfører eigarskap av elementet til den organisasjonen. Du vil ikkje lenger vere direkte eigar av dette elementet når det er flytta.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
+"MoveToOrgDesc" = "Vel ei samskipnad du ynskjer å flytta denne oppføringa til. Ved å flytta ei oppføring til ei samskipnad fører ein eigarskapen til oppføringa til den samskipnaden. Du vil ikkje lenger ha bein eigarskap til denne oppføringa etter ho er flytta.";
 "NumberOfWords" = "Antal ord";
 "Passphrase" = "Passfrase";
 "WordSeparator" = "Orddelar";
@@ -833,7 +850,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Du må kanskje aktivere eingspasskode eller biometri.";
 "StartImportCXFDescriptionLong" = "Importer passord, passnøklar, kredittkort, og all personleg identitetsinformasjon frå ein annan passordbehandlar.\n\nDine data vil **ikkje** bli sletta frå din tidlegare leverandør.";
 "ImportPasswords" = "Importer passord";
-"ImportingEllipsis" = "Importerer...";
+"ImportingEllipsis" = "Importerer…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Er du sikker på at du vil avbryte importprosessen?";
 "ImportFailed" = "Import feila";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Det oppstod eit problem under importeringa av alle passorda dine.\n\nIngen data blei sletta.";
@@ -873,6 +890,7 @@
 "PersonalDetails" = "Personlege detaljar";
 "ContactInfo" = "Kontaktinfo";
 "Identification" = "Identifikasjon";
+"Owner" = "Eigar";
 "VerifyYourIdentity" = "Stadfest identiteten din";
 "ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
@@ -890,9 +908,13 @@
 "ShowMore" = "Vis meir";
 "ShowLess" = "Vis mindre";
 "ItemNameX" = "Elementnamn, %1$@";
+"OwnerX" = "Eigar, %1$@";
 "VaultX" = "Kvelv, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
+"CollectionX" = "Samling, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Delt mappe, %1$@";
+"FolderX" = "Mappe, %1$@";
 "MyFolderX" = "My folder, %1$@";
 "ItemXOfY" = "Element %1$@ av %2$@";
 "ViewRecordedLogs" = "Vis registrerte loggar";

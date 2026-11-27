@@ -54,7 +54,7 @@ public enum SettingsRoute: Equatable, Hashable {
     case flightRecorder(FlightRecorderRoute)
 
     /// A route to view the folders in the vault.
-    case folders
+    case folders(isVfo1FoundationFeatureFlagEnabled: Bool)
 
     /// A route to the import logins screen.
     case importLogins

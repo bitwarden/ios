@@ -28,6 +28,7 @@
 "FolderCreated" = "Nová složka byla vytvořena";
 "FolderDeleted" = "Složka byla smazána.";
 "FolderNone" = "Žádná složka";
+"Folders" = "Složky";
 "FolderUpdated" = "Složka byla uložena";
 "MyFolder" = "Moje složka";
 "MyFolders" = "Moje složky";
@@ -261,8 +262,12 @@
 "ShowWebsiteIconsDescription" = "Zobrazí rozeznatelný obrázek vedle každého přihlášení.";
 "IconsUrl" = "URL serveru ikon";
 "AutofillWithBitwarden" = "Automatické vyplňování aplikací Bitwarden";
+/* Section header and screen title for viewing/managing a cipher's collections. */
+"Collections" = "Sbírky";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "Sdílené složky";
+/* Empty state message shown when a collection has no items. */
+"NoItemsCollection" = "V této sbírce nejsou žádné položky";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "V této sdílené složce nejsou žádné položky";
 "NoItemsFolder" = "V této složce nejsou žádné položky";
@@ -284,6 +289,8 @@
 "RegEx" = "Regulární výraz";
 "StartsWith" = "Začíná na";
 "MatchDetection" = "Zjišťování shody";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
+"Organization" = "Organizace";
 "HoldYubikeyNearTop" = "Podržte Yubikey u horní části zařízení.";
 "TryAgain" = "Zkusit znovu";
 "YubiKeyInstructionIos" = "Pro pokračování podržte YubiKey NEO u zadní části zařízení.";
@@ -319,17 +326,27 @@
 "NoItemsToList" = "Žádné položky k zobrazení.";
 "MoveDown" = "Přesunout dolů";
 "MoveUp" = "Přesunout nahoru";
+/* Empty state message on the Collections screen shown when a user has no collections. */
+"NoCollectionsToList" = "Žádné sbírky k zobrazení.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "Nejsou k dispozici žádné sdílené složky.";
 "MovedItemToOrg" = "Položka %1$@ byla přesunuta do %2$@.";
+/* Alert message shown when saving an item with no collection selected. */
+"SelectOneCollection" = "Musíte vybrat alespoň jednu sbírku.";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "Musíte vybrat alespoň jednu sdílenou složku.";
 "Share" = "Sdílet";
 "ShareAll" = "Sdílet vše";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
+"MoveToOrganization" = "Přesunout do organizace";
 /* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "Žádné trezory k zobrazení.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
+"NoOrgsToList" = "Žádné organizace k zobrazení.";
 /* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "Vyberte trezor, do kterého chcete tuto položku přesunout. Přesunutím do jiného trezoru se vlastnictví položky převede na danou organizaci. Jakmile bude položka přesunuta, přestanete být jejím přímým vlastníkem.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
+"MoveToOrgDesc" = "Vyberte organizaci, do které chcete tuto položku přesunout. Přesun do organizace převede vlastnictví položky této organizaci. Po přesunutí této položky již nebudete přímým vlastníkem této položky.";
 "NumberOfWords" = "Počet slov";
 "Passphrase" = "Heslová fráze";
 "WordSeparator" = "Oddělovač slov";
@@ -873,6 +890,7 @@
 "PersonalDetails" = "Osobní údaje";
 "ContactInfo" = "Kontaktní informace";
 "Identification" = "Identifikace";
+"Owner" = "Vlastník";
 "VerifyYourIdentity" = "Ověřte svou totožnost";
 "ThisOperationIsNotAllowedOnThisAccount" = "Tato operace není na tomto účtu povolena";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "Vyskytla se chyba při uzamčení aktuálního uživatele";
@@ -890,9 +908,13 @@
 "ShowMore" = "Zobrazit více";
 "ShowLess" = "Zobrazit méně";
 "ItemNameX" = "Název položky, %1$@";
+"OwnerX" = "Vlastník, %1$@";
 "VaultX" = "Trezor, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
+"CollectionX" = "Sbírka, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "Sdílená složka, %1$@";
+"FolderX" = "Složka, %1$@";
 "MyFolderX" = "Moje složka, %1$@";
 "ItemXOfY" = "Položka %1$@ z %2$@";
 "ViewRecordedLogs" = "Zobrazit zaznamenané logy";

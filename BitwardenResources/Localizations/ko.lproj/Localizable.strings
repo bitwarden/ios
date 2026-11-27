@@ -28,6 +28,7 @@
 "FolderCreated" = "새 폴더를 만들었습니다.";
 "FolderDeleted" = "폴더를 삭제했습니다.";
 "FolderNone" = "폴더 없음";
+"Folders" = "폴더";
 "FolderUpdated" = "폴더가 저장됨";
 "MyFolder" = "내 폴더";
 "MyFolders" = "내 폴더";
@@ -58,7 +59,7 @@
 "Save" = "저장";
 /* Action to move a vault item to another vault; used as a button label, menu item, and screen title. */
 "Move" = "이동";
-"Saving" = "저장중...";
+"Saving" = "저장중…";
 "Settings" = "설정";
 "ShowNextCode" = "다음 코드 표시";
 "ItemDeleted" = "항목을 삭제했습니다.";
@@ -89,7 +90,7 @@
 "Close" = "닫기";
 "Continue" = "계속";
 "CreateAccount" = "계정 만들기";
-"CreatingAccount" = "계정 생성 중...";
+"CreatingAccount" = "계정 생성 중…";
 "EditItem" = "항목 편집";
 "EnableAutomaticSyncing" = "자동 동기화 사용";
 "EnterEmailForHint" = "마스터 비밀번호 힌트를 받으려면 계정의 이메일 주소를 입력하세요.";
@@ -134,8 +135,8 @@
 "Security" = "보안";
 "ItemUpdated" = "항목을 업데이트했습니다.";
 "Submitting" = "제출 중";
-"Syncing" = "동기화 중...";
-"SyncingLogins" = "로그인 동기화 중...";
+"Syncing" = "동기화 중…";
+"SyncingLogins" = "로그인 동기화 중…";
 "SyncingComplete" = "동기화를 완료했습니다.";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "2단계 인증";
@@ -171,7 +172,7 @@
 "AddNewAttachment" = "새 첨부 파일 추가";
 "Attachments" = "첨부 파일";
 "UnableToDownloadFile" = "파일을 다운로드할 수 없습니다.";
-"Downloading" = "다운로드 중...";
+"Downloading" = "다운로드 중…";
 "AttachmentLargeWarning" = "이 첨부 파일의 크기는 %1$@입니다. 정말 이 파일을 기기에 다운로드하시겠습니까?";
 "AuthenticatorKey" = "인증 키";
 "VerificationCodeTotp" = "인증 코드 (TOTP)";
@@ -261,8 +262,12 @@
 "ShowWebsiteIconsDescription" = "로그인 정보 옆에 식별용 이미지를 표시합니다.";
 "IconsUrl" = "아이콘 서버 URL";
 "AutofillWithBitwarden" = "Bitwarden으로 자동 완성";
+/* Section header and screen title for viewing/managing a cipher's collections. */
+"Collections" = "컬렉션";
 /* Section header and screen title for viewing/managing a cipher's shared folders. */
 "SharedFolders" = "공유 폴더";
+/* Empty state message shown when a collection has no items. */
+"NoItemsCollection" = "이 컬렉션에 항목이 없습니다.";
 /* Empty state message shown when a shared folder has no items. */
 "ThereAreNoItemsInThisSharedFolder" = "이 공유 폴더에 항목이 없습니다";
 "NoItemsFolder" = "이 폴더에 항목이 없습니다.";
@@ -282,8 +287,10 @@
 "Exact" = "정확히 일치";
 "Host" = "호스트";
 "RegEx" = "정규 표현식";
-"StartsWith" = "...으로 시작";
+"StartsWith" = "…으로 시작";
 "MatchDetection" = "일치 인식";
+/* Field label on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Vault" when enabled. */
+"Organization" = "조직";
 "HoldYubikeyNearTop" = "기기의 위쪽에 Yubikey를 가져다 대세요.";
 "TryAgain" = "다시 시도";
 "YubiKeyInstructionIos" = "계속하려면 기기의 뒷면에 YubiKey NEO를 가져다 대세요.";
@@ -319,17 +326,27 @@
 "NoItemsToList" = "항목이 없습니다.";
 "MoveDown" = "아래로 옮기기";
 "MoveUp" = "위로 옮기기";
+/* Empty state message on the Collections screen shown when a user has no collections. */
+"NoCollectionsToList" = "컬렉션이 없습니다.";
 /* Empty state message on the Shared folders screen shown when a user has no shared folders. */
 "ThereAreNoSharedFoldersToList" = "공유 폴더가 없습니다.";
 "MovedItemToOrg" = "%1$@ 항목이 %2$@ 조직으로 이동되었습니다.";
+/* Alert message shown when saving an item with no collection selected. */
+"SelectOneCollection" = "반드시 하나 이상의 컬렉션을 선택해야 합니다.";
 /* Alert message shown when saving an item with no shared folder selected. */
 "YouMustSelectAtLeastOneSharedFolder" = "반드시 하나 이상의 공유 폴더를 선택해야 합니다.";
 "Share" = "공유";
 "ShareAll" = "모두 공유";
+/* Overflow menu item and screen title on the Move screen shown when the "vfo1-foundation" feature flag is disabled; superseded by "Move" when enabled. */
+"MoveToOrganization" = "조직으로 이동하기";
 /* Empty state message shown when a user has no vaults available to move an item into. */
 "NoVaultsToList" = "보관함이 없습니다.";
+/* Empty state message shown when a user has no organizations available to move an item into, when the "vfo1-foundation" feature flag is disabled. */
+"NoOrgsToList" = "조직이 없습니다.";
 /* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination vault's organization. */
 "ChooseAVaultThatYouWishToMoveThisItemToDescriptionLong" = "이 항목을 이동할 보관함을 선택하십시오. 항목이 보관함으로 이동되면 소유권이 조직으로 이전됩니다. 일단 이동되면, 더는 이동된 항목의 직접적인 소유자가 아니게 됩니다.";
+/* Footer text on the Move screen explaining that moving an item transfers its ownership to the destination organization, when the "vfo1-foundation" feature flag is disabled. */
+"MoveToOrgDesc" = "이 항목을 이동할 조직을 선택하십시오. 항목이 조직으로 이동되면 소유권이 조직으로 이전됩니다. 일단 이동되면, 더는 이동된 항목의 직접적인 소유자가 아니게 됩니다.";
 "NumberOfWords" = "단어 수";
 "Passphrase" = "패스프레이즈";
 "WordSeparator" = "구분 기호";
@@ -376,7 +393,7 @@
 "ExportVaultFailure" = "보관함을 내보내던 도중 문제가 생겼습니다. 계속 문제가 생긴다면 웹 보관함에서 내보내셔야 합니다.";
 "Clone" = "복제";
 "PasswordGeneratorPolicyInEffect" = "하나 이상의 단체 정책이 생성기 규칙에 영항을 미치고 있습니다.";
-"SoftDeleting" = "휴지통으로 보내는 중...";
+"SoftDeleting" = "휴지통으로 보내는 중…";
 "ItemSoftDeleted" = "항목이 휴지통으로 이동되었습니다.";
 "Restore" = "복원";
 "Restoring" = "복구 중…";
@@ -833,7 +850,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "기기 암호 또는 생체 인식을 활성화해야 할 수 있습니다.";
 "StartImportCXFDescriptionLong" = "다른 비밀번호 관리자에서 비밀번호, 패스키, 신용 카드 및 개인 신분 정보를 가져옵니다.\n\n데이터는 이전 제공업체에서 **삭제되지 않습니다**.";
 "ImportPasswords" = "비밀번호 가져오기";
-"ImportingEllipsis" = "가져오는 중...";
+"ImportingEllipsis" = "가져오는 중…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "가져오기 프로세스를 취소하시겠습니까?";
 "ImportFailed" = "가져오기 실패";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "모든 비밀번호를 가져오는 중에 문제가 발생했습니다.\n\n삭제된 데이터는 없습니다.";
@@ -873,6 +890,7 @@
 "PersonalDetails" = "개인 정보";
 "ContactInfo" = "연락처 정보";
 "Identification" = "본인 확인";
+"Owner" = "소유자";
 "VerifyYourIdentity" = "신원 확인";
 "ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
 "AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
@@ -890,9 +908,13 @@
 "ShowMore" = "더 보기";
 "ShowLess" = "간략히 보기";
 "ItemNameX" = "항목 이름, %1$@";
+"OwnerX" = "소유자, %1$@";
 "VaultX" = "보관함, %1$@";
+/* VoiceOver accessibility label for a collection the item belongs to. */
+"CollectionX" = "컬렉션, %1$@";
 /* VoiceOver accessibility label for a shared folder the item belongs to. */
 "SharedFolderX" = "공유 폴더, %1$@";
+"FolderX" = "폴더, %1$@";
 "MyFolderX" = "내 폴더, %1$@";
 "ItemXOfY" = "%2$@개 중 %1$@번째 항목";
 "ViewRecordedLogs" = "기록된 로그 보기";
