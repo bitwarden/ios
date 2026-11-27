@@ -195,6 +195,56 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(processor.dispatchedActions, [.showImportLogins])
     }
 
+    /// The autofill action card is hidden when it shouldn't be shown or the feature flag is disabled.
+    @MainActor
+    func test_autofillActionCard_hidden() {
+        processor.state.loadingState = .data([])
+        XCTAssertThrowsError(try subject.inspect().find(actionCard: Localizations.setUpAutofill))
+
+        processor.state.shouldShowAutofillActionCard = true
+        XCTAssertThrowsError(try subject.inspect().find(actionCard: Localizations.setUpAutofill))
+    }
+
+    /// Tapping the dismiss button in the autofill action card sends the `.dismissAutofillActionCard` effect.
+    @MainActor
+    func test_autofillActionCard_tapDismiss() async throws {
+        processor.state.isAutofillOffActionCardEnabled = true
+        processor.state.loadingState = .data([])
+        processor.state.shouldShowAutofillActionCard = true
+        let actionCard = try subject.inspect().find(actionCard: Localizations.setUpAutofill)
+
+        let button = try actionCard.find(asyncButton: Localizations.dismiss)
+        try await button.tap()
+        XCTAssertEqual(processor.effects, [.dismissAutofillActionCard])
+    }
+
+    /// Tapping the "Don't remind me again" button in the autofill action card sends the
+    /// `.optOutOfAutofillActionCard` effect.
+    @MainActor
+    func test_autofillActionCard_tapDontRemindMeAgain() async throws {
+        processor.state.isAutofillOffActionCardEnabled = true
+        processor.state.loadingState = .data([])
+        processor.state.shouldShowAutofillActionCard = true
+        let actionCard = try subject.inspect().find(actionCard: Localizations.setUpAutofill)
+
+        let button = try actionCard.find(asyncButton: Localizations.dontRemindMeAgain)
+        try await button.tap()
+        XCTAssertEqual(processor.effects, [.optOutOfAutofillActionCard])
+    }
+
+    /// Tapping the turn on autofill button in the autofill action card sends the `.turnOnAutofill` effect.
+    @MainActor
+    func test_autofillActionCard_tapTurnOnAutofill() async throws {
+        processor.state.isAutofillOffActionCardEnabled = true
+        processor.state.loadingState = .data([])
+        processor.state.shouldShowAutofillActionCard = true
+        let actionCard = try subject.inspect().find(actionCard: Localizations.setUpAutofill)
+
+        let button = try actionCard.find(asyncButton: Localizations.turnOnAutoFill)
+        try await button.tap()
+        XCTAssertEqual(processor.effects, [.turnOnAutofill])
+    }
+
     /// The subscription attention action card is hidden when `shouldShowSubscriptionAttentionCard` is false.
     @MainActor
     func test_subscriptionAttentionActionCard_hidden() {

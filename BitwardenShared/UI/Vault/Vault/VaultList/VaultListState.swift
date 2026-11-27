@@ -28,6 +28,10 @@ struct VaultListState: Equatable {
     /// The user's import logins setup progress.
     var importLoginsSetupProgress: AccountSetupProgress?
 
+    /// Whether the autofill off action card feature flag is enabled, which also changes the
+    /// priority order of the action cards.
+    var isAutofillOffActionCardEnabled: Bool = false
+
     /// Whether the user is eligible for an app review prompt.
     var isEligibleForAppReview: Bool = false
 
@@ -64,6 +68,10 @@ struct VaultListState: Equatable {
     /// Whether the Archive Onboarding action card should be shown.
     var shouldShowArchiveOnboardingActionCard: Bool = false
 
+    /// Whether the autofill action card should be shown, because autofill is off and the user
+    /// hasn't dismissed or opted out of the card.
+    var shouldShowAutofillActionCard: Bool = false
+
     /// Whether the Premium Upgrade action card should be shown.
     var shouldShowPremiumUpgradeActionCard: Bool = false
 
@@ -89,11 +97,23 @@ struct VaultListState: Equatable {
 
     /// The active action card to show, determined by priority from highest to lowest. Only one
     /// card is shown at a time. Some cards are additionally gated on vault state: import logins
-    /// requires an empty vault, and archive onboarding requires a populated vault.
+    /// requires an empty vault, and archive onboarding requires a populated vault. When the autofill
+    /// off action card is enabled, the import logins and autofill cards outrank the Premium,
+    /// subscription, and archive cards.
     var activeActionCard: VaultListActionCard? {
         if let organizationUserNotificationBannerData {
-            .organizationBanner(organizationUserNotificationBannerData)
-        } else if shouldShowUpgradedToPremiumActionCard {
+            return .organizationBanner(organizationUserNotificationBannerData)
+        }
+
+        if isAutofillOffActionCardEnabled {
+            if shouldShowImportLoginsActionCard, isVaultEmpty {
+                return .importItems
+            } else if shouldShowAutofillActionCard {
+                return .autofill
+            }
+        }
+
+        return if shouldShowUpgradedToPremiumActionCard {
             .upgradedToPremium
         } else if shouldShowPremiumUpgradeActionCard {
             .upgradeNeeded
@@ -176,4 +196,7 @@ enum VaultListActionCard: Equatable {
 
     /// The import saved logins card.
     case importItems
+
+    /// The card prompting the user to turn on autofill.
+    case autofill
 }

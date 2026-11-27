@@ -20,6 +20,7 @@ final class VaultListProcessor: StateProcessor<
     typealias Services = HasApplication
         & HasAuthRepository
         & HasAuthService
+        & HasAutofillPromptService
         & HasBillingRepository
         & HasBillingService
         & HasChangeKdfService
@@ -117,7 +118,7 @@ final class VaultListProcessor: StateProcessor<
 
     // MARK: Methods
 
-    override func perform(_ effect: VaultListEffect) async {
+    override func perform(_ effect: VaultListEffect) async { // swiftlint:disable:this function_body_length
         switch effect {
         case .appeared:
             await appeared()
@@ -127,6 +128,8 @@ final class VaultListProcessor: StateProcessor<
             await checkAppReviewEligibility()
         case .dismissArchiveOnboardingActionCard:
             await dismissArchiveOnboardingActionCard()
+        case .dismissAutofillActionCard:
+            await services.autofillPromptService.dismissVaultActionCard()
         case .dismissFlightRecorderToastBanner:
             await dismissFlightRecorderToastBanner()
         case .dismissImportLoginsActionCard:
@@ -142,6 +145,8 @@ final class VaultListProcessor: StateProcessor<
             await handleItemTapped(item)
         case let .morePressed(item):
             await morePressed(item: item)
+        case .optOutOfAutofillActionCard:
+            await services.autofillPromptService.optOutOfVaultActionCard()
         case let .profileSwitcher(profileEffect):
             await handleProfileSwitcherEffect(profileEffect)
         case .refreshAccountProfiles:
@@ -152,6 +157,8 @@ final class VaultListProcessor: StateProcessor<
             await searchVault(for: text)
         case .streamAccountSetupProgress:
             await streamAccountSetupProgress()
+        case .streamAutofillActionCard:
+            await streamAutofillActionCard()
         case .streamFlightRecorderLog:
             await streamFlightRecorderLog()
         case .streamOrganizations:
@@ -164,8 +171,13 @@ final class VaultListProcessor: StateProcessor<
             await streamVaultList()
         case .tryAgainTapped:
             await tryAgainTapped()
+        case .turnOnAutofill:
+            state.url = await services.autofillPromptService.turnOnAutofill()
         case .upgradeToPremium:
             await upgradeToPremium()
+        case .windowBecameActive:
+            guard state.isAutofillOffActionCardEnabled else { return }
+            await services.autofillPromptService.refreshAutofillStatus()
         }
     }
 
@@ -804,6 +816,19 @@ extension VaultListProcessor {
             }
         } catch {
             services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Refreshes whether autofill is turned on and streams whether the autofill action card should
+    /// be shown. No-op if the autofill off action card feature flag is disabled.
+    ///
+    private func streamAutofillActionCard() async {
+        guard await services.configService.getFeatureFlag(.autofillOffActionCard) else { return }
+        state.isAutofillOffActionCardEnabled = true
+
+        await services.autofillPromptService.refreshAutofillStatus()
+        for await isVisible in await services.autofillPromptService.vaultActionCardVisibilityPublisher().values {
+            state.shouldShowAutofillActionCard = isVisible
         }
     }
 
