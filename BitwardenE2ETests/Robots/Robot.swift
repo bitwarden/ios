@@ -31,7 +31,7 @@ class Robot {
     ) {
         self.app = app
         XCTAssertTrue(
-            anchor.waitForExistence(timeout: timeout),
+            anchor.existsOrAppears(within: timeout),
             "\(Self.self): screen never appeared (anchor \(anchor))",
             file: file,
             line: line,
@@ -43,7 +43,7 @@ class Robot {
     /// Waits for an element, then taps it.
     ///
     func tap(_ element: XCUIElement, file: StaticString = #filePath, line: UInt = #line) {
-        waitFor(element, file: file, line: line)
+        waitToActOn(element, file: file, line: line)
         element.tap()
     }
 
@@ -57,16 +57,30 @@ class Robot {
     /// Waits for a field, focuses it, then types into it.
     ///
     func type(_ text: String, into element: XCUIElement, file: StaticString = #filePath, line: UInt = #line) {
-        waitFor(element, file: file, line: line)
+        waitToActOn(element, file: file, line: line)
         element.tap()
         element.typeText(text)
     }
 
-    /// Fails with the robot and element names if the element doesn't appear.
+    /// Waits for an element that is about to be tapped or typed into. XCUITest's wait first checks
+    /// about a second after the call, and actions depend on that pause: a tap sent the moment a
+    /// control appears, or right after typing, is sometimes dropped.
+    ///
+    func waitToActOn(_ element: XCUIElement, file: StaticString = #filePath, line: UInt = #line) {
+        XCTAssertTrue(
+            element.waitForExistence(timeout: E2ETimeouts.element),
+            "\(Self.self): \(element) not found",
+            file: file,
+            line: line,
+        )
+    }
+
+    /// Fails with the robot and element names if the element doesn't appear. For assertions; use
+    /// `tap` or `type` to act on the element.
     ///
     func waitFor(_ element: XCUIElement, file: StaticString = #filePath, line: UInt = #line) {
         XCTAssertTrue(
-            element.waitForExistence(timeout: E2ETimeouts.element),
+            element.existsOrAppears(within: E2ETimeouts.element),
             "\(Self.self): \(element) not found",
             file: file,
             line: line,

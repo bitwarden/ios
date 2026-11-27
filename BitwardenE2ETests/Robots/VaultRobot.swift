@@ -26,13 +26,17 @@ final class VaultRobot: Robot {
 
     // MARK: Methods
 
+    /// Asserts the vault list shows the item with the given name.
+    ///
+    @discardableResult
+    func assertShowsItem(named name: String, file: StaticString = #filePath, line: UInt = #line) -> Self {
+        waitFor(app.cipherCell(named: name), file: file, line: line)
+        return self
+    }
+
     /// Opens the item with the given name.
     ///
     func openItem(named name: String) {
-        let cell = app.buttons
-            .matching(identifier: "CipherCell")
-            .containing(NSPredicate(format: "identifier == %@ AND label == %@", "CipherNameLabel", name))
-            .firstMatch
-        tap(cell)
+        tap(app.cipherCell(named: name))
     }
 }
