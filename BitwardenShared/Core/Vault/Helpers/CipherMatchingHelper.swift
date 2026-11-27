@@ -138,7 +138,11 @@ class DefaultCipherMatchingHelper: CipherMatchingHelper {
         let loginURLSanitized = isApp
             ? loginURL
             : loginURL?.sanitized
-        let loginUriDomain = loginURLSanitized?.domain?.lowercased()
+        // A website only matches a login URI with a web scheme (or no scheme, which is treated as
+        // `https`). Login URIs with other schemes, such as app URIs (e.g. `iosapp://`), aren't
+        // matched to a website by their domain.
+        let isLoginUriMatchable = isApp || loginURLSanitized?.hasHTTPScheme == true
+        let loginUriDomain = isLoginUriMatchable ? loginURLSanitized?.domain?.lowercased() : nil
 
         if matchingDomains.contains(loginUri) {
             return .exact

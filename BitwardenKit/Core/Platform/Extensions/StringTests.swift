@@ -54,6 +54,30 @@ class StringTests: BitwardenTestCase {
         XCTAssertEqual("sub.domain.example.com".httpsNormalized(), "https://sub.domain.example.com")
     }
 
+    /// `httpsNormalized()` adds HTTPS prefix when `://` appears after the start of the string,
+    /// such as in a query parameter, since it isn't the URL's scheme.
+    func test_httpsNormalized_addsHttpsPrefixWithSchemeInQuery() {
+        XCTAssertEqual(
+            "example.com/redirect?to=https://other.com".httpsNormalized(),
+            "https://example.com/redirect?to=https://other.com",
+        )
+        XCTAssertEqual("localhost:8080".httpsNormalized(), "https://localhost:8080")
+    }
+
+    /// `httpsNormalized()` preserves a non-web scheme, such as an app URI.
+    func test_httpsNormalized_preservesNonWebScheme() {
+        XCTAssertEqual("iosapp://com.example.app".httpsNormalized(), "iosapp://com.example.app")
+        XCTAssertEqual("androidapp://com.example.app".httpsNormalized(), "androidapp://com.example.app")
+        XCTAssertEqual("ssh://server.example.com/".httpsNormalized(), "ssh://server.example.com")
+        XCTAssertEqual("com.example+app.v-1://path".httpsNormalized(), "com.example+app.v-1://path")
+    }
+
+    /// `httpsNormalized()` preserves a scheme in uppercase.
+    func test_httpsNormalized_preservesUppercaseScheme() {
+        XCTAssertEqual("HTTPS://example.com/".httpsNormalized(), "HTTPS://example.com")
+        XCTAssertEqual("Http://example.com".httpsNormalized(), "Http://example.com")
+    }
+
     /// `httpsNormalized()` removes trailing slash.
     func test_httpsNormalized_removesTrailingSlash() {
         XCTAssertEqual("example.com/".httpsNormalized(), "https://example.com")

@@ -141,6 +141,47 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
         }
     }
 
+    /// `doesCipherMatch(cipher:)` returns `.none` when match type is `.domain` and the login URI has a
+    /// non-web scheme with the same domain as the website being matched.
+    func test_doesCipherMatch_domainNoneNonWebScheme() async {
+        subject.uriToMatch = "https://google.com"
+        subject.matchingDomains = ["google.com"]
+        let loginUrisToFail = [
+            "iosapp://google.com",
+            "androidapp://accounts.google.com",
+            "ssh://server.google.com",
+        ]
+
+        for uri in loginUrisToFail {
+            let result = subject.doesCipherMatch(
+                cipher: .fixture(
+                    type: .login(.fixture(uris: [.fixture(uri: uri, match: .domain)])),
+                ),
+            )
+            XCTAssertEqual(result, .none, "On \(uri)")
+        }
+    }
+
+    /// `doesCipherMatch(cipher:)` returns `.exact` when match type is `.domain` and the login URI has
+    /// an uppercase web scheme with the same domain as the website being matched.
+    func test_doesCipherMatch_domainExactUppercaseScheme() async {
+        subject.uriToMatch = "https://google.com"
+        subject.matchingDomains = ["google.com"]
+        let loginUrisToSucceed = [
+            "HTTPS://google.com",
+            "Http://accounts.google.com/",
+        ]
+
+        for uri in loginUrisToSucceed {
+            let result = subject.doesCipherMatch(
+                cipher: .fixture(
+                    type: .login(.fixture(uris: [.fixture(uri: uri, match: .domain)])),
+                ),
+            )
+            XCTAssertEqual(result, .exact, "On \(uri)")
+        }
+    }
+
     /// `doesCipherMatch(cipher:)` returns `.exact` when match type is `.domain` and the match URI base domain
     /// is the same as of the logins URI's base domains in iosapp:// scheme.
     func test_doesCipherMatch_domainExactAppScheme() async {

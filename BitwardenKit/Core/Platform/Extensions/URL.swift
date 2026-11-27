@@ -13,6 +13,12 @@ public extension URL {
 
     // MARK: Properties
 
+    /// Whether the URL has an `http` or `https` scheme, in any case.
+    var hasHTTPScheme: Bool {
+        guard let scheme = scheme?.lowercased() else { return false }
+        return scheme == "http" || scheme == "https"
+    }
+
     /// Determines if the URI is an IP address.
     var isIPAddress: Bool {
         host?.range(of: ipRegex, options: .regularExpression) != nil

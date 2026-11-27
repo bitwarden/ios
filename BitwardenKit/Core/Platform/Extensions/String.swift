@@ -148,23 +148,25 @@ public extension String {
         }
     }
 
-    /// Returns a normalized URL string with an HTTPS scheme and no trailing slash.
+    /// Returns a normalized URL string with a scheme and no trailing slash.
     ///
     /// This method performs two normalization operations:
     /// 1. Removes any trailing slash from the URL
-    /// 2. Prefixes the URL with `https://` if no scheme (`http://` or `https://`) is present
+    /// 2. Prefixes the URL with `https://` if it doesn't start with a scheme
     ///
-    /// If the URL already has an `http://` or `https://` scheme, it is preserved as-is
-    /// (after removing any trailing slash).
+    /// Any existing scheme is preserved as-is (after removing any trailing slash), including
+    /// non-web schemes such as app URIs (e.g. `iosapp://`) and schemes in uppercase. A `://` later
+    /// in the string, such as in a query parameter, isn't treated as a scheme.
     ///
     /// - Returns: A normalized URL string suitable for consistent URL matching and comparison.
     ///
     /// # Examples
     /// ```swift
-    /// "example.com".httpsNormalized()        // "https://example.com"
-    /// "example.com/".httpsNormalized()       // "https://example.com"
-    /// "http://example.com".httpsNormalized() // "http://example.com"
-    /// "https://example.com/".httpsNormalized() // "https://example.com"
+    /// "example.com".httpsNormalized()              // "https://example.com"
+    /// "example.com/".httpsNormalized()             // "https://example.com"
+    /// "http://example.com".httpsNormalized()       // "http://example.com"
+    /// "https://example.com/".httpsNormalized()     // "https://example.com"
+    /// "iosapp://com.example.app".httpsNormalized() // "iosapp://com.example.app"
     /// ```
     ///
     func httpsNormalized() -> String {
@@ -174,7 +176,9 @@ public extension String {
             self
         }
 
-        guard stringUrl.starts(with: "https://") || stringUrl.starts(with: "http://") else {
+        // A scheme starts with a letter followed by letters, digits, `+`, `-`, or `.` (RFC 3986).
+        let schemeRegex = "^[A-Za-z][A-Za-z0-9+.-]*://"
+        guard stringUrl.range(of: schemeRegex, options: .regularExpression) != nil else {
             return "https://" + stringUrl
         }
         return stringUrl
