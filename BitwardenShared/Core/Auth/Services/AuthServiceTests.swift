@@ -549,7 +549,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         ]
         appIDSettingsStore.appID = "App ID"
         clientService.mockAuth.hashPasswordReturnValue = "hashed password"
-        stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
+        environmentService.getPreAuthURLsReturnValue =
+            EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
         systemDevice.modelIdentifier = "Model id"
 
         // Attempt to login.
@@ -626,7 +627,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             hashPasswordCalls.append((email: email, kdfParams: kdfParams))
             return "hashed password"
         }
-        stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
+        environmentService.getPreAuthURLsReturnValue =
+            EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
         systemDevice.modelIdentifier = "Model id"
 
         // Attempt to login.
@@ -672,7 +674,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         appIDSettingsStore.appID = "App ID"
         clientService.mockAuth.hashPasswordReturnValue = "hashed password"
         credentialIdentityStore.state.mockIsEnabled = false
-        stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
+        environmentService.getPreAuthURLsReturnValue =
+            EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
         systemDevice.modelIdentifier = "Model id"
 
         // Attempt to login.
@@ -739,7 +742,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         appIDSettingsStore.appID = "App ID"
         clientService.mockAuth.hashPasswordReturnValue = "hashed password"
         stateService.accountSetupAutofillError = BitwardenTestError.example
-        stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
+        environmentService.getPreAuthURLsReturnValue =
+            EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
         systemDevice.modelIdentifier = "Model id"
 
         // Attempt to login.
@@ -768,7 +772,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         appIDSettingsStore.appID = "App ID"
         clientService.mockAuth.hashPasswordReturnValue = "hashed password"
         credentialIdentityStore.state.mockIsEnabled = true
-        stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
+        environmentService.getPreAuthURLsReturnValue =
+            EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
         systemDevice.modelIdentifier = "Model id"
 
         try await subject.loginWithMasterPassword(
@@ -823,7 +828,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         appIDSettingsStore.appID = "App ID"
         clientService.mockAuth.hashPasswordReturnValue = "hashed password"
         clientService.mockAuth.satisfiesPolicyReturnValue = false
-        stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
+        environmentService.getPreAuthURLsReturnValue =
+            EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
         systemDevice.modelIdentifier = "Model id"
 
         // Attempt to login.
@@ -958,7 +964,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         appIDSettingsStore.appID = "App ID"
         await stateService.setTwoFactorToken("some token", email: "email@example.com")
         clientService.mockAuth.hashPasswordReturnValue = "hashed password"
-        stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
+        environmentService.getPreAuthURLsReturnValue =
+            EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
         systemDevice.modelIdentifier = "Model id"
 
         // Attempt to login.
@@ -1046,7 +1053,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         // Set up the mock data.
         appIDSettingsStore.appID = "App ID"
         client.result = .httpSuccess(testData: .identityTokenSuccess)
-        stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
+        environmentService.getPreAuthURLsReturnValue =
+            EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
         systemDevice.modelIdentifier = "Model id"
 
         // Attempt to login.
@@ -1160,7 +1168,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         appIDSettingsStore.appID = "App ID"
         await stateService.setTwoFactorToken("some token", email: "email@example.com")
         clientService.mockAuth.hashPasswordReturnValue = "hashed password"
-        stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
+        environmentService.getPreAuthURLsReturnValue =
+            EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
         systemDevice.modelIdentifier = "Model id"
 
         // First login with the master password so that the request will be saved.
@@ -1323,7 +1332,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         appIDSettingsStore.appID = "App ID"
         await stateService.setTwoFactorToken("some token", email: "email@example.com")
         clientService.mockAuth.hashPasswordReturnValue = "hashed password"
-        stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
+        environmentService.getPreAuthURLsReturnValue =
+            EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
         systemDevice.modelIdentifier = "Model id"
 
         // First login with the master password so that the request will be saved.
@@ -1422,7 +1432,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         appIDSettingsStore.appID = "App ID"
         await stateService.setTwoFactorToken("some token", email: "email@example.com")
         clientService.mockAuth.hashPasswordReturnValue = "hashed password"
-        stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
+        environmentService.getPreAuthURLsReturnValue =
+            EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
         systemDevice.modelIdentifier = "Model id"
 
         let policy = MasterPasswordPolicyOptions(
@@ -1484,7 +1495,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         appIDSettingsStore.appID = "App ID"
         await stateService.setTwoFactorToken("some token", email: "email@example.com")
         clientService.mockAuth.hashPasswordReturnValue = "hashed password"
-        stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
+        environmentService.getPreAuthURLsReturnValue =
+            EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
         systemDevice.modelIdentifier = "Model id"
 
         let policy = MasterPasswordPolicyOptions(
@@ -1652,7 +1664,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         appIDSettingsStore.appID = "App ID"
         await stateService.setTwoFactorToken("some token", email: "email@example.com")
         clientService.mockAuth.hashPasswordReturnValue = "hashed password"
-        stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
+        environmentService.getPreAuthURLsReturnValue =
+            EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
         systemDevice.modelIdentifier = "Model id"
 
         // First login with the master password so that the resend email request will be saved.
@@ -1699,7 +1712,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         appIDSettingsStore.appID = "App ID"
         await stateService.setTwoFactorToken("some token", email: "email@example.com")
         clientService.mockAuth.hashPasswordReturnValue = "hashed password"
-        stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
+        environmentService.getPreAuthURLsReturnValue =
+            EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
         systemDevice.modelIdentifier = "Model id"
 
         // First login with the master password so that the resend email request will be saved.

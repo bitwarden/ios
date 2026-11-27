@@ -68,7 +68,7 @@ class StartRegistrationProcessor: StateProcessor<
     private lazy var regionHelper = RegionHelper(
         coordinator: coordinator,
         delegate: self,
-        stateService: services.stateService,
+        environmentService: services.environmentService,
     )
 
     // MARK: Initialization
@@ -138,7 +138,7 @@ class StartRegistrationProcessor: StateProcessor<
             // Guard against a race where the cached config belongs to a previously selected region:
             // region changes refresh the config in a background Task, so the cache may lag behind.
             // If hosts don't match, skip the check — the server will reject the request if needed.
-            let preAuthURLs = await services.stateService.getPreAuthEnvironmentURLs()
+            let preAuthURLs = await services.environmentService.getPreAuthURLs()
             if serverConfig?.isCurrentConfig(for: preAuthURLs) == true,
                let vaultString = serverConfig?.environment?.vault,
                let configHost = URL(string: vaultString)?.host {
@@ -175,7 +175,7 @@ class StartRegistrationProcessor: StateProcessor<
                     userEmail: email,
                 ))
             } else {
-                guard let preAuthUrls = await services.stateService.getPreAuthEnvironmentURLs() else {
+                guard let preAuthUrls = await services.environmentService.getPreAuthURLs() else {
                     throw StartRegistrationError.preAuthUrlsEmpty
                 }
 

@@ -63,6 +63,10 @@ class DefaultEnvironmentService: EnvironmentService {
 
     // MARK: EnvironmentService
 
+    func getPreAuthURLs() async -> EnvironmentURLData? {
+        await stateService.getPreAuthEnvironmentURLs()
+    }
+
     func loadURLsForActiveAccount() async {
         let urls: EnvironmentURLData
         let managedSettingsURLs = managedSettingsURLs()

@@ -46,4 +46,12 @@ struct EnvironmentServiceTests {
         )
         #expect(subject.webVaultURL == URL(string: "https://vault.bitwarden.com"))
     }
+
+    /// `getPreAuthURLs()` returns `nil`.
+    @Test
+    func getPreAuthURLs() async {
+        let result = await subject.getPreAuthURLs()
+
+        #expect(result == nil)
+    }
 }

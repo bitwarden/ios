@@ -59,6 +59,12 @@ public protocol EnvironmentService { // sourcery: AutoMockable
     /// The URL for the web vault.
     var webVaultURL: URL { get }
 
+    /// Gets the stored URLs that the environment uses prior to user authentication.
+    ///
+    /// - Returns: The stored pre-auth URLs, or `nil` if none have been set.
+    ///
+    func getPreAuthURLs() async -> EnvironmentURLData?
+
     /// Loads the URLs for the active account into the environment. This can be called on app launch
     /// whether there's an active account or not to pre-populate the environment. If there's no
     /// active account, the US URLs will be used.

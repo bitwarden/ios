@@ -23,6 +23,10 @@ class DefaultEnvironmentService: EnvironmentService {
 
     // MARK: EnvironmentService
 
+    func getPreAuthURLs() async -> EnvironmentURLData? {
+        nil
+    }
+
     func loadURLsForActiveAccount() async {}
 
     func setPreAuthURLs(urls: BitwardenKit.EnvironmentURLData) async {}

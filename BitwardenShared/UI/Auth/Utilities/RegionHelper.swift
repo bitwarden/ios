@@ -10,11 +10,11 @@ class RegionHelper {
     /// Used to perform navigations and showing alert
     let coordinator: AnyCoordinator<AuthRoute, AuthEvent>
 
-    /// Service used to get environment information
-    let stateService: StateService
-
     /// The delegate for the processor that is notified when the user saves their environment settings.
     weak var delegate: RegionDelegate?
+
+    /// The service used to get the pre-auth environment URLs.
+    let environmentService: EnvironmentService
 
     // MARK: Initialization
 
@@ -23,14 +23,16 @@ class RegionHelper {
     /// - Parameters:
     ///   - coordinator: The coordinator that handles navigation.
     ///   - delegate: The delegate for the processor.
-    ///   - stateService: The services used by the helper .
+    ///   - environmentService: The service used to get the pre-auth environment URLs.
     ///
-    init(coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
-         delegate: RegionDelegate,
-         stateService: StateService) {
+    init(
+        coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
+        delegate: RegionDelegate,
+        environmentService: EnvironmentService,
+    ) {
         self.coordinator = coordinator
         self.delegate = delegate
-        self.stateService = stateService
+        self.environmentService = environmentService
     }
 
     /// Builds an alert for region selection and navigates to the alert.
@@ -72,7 +74,7 @@ class RegionHelper {
     /// Sets the region to the last used region.
     ///
     func loadRegion() async {
-        guard let urls = await stateService.getPreAuthEnvironmentURLs() else {
+        guard let urls = await environmentService.getPreAuthURLs() else {
             await delegate?.setRegion(.unitedStates, .defaultUS)
             return
         }

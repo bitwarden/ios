@@ -1058,7 +1058,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             }
 
             // Create the account.
-            let urls = await stateService.getPreAuthEnvironmentURLs()
+            let urls = await environmentService.getPreAuthURLs()
             let account = try Account(identityTokenResponseModel: identityTokenResponse, environmentURLs: urls)
             try await saveAccount(account, identityTokenResponse: identityTokenResponse)
 

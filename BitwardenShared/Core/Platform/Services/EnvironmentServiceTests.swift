@@ -71,6 +71,17 @@ struct EnvironmentServiceTests { // swiftlint:disable:this type_body_length
         #expect(subject.webVaultURL == URL(string: "https://vault.bitwarden.com"))
     }
 
+    /// `getPreAuthURLs()` returns the stored pre-auth URLs.
+    @Test
+    func getPreAuthURLs() async {
+        let urls = EnvironmentURLData(base: .example)
+        stateService.preAuthEnvironmentURLs = urls
+
+        let result = await subject.getPreAuthURLs()
+
+        #expect(result == urls)
+    }
+
     /// `loadURLsForActiveAccount()` loads the URLs for the active account.
     @Test
     func loadURLsForActiveAccount() async {

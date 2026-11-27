@@ -15,7 +15,6 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
         & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
-        & HasStateService
 
     // MARK: Private Properties
 
@@ -32,7 +31,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     private lazy var regionHelper = RegionHelper(
         coordinator: coordinator,
         delegate: self,
-        stateService: services.stateService,
+        environmentService: services.environmentService,
     )
 
     // MARK: Initialization
@@ -66,13 +65,13 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
         // A pre-loop `guard let self` would pin self strongly for the loop's lifetime,
         // preventing deinit (and therefore cancellation) until the publisher completes.
         let configService = services.configService
-        let stateService = services.stateService
+        let environmentService = services.environmentService
         configSubscriptionTask = Task { [weak self] in
             for await metaConfig in await configService.configPublisher() {
                 guard let self else { return }
                 guard metaConfig?.isPreAuth == true,
                       await metaConfig?.serverConfig?.isCurrentConfig(
-                          for: stateService.getPreAuthEnvironmentURLs(),
+                          for: environmentService.getPreAuthURLs(),
                       ) == true else { continue }
                 self.state.isCreateAccountButtonHidden = metaConfig?.serverConfig?
                     .settings?.disableUserRegistration == true
@@ -139,7 +138,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     ///
     private func currentPreAuthServerConfig() async -> ServerConfig? {
         let serverConfig = await services.configService.getConfig(forceRefresh: false, isPreAuth: true)
-        let preAuthURLs = await services.stateService.getPreAuthEnvironmentURLs()
+        let preAuthURLs = await services.environmentService.getPreAuthURLs()
         guard serverConfig?.isCurrentConfig(for: preAuthURLs) == true else { return nil }
         return serverConfig
     }
