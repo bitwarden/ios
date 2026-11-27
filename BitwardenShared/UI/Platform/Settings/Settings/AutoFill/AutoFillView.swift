@@ -19,6 +19,8 @@ struct AutoFillView: View {
 
     var body: some View {
         VStack(spacing: 16) {
+            autofillOffActionCard
+
             autofillActionCard
 
             autoFillSection
@@ -26,6 +28,7 @@ struct AutoFillView: View {
             additionalOptionsSection
         }
         .animation(.easeInOut, value: store.state.badgeState?.autofillSetupProgress == .complete)
+        .animation(.easeInOut, value: store.state.shouldShowAutofillOffActionCard)
         .scrollView()
         .navigationBar(title: Localizations.autofill, titleDisplayMode: .inline)
         .onChange(of: store.state.url) { newValue in
@@ -38,6 +41,12 @@ struct AutoFillView: View {
         }
         .task {
             await store.perform(.streamSettingsBadge)
+        }
+        .task {
+            await store.perform(.streamAutofillStatus)
+        }
+        .backport.onAppearsActive {
+            Task { await store.perform(.windowBecameActive) }
         }
         .toast(store.binding(
             get: \.toast,
@@ -79,6 +88,19 @@ struct AutoFillView: View {
                     BitwardenBadge(badgeValue: "1")
                 }
             }
+        }
+    }
+
+    /// The action card shown whenever autofill is off, to help the user turn it on.
+    @ViewBuilder private var autofillOffActionCard: some View {
+        if store.state.shouldShowAutofillOffActionCard {
+            ActionCard(
+                title: Localizations.setUpAutofill,
+                message: Localizations.autofillWithBitwardenDescriptionLong,
+                actionButtonState: ActionCard.ButtonState(title: Localizations.turnOnAutoFill) {
+                    await store.perform(.turnOnAutofill)
+                },
+            )
         }
     }
 

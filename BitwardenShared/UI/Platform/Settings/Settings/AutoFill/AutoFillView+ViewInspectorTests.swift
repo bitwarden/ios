@@ -189,4 +189,31 @@ class AutoFillViewTests: BitwardenTestCase {
         try await button.tap()
         XCTAssertEqual(processor.effects, [.setUpAutofill])
     }
+
+    /// The autofill off action card is hidden when autofill is on or the feature flag is disabled.
+    @MainActor
+    func test_autofillOffActionCard_hidden() {
+        processor.state.isAutofillEnabled = false
+        XCTAssertThrowsError(try subject.inspect().find(actionCard: Localizations.setUpAutofill))
+
+        processor.state.isAutofillOffActionCardEnabled = true
+        processor.state.isAutofillEnabled = true
+        XCTAssertThrowsError(try subject.inspect().find(actionCard: Localizations.setUpAutofill))
+    }
+
+    /// The autofill off action card has no dismiss or secondary button, and tapping the turn on
+    /// autofill button sends the `.turnOnAutofill` effect.
+    @MainActor
+    func test_autofillOffActionCard_tapTurnOnAutofill() async throws {
+        processor.state.isAutofillOffActionCardEnabled = true
+        processor.state.isAutofillEnabled = false
+        let actionCard = try subject.inspect().find(actionCard: Localizations.setUpAutofill)
+
+        XCTAssertThrowsError(try actionCard.find(asyncButton: Localizations.dismiss))
+        XCTAssertThrowsError(try actionCard.find(asyncButton: Localizations.learnMoreAboutAutofill))
+
+        let button = try actionCard.find(asyncButton: Localizations.turnOnAutoFill)
+        try await button.tap()
+        XCTAssertEqual(processor.effects, [.turnOnAutofill])
+    }
 }

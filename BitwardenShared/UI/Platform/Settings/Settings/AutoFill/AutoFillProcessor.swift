@@ -10,6 +10,7 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
 
     typealias Services = HasASSettingsMediator
         & HasAutofillCredentialService
+        & HasAutofillPromptService
         & HasConfigService
         & HasErrorReporter
         & HasFillAssistRepository
@@ -54,8 +55,15 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
             await fetchSettingValues()
         case .setUpAutofill:
             await setUpAutofill()
+        case .streamAutofillStatus:
+            await streamAutofillStatus()
         case .streamSettingsBadge:
             await streamSettingsBadge()
+        case .turnOnAutofill:
+            state.url = await services.autofillPromptService.turnOnAutofill()
+        case .windowBecameActive:
+            guard state.isAutofillOffActionCardEnabled else { return }
+            await services.autofillPromptService.refreshAutofillStatus()
         }
     }
 
@@ -165,6 +173,19 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
             coordinator.navigate(to: .passwordAutoFill, context: self)
         } catch {
             services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Refreshes whether autofill is turned on and streams the result. No-op if the autofill off
+    /// action card feature flag is disabled.
+    ///
+    private func streamAutofillStatus() async {
+        guard await services.configService.getFeatureFlag(.autofillOffActionCard) else { return }
+        state.isAutofillOffActionCardEnabled = true
+
+        await services.autofillPromptService.refreshAutofillStatus()
+        for await isEnabled in services.autofillPromptService.autofillEnabledPublisher().values {
+            state.isAutofillEnabled = isEnabled
         }
     }
 
