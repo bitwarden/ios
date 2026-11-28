@@ -461,6 +461,22 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(state.icon.name, SharedAsset.Icons.Cards.visa.name)
     }
 
+    /// Card brands created by other clients survive loading and saving an edited cipher.
+    func test_newCipherView_preservesAdditionalCardBrands() throws {
+        for (storedBrand, expectedBrand) in [
+            ("DinaCard", CardComponent.Brand.dinaCard),
+            ("Mir", CardComponent.Brand.mir),
+        ] {
+            let cipher = CipherView.cardFixture(card: .fixture(brand: storedBrand))
+            var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+            state.name = "Updated card"
+
+            XCTAssertEqual(state.cardItemState.brand, .custom(expectedBrand))
+            XCTAssertEqual(state.newCipherView().card?.brand, storedBrand)
+            XCTAssertEqual(state.icon.name, SharedAsset.Icons.card24.name)
+        }
+    }
+
     /// `getter:icon` returns the icon for a card cipher with "other" brand.
     func test_icon_cardOtherBrand() throws {
         let cipher = CipherView.cardFixture(card: .fixture(brand: "Other"))

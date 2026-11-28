@@ -96,11 +96,14 @@ enum CardComponent {
         /// American Express
         case americanExpress = "Amex"
 
-        /// Discover
-        case discover = "Discover"
+        /// DinaCard
+        case dinaCard = "DinaCard"
 
         /// Diners Club
         case dinersClub = "Diners Club"
+
+        /// Discover
+        case discover = "Discover"
 
         /// JCB
         case jcb = "JCB"
@@ -108,11 +111,14 @@ enum CardComponent {
         /// Maestro
         case maestro = "Maestro"
 
-        /// UnionPay
-        case unionPay = "UnionPay"
+        /// Mir
+        case mir = "Mir"
 
         /// RuPay
         case ruPay = "RuPay"
+
+        /// UnionPay
+        case unionPay = "UnionPay"
 
         /// Other brands not explicitly listed here
         case other = "Other"
@@ -202,7 +208,7 @@ extension CardComponent.Brand {
             SharedAsset.Icons.Cards.unionPay
         case .ruPay:
             SharedAsset.Icons.Cards.ruPay
-        case .other:
+        case .dinaCard, .mir, .other:
             SharedAsset.Icons.card24
         }
     }
@@ -280,7 +286,7 @@ extension CardComponent.Brand {
         case .jcb: [15, 16, 17, 18, 19]
         case .maestro: Set(12 ... 19)
         case .mastercard: [16]
-        case .other: Set(13 ... 19)
+        case .dinaCard, .mir, .other: Set(13 ... 19)
         case .ruPay: [16]
         case .unionPay: Set(16 ... 19)
         case .visa: [13, 16, 19]
