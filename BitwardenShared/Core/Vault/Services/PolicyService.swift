@@ -49,6 +49,9 @@ protocol PolicyService: AnyObject {
 
     /// Gets the organization ID with the earliest revision date that is applying a policy to the active user.
     ///
+    /// For the `.personalOwnership` policy, only organizations that prompt users to transfer their
+    /// individual items (`enableIndividualItemsTransfer`) are considered.
+    ///
     /// - Parameter policyType: The policy to check.
     /// - Returns: The organization ID with the earliest revision date applying the policy, or `nil` if none.
     ///
@@ -455,7 +458,9 @@ extension DefaultPolicyService {
     }
 
     func getEarliestOrganizationApplyingPolicy(_ policyType: PolicyType) async -> String? {
-        let policies = await policiesApplyingToUser(policyType, filter: nil)
+        let policies = await policiesApplyingToUser(policyType) { policy in
+            policyType != .personalOwnership || policy[.enableIndividualItemsTransfer]?.boolValue == true
+        }
         return policies.policyWithEarliestRevisionDate?.organizationId
     }
 

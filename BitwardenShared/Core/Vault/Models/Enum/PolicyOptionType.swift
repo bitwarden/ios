@@ -15,6 +15,12 @@ enum PolicyOptionType: String {
     /// A policy option for whether to show the notification banner after every login.
     case showAfterEveryLogin
 
+    // MARK: Organization Data Ownership Options
+
+    /// A policy option for whether users are prompted to transfer their individual items to the
+    /// organization.
+    case enableIndividualItemsTransfer
+
     // MARK: Password Generation Options
 
     /// A policy option for the vault timeout action.
