@@ -99,6 +99,21 @@ extension Alert {
         )
     }
 
+    /// An alert notifying the user that we do not currently support password-protected
+    /// files when importing from Proton Authenticator.
+    ///
+    /// - Returns: An alert indicating we don't support password-protected Proton Authenticator files
+    @MainActor
+    static func protonAuthenticatorPasswordProtected() -> Alert {
+        Alert(
+            title: Localizations.importingFromProtonAuthenticatorPasswordProtectedNotSupported,
+            message: nil,
+            alertActions: [
+                AlertAction(title: Localizations.ok, style: .default),
+            ],
+        )
+    }
+
     /// An alert notifying the user their import file was missing some required information.
     ///
     /// - Parameter action: The action taken if they select continue.

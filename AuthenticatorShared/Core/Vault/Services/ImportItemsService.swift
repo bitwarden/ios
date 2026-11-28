@@ -65,6 +65,8 @@ class DefaultImportItemsService: ImportItemsService {
             try GoogleImporter.importItems(data: data)
         case .lastpassJson:
             try LastpassImporter.importItems(data: data)
+        case .protonAuthenticatorJson:
+            try ProtonAuthenticatorImporter.importItems(data: data)
         case .raivoJson:
             try RaivoImporter.importItems(data: data)
         case .twoFasJson:
