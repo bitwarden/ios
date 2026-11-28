@@ -1,3 +1,4 @@
+import BitwardenKitMocks
 import BitwardenSdk
 import BitwardenSdkMocks
 import TestHelpers
@@ -8,11 +9,12 @@ import XCTest
 
 // MARK: - CipherEncryptionMediatorTests
 
-class CipherEncryptionMediatorTests: BitwardenTestCase {
+class CipherEncryptionMediatorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var cipherService: MockCipherService!
     var clientService: MockClientService!
+    var configService: MockConfigService!
     var delegate: MockCipherEncryptionMediatorDelegate!
     var subject: DefaultCipherEncryptionMediator!
 
@@ -23,11 +25,13 @@ class CipherEncryptionMediatorTests: BitwardenTestCase {
 
         cipherService = MockCipherService()
         clientService = MockClientService()
+        configService = MockConfigService()
         delegate = MockCipherEncryptionMediatorDelegate()
 
         subject = DefaultCipherEncryptionMediator(
             cipherService: cipherService,
             clientService: clientService,
+            configService: configService,
         )
     }
 
@@ -36,6 +40,7 @@ class CipherEncryptionMediatorTests: BitwardenTestCase {
 
         cipherService = nil
         clientService = nil
+        configService = nil
         delegate = nil
         subject = nil
     }
@@ -107,6 +112,97 @@ class CipherEncryptionMediatorTests: BitwardenTestCase {
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await self.subject.encryptAndUpdateCipher(cipherView)
+        }
+    }
+
+    /// `encryptAndUpdateCipher(_:)` saves the cipher with the SDK when the cipher view has no key,
+    /// encryption adds one, and the SDK cipher operations feature flag is enabled. It returns the
+    /// cipher re-encrypted with the key saved by the SDK.
+    @MainActor
+    func test_encryptAndUpdateCipher_sdkCipherOperations_encryptionAddsKey_editsWithSdk() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        let cipherView = CipherView.fixture(id: "1", key: nil, login: .fixture())
+        let savedCipherView = CipherView.fixture(id: "1", key: "savedKey", login: .fixture())
+        let ciphersClient = clientService.mockVault.clientCiphers
+        ciphersClient.encryptClosure = { cipherView in
+            EncryptionContext(
+                encryptedFor: "userId",
+                cipher: Cipher.fixture(id: cipherView.id, key: "encrypted-\(cipherView.key ?? "generatedKey")"),
+            )
+        }
+        ciphersClient.editReturnValue = savedCipherView
+
+        let result = try await subject.encryptAndUpdateCipher(cipherView)
+
+        XCTAssertEqual(ciphersClient.editReceivedRequest, try CipherEditRequest(cipherView: cipherView))
+        XCTAssertEqual(ciphersClient.encryptReceivedCipherView, savedCipherView)
+        XCTAssertEqual(result, Cipher.fixture(id: "1", key: "encrypted-savedKey"))
+        XCTAssertTrue(cipherService.updateCipherWithServerCiphers.isEmpty)
+    }
+
+    /// `encryptAndUpdateCipher(_:)` keeps the caller's collection IDs and deleted date when the SDK
+    /// saves the cipher to add its key, since the SDK's edit request doesn't include those values.
+    @MainActor
+    func test_encryptAndUpdateCipher_sdkCipherOperations_keepsCallerChanges() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        let deletedDate = Date(year: 2026, month: 11, day: 19)
+        let cipherView = CipherView.fixture(
+            collectionIds: ["newCollection"],
+            deletedDate: deletedDate,
+            id: "1",
+            key: nil,
+            login: .fixture(),
+        )
+        let savedCipherView = CipherView.fixture(
+            collectionIds: ["oldCollection"],
+            id: "1",
+            key: "savedKey",
+            login: .fixture(),
+            revisionDate: Date(year: 2026, month: 11, day: 20),
+        )
+        let ciphersClient = clientService.mockVault.clientCiphers
+        ciphersClient.encryptClosure = { cipherView in
+            EncryptionContext(
+                encryptedFor: "userId",
+                cipher: Cipher.fixture(id: cipherView.id, key: "encrypted-\(cipherView.key ?? "generatedKey")"),
+            )
+        }
+        ciphersClient.editReturnValue = savedCipherView
+
+        _ = try await subject.encryptAndUpdateCipher(cipherView)
+
+        let encryptedCipherView = try XCTUnwrap(ciphersClient.encryptReceivedCipherView)
+        XCTAssertEqual(encryptedCipherView.collectionIds, ["newCollection"])
+        XCTAssertEqual(encryptedCipherView.deletedDate, deletedDate)
+        XCTAssertEqual(encryptedCipherView.key, "savedKey")
+        XCTAssertEqual(encryptedCipherView.revisionDate, Date(year: 2026, month: 11, day: 20))
+    }
+
+    /// `encryptAndUpdateCipher(_:)` doesn't save the cipher with the SDK when the cipher view already
+    /// has a key and the SDK cipher operations feature flag is enabled.
+    @MainActor
+    func test_encryptAndUpdateCipher_sdkCipherOperations_cipherViewHasKey_doesNotEdit() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        let cipherView = CipherView.fixture(key: "existingKey")
+
+        _ = try await subject.encryptAndUpdateCipher(cipherView)
+
+        XCTAssertFalse(clientService.mockVault.clientCiphers.editCalled)
+        XCTAssertTrue(cipherService.updateCipherWithServerCiphers.isEmpty)
+    }
+
+    /// `encryptAndUpdateCipher(_:)` rethrows errors from the SDK edit call.
+    @MainActor
+    func test_encryptAndUpdateCipher_sdkCipherOperations_editThrows_throwsError() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        let ciphersClient = clientService.mockVault.clientCiphers
+        ciphersClient.encryptClosure = { _ in
+            EncryptionContext(encryptedFor: "userId", cipher: Cipher.fixture(key: "encryptedKey"))
+        }
+        ciphersClient.editThrowableError = BitwardenTestError.example
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await self.subject.encryptAndUpdateCipher(.fixture(id: "1", key: nil, login: .fixture()))
         }
     }
 
@@ -221,6 +317,43 @@ class CipherEncryptionMediatorTests: BitwardenTestCase {
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await self.subject.updateCipherKeyIfNeeded(cipherView)
+        }
+    }
+
+    /// `updateCipherKeyIfNeeded(_:)` saves the cipher with the SDK and returns the saved cipher view
+    /// when the SDK adds a key during encryption and the SDK cipher operations feature flag is enabled.
+    @MainActor
+    func test_updateCipherKeyIfNeeded_sdkCipherOperations_encryptionAddsKey_editsWithSdk() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        let cipherView = CipherView.fixture(id: "1", key: nil, login: .fixture())
+        let savedCipherView = CipherView.fixture(id: "1", key: "savedKey", login: .fixture())
+        let ciphersClient = clientService.mockVault.clientCiphers
+        ciphersClient.encryptClosure = { _ in
+            EncryptionContext(encryptedFor: "userId", cipher: Cipher.fixture(key: "encryptedKey"))
+        }
+        ciphersClient.editReturnValue = savedCipherView
+        subject.setDelegate(delegate)
+
+        let result = try await subject.updateCipherKeyIfNeeded(cipherView)
+
+        XCTAssertEqual(result, savedCipherView)
+        XCTAssertEqual(ciphersClient.editReceivedRequest, try CipherEditRequest(cipherView: cipherView))
+        XCTAssertFalse(delegate.fetchCipherCalled)
+        XCTAssertTrue(cipherService.updateCipherWithServerCiphers.isEmpty)
+    }
+
+    /// `updateCipherKeyIfNeeded(_:)` rethrows errors from the SDK edit call.
+    @MainActor
+    func test_updateCipherKeyIfNeeded_sdkCipherOperations_editThrows_throwsError() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        let ciphersClient = clientService.mockVault.clientCiphers
+        ciphersClient.encryptClosure = { _ in
+            EncryptionContext(encryptedFor: "userId", cipher: Cipher.fixture(key: "encryptedKey"))
+        }
+        ciphersClient.editThrowableError = BitwardenTestError.example
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await self.subject.updateCipherKeyIfNeeded(.fixture(id: "1", key: nil, login: .fixture()))
         }
     }
 }

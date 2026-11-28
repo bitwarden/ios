@@ -568,6 +568,10 @@ extension DefaultVaultRepository: VaultRepository {
 
     @discardableResult
     func addCipher(_ cipher: CipherView) async throws -> CipherView {
+        if await configService.getFeatureFlag(.sdkCipherOperations) {
+            return try await clientService.vault().ciphers().createCipher(cipher)
+        }
+
         let cipherEncryptionContext = try await clientService.vault().ciphers().encrypt(cipherView: cipher)
         let addedCipher = try await cipherService.addCipherWithServer(
             cipherEncryptionContext.cipher,
@@ -986,6 +990,11 @@ extension DefaultVaultRepository: VaultRepository {
     func updateCipher(_ cipherView: CipherView) async throws {
         if await shouldUnarchiveCipherOnUpdate(cipherView) {
             try await updateCipher(cipherView.update(archivedDate: nil))
+            return
+        }
+
+        if await configService.getFeatureFlag(.sdkCipherOperations) {
+            _ = try await clientService.vault().ciphers().editCipher(cipherView)
             return
         }
 

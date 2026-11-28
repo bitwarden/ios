@@ -158,6 +158,51 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         }
     }
 
+    /// `addCipher()` creates the cipher with the SDK when the SDK cipher operations feature flag
+    /// is enabled.
+    func test_addCipher_sdkCipherOperations() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        let cipher = CipherView.fixture(id: nil, login: .fixture(username: "user"))
+        let addedCipherView = CipherView.fixture(id: "1", login: .fixture(username: "user"))
+        clientCiphers.createReturnValue = addedCipherView
+
+        let result = try await subject.addCipher(cipher)
+
+        XCTAssertEqual(result, addedCipherView)
+        XCTAssertEqual(clientCiphers.createReceivedRequest, try CipherCreateRequest(cipherView: cipher))
+        XCTAssertFalse(clientCiphers.encryptCalled)
+        XCTAssertTrue(cipherService.addCipherWithServerCiphers.isEmpty)
+    }
+
+    /// `addCipher()` creates a cipher containing Fido2 credentials with the SDK when the SDK cipher
+    /// operations feature flag is enabled.
+    func test_addCipher_sdkCipherOperations_fido2Credentials() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        let cipher = CipherView.fixture(
+            id: nil,
+            login: .fixture(fido2Credentials: [.fixture(credentialId: "credential-id")]),
+        )
+        clientCiphers.createReturnValue = .fixture(id: "1")
+
+        try await subject.addCipher(cipher)
+
+        XCTAssertEqual(clientCiphers.createReceivedRequest, try CipherCreateRequest(cipherView: cipher))
+        XCTAssertTrue(cipherService.addCipherWithServerCiphers.isEmpty)
+    }
+
+    /// `addCipher()` throws a `ServerError` if the SDK fails to create the cipher due to a server
+    /// error response.
+    func test_addCipher_sdkCipherOperations_serverError() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        let message = #"error in response: status code 400 Bad Request: {"message":"Error!","object":"error"}"#
+        clientCiphers.createThrowableError = BitwardenSdk.BitwardenError.CreateCipher(.Api(message: message))
+
+        let serverError = ServerError.error(errorResponse: .init(validationErrors: nil, message: "Error!"))
+        await assertAsyncThrows(error: serverError) {
+            try await subject.addCipher(.fixture(id: nil, login: .fixture()))
+        }
+    }
+
     /// `archiveCipher()` throws on id errors.
     func test_archiveCipher_idError_nil() async throws {
         stateService.accounts = [.fixtureAccountLogin()]
@@ -1969,6 +2014,73 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(clientCiphers.encryptReceivedCipherView, cipher)
         XCTAssertNil(cipherService.updateCipherWithServerEncryptedByKeyId)
         XCTAssertEqual(cipherService.updateCipherWithServerEncryptedFor, "1")
+    }
+
+    /// `updateCipher()` edits the cipher with the SDK when the SDK cipher operations feature flag
+    /// is enabled.
+    func test_updateCipher_sdkCipherOperations() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        let cipher = CipherView.fixture(id: "123", key: "key", login: .fixture(password: "new"))
+        clientCiphers.editReturnValue = cipher
+
+        try await subject.updateCipher(cipher)
+
+        XCTAssertEqual(clientCiphers.editReceivedRequest, try CipherEditRequest(cipherView: cipher))
+        XCTAssertFalse(clientCiphers.encryptCalled)
+        XCTAssertTrue(cipherService.updateCipherWithServerCiphers.isEmpty)
+    }
+
+    /// `updateCipher()` only updates the folder and favorite status with the SDK when the user
+    /// can't edit the cipher and the SDK cipher operations feature flag is enabled.
+    func test_updateCipher_sdkCipherOperations_cannotEdit() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        let cipher = CipherView.fixture(edit: false, favorite: true, folderId: "folder", id: "123")
+        clientCiphers.editPartialReturnValue = cipher
+
+        try await subject.updateCipher(cipher)
+
+        XCTAssertEqual(
+            clientCiphers.editPartialReceivedRequest,
+            CipherPartialEditRequest(id: "123", folderId: "folder", favorite: true),
+        )
+        XCTAssertFalse(clientCiphers.editCalled)
+        XCTAssertTrue(cipherService.updateCipherWithServerCiphers.isEmpty)
+    }
+
+    /// `updateCipher()` unarchives the cipher when the user doesn't have Premium and the SDK cipher
+    /// operations feature flag is enabled.
+    func test_updateCipher_sdkCipherOperations_unarchivesNonPremiumUser() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        stateService.activeAccount = nonPremiumAccount
+        stateService.doesActiveAccountHavePremiumResult = false
+        let archivedCipher = CipherView.fixture(archivedDate: .now, id: "123", login: .fixture())
+        clientCiphers.editReturnValue = archivedCipher
+
+        try await subject.updateCipher(archivedCipher)
+
+        XCTAssertNil(clientCiphers.editReceivedRequest?.archivedDate)
+        XCTAssertEqual(
+            clientCiphers.editReceivedRequest,
+            try CipherEditRequest(cipherView: archivedCipher.update(archivedDate: nil)),
+        )
+    }
+
+    /// `updateCipher()` throws a `ServerError` if the SDK fails to edit the cipher because it's out
+    /// of date.
+    func test_updateCipher_sdkCipherOperations_outOfDate() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        let message = #"error in response: status code 400 Bad Request: {"message":"The cipher you are "#
+            + #"updating is out of date.","object":"error"}"#
+        clientCiphers.editThrowableError = BitwardenSdk.BitwardenError.EditCipher(.Api(message: message))
+
+        await assertAsyncThrows(
+            error: ServerError.error(errorResponse: .init(
+                validationErrors: nil,
+                message: "The cipher you are updating is out of date.",
+            )),
+        ) {
+            try await subject.updateCipher(.fixture(id: "123", login: .fixture()))
+        }
     }
 
     /// `cipherDetailsPublisher(id:)` returns a publisher for the details of a cipher in the vault.
