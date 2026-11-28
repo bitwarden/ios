@@ -23,7 +23,6 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
 
     typealias Services = HasBillingRepository
         & HasBillingService
-        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasStateService
@@ -143,15 +142,11 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
     /// Returns whether the plan row can be shown at all, before the user's Premium and subscription
     /// status are considered.
     ///
-    /// - Returns: `true` if the Premium upgrade path feature flag is enabled, the environment is not
-    ///   self-hosted, and the App Store storefront is in the US.
+    /// - Returns: `true` if the environment is not self-hosted and the App Store storefront is in
+    ///   the US.
     ///
     private func isPlanRowAvailable() async -> Bool {
-        guard await services.configService.getFeatureFlag(.premiumUpgradePath, defaultValue: false),
-              await !services.billingService.isSelfHosted()
-        else {
-            return false
-        }
+        guard await !services.billingService.isSelfHosted() else { return false }
         return await services.storefrontService.isUSStorefront()
     }
 

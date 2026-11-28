@@ -9,7 +9,7 @@ import Foundation
 protocol BillingRepository { // sourcery: AutoMockable
     /// Returns `true` when the in-app Premium upgrade path is available on this device.
     ///
-    /// Only checks the feature flag and the App Store storefront. It does not check the user's Premium
+    /// Only checks the App Store storefront. It does not check the user's Premium
     /// status, account age, or vault size -- callers that need those checks must do so separately.
     ///
     /// - Returns: Whether the in-app Premium upgrade path is available.
@@ -37,9 +37,6 @@ class DefaultBillingRepository: BillingRepository {
     /// The service used to manage the app's billing state.
     private let billingStateService: BillingStateService
 
-    /// The service used to manage feature flags.
-    private let configService: ConfigService
-
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
@@ -55,20 +52,17 @@ class DefaultBillingRepository: BillingRepository {
     ///
     /// - Parameters:
     ///   - billingStateService: The service used to manage the app's billing state.
-    ///   - configService: The service used to manage feature flags.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - storefrontService: The service used to retrieve App Store storefront information.
     ///   - vaultRepository: The repository used to manage vault data.
     ///
     init(
         billingStateService: BillingStateService,
-        configService: ConfigService,
         errorReporter: ErrorReporter,
         storefrontService: StorefrontService,
         vaultRepository: VaultRepository,
     ) {
         self.billingStateService = billingStateService
-        self.configService = configService
         self.errorReporter = errorReporter
         self.storefrontService = storefrontService
         self.vaultRepository = vaultRepository
@@ -77,10 +71,7 @@ class DefaultBillingRepository: BillingRepository {
     // MARK: Methods
 
     func isInAppUpgradeAvailable() async -> Bool {
-        guard await configService.getFeatureFlag(.premiumUpgradePath),
-              await storefrontService.isUSStorefront()
-        else { return false }
-        return true
+        await storefrontService.isUSStorefront()
     }
 
     func isPremiumUpgradeBannerAvailable() async -> Bool {
