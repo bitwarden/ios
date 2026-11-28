@@ -20,6 +20,11 @@ class MockCipherDataStore: CipherDataStore {
     var fetchAllCiphersResult: Result<[Cipher], Error> = .success([])
 
     var fetchCipherId: String?
+    /// The `afterId` and `limit` of each call to `fetchCiphers(userId:afterId:limit:)`.
+    var fetchCiphersCalls: [(afterId: String?, limit: Int)] = []
+    /// The results returned by `fetchCiphers(userId:afterId:limit:)`, one per call, in order.
+    var fetchCiphersResults: [Result<[Cipher], Error>] = []
+    var fetchCiphersUserId: String?
     var fetchCipherResult: Cipher?
     var fetchCipherUserId: String?
 
@@ -77,6 +82,13 @@ class MockCipherDataStore: CipherDataStore {
         fetchCipherId = id
         fetchCipherUserId = userId
         return fetchCipherResult
+    }
+
+    func fetchCiphers(userId: String, afterId: String?, limit: Int) async throws -> [Cipher] {
+        fetchCiphersCalls.append((afterId, limit))
+        fetchCiphersUserId = userId
+        guard !fetchCiphersResults.isEmpty else { return [] }
+        return try fetchCiphersResults.removeFirst().get()
     }
 
     func hasPersonalCiphers(userId: String) async throws -> Bool {

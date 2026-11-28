@@ -17,6 +17,15 @@ protocol CiphersClientWrapperService {
         preFilter: (Cipher) throws -> Bool,
         onCipher: (CipherListView) async throws -> Void,
     ) async
+
+    /// Lists the ciphers in local state, decrypted to list views lazily by the SDK, so only a chunk
+    /// of ciphers is held in memory at a time. See `CipherListItemSequence`.
+    ///
+    /// - Parameter chunkSize: How many ciphers the SDK reads and decrypts at a time, or `nil` for
+    ///   the SDK's default.
+    /// - Returns: The ciphers, one `CipherListItem` at a time, in the order of the cipher repository.
+    ///
+    func cipherListItems(chunkSize: UInt32?) async throws -> CipherListItemSequence
 }
 
 extension CiphersClientWrapperService {
@@ -53,6 +62,11 @@ struct DefaultCiphersClientWrapperService: CiphersClientWrapperService {
     let errorReporter: ErrorReporter
 
     // MARK: Methods
+
+    func cipherListItems(chunkSize: UInt32?) async throws -> CipherListItemSequence {
+        let stream = try await clientService.vault().ciphers().listStream(chunkSize: chunkSize)
+        return CipherListItemSequence(stream: stream)
+    }
 
     func decryptAndProcessCiphersInBatch(
         batchSize: Int,

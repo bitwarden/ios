@@ -210,6 +210,34 @@ class CipherDataStoreTests: BitwardenTestCase {
         XCTAssertNil(cipher42)
     }
 
+    /// `fetchCiphers(userId:afterId:limit:)` returns the user's ciphers a page at a time, in order
+    /// of their ID, continuing after the ID that is passed in.
+    func test_fetchCiphers_pages() async throws {
+        let ciphers = (1 ... 5).map { Cipher.fixture(id: "\($0)", name: "CIPHER\($0)") }
+        try await insertCiphers(ciphers.reversed(), userId: "1")
+        try await insertCiphers([.fixture(id: "0"), .fixture(id: "6")], userId: "2")
+
+        let firstPage = try await subject.fetchCiphers(userId: "1", afterId: nil, limit: 2)
+        XCTAssertEqual(firstPage.map(\.id), ["1", "2"])
+
+        let secondPage = try await subject.fetchCiphers(userId: "1", afterId: "2", limit: 2)
+        XCTAssertEqual(secondPage.map(\.id), ["3", "4"])
+
+        let lastPage = try await subject.fetchCiphers(userId: "1", afterId: "4", limit: 2)
+        XCTAssertEqual(lastPage, [ciphers[4]])
+
+        let afterLastPage = try await subject.fetchCiphers(userId: "1", afterId: "5", limit: 2)
+        XCTAssertEqual(afterLastPage, [])
+    }
+
+    /// `fetchCiphers(userId:afterId:limit:)` returns no ciphers when the user has none.
+    func test_fetchCiphers_empty() async throws {
+        try await insertCiphers(ciphers, userId: "2")
+
+        let page = try await subject.fetchCiphers(userId: "1", afterId: nil, limit: 2)
+        XCTAssertEqual(page, [])
+    }
+
     /// `replaceCiphers(_:userId)` replaces the list of ciphers for the user.
     func test_replaceCiphers() async throws {
         try await insertCiphers(ciphers, userId: "1")
