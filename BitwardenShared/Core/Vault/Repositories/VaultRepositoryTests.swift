@@ -18,6 +18,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     var cipherEncryptionMediator: MockCipherEncryptionMediator!
     var cipherService: MockCipherService!
     var client: MockHTTPClient!
+    var clientAttachments: MockAttachmentsClientProtocol!
     var clientCiphers: MockCiphersClientProtocol!
     var clientService: MockClientService!
     var collectionHelper: MockCollectionHelper!
@@ -25,6 +26,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     var configService: MockConfigService!
     var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
+    var fileAPIService: MockFileAPIService!
     var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
     var folderService: MockFolderService!
     var nonPremiumAccount = Account.fixture(profile: .fixture(hasPremiumPersonally: false))
@@ -63,6 +65,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         configService = MockConfigService()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
+        fileAPIService = MockFileAPIService()
         fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
         folderService = MockFolderService()
         now = Date(year: 2024, month: 1, day: 18)
@@ -75,6 +78,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         vaultTimeoutService = MockVaultTimeoutService()
         stateService = MockStateService()
 
+        clientAttachments = clientService.mockVault.clientAttachments
         clientCiphers = clientService.mockVault.clientCiphers
 
         vaultListDirectorStrategy = MockVaultListDirectorStrategy()
@@ -91,6 +95,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             configService: configService,
             environmentService: environmentService,
             errorReporter: errorReporter,
+            fileAPIService: fileAPIService,
             folderService: folderService,
             organizationService: organizationService,
             policyService: policyService,
@@ -110,6 +115,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherEncryptionMediator = nil
         cipherService = nil
         client = nil
+        clientAttachments = nil
         clientCiphers = nil
         clientService = nil
         collectionHelper = nil
@@ -117,6 +123,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         configService = nil
         environmentService = nil
         errorReporter = nil
+        fileAPIService = nil
         fido2UserInterfaceHelper = nil
         folderService = nil
         organizationService = nil
@@ -376,8 +383,13 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             attachments: [.fixture(id: "3", fileName: "file.txt", key: "def")],
             id: "1",
         )
-        cipherService.saveAttachmentWithServerResult = .success(.fixture(id: "1"))
-        cipherService.deleteAttachmentWithServerResult = .success(cipherAfterAttachmentDelete)
+        clientAttachments.createAttachmentReturnValue = CreatedAttachment(
+            attachmentId: "3",
+            uploadUrl: "https://example.com/upload",
+            fileUploadType: .direct,
+            cipher: .fixture(id: "1"),
+        )
+        clientAttachments.deleteAttachmentReturnValue = cipherAfterAttachmentDelete
         cipherService.fetchCipherResult = .success(.fixture(id: "1"))
 
         let downloadUrl = FileManager.default.temporaryDirectory.appendingPathComponent("file.txt")
@@ -388,7 +400,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         try Data("🗂️".utf8).write(to: attachmentsUrl.appendingPathComponent("file.txt"))
 
         clientService.mockVault.clientAttachments.encryptBufferReturnValue = AttachmentEncryptResult(
-            attachment: .fixture(),
+            attachment: .fixture(size: "10", fileName: "encrypted-file.txt", key: "key"),
             contents: Data(),
         )
         clientCiphers.shareCiphersBulkReturnValue = []
@@ -400,7 +412,9 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
 
         XCTAssertEqual(cipherService.downloadAttachmentId, "1")
-        XCTAssertEqual(cipherService.deleteAttachmentWithServerAttachmentId, "1")
+        XCTAssertEqual(fileAPIService.uploadCipherAttachmentReceivedArguments?.attachmentId, "3")
+        XCTAssertEqual(clientAttachments.deleteAttachmentReceivedArguments?.attachmentId, "1")
+        XCTAssertNil(cipherService.saveAttachmentWithServerCipher)
         XCTAssertEqual(
             clientCiphers.shareCiphersBulkReceivedArguments?.cipherViews,
             [CipherView(cipher: cipherAfterAttachmentDelete), cipherWithAttachmentKey],
@@ -829,6 +843,35 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         XCTAssertEqual(cipherService.deleteAttachmentWithServerAttachmentId, "10")
         XCTAssertNil(updatedCipher)
+    }
+
+    /// `deleteAttachment(withId:cipherId:)` deletes the attachment with the SDK and returns the
+    /// updated cipher when the SDK cipher operations feature flag is enabled.
+    func test_deleteAttachment_sdkCipherOperations() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        clientAttachments.deleteAttachmentReturnValue = .fixture(id: "2")
+
+        let updatedCipher = try await subject.deleteAttachment(withId: "10", cipherId: "2")
+
+        XCTAssertEqual(clientAttachments.deleteAttachmentReceivedArguments?.cipherId, "2")
+        XCTAssertEqual(clientAttachments.deleteAttachmentReceivedArguments?.attachmentId, "10")
+        XCTAssertEqual(updatedCipher, CipherView(cipher: .fixture(id: "2")))
+        XCTAssertNil(cipherService.deleteAttachmentWithServerAttachmentId)
+    }
+
+    /// `deleteAttachment(withId:cipherId:)` throws a `ServerError` if the SDK fails to delete the
+    /// attachment due to a server error response.
+    func test_deleteAttachment_sdkCipherOperations_serverError() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        let message = #"error in response: status code 400 Bad Request: {"message":"Error!","object":"error"}"#
+        clientAttachments.deleteAttachmentThrowableError = BitwardenSdk.BitwardenError.DeleteAttachment(
+            .Api(message: message),
+        )
+
+        let serverError = ServerError.error(errorResponse: .init(validationErrors: nil, message: "Error!"))
+        await assertAsyncThrows(error: serverError) {
+            _ = try await subject.deleteAttachment(withId: "10", cipherId: "2")
+        }
     }
 
     /// `deleteCipher()` deletes cipher from backend and local storage.
@@ -2022,8 +2065,13 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             attachments: [.fixture(id: "2", fileName: "file.txt", key: "def")],
             id: "1",
         )
-        cipherService.saveAttachmentWithServerResult = .success(.fixture(id: "1"))
-        cipherService.deleteAttachmentWithServerResult = .success(cipherAfterAttachmentDelete)
+        clientAttachments.createAttachmentReturnValue = CreatedAttachment(
+            attachmentId: "3",
+            uploadUrl: "https://example.com/upload",
+            fileUploadType: .direct,
+            cipher: .fixture(id: "1"),
+        )
+        clientAttachments.deleteAttachmentReturnValue = cipherAfterAttachmentDelete
         cipherService.fetchCipherResult = .success(.fixture(id: "1"))
 
         let downloadUrl = FileManager.default.temporaryDirectory.appendingPathComponent("file.txt")
@@ -2034,7 +2082,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         try Data("🗂️".utf8).write(to: attachmentsUrl.appendingPathComponent("file.txt"))
 
         clientService.mockVault.clientAttachments.encryptBufferReturnValue = AttachmentEncryptResult(
-            attachment: .fixture(),
+            attachment: .fixture(size: "10", fileName: "encrypted-file.txt", key: "key"),
             contents: Data(),
         )
         clientCiphers.shareCipherReturnValue = .fixture(id: "1")
@@ -2042,7 +2090,9 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         try await subject.shareCipher(cipherViewOriginal, newOrganizationId: "5", newCollectionIds: ["6"])
 
         XCTAssertEqual(cipherService.downloadAttachmentId, "1")
-        XCTAssertEqual(cipherService.deleteAttachmentWithServerAttachmentId, "1")
+        XCTAssertEqual(fileAPIService.uploadCipherAttachmentReceivedArguments?.attachmentId, "3")
+        XCTAssertEqual(clientAttachments.deleteAttachmentReceivedArguments?.attachmentId, "1")
+        XCTAssertNil(cipherService.saveAttachmentWithServerCipher)
         XCTAssertEqual(
             clientCiphers.shareCipherReceivedArguments?.cipherView,
             CipherView(cipher: cipherAfterAttachmentDelete),
@@ -2488,6 +2538,160 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(encryptBufferReceivedArguments?.buffer, attachmentData)
         XCTAssertEqual(cipherService.saveAttachmentWithServerCipher, Cipher(cipherView: cipherView))
         XCTAssertEqual(updatedCipher.id, "42")
+    }
+
+    /// `saveAttachment(cipherView:fileData:fileName:)` creates the attachment with the SDK, uploads
+    /// the file, and returns the updated cipher when the SDK cipher operations feature flag is
+    /// enabled.
+    func test_saveAttachment_sdkCipherOperations() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        let revisionDate = Date(year: 2024, month: 2, day: 3)
+        let cipherView = CipherView.fixture(id: "1", revisionDate: revisionDate)
+        let encryptedContents = Data("encrypted".utf8)
+        clientAttachments.encryptBufferReturnValue = AttachmentEncryptResult(
+            attachment: .fixture(size: "9", fileName: "encrypted-name", key: "attachment-key"),
+            contents: encryptedContents,
+        )
+        clientAttachments.createAttachmentReturnValue = CreatedAttachment(
+            attachmentId: "attachment-1",
+            uploadUrl: "https://example.com/upload",
+            fileUploadType: .azure,
+            cipher: .fixture(id: "42"),
+        )
+
+        let updatedCipher = try await subject.saveAttachment(
+            cipherView: cipherView,
+            fileData: Data("unencrypted".utf8),
+            fileName: "file.txt",
+        )
+
+        XCTAssertEqual(updatedCipher, CipherView(cipher: .fixture(id: "42")))
+        XCTAssertEqual(cipherEncryptionMediator.encryptAndUpdateCipherReceivedCipherView, cipherView)
+        XCTAssertEqual(clientAttachments.createAttachmentReceivedArguments?.cipherId, "1")
+        XCTAssertEqual(
+            clientAttachments.createAttachmentReceivedArguments?.request,
+            CreateAttachmentRequest(
+                key: "attachment-key",
+                fileName: "encrypted-name",
+                fileSize: 9,
+                lastKnownRevisionDate: revisionDate,
+            ),
+        )
+        let uploadArguments = try XCTUnwrap(fileAPIService.uploadCipherAttachmentReceivedArguments)
+        XCTAssertEqual(uploadArguments.attachmentId, "attachment-1")
+        XCTAssertEqual(uploadArguments.cipherId, "1")
+        XCTAssertEqual(uploadArguments.data, encryptedContents)
+        XCTAssertEqual(uploadArguments.fileName, "encrypted-name")
+        XCTAssertEqual(uploadArguments.type, .azure)
+        XCTAssertEqual(uploadArguments.url, URL(string: "https://example.com/upload"))
+        XCTAssertFalse(clientAttachments.deleteAttachmentCalled)
+        XCTAssertNil(cipherService.saveAttachmentWithServerCipher)
+    }
+
+    /// `saveAttachment(cipherView:fileData:fileName:)` uploads the file directly to the server when
+    /// the SDK returns the direct upload type.
+    func test_saveAttachment_sdkCipherOperations_directUpload() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        clientAttachments.encryptBufferReturnValue = AttachmentEncryptResult(
+            attachment: .fixture(size: "9", fileName: "encrypted-name", key: "attachment-key"),
+            contents: Data(),
+        )
+        clientAttachments.createAttachmentReturnValue = CreatedAttachment(
+            attachmentId: "attachment-1",
+            uploadUrl: "https://example.com/attachment-1",
+            fileUploadType: .direct,
+            cipher: .fixture(id: "1"),
+        )
+
+        _ = try await subject.saveAttachment(cipherView: .fixture(id: "1"), fileData: Data(), fileName: "file.txt")
+
+        XCTAssertEqual(fileAPIService.uploadCipherAttachmentReceivedArguments?.type, .direct)
+    }
+
+    /// `saveAttachment(cipherView:fileData:fileName:)` deletes the created attachment and rethrows
+    /// the error if uploading the file fails.
+    func test_saveAttachment_sdkCipherOperations_uploadError() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        clientAttachments.encryptBufferReturnValue = AttachmentEncryptResult(
+            attachment: .fixture(size: "9", fileName: "encrypted-name", key: "attachment-key"),
+            contents: Data(),
+        )
+        clientAttachments.createAttachmentReturnValue = CreatedAttachment(
+            attachmentId: "attachment-1",
+            uploadUrl: "https://example.com/upload",
+            fileUploadType: .azure,
+            cipher: .fixture(id: "1"),
+        )
+        clientAttachments.deleteAttachmentReturnValue = .fixture(id: "1")
+        fileAPIService.uploadCipherAttachmentThrowableError = BitwardenTestError.example
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.saveAttachment(cipherView: .fixture(id: "1"), fileData: Data(), fileName: "file.txt")
+        }
+
+        XCTAssertEqual(clientAttachments.deleteAttachmentReceivedArguments?.cipherId, "1")
+        XCTAssertEqual(clientAttachments.deleteAttachmentReceivedArguments?.attachmentId, "attachment-1")
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+    }
+
+    /// `saveAttachment(cipherView:fileData:fileName:)` logs an error deleting the created attachment
+    /// and rethrows the original error if uploading the file fails.
+    func test_saveAttachment_sdkCipherOperations_uploadError_cleanupError() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        clientAttachments.encryptBufferReturnValue = AttachmentEncryptResult(
+            attachment: .fixture(size: "9", fileName: "encrypted-name", key: "attachment-key"),
+            contents: Data(),
+        )
+        clientAttachments.createAttachmentReturnValue = CreatedAttachment(
+            attachmentId: "attachment-1",
+            uploadUrl: "https://example.com/upload",
+            fileUploadType: .azure,
+            cipher: .fixture(id: "1"),
+        )
+        let cleanupError = BitwardenSdk.BitwardenError.DeleteAttachment(.Api(message: "error"))
+        clientAttachments.deleteAttachmentThrowableError = cleanupError
+        fileAPIService.uploadCipherAttachmentThrowableError = BitwardenTestError.example
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.saveAttachment(cipherView: .fixture(id: "1"), fileData: Data(), fileName: "file.txt")
+        }
+
+        XCTAssertEqual(errorReporter.errors as? [BitwardenSdk.BitwardenError], [cleanupError])
+    }
+
+    /// `saveAttachment(cipherView:fileData:fileName:)` throws if the encrypted attachment is missing
+    /// data needed to create the attachment.
+    func test_saveAttachment_sdkCipherOperations_missingEncryptedData() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        clientAttachments.encryptBufferReturnValue = AttachmentEncryptResult(
+            attachment: .fixture(size: nil, fileName: "encrypted-name", key: "attachment-key"),
+            contents: Data(),
+        )
+
+        await assertAsyncThrows(error: BitwardenError.dataError("Missing encrypted attachment data")) {
+            _ = try await subject.saveAttachment(cipherView: .fixture(id: "1"), fileData: Data(), fileName: "file.txt")
+        }
+        XCTAssertFalse(clientAttachments.createAttachmentCalled)
+    }
+
+    /// `saveAttachment(cipherView:fileData:fileName:)` throws a `ServerError` if the SDK fails to
+    /// create the attachment due to a server error response.
+    func test_saveAttachment_sdkCipherOperations_serverError() async throws {
+        configService.featureFlagsBool[.sdkCipherOperations] = true
+        clientAttachments.encryptBufferReturnValue = AttachmentEncryptResult(
+            attachment: .fixture(size: "9", fileName: "encrypted-name", key: "attachment-key"),
+            contents: Data(),
+        )
+        let message = #"error in response: status code 400 Bad Request: {"message":"Error!","object":"error"}"#
+        clientAttachments.createAttachmentThrowableError = BitwardenSdk.BitwardenError.CreateAttachment(
+            .Api(message: message),
+        )
+
+        let serverError = ServerError.error(errorResponse: .init(validationErrors: nil, message: "Error!"))
+        await assertAsyncThrows(error: serverError) {
+            _ = try await subject.saveAttachment(cipherView: .fixture(id: "1"), fileData: Data(), fileName: "file.txt")
+        }
+        XCTAssertFalse(fileAPIService.uploadCipherAttachmentCalled)
     }
 
     /// `softDeleteCipher()` throws on id errors.

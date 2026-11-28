@@ -146,3 +146,20 @@ extension CiphersClientProtocol {
         }
     }
 }
+
+// MARK: - FileUploadType
+
+extension FileUploadType {
+    /// Initializes a `FileUploadType` from the SDK's `AttachmentFileUploadType`.
+    ///
+    /// - Parameter attachmentFileUploadType: The SDK's method for uploading an attachment's file.
+    ///
+    init(_ attachmentFileUploadType: AttachmentFileUploadType) {
+        switch attachmentFileUploadType {
+        case .azure:
+            self = .azure
+        case .direct:
+            self = .direct
+        }
+    }
+}

@@ -3,7 +3,7 @@ import Networking
 
 /// A protocol for an API service used to make file requests.
 ///
-protocol FileAPIService {
+protocol FileAPIService { // sourcery: AutoMockable
     /// Upload the file associated with a new attachment to a cipher..
     ///
     /// - Parameters:
@@ -19,7 +19,7 @@ protocol FileAPIService {
         cipherId: String,
         data: Data,
         fileName: String,
-        type: FileUploadType,
+        type: BitwardenShared.FileUploadType,
         url: URL,
     ) async throws
 
@@ -35,7 +35,7 @@ protocol FileAPIService {
     ///
     func uploadSendFile( // swiftlint:disable:this function_parameter_count
         data: Data,
-        type: FileUploadType,
+        type: BitwardenShared.FileUploadType,
         fileId: String,
         fileName: String,
         sendId: String,
