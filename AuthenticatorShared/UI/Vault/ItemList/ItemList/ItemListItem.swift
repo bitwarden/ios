@@ -88,32 +88,21 @@ extension ItemListItem {
                   itemType: .totp(model: totpModel))
     }
 
-    /// Initialize an `ItemListItem` from an `AuthenticatorItemView`
+    /// Initialize an `ItemListItem` from an `AuthenticatorBridgeItemDataView`
     ///
     /// - Parameters:
-    ///   - authenticatorItemView: The `AuthenticatorItemView` used to initialize the `ItemListItem`
+    ///   - itemView: The `AuthenticatorBridgeItemDataView` used to initialize the `ItemListItem`
     ///
     init?(itemView: AuthenticatorBridgeItemDataView, timeProvider: TimeProvider) {
-        guard let totpKey = TOTPKeyModel(authenticatorKey: itemView.totpKey) else { return nil }
+        guard TOTPKeyModel(authenticatorKey: itemView.totpKey) != nil else { return nil }
         let totpCode = TOTPCodeModel(code: ItemListItem.defaultTotpCode,
                                      codeGenerationDate: timeProvider.presentTime,
                                      period: 30)
         let totpModel = ItemListSharedTotpItem(itemView: itemView, totpCode: totpCode)
-        let name: String
-        let username: String?
-        switch totpKey.totpKey {
-        case .base32,
-             .steamUri:
-            name = itemView.name
-            username = itemView.username
-        case .otpAuthUri:
-            name = totpKey.issuer ?? ""
-            username = totpKey.accountName
-        }
 
         self.init(id: itemView.id,
-                  name: name,
-                  accountName: username,
+                  name: itemView.name,
+                  accountName: itemView.username,
                   itemType: .sharedTotp(model: totpModel))
     }
 
