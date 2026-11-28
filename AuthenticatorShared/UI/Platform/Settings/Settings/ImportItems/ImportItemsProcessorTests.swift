@@ -118,6 +118,38 @@ class ImportItemsProcessorTests: BitwardenTestCase {
         XCTAssertNil(subject.state.toast)
     }
 
+    /// When the import process throws a `ProtonAuthenticatorImporterError.passwordProtectedFile` error,
+    /// the processor shows an error alert.
+    @MainActor
+    func test_fileSelectionCompleted_protonAuthenticatorPasswordProtected() async throws {
+        importItemsService.errorToThrow = ProtonAuthenticatorImporterError.passwordProtectedFile
+        let data = "Test Data".data(using: .utf8)!
+        subject.fileSelectionCompleted(fileName: "Filename", data: data)
+
+        try await waitForAsync { !self.coordinator.alertShown.isEmpty }
+        XCTAssertEqual(coordinator.alertShown.last, .protonAuthenticatorPasswordProtected())
+        XCTAssertNil(subject.state.toast)
+    }
+
+    /// When the import process throws a `ProtonAuthenticatorImporterError.unreadableEntry` error,
+    /// the processor shows the corrupted file alert.
+    @MainActor
+    func test_fileSelectionCompleted_protonAuthenticatorUnreadableEntry() async throws {
+        importItemsService.errorToThrow = ProtonAuthenticatorImporterError.unreadableEntry
+        let data = "Test Data".data(using: .utf8)!
+        subject.fileSelectionCompleted(fileName: "Filename", data: data)
+
+        try await waitForAsync { !self.coordinator.alertShown.isEmpty }
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .importFileCorrupted(action: {
+                self.subject.state.url = ExternalLinksConstants.helpAndFeedback
+            }),
+        )
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+        XCTAssertNil(subject.state.toast)
+    }
+
     /// The processor hands the data returned from the file selector to the `ImportItemsService`. Upon
     /// successful import, it shows a Toast.
     @MainActor

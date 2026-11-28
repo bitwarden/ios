@@ -1,0 +1,103 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "id": "0D3A54F4-7E3B-4C49-9C1A-2B0C9E4B6F01",
+      "content": {
+        "uri": "otpauth://totp/john.doe%40example.com?secret=JBSWY3DPEHPK3PXP&issuer=SimpleLogin&algorithm=SHA1&digits=6&period=30",
+        "entry_type": "Totp",
+        "name": "john.doe@example.com"
+      },
+      "note": "Backup codes are in the safe"
+    },
+    {
+      "id": "6B1C2E9A-3F47-4D8B-A2C5-7E1D0F9B3A02",
+      "content": {
+        "uri": "otpauth://totp/Work%20VPN?secret=KRSXG5CTMVRXEZLU&algorithm=sha256&digits=8&period=60",
+        "entry_type": "Totp",
+        "name": "Work VPN"
+      }
+    },
+    {
+      "id": "A4F0B7C3-9D21-4E6A-8B5F-1C3E7D9A2B03",
+      "content": {
+        "uri": "otpauth://totp/Example?secret=jbswy3dpehpk3pxq&issuer=example.com&algorithm=SHA512&digits=6&period=30",
+        "entry_type": "Totp",
+        "name": "Example"
+      },
+      "note": null
+    },
+    {
+      "id": "C9E2D5A1-6B38-4F7C-9A0E-3D5B8F1C4E04",
+      "content": {
+        "uri": "otpauth://totp/GitHub%3Aoctocat?secret=GEZDGNBVGY3TQOJQ&issuer=GitHub&algorithm=SHA1&digits=6&period=30",
+        "entry_type": "Totp",
+        "name": "octocat"
+      },
+      "note": null
+    },
+    {
+      "id": "B7E3A9D2-5C14-4F8A-9E6B-2D7C0A3F5B08",
+      "content": {
+        "uri": "otpauth://totp/jane%40example.com?secret=MFRGGZDFMZTWQ2LK&issuer=My+Company&algorithm=SHA1&digits=6&period=30",
+        "entry_type": "Totp",
+        "name": "jane@example.com"
+      },
+      "note": null
+    },
+    {
+      "id": "D2A8C4F6-1E9B-4C3D-A5F7-8B0E6D2A9C09",
+      "content": {
+        "uri": "otpauth://totp/admin?secret=MFRGGZDFMZTWQ2LL&issuer=A%2BB&algorithm=SHA1&digits=6&period=30",
+        "entry_type": "Totp",
+        "name": "admin"
+      },
+      "note": null
+    },
+    {
+      "id": "5C2E7A9B-8D41-4F6E-A3B0-6E9D1C4F7A10",
+      "content": {
+        "uri": "otpauth://totp/dashed?secret=jbsw+y3dp-ehpk_3pxp%3D%3D&issuer=Dashed&algorithm=SHA1&digits=6&period=30",
+        "entry_type": "Totp",
+        "name": "dashed"
+      },
+      "note": null
+    },
+    {
+      "id": "7E4A1D8C-2B6F-4C9A-9D3E-0F8B5A2C6E11",
+      "content": {
+        "uri": "otpauth://totp/raw?secret=my-secret-1&issuer=Raw&algorithm=SHA1&digits=6&period=30",
+        "entry_type": "Totp",
+        "name": "raw"
+      },
+      "note": null
+    },
+    {
+      "id": "E1B4F8C2-0A59-4D3E-B7C6-5F2A9D0E6B05",
+      "content": {
+        "uri": "steam://JBSWY3DPEHPK3PXP",
+        "entry_type": "Steam",
+        "name": "Main account"
+      },
+      "note": null
+    },
+    {
+      "id": "F3D6A0E4-2C7B-4B5F-8E9D-7A4C1B2F8D06",
+      "content": {
+        "uri": "steam://////EjRWeJq83vARIjNEVWZ3iJk",
+        "entry_type": "Steam",
+        "name": "Base 64 secret"
+      },
+      "note": null
+    },
+    {
+      "id": "1A5C8E2B-4D9F-4A6C-B3E7-9F6D2A4C0E07",
+      "content": {
+        "uri": "otpauth://hotp/Counter?secret=JBSWY3DPEHPK3PXP&counter=1",
+        "entry_type": "Hotp",
+        "name": "Counter"
+      },
+      "note": null
+    }
+  ]
+}
