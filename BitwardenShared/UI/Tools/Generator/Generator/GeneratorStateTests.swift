@@ -638,6 +638,65 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertTrue(subject.canGenerateUsername)
     }
 
+    /// `usernameState.missingRequiredFieldName` returns the name of the first empty required field
+    /// for each username generator type and forwarded email service, or `nil` when none are missing.
+    func test_usernameState_missingRequiredFieldName() {
+        var subject = GeneratorState().usernameState
+
+        subject.usernameGeneratorType = .catchAllEmail
+        XCTAssertEqual(subject.missingRequiredFieldName, Localizations.domainName)
+        subject.domain = "example.com"
+        XCTAssertNil(subject.missingRequiredFieldName)
+
+        subject.usernameGeneratorType = .plusAddressedEmail
+        XCTAssertNil(subject.missingRequiredFieldName)
+
+        subject.usernameGeneratorType = .randomWord
+        XCTAssertNil(subject.missingRequiredFieldName)
+
+        subject.usernameGeneratorType = .forwardedEmail
+
+        subject.forwardedEmailService = .addyIO
+        XCTAssertEqual(subject.missingRequiredFieldName, Localizations.apiAccessToken)
+        subject.addyIODomainName = "bitwarden.com"
+        XCTAssertEqual(subject.missingRequiredFieldName, Localizations.apiAccessToken)
+        subject.addyIODomainName = ""
+        subject.addyIOAPIAccessToken = "token"
+        XCTAssertEqual(subject.missingRequiredFieldName, Localizations.domainName)
+        subject.addyIODomainName = "bitwarden.com"
+        XCTAssertNil(subject.missingRequiredFieldName)
+
+        subject.forwardedEmailService = .duckDuckGo
+        XCTAssertEqual(subject.missingRequiredFieldName, Localizations.apiKey)
+        subject.duckDuckGoAPIKey = "apiKey"
+        XCTAssertNil(subject.missingRequiredFieldName)
+
+        subject.forwardedEmailService = .fastmail
+        XCTAssertEqual(subject.missingRequiredFieldName, Localizations.apiKey)
+        subject.fastmailAPIKey = "apiKey"
+        XCTAssertNil(subject.missingRequiredFieldName)
+
+        subject.forwardedEmailService = .firefoxRelay
+        XCTAssertEqual(subject.missingRequiredFieldName, Localizations.apiAccessToken)
+        subject.firefoxRelayAPIAccessToken = "token"
+        XCTAssertNil(subject.missingRequiredFieldName)
+
+        subject.forwardedEmailService = .forwardEmail
+        XCTAssertEqual(subject.missingRequiredFieldName, Localizations.apiKey)
+        subject.forwardEmailDomainName = "bitwarden.com"
+        XCTAssertEqual(subject.missingRequiredFieldName, Localizations.apiKey)
+        subject.forwardEmailDomainName = ""
+        subject.forwardEmailAPIToken = "token"
+        XCTAssertEqual(subject.missingRequiredFieldName, Localizations.domainName)
+        subject.forwardEmailDomainName = "bitwarden.com"
+        XCTAssertNil(subject.missingRequiredFieldName)
+
+        subject.forwardedEmailService = .simpleLogin
+        XCTAssertEqual(subject.missingRequiredFieldName, Localizations.apiKey)
+        subject.simpleLoginAPIKey = "apiKey"
+        XCTAssertNil(subject.missingRequiredFieldName)
+    }
+
     /// `usernameState.update(with:)` sets the email type to random if an email website doesn't exist.
     func test_usernameState_updateWithOptions_nilWebsite() {
         var subject = GeneratorState().usernameState
