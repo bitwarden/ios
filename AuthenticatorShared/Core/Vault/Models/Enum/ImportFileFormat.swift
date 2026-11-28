@@ -14,6 +14,9 @@ public enum ImportFileFormat: Equatable {
     /// A Lastpass `.json` file type.
     case lastpassJson
 
+    /// An unencrypted Proton Authenticator `.json` file type.
+    case protonAuthenticatorJson
+
     /// A Raivo `.json` file type.
     case raivoJson
 

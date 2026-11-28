@@ -85,6 +85,8 @@ extension ImportItemsProcessor: FileSelectionDelegate {
                     .googleProtobuf
                 case .lastpassJson:
                     .lastpassJson
+                case .protonAuthenticatorJson:
+                    .protonAuthenticatorJson
                 case .raivoJson:
                     .raivoJson
                 case .twoFasJason:
@@ -92,9 +94,11 @@ extension ImportItemsProcessor: FileSelectionDelegate {
                 }
                 try await services.importItemsService.importItems(data: data, format: importFileFormat)
                 state.toast = Toast(title: Localizations.itemsImported)
+            } catch ProtonAuthenticatorImporterError.passwordProtectedFile {
+                coordinator.showAlert(.protonAuthenticatorPasswordProtected())
             } catch TwoFasImporterError.passwordProtectedFile {
                 coordinator.showAlert(.twoFasPasswordProtected())
-            } catch DecodingError.dataCorrupted {
+            } catch DecodingError.dataCorrupted, ProtonAuthenticatorImporterError.unreadableEntry {
                 coordinator.showAlert(.importFileCorrupted(action: { [weak self] in
                     self?.state.url = ExternalLinksConstants.helpAndFeedback
                 }))

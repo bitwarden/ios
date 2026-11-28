@@ -986,6 +986,7 @@
 "GetVerificationCodesForAllYourAccounts" = "Get verification codes for all your accounts using 2-step verification.";
 "Help" = "Help";
 "Import" = "Import";
+"ImportingFromProtonAuthenticatorPasswordProtectedNotSupported" = "Importing from Proton Authenticator password protected files is not supported. Try again with an exported file that is not password protected.";
 "ImportingFromTwoFasPasswordProtectedNotSupported" = "Importing from 2FAS password protected files is not supported. Try again with an exported file that is not password protected.";
 "ItemInformation" = "Item information";
 "ItemsExported" = "Verification codes exported";

@@ -16,6 +16,9 @@ enum ImportFormatType: Menuable {
     /// A JSON exported from Lastpass
     case lastpassJson
 
+    /// A JSON exported from Proton Authenticator
+    case protonAuthenticatorJson
+
     /// A JSON exported from Raivo
     case raivoJson
 
@@ -29,6 +32,7 @@ enum ImportFormatType: Menuable {
         .bitwardenJson,
         .googleQr,
         .lastpassJson,
+        .protonAuthenticatorJson,
         .raivoJson,
         .twoFasJason,
     ]
@@ -46,7 +50,8 @@ enum ImportFormatType: Menuable {
             .jsonFile
         case .googleQr:
             nil
-        case .twoFasJason:
+        case .protonAuthenticatorJson,
+             .twoFasJason:
             .file
         }
     }
@@ -60,6 +65,8 @@ enum ImportFormatType: Menuable {
             "Google Authenticator (QR code)"
         case .lastpassJson:
             "LastPass (JSON)"
+        case .protonAuthenticatorJson:
+            "Proton Authenticator (no password)"
         case .raivoJson:
             "Raivo (JSON)"
         case .twoFasJason:
