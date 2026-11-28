@@ -1107,6 +1107,8 @@
 "TheCertificateHasExpired" = "The certificate has expired.";
 "TheCertificateFileIsInvalidOrCorrupted" = "The certificate file is invalid or corrupted.";
 "TheCertificatePasswordIsIncorrect" = "The certificate password is incorrect.";
+/* Alert message when saving self-hosted settings with a client certificate the app can’t present to the server, for example because its key type is unsupported. */
+"TheCertificateCantBeUsedForClientAuthentication" = "The certificate can’t be used for client authentication.";
 "CertificateUsedForClientAuthentication" = "Certificate used for client authentication.";
 "ClientCertificateMtls" = "Client certificate (mTLS)";
 "ACertificateWithTheAliasAlreadyExistsDescriptionLong" = "A certificate with the alias \"%1$@\" already exists. Do you want to replace it?";

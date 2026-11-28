@@ -18,6 +18,14 @@ protocol ClientCertificateService: AnyObject { // sourcery: AutoMockable
     ///
     func getClientCertificateIdentity() async -> SecIdentity?
 
+    /// Gets the client certificate identity with the given fingerprint from the Keychain.
+    ///
+    /// - Parameter fingerprint: The SHA-256 fingerprint of the certificate.
+    /// - Returns: A `SecIdentity` for the certificate, or `nil` if the Keychain has none.
+    ///
+    /// sourcery: useSelectorName
+    func getClientCertificateIdentity(fingerprint: String) async throws -> SecIdentity?
+
     /// Import a client certificate from PKCS#12 data.
     ///
     /// Parses the certificate, stores the identity in the Keychain, and returns the SHA-256
@@ -110,6 +118,10 @@ final class DefaultClientCertificateService: ClientCertificateService {
             errorReporter.log(error: error)
             return nil
         }
+    }
+
+    func getClientCertificateIdentity(fingerprint: String) async throws -> SecIdentity? {
+        try await keychainRepository.getClientCertificateIdentity(fingerprint: fingerprint)
     }
 
     func importCertificate(

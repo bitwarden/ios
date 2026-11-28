@@ -90,6 +90,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService
 
+    /// The object used to check environment settings with the SDK before they're saved.
+    let clientSettingsValidator: ClientSettingsValidator
+
     /// The service to get server-specified configuration
     public let configService: ConfigService
 
@@ -276,6 +279,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - clientCertificateService: The service used by the application to manage client certificates
     ///     for mTLS authentication.
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
+    ///   - clientSettingsValidator: The object used to check environment settings with the SDK before
+    ///     they're saved.
     ///   - configService: The service to get server-specified configuration.
     ///   - deviceAPIService: The service used by the application to make device API requests.
     ///   - deviceAuthKeyService: The service to make and use the device auth key.
@@ -354,6 +359,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         cipherOwnershipHelper: CipherOwnershipHelper,
         clientCertificateService: ClientCertificateService,
         clientService: ClientService,
+        clientSettingsValidator: ClientSettingsValidator,
         configService: ConfigService,
         deviceAPIService: DeviceAPIService,
         deviceAuthKeyService: DeviceAuthKeyService,
@@ -427,6 +433,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.cipherOwnershipHelper = cipherOwnershipHelper
         self.clientCertificateService = clientCertificateService
         self.clientService = clientService
+        self.clientSettingsValidator = clientSettingsValidator
         self.configService = configService
         self.deviceAPIService = deviceAPIService
         self.deviceAuthKeyService = deviceAuthKeyService
@@ -642,7 +649,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         let clientBuilder = DefaultClientBuilder(
             appIDService: appIDService,
+            clientCertificateService: clientCertificateService,
             environmentService: environmentService,
+            errorReporter: errorReporter,
             tokenProvider: apiService.accountTokenProvider,
             userAgentBuilder: userAgentBuilder,
         )
@@ -1224,6 +1233,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             cipherOwnershipHelper: cipherOwnershipHelper,
             clientCertificateService: clientCertificateService,
             clientService: clientService,
+            clientSettingsValidator: clientBuilder,
             configService: configService,
             deviceAPIService: apiService,
             deviceAuthKeyService: deviceAuthKeyService,

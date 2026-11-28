@@ -1,6 +1,7 @@
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
+import BitwardenSdk
 import TestHelpers
 import XCTest
 
@@ -13,6 +14,7 @@ class SelfHostedProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     // MARK: Properties
 
     var clientCertificateService: MockClientCertificateService!
+    var clientSettingsValidator: MockClientSettingsValidator!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var delegate: MockSelfHostedProcessorDelegate!
     var errorReporter: MockErrorReporter!
@@ -23,11 +25,13 @@ class SelfHostedProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     override func setUp() {
         clientCertificateService = MockClientCertificateService()
+        clientSettingsValidator = MockClientSettingsValidator()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
         delegate = MockSelfHostedProcessorDelegate()
         errorReporter = MockErrorReporter()
         services = ServiceContainer.withMocks(
             clientCertificateService: clientCertificateService,
+            clientSettingsValidator: clientSettingsValidator,
             errorReporter: errorReporter,
         )
         subject = SelfHostedProcessor(
@@ -42,6 +46,7 @@ class SelfHostedProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     override func tearDown() {
         clientCertificateService = nil
+        clientSettingsValidator = nil
         coordinator = nil
         delegate = nil
         errorReporter = nil
@@ -102,14 +107,106 @@ class SelfHostedProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         await subject.perform(.saveEnvironment)
 
-        XCTAssertEqual(
-            delegate.savedUrls,
-            EnvironmentURLData(
-                base: URL(string: "https://vault.bitwarden.com")!,
-                clientCertificateAlias: "My Cert",
-                clientCertificateFingerprint: "abc123",
-            ),
+        let urls = EnvironmentURLData(
+            base: URL(string: "https://vault.bitwarden.com")!,
+            clientCertificateAlias: "My Cert",
+            clientCertificateFingerprint: "abc123",
         )
+        XCTAssertEqual(clientSettingsValidator.validateSettingsReceivedUrls, urls)
+        XCTAssertEqual(delegate.savedUrls, urls)
+        XCTAssertEqual(coordinator.routes.last, .dismissPresented)
+    }
+
+    /// `perform(_:)` with `.saveEnvironment` shows the invalid URLs alert and doesn't save when the
+    /// SDK rejects the API or identity URL.
+    @MainActor
+    func test_perform_saveEnvironment_validationURLErrors() async throws {
+        let errors: [ValidateClientSettingsError] = [
+            .ApiUrl(message: "missing host"),
+            .IdentityUrl(message: "missing host"),
+        ]
+        for error in errors {
+            coordinator.alertShown = []
+            clientSettingsValidator.validateSettingsThrowableError =
+                BitwardenSdk.BitwardenError.ValidateClientSettings(error)
+            subject.state.serverUrl = "vault.example.com"
+
+            await subject.perform(.saveEnvironment)
+
+            XCTAssertEqual(
+                coordinator.alertShown,
+                [
+                    Alert.defaultAlert(
+                        title: Localizations.anErrorHasOccurred,
+                        message: Localizations.environmentPageUrlsError,
+                    ),
+                ],
+            )
+            XCTAssertNil(delegate.savedUrls)
+            XCTAssertTrue(coordinator.routes.isEmpty)
+        }
+    }
+
+    /// `perform(_:)` with `.saveEnvironment` shows an alert and doesn't save when the SDK rejects the
+    /// client certificate.
+    @MainActor
+    func test_perform_saveEnvironment_validationCertificateError() async throws {
+        clientSettingsValidator.validateSettingsThrowableError = BitwardenSdk.BitwardenError.ValidateClientSettings(
+            .ClientCertificate(message: "unsupported key type"),
+        )
+        subject.state.serverUrl = "vault.example.com"
+
+        await subject.perform(.saveEnvironment)
+
+        XCTAssertEqual(
+            coordinator.alertShown,
+            [
+                Alert.defaultAlert(
+                    title: Localizations.anErrorHasOccurred,
+                    message: Localizations.theCertificateCantBeUsedForClientAuthentication,
+                ),
+            ],
+        )
+        XCTAssertNil(delegate.savedUrls)
+        XCTAssertTrue(coordinator.routes.isEmpty)
+    }
+
+    /// `perform(_:)` with `.saveEnvironment` shows an alert and doesn't save when the client
+    /// certificate's Keychain identity can't be read.
+    @MainActor
+    func test_perform_saveEnvironment_validationCertificateUnreadable() async throws {
+        clientSettingsValidator.validateSettingsThrowableError = ClientCertificateError.invalidCertificate
+        subject.state.serverUrl = "vault.example.com"
+
+        await subject.perform(.saveEnvironment)
+
+        XCTAssertEqual(
+            coordinator.alertShown,
+            [
+                Alert.defaultAlert(
+                    title: Localizations.anErrorHasOccurred,
+                    message: Localizations.theCertificateFileIsInvalidOrCorrupted,
+                ),
+            ],
+        )
+        XCTAssertNil(delegate.savedUrls)
+        XCTAssertTrue(coordinator.routes.isEmpty)
+    }
+
+    /// `perform(_:)` with `.saveEnvironment` logs the error, shows an error alert, and doesn't save
+    /// when validation fails for another reason.
+    @MainActor
+    func test_perform_saveEnvironment_validationOtherError() async throws {
+        clientSettingsValidator.validateSettingsThrowableError = BitwardenTestError.example
+        subject.state.serverUrl = "vault.example.com"
+
+        await subject.perform(.saveEnvironment)
+
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+        XCTAssertNil(delegate.savedUrls)
+        XCTAssertTrue(coordinator.routes.isEmpty)
     }
 
     /// `perform(_:)` with `.saveEnvironment` displays an alert if any of the URLs are invalid.
@@ -118,6 +215,8 @@ class SelfHostedProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         subject.state.serverUrl = "a<b>c"
 
         await subject.perform(.saveEnvironment)
+
+        XCTAssertFalse(clientSettingsValidator.validateSettingsCalled)
 
         let alert = try XCTUnwrap(coordinator.alertShown.first)
         XCTAssertEqual(

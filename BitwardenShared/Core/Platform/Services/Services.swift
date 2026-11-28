@@ -26,6 +26,7 @@ typealias Services = HasAPIService
     & HasCipherOwnershipHelper
     & HasClientCertificateService
     & HasClientService
+    & HasClientSettingsValidator
     & HasConfigService
     & HasDebugStateService
     & HasDeviceAPIService
@@ -229,6 +230,13 @@ protocol HasClientCertificateService {
 protocol HasClientService {
     /// The client used by the application to handle auth related encryption and decryption tasks.
     var clientService: ClientService { get }
+}
+
+/// Protocol for an object that provides a `ClientSettingsValidator`.
+///
+protocol HasClientSettingsValidator {
+    /// The object used to check environment settings with the SDK before they're saved.
+    var clientSettingsValidator: ClientSettingsValidator { get }
 }
 
 /// Protocol for an object that provides a `DeviceAPIService`.
