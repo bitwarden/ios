@@ -57,6 +57,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Splash window. This is initially visible until the app's processor has finished starting.
         splashWindow = buildSplashWindow(windowScene: windowScene)
 
+        // Hide the splash as soon as a biometric unlock completes, rather than waiting for
+        // `sceneDidBecomeActive`, which can arrive late after the Face ID prompt is dismissed.
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(biometricUnlockDidComplete),
+            name: .biometricUnlockDidComplete,
+            object: nil,
+        )
+
         // Start the app's processor and show the splash view until the initial view is shown.
         Task {
             await appProcessor.start(
@@ -123,7 +132,36 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         hideSplash()
     }
 
+    /// Hides the splash view after a successful biometric unlock, as long as the scene is still in
+    /// the foreground. This avoids waiting for `sceneDidBecomeActive(_:)`, which iOS can deliver
+    /// noticeably later after the Face ID prompt is dismissed.
+    ///
+    /// - Parameter activationState: The current activation state of the scene.
+    ///
+    func hideSplashAfterBiometricUnlock(activationState: UIScene.ActivationState?) {
+        guard !isStartingUp else { return }
+        switch activationState {
+        case .foregroundActive, .foregroundInactive:
+            hideSplash()
+        default:
+            break
+        }
+    }
+
+    func sceneDidEnterBackground(_ scene: UIScene) {
+        // The splash may have been hidden early after a biometric unlock while the scene was still
+        // inactive. In that case `sceneWillResignActive(_:)` isn't called again before backgrounding,
+        // so ensure the splash covers the app before the app switcher snapshot is taken.
+        showSplash()
+    }
+
     // MARK: Private
+
+    /// Called when a `biometricUnlockDidComplete` notification is received.
+    @objc
+    private func biometricUnlockDidComplete() {
+        hideSplashAfterBiometricUnlock(activationState: window?.windowScene?.activationState)
+    }
 
     /// Builds the splash window for display in the specified window scene.
     ///
@@ -150,6 +188,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     /// Shows the splash view.
     private func showSplash() {
+        // Cancel any in-flight hide animation so the splash is fully opaque immediately.
+        splashWindow?.layer.removeAllAnimations()
         splashWindow?.alpha = 1
     }
 

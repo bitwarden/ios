@@ -255,6 +255,10 @@ class VaultUnlockProcessor: StateProcessor<
         do {
             try await services.authRepository.unlockVaultWithBiometrics()
             await coordinator.handleEvent(.didCompleteAuth)
+            // Let the app hide its privacy splash right away instead of waiting for
+            // `sceneDidBecomeActive`, which iOS may deliver noticeably later after the
+            // Face ID prompt is dismissed (e.g. with an empty Dynamic Island).
+            NotificationCenter.default.post(name: .biometricUnlockDidComplete, object: nil)
             state.unsuccessfulUnlockAttemptsCount = 0
             await services.userSessionStateService.setUnsuccessfulUnlockAttempts(0)
         } catch BiometricsServiceError.biometryCancelled {
@@ -358,4 +362,11 @@ extension VaultUnlockProcessor: ProfileSwitcherHandler {
     func showProfileSwitcher() {
         coordinator.navigate(to: .viewProfileSwitcher, context: self)
     }
+}
+
+// MARK: - Notification.Name
+
+public extension Notification.Name {
+    /// Posted after the vault has been successfully unlocked with biometrics.
+    static let biometricUnlockDidComplete = Notification.Name("biometricUnlockDidComplete")
 }

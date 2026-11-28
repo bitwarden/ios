@@ -97,6 +97,79 @@ class SceneDelegateTests: BitwardenTestCase {
         XCTAssertEqual(subject.splashWindow?.alpha, 1)
     }
 
+    /// `sceneDidEnterBackground(_:)` sets the privacy window's alpha to 1, which hides the app
+    /// behind the privacy window in the app switcher.
+    @MainActor
+    func test_sceneDidEnterBackground() {
+        let appProcessor = AppProcessor(
+            appModule: appModule,
+            services: ServiceContainer(errorReporter: MockErrorReporter()),
+        )
+        (UIApplication.shared.delegate as? TestingAppDelegate)?.appProcessor = appProcessor
+
+        let session = TestInstanceFactory.create(UISceneSession.self)
+        let scene = TestInstanceFactory.create(UIWindowScene.self, properties: [
+            "session": session,
+        ])
+        let options = TestInstanceFactory.create(UIScene.ConnectionOptions.self)
+        subject.scene(scene, willConnectTo: session, options: options)
+        waitFor(!subject.isStartingUp)
+        XCTAssertEqual(subject.splashWindow?.alpha, 0)
+
+        subject.sceneDidEnterBackground(scene)
+        XCTAssertEqual(subject.splashWindow?.alpha, 1)
+    }
+
+    /// `hideSplashAfterBiometricUnlock(activationState:)` hides the privacy window if the scene
+    /// is in the foreground.
+    @MainActor
+    func test_hideSplashAfterBiometricUnlock_foreground() {
+        let appProcessor = AppProcessor(
+            appModule: appModule,
+            services: ServiceContainer(errorReporter: MockErrorReporter()),
+        )
+        (UIApplication.shared.delegate as? TestingAppDelegate)?.appProcessor = appProcessor
+
+        let session = TestInstanceFactory.create(UISceneSession.self)
+        let scene = TestInstanceFactory.create(UIWindowScene.self, properties: [
+            "session": session,
+        ])
+        let options = TestInstanceFactory.create(UIScene.ConnectionOptions.self)
+        subject.scene(scene, willConnectTo: session, options: options)
+        waitFor(!subject.isStartingUp)
+
+        subject.sceneWillResignActive(scene)
+        XCTAssertEqual(subject.splashWindow?.alpha, 1)
+
+        subject.hideSplashAfterBiometricUnlock(activationState: .foregroundInactive)
+        XCTAssertEqual(subject.splashWindow?.alpha, 0)
+    }
+
+    /// `hideSplashAfterBiometricUnlock(activationState:)` doesn't hide the privacy window if the
+    /// scene is in the background.
+    @MainActor
+    func test_hideSplashAfterBiometricUnlock_background() {
+        let appProcessor = AppProcessor(
+            appModule: appModule,
+            services: ServiceContainer(errorReporter: MockErrorReporter()),
+        )
+        (UIApplication.shared.delegate as? TestingAppDelegate)?.appProcessor = appProcessor
+
+        let session = TestInstanceFactory.create(UISceneSession.self)
+        let scene = TestInstanceFactory.create(UIWindowScene.self, properties: [
+            "session": session,
+        ])
+        let options = TestInstanceFactory.create(UIScene.ConnectionOptions.self)
+        subject.scene(scene, willConnectTo: session, options: options)
+        waitFor(!subject.isStartingUp)
+
+        subject.sceneWillResignActive(scene)
+        XCTAssertEqual(subject.splashWindow?.alpha, 1)
+
+        subject.hideSplashAfterBiometricUnlock(activationState: .background)
+        XCTAssertEqual(subject.splashWindow?.alpha, 1)
+    }
+
     /// `scene(_:continue)` runs successfully
     @MainActor
     func test_sceneContinue() {
